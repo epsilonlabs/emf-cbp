@@ -21,8 +21,8 @@ public class Changelog
 	//class name
 	private String classname = this.getClass().getSimpleName();
 	
-	//current id, don't knwo why it is static
-	private int current_id = 0; 
+	//current id, increases when an object is encountered
+	private static int current_id = 0; 
 	
 	public Changelog()
 	{
