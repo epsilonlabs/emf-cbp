@@ -1,12 +1,4 @@
-/*
- * todo:
- * make txt format less verbose
- * when unsetting single valued feature, value of feature is not needed
- * binary
- * change log optimisation
- * more tests
- * 
- */
+
 package org.eclipse.epsilon.cbp.driver;
 
 import java.io.BufferedWriter;
@@ -25,34 +17,45 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
+import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
 
 public class CBPTextSerializer 
 {
+	
+	//dont know why you need classname
 	private final String classname = this.getClass().getSimpleName();
 	
+	//format id
 	private final String FORMAT_ID = "CBP_TEXT"; 
 	
+	//version number (wtf?)
 	private final double VERSION = 1.0;
 	
+	//event list
     private final List<Event> eventList;
     
+    //persistence manager
 	private final PersistenceManager manager;
 	
+	//change log
 	private final Changelog changelog; 
 	
+	//epackage element map
 	private final EPackageElementsNamesMap ePackageElementsNamesMap;
 	
+	//common simple type name
 	private final HashMap<String, Integer> commonsimpleTypeNameMap;
 	
+	//tet simple type name
 	private final HashMap<String, Integer> textSimpleTypeNameMap;
 	
 	public CBPTextSerializer(PersistenceManager manager, Changelog aChangelog, EPackageElementsNamesMap 
@@ -82,8 +85,7 @@ public class CBPTextSerializer
 	    try
         {
 	    	BufferedWriter bw = new BufferedWriter
-                    (new OutputStreamWriter(new FileOutputStream(manager.getURI().path(),manager.isResume()),
-                            manager.STRING_ENCODING));
+                    (new OutputStreamWriter(new FileOutputStream(manager.getURI().path(), manager.isResume()), manager.STRING_ENCODING));
             printWriter = new PrintWriter(bw);
         }
         catch(IOException e)
@@ -94,7 +96,7 @@ public class CBPTextSerializer
 		
 		//if we're not in resume mode, serialise initial entry
 		if(!manager.isResume())
-			serialiseInitialEntry(printWriter);
+			serialiseHeader(printWriter);
 		
 		for(Event e : eventList)
 		{
@@ -214,26 +216,26 @@ public class CBPTextSerializer
 		writeEObjectAdditionEvent(e.getEObjectList(),null,null,true,out);
 	}
 	
-	private void writeEObjectAdditionEvent(List<EObject> eObjectsList,EObject focusObject, 
-					EReference eReference,boolean isAddToResource, PrintWriter out)
+	private void writeEObjectAdditionEvent(List<EObject> eObjectsList, EObject focusObject, 
+					EReference eReference, boolean isAddToResource, PrintWriter out)
 	{
 		ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
 		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
     	
     	for(EObject obj : eObjectsList)
     	{
+    		//if obj is not added already
     		if(changelog.addObjectToMap(obj))
     		{
+    			//add to object-to-create-list
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName())); 
     			
-    			eObjectsToCreateList.add(changelog.getObjectId(obj));
+    			//eObjectsToCreateList.add(changelog.getObjectId(obj));
     			
     		}
     		else
     		{
-    			
     			eObjectsToAddList.add(changelog.getObjectId(obj));
-    			
     		}
     	}
     	
@@ -326,16 +328,15 @@ public class CBPTextSerializer
 		out.println();
 	}
 
-	private void serialiseInitialEntry(PrintWriter out) 
+	private void serialiseHeader(PrintWriter out) 
 	{
+		//obj
 		EObject obj = null;
+		
+		//get first event
 		Event e = eventList.get(0);
 		
-		if(e instanceof EReferenceEvent)
-		{
-			obj = ((EReferenceEvent)e).getEObjectList().get(0);
-		}
-		else if(e instanceof ResourceEvent)
+		if(e instanceof ResourceEvent)
 		{
 			obj = ((ResourceEvent)e).getEObjectList().get(0);
 		}
@@ -344,7 +345,7 @@ public class CBPTextSerializer
 			try 
 			{
 				System.out.println(classname+" "+e.getEventType());
-				throw new Exception("Error! first item in events list was not a ResourceEvent or an EReference event.");
+				throw new Exception("Error! first item in events list is not a ResourceEvent.");
 			} 
 			catch (Exception e1) 
 			{

@@ -9,8 +9,10 @@ import org.eclipse.emf.ecore.EReference;
 
 public abstract class EReferenceEvent extends Event
 {
+	//object under question
 	private EObject focusObject;
 	
+	//EReference related to this event
 	private EReference eReference;
 	
     @SuppressWarnings("unchecked")
@@ -22,13 +24,14 @@ public abstract class EReferenceEvent extends Event
         
         this.eReference = eReference; 
         
+        //if value is a collection
         if(value instanceof Collection)
         {
-        	this.eObjectList = (List<EObject>) value;
+        	eObjectList.addAll((Collection<? extends EObject>) value);
         }
         else
         {
-        	this.eObjectList.add((EObject)value);
+        	eObjectList.add((EObject)value);
         }
     }
     
@@ -37,30 +40,36 @@ public abstract class EReferenceEvent extends Event
     {
     	super(eventType);
     	
+    	//get notifier
     	this.focusObject = (EObject) n.getNotifier();
     	
+    	//get feature
     	this.eReference = (EReference) n.getFeature();
     	
+    	//if event is add
     	if(eventType == Event.ADD_TO_EREFERENCE)
     	{
+    		//if new value is collection
     		if(n.getNewValue() instanceof Collection)
     		{
-    			this.eObjectList = (List<EObject>) n.getNewValue();
+    			eObjectList.addAll((List<EObject>) n.getNewValue());
     		}
     		else 
     		{
-    			this.eObjectList.add((EObject) n.getNewValue());
+    			eObjectList.add((EObject) n.getNewValue());
     		}
     	}
+    	//if event is not add
     	else 
     	{
+    		//if old value is collection
     		if(n.getOldValue() instanceof Collection)
     		{
-    			this.eObjectList = (List<EObject>) n.getOldValue();
+    			eObjectList.addAll((List<EObject>) n.getOldValue());
     		}
     		else
     		{
-    			this.eObjectList.add((EObject) n.getOldValue());
+    			eObjectList.add((EObject) n.getOldValue());
     		}
     	}
     }
@@ -74,8 +83,6 @@ public abstract class EReferenceEvent extends Event
     {
         return eReference;
     }
-    
-  
 }
 
 

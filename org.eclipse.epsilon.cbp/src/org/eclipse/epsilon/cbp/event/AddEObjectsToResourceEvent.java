@@ -11,6 +11,6 @@ public class AddEObjectsToResourceEvent extends ResourceEvent
 	
 	public AddEObjectsToResourceEvent(Object addedEObjects)
 	{
-		super(Event.ADD_EOBJ_TO_RESOURCE,addedEObjects);
+		super(Event.ADD_EOBJ_TO_RESOURCE, addedEObjects);
 	}
 }

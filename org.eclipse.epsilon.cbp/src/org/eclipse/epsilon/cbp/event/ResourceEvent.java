@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.EObject;
 
 public abstract class ResourceEvent extends Event
 {
+	//EObject list
 	protected List<EObject> eObjectList = new ArrayList<EObject>();
 
     @SuppressWarnings("unchecked")
@@ -18,11 +19,11 @@ public abstract class ResourceEvent extends Event
         
         if(value instanceof Collection)
         {
-        	this.eObjectList = (List<EObject>) value;
+        	eObjectList.addAll((List<EObject>) value);
         }
         else
         {
-        	this.eObjectList.add((EObject) value);
+        	eObjectList.add((EObject) value);
         }
     }
     
@@ -31,26 +32,28 @@ public abstract class ResourceEvent extends Event
     {
     	super(eventType);
     	
+    	//if event is add to resource
     	if(eventType == Event.ADD_EOBJ_TO_RESOURCE)
     	{
     		if(n.getNewValue() instanceof Collection)
     		{
-    			this.eObjectList = (List<EObject>) n.getNewValue();
+    			eObjectList.addAll((List<EObject>) n.getNewValue());
     		}
+    		//n.getNewValue() ! instanceof Collection
     		else
-    		{//n.getNewValue() ! instanceof Collection
-    			this.eObjectList.add((EObject) n.getNewValue());
+    		{
+    			eObjectList.add((EObject) n.getNewValue());
     		}
     	}
-    	else //eventType == Event.REMOVE_EOBJECTS_FROM_RESOURCE_EVENT
+    	else if (eventType == Event.REMOVE_EOBJ_FROM_RESOURCE) 
     	{
     		if(n.getOldValue() instanceof Collection)
     		{
-    			this.eObjectList = (List<EObject>) n.getOldValue();
+    			eObjectList.addAll((List<EObject>) n.getOldValue());
     		}
     		else //n.getNewValue() ! instanceof Collection
     		{
-    			this.eObjectList.add((EObject) n.getOldValue());
+    			eObjectList.add((EObject) n.getOldValue());
     		}
     	}	
     }

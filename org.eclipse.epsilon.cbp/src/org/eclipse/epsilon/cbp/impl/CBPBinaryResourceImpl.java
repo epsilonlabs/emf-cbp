@@ -5,22 +5,27 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.epsilon.cbp.driver.EPackageElementsNamesMap;
-import org.eclipse.epsilon.cbp.driver.PersistenceManager;
+import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
 
 public class CBPBinaryResourceImpl extends CBPResource 
 {
-	private  final String classname = this.getClass().getSimpleName();
+	//class name
+	private final String classname = this.getClass().getSimpleName();
 	
+	//change log
 	private final Changelog changelog = new Changelog();
  
+	//persistence manager
 	private final PersistenceManager persistenceManager;
 	
+	//event adapter
     private final EventAdapter eventAdapter;
  
-    private  final EPackageElementsNamesMap ePackageElementsNamesMap;
+    //epackage elements map
+    private final EPackageElementsNamesMap ePackageElementsNamesMap;
 	
 	public CBPBinaryResourceImpl(URI uri, EPackage ePackage)
 	{

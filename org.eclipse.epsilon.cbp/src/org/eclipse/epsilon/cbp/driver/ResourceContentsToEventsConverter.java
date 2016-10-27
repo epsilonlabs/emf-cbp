@@ -31,95 +31,56 @@ public class ResourceContentsToEventsConverter
 	public void convert()
 	{
 		//if resource is empty, do nothing
-		if(resource.getContents().isEmpty())
-		{
+		
+		Iterator<EObject> iterator = resource.getAllContents();
+		if (!iterator.hasNext()) {
 			return;
 		}
 		
 		//clear change log first
 		changelog.clear();
 		
-		//create event to add to resource
-		AddEObjectsToResourceEvent e = new AddEObjectsToResourceEvent (resource.getContents());
-		changelog.addEvent(e);
-		
-		for(EObject obj : resource.getContents())
-		{
-			createSetAttributeEntries(obj);
-			//TODO: check performance
+		while (iterator.hasNext()) {
+			EObject obj = iterator.next();
+			
+			//create event to add to resource
+			AddEObjectsToResourceEvent e = new AddEObjectsToResourceEvent(obj);
+			changelog.addEvent(e);
+			
+			handleAttributes(obj);
 			handleReferences(obj);
 		}
+		
 	}
 	
-	
-	private void handleReferences(EObject root) 
+	public void handleAttributes(EObject obj)
 	{
-		//get an iterator for all contents of the root
-		//TODO: not sure about eAllContents()
-		for(Iterator<EObject> it = root.eAllContents(); it.hasNext();) //containment refs
+		//for each EAttribute
+		for(EAttribute attr : obj.eClass().getEAllAttributes())
 		{
-			//get EObject
-			EObject obj = it.next();
-			
-			createAddEObjectsToEReferenceEvent(obj.eContainer(),obj,obj.eContainmentFeature());
-		
-			createSetAttributeEntries(obj);
-		}
-		
-		//for each reference
-		for(EReference rf : root.eClass().getEAllReferences())
-		{
-			//if is not containment
-			if(!rf.isContainment())
+			//if attribute is set, changeable, non-transient and non-volatile
+			if(obj.eIsSet(attr) && attr.isChangeable() && 
+					!attr.isTransient() && !attr.isVolatile())
 			{
-				//if is set
-				if(root.eIsSet(rf))
-				{
-				   //create add to ERef event and add to EAttr event 
-				   createAddEObjectsToEReferenceEvent(root,root.eGet(rf),rf);
-				   createSetAttributeEntries(root.eGet(rf));
-				   
-				   //handle containments of eObjects within root.eGet
-				   List <EObject> children = new ArrayList<EObject>();
-				   
-				   if(root.eGet(rf) instanceof Collection)
-				   {
-					   children = (List<EObject>) root.eGet(rf);
-				   }
-				   else
-				   {
-					   children.add((EObject)root.eGet(rf));
-				   }
-				   
-				   for(EObject obj : children)
-				   {
-					   /*
-					    * For opposite references, we try to always pick the same ref. We don't want to recurse 
-					    * for both ends of the ref. Choose ref by comparing name lengths 
-					    */
-					   if(rf.getEOpposite() != null)
-					   {
-						   //choose based on feature id.
-						   if((rf.getContainerClass().getName().length()+rf.getName().length()) > 
-						   			(rf.getEOpposite().getContainerClass().getName().length()
-						   					+rf.getEOpposite().getName().length()))	   
-						   { 
-							   if(rf.getFeatureID() > rf.getEOpposite().getFeatureID())
-							   {
-								   handleReferences(obj);  
-							   }
-						   }					   
-					   }
-					   else //for non opposites
-					   {
-						   handleReferences(obj);
-					   }
-				   }
-				}
+				//create add to attribute event
+				AddToEAttributeEvent e =
+						new AddToEAttributeEvent(obj,attr,obj.eGet(attr));
+				changelog.addEvent(e); 
 			}
 		}
 	}
 	
+	public void handleReferences(EObject obj)
+	{
+		for(EReference ref : obj.eClass().getEAllReferences())
+		{
+			if (obj.eIsSet(ref)) {
+				createAddEObjectsToEReferenceEvent(obj, obj.eGet(ref), ref);
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
 	private void createAddEObjectsToEReferenceEvent(EObject focusObject,Object value, EReference eRef)
 	{
 		//prepare an eobject list
@@ -144,40 +105,5 @@ public class ResourceContentsToEventsConverter
 			changelog.addEvent(e);
 		}
 	}
-	
-	private void createSetAttributeEntries(Object value)
-	{
-		//prepare an eObject list
-		List<EObject> eObjectList = new ArrayList<EObject>();
-		
-		//if value is a collection
-		if(value instanceof Collection)
-		{
-			 eObjectList = (List<EObject>) value;
-		}
-		//if value is not a collection
-		else
-		{
-			eObjectList.add((EObject) value);
-		}
-		
-		//for each EObject in the list
-		for(EObject obj : eObjectList)
-		{
-			//for each EAttribute
-			for(EAttribute attr : obj.eClass().getEAllAttributes())
-			{
-				//if attribute is set, changeable, non-transient and non-volatile
-				if(obj.eIsSet(attr) && attr.isChangeable() && 
-						!attr.isTransient() && !attr.isVolatile())
-				{
-					//create add to attribute event
-					AddToEAttributeEvent e =
-							new AddToEAttributeEvent(obj,attr,obj.eGet(attr));
-					changelog.addEvent(e); 
-				}
-			}
-		}
-		
-	}
+
 }

@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.epsilon.cbp.driver.EPackageElementsNamesMap;
-import org.eclipse.epsilon.cbp.driver.PersistenceManager;
+import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
 
 public class CBPTextResourceImpl extends CBPResource
 {

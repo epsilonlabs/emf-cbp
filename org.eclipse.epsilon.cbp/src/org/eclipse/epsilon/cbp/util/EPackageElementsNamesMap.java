@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.driver;
+package org.eclipse.epsilon.cbp.util;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

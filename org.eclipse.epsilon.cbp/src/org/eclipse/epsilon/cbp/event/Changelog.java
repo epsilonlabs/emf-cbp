@@ -29,6 +29,7 @@ public class Changelog
 		eventList = new ArrayList<Event>();
 	}
 	
+	//clear to reset everything
 	public void clear()
 	{
 		eventList.clear();
@@ -36,12 +37,16 @@ public class Changelog
 		current_id = 0;
 	}
 	
+	//add object to map
 	public boolean addObjectToMap(EObject obj)
 	{
+		//if obj is not in the map
 		if(!eObjToIDMap.containsKey(obj))
 		{
+			//put current id 
 			eObjToIDMap.put(obj, current_id);
 			
+			//increase current id
 			current_id = current_id +1;
 			return true;
 		}
@@ -50,10 +55,14 @@ public class Changelog
 	
 	public boolean addObjectToMap(EObject obj, int id)
 	{
+		//if obj is not in the map
 		if(!eObjToIDMap.containsKey(obj))
 		{
+			//put id
 			eObjToIDMap.put(obj, id);
 			
+			//if current id is less than id, set current id
+			//TODO: test
 			if(id >= current_id)
 			{
 				current_id = id + 1;
@@ -65,7 +74,7 @@ public class Changelog
 	
 	public int getObjectId(EObject obj)
 	{
-		if(!eObjToIDMap.containsKey(obj)) //tbr
+		if(!eObjToIDMap.containsKey(obj))
 		{
 			System.out.println(classname+" search returned false");
 			System.exit(0);

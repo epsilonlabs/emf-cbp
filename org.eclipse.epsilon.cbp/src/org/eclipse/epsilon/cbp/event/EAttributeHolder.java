@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.EAttribute;
 
 public class EAttributeHolder {
 	
+	//EAttributes to list of objects map
 	protected HashMap<EAttribute,List<Object>> eAttributeToObjectValuesMap = new HashMap<EAttribute,List<Object>>();
 	
 	public boolean removeObject(EAttribute attr, Object obj)

@@ -1,7 +1,7 @@
 
 //todo: specify encoding ?
 //http://www.javapractices.com/topic/TopicAction.do?Id=31
-package org.eclipse.epsilon.cbp.driver;
+package org.eclipse.epsilon.cbp.context;
 
 
 import java.io.IOException;
@@ -14,10 +14,16 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.epsilon.cbp.driver.CBPBinaryDeserializer;
+import org.eclipse.epsilon.cbp.driver.CBPBinarySerializer;
+import org.eclipse.epsilon.cbp.driver.CBPTextDeserializer;
+import org.eclipse.epsilon.cbp.driver.CBPTextSerializer;
+import org.eclipse.epsilon.cbp.driver.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.impl.CBPBinaryResourceImpl;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
+import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
 
 public class PersistenceManager 
 {
@@ -56,13 +62,16 @@ public class PersistenceManager
     
 	public static final String DELIMITER = ","; 
 	public static final String ESCAPE_CHAR ="+"; 
-	public static final Charset STRING_ENCODING = StandardCharsets.UTF_8;
+	public final Charset STRING_ENCODING = StandardCharsets.UTF_8;
 	public final String NULL_STRING = "pFgrW";
+	
+	//if you have redundancy it means you are doing it wrong
 	
 	/*
 	 * Only remove redundant changes made during the current session.
 	 */
 	String OPTION_OPTIMISE_SESSION = "OPTIMISE_SESSION";
+	
 	/*
 	 * Remove redundant changes from the entire model.
 	 */
@@ -134,15 +143,15 @@ public class PersistenceManager
 		return resume;
 	}
 	
-	public boolean addEObjectsToContents(List<EObject> objects)
-	{
-		return resource.getContents().addAll(objects);
-	}
-	
-	public boolean removeEObjectsFromContents(List<EObject> objects)
-	{
-		return resource.getContents().removeAll(objects);
-	}
+//	public boolean addEObjectsToContents(List<EObject> objects)
+//	{
+//		return resource.getContents().addAll(objects);
+//	}
+//	
+//	public boolean removeEObjectsFromContents(List<EObject> objects)
+//	{
+//		return resource.getContents().removeAll(objects);
+//	}
 	
 	public boolean addEObjectToContents(EObject object)
 	{
@@ -154,10 +163,10 @@ public class PersistenceManager
 		return resource.getContents().remove(obj);
 	}
 	
-	public Resource getResource()
-	{
-		return this.resource;
-	}
+//	public Resource getResource()
+//	{
+//		return this.resource;
+//	}
 	
 	public URI getURI()
 	{
@@ -166,7 +175,6 @@ public class PersistenceManager
 
 	public void save(Map<?,?> options)
 	{
-		
 		
 		if(options != null)
 		{

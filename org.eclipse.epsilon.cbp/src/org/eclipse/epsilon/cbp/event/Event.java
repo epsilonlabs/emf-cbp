@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.emf.ecore.EObject;
 
 public abstract class Event {
+	
 	private int eventType;
 	
 	public static final int ADD_EOBJ_TO_RESOURCE = 0;

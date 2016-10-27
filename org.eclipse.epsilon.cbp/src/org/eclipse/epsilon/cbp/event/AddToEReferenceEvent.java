@@ -13,7 +13,7 @@ public class AddToEReferenceEvent extends EReferenceEvent
 	
     public AddToEReferenceEvent(Notification n)
     {
-       super(Event.ADD_TO_EREFERENCE,n);
+        super(Event.ADD_TO_EREFERENCE,n);
     } 
 }
 

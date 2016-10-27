@@ -20,8 +20,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
+import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
 
 public class CBPTextDeserializer {
 	private final String classname = this.getClass().getSimpleName();

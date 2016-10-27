@@ -10,10 +10,13 @@ import org.eclipse.emf.ecore.EObject;
 
 public abstract class EAttributeEvent extends Event
 {
+	//the EObject under question
 	private EObject focusObject;
 	
+	//the attribute related to this event
 	private EAttribute eAttribute;
 	
+	//values list
 	private List<Object> eAttributeValuesList = new ArrayList<Object>();
 	
 	
@@ -25,13 +28,14 @@ public abstract class EAttributeEvent extends Event
        this.focusObject = focusObject;
        this.eAttribute = eAttribute;
        
+       //if value is collection
        if(value instanceof Collection)
        {
-    	   this.eAttributeValuesList.addAll((List<Object>) value);
+    	   eAttributeValuesList.addAll((List<Object>) value);
        }
        else
        {
-    	   this.eAttributeValuesList.add(value);
+    	   eAttributeValuesList.add(value);
        }
     }
     
@@ -42,6 +46,7 @@ public abstract class EAttributeEvent extends Event
     	
         Object value = null;
         
+        //if event is add, get new value; if not, get old value
         if(eventType == Event.ADD_TO_EATTRIBUTE)
         {
         	value = n.getNewValue();
@@ -51,17 +56,19 @@ public abstract class EAttributeEvent extends Event
         	value = n.getOldValue();
         }
         
-        this.focusObject = (EObject) n.getNotifier();
-        
-        this.eAttribute = (EAttribute) n.getFeature();
+        //set notifier as the EObject under question
+        focusObject = (EObject) n.getNotifier();
+
+        //set the feature
+        eAttribute = (EAttribute) n.getFeature();
         
         if(value instanceof Collection)
         {
-        	this.eAttributeValuesList = (List<Object>) value;
+        	eAttributeValuesList.addAll((List<Object>) value);
         }
         else
         {
-        	this.eAttributeValuesList.add(value);
+        	eAttributeValuesList.add(value);
         }
     }
     
