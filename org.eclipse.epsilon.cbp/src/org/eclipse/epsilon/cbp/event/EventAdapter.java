@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
+import org.eclipse.epsilon.cbp.util.Changelog;
 
 public class EventAdapter extends EContentAdapter
 {

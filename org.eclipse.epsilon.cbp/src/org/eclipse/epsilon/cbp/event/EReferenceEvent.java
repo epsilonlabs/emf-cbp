@@ -47,7 +47,7 @@ public abstract class EReferenceEvent extends Event
     	this.eReference = (EReference) n.getFeature();
     	
     	//if event is add
-    	if(eventType == Event.ADD_TO_EREFERENCE)
+    	if(eventType == Event.ADD_TO_EREFERENCE || eventType == Event.SET_EREFERENCE)
     	{
     		//if new value is collection
     		if(n.getNewValue() instanceof Collection)

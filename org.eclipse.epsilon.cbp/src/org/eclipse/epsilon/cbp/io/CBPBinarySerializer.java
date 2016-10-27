@@ -1,5 +1,5 @@
 
-package org.eclipse.epsilon.cbp.driver;
+package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,14 +21,19 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
-import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
-import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
+import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
+import org.eclipse.epsilon.cbp.util.SerialisationEventType;
+import org.eclipse.epsilon.cbp.util.SimpleType;
+
+import gnu.trove.map.TObjectIntMap;
 
 public class CBPBinarySerializer 
 {
@@ -43,11 +47,11 @@ public class CBPBinarySerializer
     
     private final Changelog changelog; 
     
-    private final EPackageElementsNamesMap ePackageElementsNamesMap;
+    private final ModelElementIDMap ePackageElementsNamesMap;
     
-    private final HashMap<String, Integer> commonSimpleTypeNameMap;
+    private final TObjectIntMap<String> commonSimpleTypeNameMap;
     
-    public CBPBinarySerializer(PersistenceManager manager, Changelog changelog,EPackageElementsNamesMap 
+    public CBPBinarySerializer(PersistenceManager manager, Changelog changelog,ModelElementIDMap 
     		ePackageElementsNamesMap)
     {
     	this.manager =  manager;
@@ -114,28 +118,28 @@ public class CBPBinarySerializer
     	
     	switch(getTypeID(type))
     	{
-    	case PersistenceManager.SIMPLE_TYPE_INT:
-    		writePrimitiveEAttributes(e,out, PersistenceManager.SIMPLE_TYPE_INT);
+    	case SimpleType.SIMPLE_TYPE_INT:
+    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_INT);
     		return;
-    	case PersistenceManager.SIMPLE_TYPE_SHORT:
-    		writePrimitiveEAttributes(e,out, PersistenceManager.SIMPLE_TYPE_SHORT);
+    	case SimpleType.SIMPLE_TYPE_SHORT:
+    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_SHORT);
     		return;
-    	case PersistenceManager.SIMPLE_TYPE_LONG:
-    		writePrimitiveEAttributes(e,out,PersistenceManager.SIMPLE_TYPE_LONG);
+    	case SimpleType.SIMPLE_TYPE_LONG:
+    		writePrimitiveEAttributes(e,out,SimpleType.SIMPLE_TYPE_LONG);
     		return;
-    	case PersistenceManager.SIMPLE_TYPE_FLOAT:
-    		writePrimitiveEAttributes(e,out, PersistenceManager.SIMPLE_TYPE_FLOAT);
+    	case SimpleType.SIMPLE_TYPE_FLOAT:
+    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_FLOAT);
     		return;
-    	case PersistenceManager.SIMPLE_TYPE_DOUBLE:
-    		writePrimitiveEAttributes(e,out, PersistenceManager.SIMPLE_TYPE_DOUBLE);
+    	case SimpleType.SIMPLE_TYPE_DOUBLE:
+    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_DOUBLE);
     		return;
-    	case PersistenceManager.SIMPLE_TYPE_BOOLEAN:
-    		writePrimitiveEAttributes(e,out, PersistenceManager.SIMPLE_TYPE_BOOLEAN);
+    	case SimpleType.SIMPLE_TYPE_BOOLEAN:
+    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_BOOLEAN);
     		return;
-    	case PersistenceManager.SIMPLE_TYPE_CHAR:
-    		writePrimitiveEAttributes(e,out, PersistenceManager.SIMPLE_TYPE_CHAR);
+    	case SimpleType.SIMPLE_TYPE_CHAR:
+    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_CHAR);
     		return;
-    	case PersistenceManager.COMPLEX_TYPE:
+    	case SimpleType.COMPLEX_TYPE:
     		writeComplexEAttributes(e,out);
     		return;
     	}
@@ -149,10 +153,10 @@ public class CBPBinarySerializer
     	
     	List<Object> eAttributeValuesList = e.getEAttributeValuesList();
     	
-    	int serializationType = PersistenceManager.SET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES;
+    	int serializationType = SerialisationEventType.SET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES;
     	
     	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = PersistenceManager.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES;
+    		serializationType = SerialisationEventType.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES;
     	
         writePrimitive(out,serializationType);
         writePrimitive(out,changelog.getObjectId(focusObject));
@@ -180,10 +184,10 @@ public class CBPBinarySerializer
         	
         	List<Object> nullList = new ArrayList<Object>(Arrays.asList(nullsArray));
         	
-        	int complexSerializationType = PersistenceManager.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+        	int complexSerializationType = SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
         	
-        	if(serializationType== PersistenceManager.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES)
-        		complexSerializationType = PersistenceManager.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+        	if(serializationType== SerialisationEventType.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES)
+        		complexSerializationType = SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
         	
         	writeComplexEAttributes(focusObject,eAttribute,nullList,complexSerializationType,out);
         }
@@ -226,10 +230,10 @@ public class CBPBinarySerializer
     
     private void writeComplexEAttributes(EAttributeEvent e,OutputStream out) throws IOException
     {
-    	int serializationType = PersistenceManager.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+    	int serializationType = SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
     	
     	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = PersistenceManager.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+    		serializationType = SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
     	
     	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,out);
     }
@@ -240,7 +244,7 @@ public class CBPBinarySerializer
     	{
     		return commonSimpleTypeNameMap.get(type.getName());
     	}
-    	return PersistenceManager.COMPLEX_TYPE;
+    	return SimpleType.COMPLEX_TYPE;
     }
     
     private void writeEObjectAdditionEvent(AddToEReferenceEvent e, OutputStream out) throws IOException
@@ -276,7 +280,7 @@ public class CBPBinarySerializer
     	{
     		if(!eObjectsToCreateList.isEmpty()) //CREATE_AND_ADD_TO_RESOURCE 
     		{
-    			writePrimitive(out,PersistenceManager.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE);
+    			writePrimitive(out,SerialisationEventType.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE);
     			writePrimitive(out,eObjectsToCreateList.size());
     			
     			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
@@ -287,7 +291,7 @@ public class CBPBinarySerializer
     		}
     		if(!eObjectsToAddList.isEmpty()) //ADD TO RESOURCE
     		{
-    			writePrimitive(out, PersistenceManager.ADD_EOBJECTS_TO_RESOURCE);
+    			writePrimitive(out, SerialisationEventType.ADD_EOBJECTS_TO_RESOURCE);
     			writePrimitive(out,eObjectsToAddList.size());
     			
     			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
@@ -301,7 +305,7 @@ public class CBPBinarySerializer
     	{
     		if(!eObjectsToCreateList.isEmpty())//CREATE_AND_SET_REF_VALUE
     		{
-    			writePrimitive(out,PersistenceManager.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES);
+    			writePrimitive(out,SerialisationEventType.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES);
     			writePrimitive(out,changelog.getObjectId(focusObject));
     			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     			writePrimitive(out,eObjectsToCreateList.size());
@@ -313,7 +317,7 @@ public class CBPBinarySerializer
     		}
     		if(!eObjectsToAddList.isEmpty()) //SET_REFERENCE_VALUE
     		{
-    			writePrimitive(out,PersistenceManager.SET_EOBJECT_EREFERENCE_VALUES);
+    			writePrimitive(out,SerialisationEventType.SET_EOBJECT_EREFERENCE_VALUES);
     			writePrimitive(out,changelog.getObjectId(focusObject));
     			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     			writePrimitive(out,eObjectsToAddList.size());
@@ -343,7 +347,7 @@ public class CBPBinarySerializer
     	
     	if(isRemoveFromResource)
     	{
-    		writePrimitive(out, PersistenceManager.REMOVE_EOBJECTS_FROM_RESOURCE);
+    		writePrimitive(out, SerialisationEventType.REMOVE_EOBJECTS_FROM_RESOURCE);
     		writePrimitive(out,eObjectsList.size());
     		
     		for(EObject obj : eObjectsList)
@@ -355,7 +359,7 @@ public class CBPBinarySerializer
     	{
     		
     		
-    		writePrimitive(out,PersistenceManager.UNSET_EOBJECT_EREFERENCE_VALUES);
+    		writePrimitive(out,SerialisationEventType.UNSET_EOBJECT_EREFERENCE_VALUES);
     		writePrimitive(out,changelog.getObjectId(focusObject));
     		writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     		writePrimitive(out,eObjectsList.size());
@@ -418,28 +422,28 @@ public class CBPBinarySerializer
 	{
 		switch(primitiveType)
 		{
-		case PersistenceManager.SIMPLE_TYPE_INT:
+		case SimpleType.SIMPLE_TYPE_INT:
 			writePrimitive(out,(int)obj);
 			return;
-		case PersistenceManager.SIMPLE_TYPE_BOOLEAN:
+		case SimpleType.SIMPLE_TYPE_BOOLEAN:
 			writePrimitive(out,(boolean)obj);
 			return;
-		case PersistenceManager.SIMPLE_TYPE_BYTE:
+		case SimpleType.SIMPLE_TYPE_BYTE:
 			writePrimitive(out,(byte)obj);
 			return;
-		case PersistenceManager.SIMPLE_TYPE_CHAR:
+		case SimpleType.SIMPLE_TYPE_CHAR:
 			writePrimitive(out,(char)obj);
 			return;
-		case PersistenceManager.SIMPLE_TYPE_DOUBLE:
+		case SimpleType.SIMPLE_TYPE_DOUBLE:
 			writePrimitive(out,(double)obj);
 			return;
-		case PersistenceManager.SIMPLE_TYPE_FLOAT:
+		case SimpleType.SIMPLE_TYPE_FLOAT:
 			writePrimitive(out,(short)obj);
 			return;
-		case PersistenceManager.SIMPLE_TYPE_LONG:
+		case SimpleType.SIMPLE_TYPE_LONG:
 			writePrimitive(out,(long)obj);
 			return;
-		case PersistenceManager.SIMPLE_TYPE_SHORT:
+		case SimpleType.SIMPLE_TYPE_SHORT:
 			writePrimitive(out,(short)obj);
 			return;
 		}
@@ -448,37 +452,37 @@ public class CBPBinarySerializer
 	
 	private void writePrimitive(OutputStream out, int i) throws IOException
 	{
-		byte[] bytes = ByteBuffer.allocate(manager.INTEGER_SIZE).putInt(i).array();
+		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.INTEGER_SIZE).putInt(i).array();
 		out.write(bytes);
 	}
 	
 	private void writePrimitive(OutputStream out, short s) throws IOException
 	{
-		byte[] bytes = ByteBuffer.allocate(manager.SHORT_SIZE).putShort(s).array();
+		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.SHORT_SIZE).putShort(s).array();
 		out.write(bytes);
 	}
 	
 	private void writePrimitive(OutputStream out, byte b) throws IOException
 	{
-		byte[] bytes = ByteBuffer.allocate(manager.BYTE_SIZE).put(b).array();
+		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.BYTE_SIZE).put(b).array();
 		out.write(bytes);
 	}
 	
 	private void writePrimitive(OutputStream out, char c) throws IOException
 	{
-		byte[] bytes = ByteBuffer.allocate(manager.CHAR_SIZE).putChar(c).array();
+		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.CHAR_SIZE).putChar(c).array();
 		out.write(bytes);
 	}
 	
 	private void writePrimitive(OutputStream out, double d) throws IOException
 	{
-		byte[] bytes = ByteBuffer.allocate(manager.DOUBLE_SIZE).putDouble(d).array();
+		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.DOUBLE_SIZE).putDouble(d).array();
 		out.write(bytes);
 	}
 	
 	private void writePrimitive(OutputStream out, long l) throws IOException
 	{
-		byte[] bytes = ByteBuffer.allocate(manager.LONG_SIZE).putLong(l).array();
+		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.LONG_SIZE).putLong(l).array();
 		out.write(bytes);
 	}
 	

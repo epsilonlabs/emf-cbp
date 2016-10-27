@@ -1,5 +1,5 @@
 
-package org.eclipse.epsilon.cbp.driver;
+package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -21,9 +21,13 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
-import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
-import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
+import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.SerialisationEventType;
+import org.eclipse.epsilon.cbp.util.SimpleType;
+
+import gnu.trove.map.TObjectIntMap;
 
 public class CBPTextDeserializer {
 	private final String classname = this.getClass().getSimpleName();
@@ -32,15 +36,15 @@ public class CBPTextDeserializer {
 
 	private final HashMap<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
 	
-	private final HashMap<String, Integer> commonsimpleTypeNameMap;
+	private final TObjectIntMap<String> commonsimpleTypeNameMap;
 	
-	private final HashMap<String, Integer> textSimpleTypeNameMap;
+	private final TObjectIntMap<String> textSimpleTypeNameMap;
 
 	private PersistenceManager manager;
-	private final EPackageElementsNamesMap ePackageElementsNamesMap;
+	private final ModelElementIDMap ePackageElementsNamesMap;
 
 	public CBPTextDeserializer(PersistenceManager manager, Changelog aChangelog,
-			EPackageElementsNamesMap ePackageElementsNamesMap) {
+			ModelElementIDMap ePackageElementsNamesMap) {
 		this.manager = manager;
 		this.changelog = aChangelog;
 		this.ePackageElementsNamesMap = ePackageElementsNamesMap;
@@ -79,28 +83,28 @@ public class CBPTextDeserializer {
 			 * method
 			 */
 			switch (eventType) {
-			case PersistenceManager.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE:
 				createAndAddEObjectsToResource(line);
 				break;
-			case PersistenceManager.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES:
+			case SerialisationEventType.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES:
 				createEObjectsAndSetEReferenceValues(line);
 				break;
-			case PersistenceManager.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
 				handleEAttributeEvent(line,true);
 				break;
-			case PersistenceManager.SET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.SET_EOBJECT_EREFERENCE_VALUES:
 				handleEReferenceEvent(line,true);
 				break;
-			case PersistenceManager.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
 				handleEAttributeEvent(line,false);
 				break;
-			case PersistenceManager.UNSET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.UNSET_EOBJECT_EREFERENCE_VALUES:
 				handleEReferenceEvent(line,false);
 				break;
-			case PersistenceManager.ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.ADD_EOBJECTS_TO_RESOURCE:
 				createAndAddEObjectsToResource(line);
 				break;
-			case PersistenceManager.REMOVE_EOBJECTS_FROM_RESOURCE:
+			case SerialisationEventType.REMOVE_EOBJECTS_FROM_RESOURCE:
 				removeEObjectsFromResource(line);
 				break;
 			default:
@@ -165,7 +169,7 @@ public class CBPTextDeserializer {
 			@SuppressWarnings("unchecked")
 			EList<Object> featureValuesList = (EList<Object>) focusObject.eGet(eAttribute);
 
-			if (primitiveTypeID == PersistenceManager.COMPLEX_TYPE) 
+			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
 			{
 				for (String str : featureValuesArray) 
 				{
@@ -195,7 +199,7 @@ public class CBPTextDeserializer {
 			} 
 			else 
 			{
-				if (primitiveTypeID == PersistenceManager.COMPLEX_TYPE) 
+				if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
 				{
 					focusObject.eSet(eAttribute, EcoreUtil.createFromString(eAttribute.getEAttributeType(), featureValuesArray[0]));
 				} 
@@ -216,7 +220,7 @@ public class CBPTextDeserializer {
 			@SuppressWarnings("unchecked")
 			EList<Object> featureValuesList = (EList<Object>) focusObject.eGet(eAttribute);
 			
-			if (primitiveTypeID == PersistenceManager.COMPLEX_TYPE) 
+			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
 			{
 				for (String str : featureValuesArray) 
 				{
@@ -332,7 +336,7 @@ public class CBPTextDeserializer {
 			return textSimpleTypeNameMap.get(type.getName());
 		}
     	
-    	return PersistenceManager.COMPLEX_TYPE;
+    	return SimpleType.COMPLEX_TYPE;
 	}
 
 	private void removeEObjectsFromResource(String line) {
@@ -393,19 +397,19 @@ public class CBPTextDeserializer {
 
 	private Object convertStringToPrimitive(String str, int primitiveTypeID) {
 		switch (primitiveTypeID) {
-		case PersistenceManager.SIMPLE_TYPE_INT:
+		case SimpleType.SIMPLE_TYPE_INT:
 			return Integer.valueOf(str);
-		case PersistenceManager.SIMPLE_TYPE_SHORT:
+		case SimpleType.SIMPLE_TYPE_SHORT:
 			return Short.valueOf(str);
-		case PersistenceManager.SIMPLE_TYPE_LONG:
+		case SimpleType.SIMPLE_TYPE_LONG:
 			return Long.valueOf(str);
-		case PersistenceManager.SIMPLE_TYPE_FLOAT:
+		case SimpleType.SIMPLE_TYPE_FLOAT:
 			return Float.valueOf(str);
-		case PersistenceManager.SIMPLE_TYPE_DOUBLE:
+		case SimpleType.SIMPLE_TYPE_DOUBLE:
 			return Double.valueOf(str);
-		case PersistenceManager.SIMPLE_TYPE_CHAR:
+		case SimpleType.SIMPLE_TYPE_CHAR:
 			return str.charAt(0);
-		case PersistenceManager.SIMPLE_TYPE_BOOLEAN:
+		case SimpleType.SIMPLE_TYPE_BOOLEAN:
 			return Boolean.valueOf(str);
 		}
 		return str;

@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.driver;
+package org.eclipse.epsilon.cbp.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
-import org.eclipse.epsilon.cbp.event.Changelog;
+import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 
 public class ResourceContentsToEventsConverter 
 {
@@ -40,14 +40,20 @@ public class ResourceContentsToEventsConverter
 		//clear change log first
 		changelog.clear();
 		
+		//for all EObjects
 		while (iterator.hasNext()) {
+			
+			//get obj
 			EObject obj = iterator.next();
 			
 			//create event to add to resource
 			AddEObjectsToResourceEvent e = new AddEObjectsToResourceEvent(obj);
 			changelog.addEvent(e);
 			
+			//handle all attributes
 			handleAttributes(obj);
+			
+			//handle all references
 			handleReferences(obj);
 		}
 		
@@ -75,13 +81,44 @@ public class ResourceContentsToEventsConverter
 		for(EReference ref : obj.eClass().getEAllReferences())
 		{
 			if (obj.eIsSet(ref)) {
-				createAddEObjectsToEReferenceEvent(obj, obj.eGet(ref), ref);
+				if (ref.isContainment()) {
+					createAddToEReferenceEvent(obj, obj.eGet(ref), ref);
+				}
+				else {
+					createSetEReferenceEvent(obj, obj.eGet(ref), ref);
+				}
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createAddEObjectsToEReferenceEvent(EObject focusObject,Object value, EReference eRef)
+	private void createSetEReferenceEvent(EObject focusObject,Object value, EReference eRef)
+	{
+		//prepare an eobject list
+		List<EObject> eObjectList = new ArrayList<EObject>();
+		
+		//if value is collection
+		if(value instanceof Collection)
+		{
+			 eObjectList = (List<EObject>) value;
+		}
+		//if value is single object
+		else
+		{
+			eObjectList.add((EObject) value);
+		}
+		
+		//for each obj in the list, create add to ereference event
+		for(EObject obj : eObjectList)
+		{
+			SetEReferenceEvent e = 
+					new SetEReferenceEvent(focusObject,obj,eRef);
+			changelog.addEvent(e);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void createAddToEReferenceEvent(EObject focusObject,Object value, EReference eRef)
 	{
 		//prepare an eobject list
 		List<EObject> eObjectList = new ArrayList<EObject>();

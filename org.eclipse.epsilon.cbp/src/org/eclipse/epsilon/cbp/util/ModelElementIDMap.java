@@ -6,13 +6,9 @@ import com.google.common.collect.HashBiMap;
 /**
  * Maps the names of EClasses and EStructuralFeatures (within an EPackage) to 
  * unique numerical ids.
- * 
- * @author Chilobe Mwanza
- * @Version 1.0
- * @Since 2016-08-18
  */
 
-public class EPackageElementsNamesMap
+public class ModelElementIDMap
 {
 	private BiMap<String, Integer> namesMap = HashBiMap.create();
 	

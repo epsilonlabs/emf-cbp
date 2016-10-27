@@ -47,7 +47,7 @@ public abstract class EAttributeEvent extends Event
         Object value = null;
         
         //if event is add, get new value; if not, get old value
-        if(eventType == Event.ADD_TO_EATTRIBUTE)
+        if(eventType == Event.ADD_TO_EATTRIBUTE || eventType ==  Event.SET_EATTRIBUTE)
         {
         	value = n.getNewValue();
         }

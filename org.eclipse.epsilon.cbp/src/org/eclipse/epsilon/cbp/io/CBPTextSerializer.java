@@ -1,5 +1,5 @@
 
-package org.eclipse.epsilon.cbp.driver;
+package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,13 +19,17 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
-import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
-import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
+import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.SerialisationEventType;
+import org.eclipse.epsilon.cbp.util.SimpleType;
+
+import gnu.trove.map.TObjectIntMap;
 
 public class CBPTextSerializer 
 {
@@ -50,15 +53,15 @@ public class CBPTextSerializer
 	private final Changelog changelog; 
 	
 	//epackage element map
-	private final EPackageElementsNamesMap ePackageElementsNamesMap;
+	private final ModelElementIDMap ePackageElementsNamesMap;
 	
 	//common simple type name
-	private final HashMap<String, Integer> commonsimpleTypeNameMap;
+	private final TObjectIntMap<String> commonsimpleTypeNameMap;
 	
 	//tet simple type name
-	private final HashMap<String, Integer> textSimpleTypeNameMap;
+	private final TObjectIntMap<String> textSimpleTypeNameMap;
 	
-	public CBPTextSerializer(PersistenceManager manager, Changelog aChangelog, EPackageElementsNamesMap 
+	public CBPTextSerializer(PersistenceManager manager, Changelog aChangelog, ModelElementIDMap 
 			ePackageElementsNamesMap)
 	{
 		this.manager =  manager;
@@ -129,16 +132,21 @@ public class CBPTextSerializer
 	
 	private void writeEAttributeEvent(EAttributeEvent e, PrintWriter out) 
 	{
+		//get forcus object
 		EObject focusObject = e.getFocusObject();
 		
+		//get attr
 		EAttribute eAttribute = e.getEAttribute();
 		
+		//get data type
 		EDataType eDataType = eAttribute.getEAttributeType();
 		
-		int serializationType = PersistenceManager.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+		//get serialisation type flag
+		int serializationType = SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
 		
+		//if is remove, change flag
 		if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-			serializationType = PersistenceManager.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+			serializationType = SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
 		
 		out.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
 				ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
@@ -146,11 +154,11 @@ public class CBPTextSerializer
 		String newValue ;
 		String delimiter ="";
 		
-		if(getTypeID(eDataType) != PersistenceManager.COMPLEX_TYPE )
+		if(getTypeID(eDataType) != SimpleType.COMPLEX_TYPE )
 		{
 			for(Object obj: e.getEAttributeValuesList())
 			{
-				if(obj!= null)
+				if(obj != null)
 				{
 					newValue = String.valueOf(obj);
 					newValue = newValue.replace(PersistenceManager.DELIMITER, 
@@ -203,7 +211,7 @@ public class CBPTextSerializer
 			return textSimpleTypeNameMap.get(type.getName());
 		}
     	
-    	return PersistenceManager.COMPLEX_TYPE;
+    	return SimpleType.COMPLEX_TYPE;
     }
 	
 	private void writeEObjectAdditionEvent(AddToEReferenceEvent e, PrintWriter out)
@@ -227,28 +235,34 @@ public class CBPTextSerializer
     		//if obj is not added already
     		if(changelog.addObjectToMap(obj))
     		{
-    			//add to object-to-create-list
+    			//add type to object-to-create-list
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName())); 
     			
-    			//eObjectsToCreateList.add(changelog.getObjectId(obj));
+    			//add id to object-to-create-list
+    			eObjectsToCreateList.add(changelog.getObjectId(obj));
     			
     		}
     		else
     		{
+    			//add id to object-to-add list
     			eObjectsToAddList.add(changelog.getObjectId(obj));
     		}
     	}
     	
+    	//delimiter
     	String delimiter= "";
+    	
+    	//if create list is not empty
 		if(!eObjectsToCreateList.isEmpty())
 		{
+			//if is add to resource
 			if(isAddToResource)
 			{
-				out.print(PersistenceManager.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE+" [");
+				out.print(SerialisationEventType.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE+" [");
 			}
 			else 
 			{
-				out.print(PersistenceManager.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES+" "+
+				out.print(SerialisationEventType.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES+" "+
 						changelog.getObjectId(focusObject)+" "+
 						ePackageElementsNamesMap.getID(eReference.getName())+" [");
 				
@@ -257,25 +271,29 @@ public class CBPTextSerializer
 	        int index = 0;
     		for(int i = 0; i < (eObjectsToCreateList.size() / 2); i++)
     		{
+    			//add type-id pair
     			out.print(delimiter+eObjectsToCreateList.get(index)+" "+eObjectsToCreateList.get(index+1));
     			
+    			//set delimiter
     			delimiter = PersistenceManager.DELIMITER;
     			
+    			//increase index by 2
     			index = index + 2;
     		}
     		
     		out.print("]");
 		}
 		
+		//if add list is not empty
 		if(!eObjectsToAddList.isEmpty())
 		{
 			if(isAddToResource)
 			{
-				out.print(PersistenceManager.ADD_EOBJECTS_TO_RESOURCE+" [");
+				out.print(SerialisationEventType.ADD_EOBJECTS_TO_RESOURCE+" [");
 			}
 			else 
 			{
-				out.print(PersistenceManager.SET_EOBJECT_EREFERENCE_VALUES+" "+
+				out.print(SerialisationEventType.SET_EOBJECT_EREFERENCE_VALUES+" "+
 						changelog.getObjectId(focusObject)+" "+
 						ePackageElementsNamesMap.getID(eReference.getName())+
 						" [");
@@ -308,11 +326,11 @@ public class CBPTextSerializer
 	{
 		if(isRemoveFromResource)
 		{
-			out.print(PersistenceManager.REMOVE_EOBJECTS_FROM_RESOURCE+" [");
+			out.print(SerialisationEventType.REMOVE_EOBJECTS_FROM_RESOURCE+" [");
 		}
 		else 
 		{
-			out.print(PersistenceManager.UNSET_EOBJECT_EREFERENCE_VALUES+" "+
+			out.print(SerialisationEventType.UNSET_EOBJECT_EREFERENCE_VALUES+" "+
 					changelog.getObjectId(focusObject)+" "+
                     (ePackageElementsNamesMap.getID(eReference.getName())+" ["));
 		}

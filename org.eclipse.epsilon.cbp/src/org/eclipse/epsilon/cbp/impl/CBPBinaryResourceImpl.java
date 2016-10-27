@@ -6,9 +6,9 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
-import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
-import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
+import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 
 public class CBPBinaryResourceImpl extends CBPResource 
 {
@@ -25,7 +25,7 @@ public class CBPBinaryResourceImpl extends CBPResource
     private final EventAdapter eventAdapter;
  
     //epackage elements map
-    private final EPackageElementsNamesMap ePackageElementsNamesMap;
+    private final ModelElementIDMap ePackageElementsNamesMap;
 	
 	public CBPBinaryResourceImpl(URI uri, EPackage ePackage)
 	{

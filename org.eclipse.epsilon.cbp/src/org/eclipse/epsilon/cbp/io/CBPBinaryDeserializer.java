@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.driver;
+package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -20,9 +20,14 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
-import org.eclipse.epsilon.cbp.event.Changelog;
 import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
-import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
+import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
+import org.eclipse.epsilon.cbp.util.SerialisationEventType;
+import org.eclipse.epsilon.cbp.util.SimpleType;
+
+import gnu.trove.map.TObjectIntMap;
 
 public class CBPBinaryDeserializer 
 {
@@ -32,13 +37,13 @@ public class CBPBinaryDeserializer
 	private final HashMap<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
 	
 	private final PersistenceManager manager;
-    private final EPackageElementsNamesMap ePackageElementsNamesMap;
+    private final ModelElementIDMap ePackageElementsNamesMap;
     private final Charset STRING_ENCODING = StandardCharsets.UTF_8;
     
-    private final HashMap<String, Integer> commonSimpleTypeNameMap;
+    private final TObjectIntMap<String> commonSimpleTypeNameMap;
 
     public CBPBinaryDeserializer(PersistenceManager manager, Changelog aChangelog,
-            EPackageElementsNamesMap ePackageElementsNamesMap)
+            ModelElementIDMap ePackageElementsNamesMap)
     {
     	 this.manager = manager;
          this.changelog = aChangelog;
@@ -64,34 +69,34 @@ public class CBPBinaryDeserializer
 		{
 			switch (readInt(inputStream))
 			{
-			case PersistenceManager.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE:
 				handleCreateAndAddToResource(inputStream);
 				break;
-			case PersistenceManager.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES:
+			case SerialisationEventType.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES:
 				handeCreateAndSetEReferenceValue(inputStream);
 				break;
-			case PersistenceManager.ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.ADD_EOBJECTS_TO_RESOURCE:
 				handleAddToResource(inputStream);
 				break;
-			case PersistenceManager.REMOVE_EOBJECTS_FROM_RESOURCE:
+			case SerialisationEventType.REMOVE_EOBJECTS_FROM_RESOURCE:
 				handleRemoveFromResource(inputStream);
 				break;
-			case PersistenceManager.SET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.SET_EOBJECT_EREFERENCE_VALUES:
 				handleEReferenceEvent(inputStream,true);
 				break;
-			case PersistenceManager.UNSET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.UNSET_EOBJECT_EREFERENCE_VALUES:
 				handleEReferenceEvent(inputStream,false);
 				break;
-			case PersistenceManager.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
 				handleComplexEAttributeType(inputStream,true);
 				break;
-			case PersistenceManager.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
 				handleComplexEAttributeType(inputStream,false);
 				break;
-			case PersistenceManager.SET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES:
+			case SerialisationEventType.SET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES:
 				handlePrimitiveEAttributeType(inputStream, true);
 				break;
-			case PersistenceManager.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES:
+			case SerialisationEventType.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES:
 				handlePrimitiveEAttributeType(inputStream,false);
 				break;
 			}
@@ -106,7 +111,7 @@ public class CBPBinaryDeserializer
     	{
     		return commonSimpleTypeNameMap.get(type.getName());
     	}
-    	return PersistenceManager.COMPLEX_TYPE;
+    	return SimpleType.COMPLEX_TYPE;
     }
     
     private void setPrimitiveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray)
@@ -267,33 +272,33 @@ public class CBPBinaryDeserializer
     	
     	switch(getTypeID(eDataType))
     	{
-    	case PersistenceManager.SIMPLE_TYPE_INT:
-    		primitiveType = PersistenceManager.SIMPLE_TYPE_INT;
-    		primitiveSize = manager.INTEGER_SIZE;
+    	case SimpleType.SIMPLE_TYPE_INT:
+    		primitiveType = SimpleType.SIMPLE_TYPE_INT;
+    		primitiveSize = PrimitiveTypeLength.INTEGER_SIZE;
     		break;
-    	case PersistenceManager.SIMPLE_TYPE_SHORT:
-    		primitiveType = PersistenceManager.SIMPLE_TYPE_SHORT;
-    		primitiveSize = manager.SHORT_SIZE;
+    	case SimpleType.SIMPLE_TYPE_SHORT:
+    		primitiveType = SimpleType.SIMPLE_TYPE_SHORT;
+    		primitiveSize = PrimitiveTypeLength.SHORT_SIZE;
     		break;
-    	case PersistenceManager.SIMPLE_TYPE_LONG:
-    		primitiveType = PersistenceManager.SIMPLE_TYPE_LONG;
-    		primitiveSize = manager.LONG_SIZE;
+    	case SimpleType.SIMPLE_TYPE_LONG:
+    		primitiveType = SimpleType.SIMPLE_TYPE_LONG;
+    		primitiveSize = PrimitiveTypeLength.LONG_SIZE;
     		break;
-    	case PersistenceManager.SIMPLE_TYPE_FLOAT:
-    		primitiveType = PersistenceManager.SIMPLE_TYPE_FLOAT;
-    		primitiveSize = manager.FLOAT_SIZE;
+    	case SimpleType.SIMPLE_TYPE_FLOAT:
+    		primitiveType = SimpleType.SIMPLE_TYPE_FLOAT;
+    		primitiveSize = PrimitiveTypeLength.FLOAT_SIZE;
     		break;
-    	case PersistenceManager.SIMPLE_TYPE_DOUBLE:
-    		primitiveType = PersistenceManager.SIMPLE_TYPE_DOUBLE;
-    		primitiveSize = manager.DOUBLE_SIZE;
+    	case SimpleType.SIMPLE_TYPE_DOUBLE:
+    		primitiveType = SimpleType.SIMPLE_TYPE_DOUBLE;
+    		primitiveSize = PrimitiveTypeLength.DOUBLE_SIZE;
     		break;
-    	case PersistenceManager.SIMPLE_TYPE_BOOLEAN:
-    		primitiveType = PersistenceManager.SIMPLE_TYPE_BOOLEAN;
-    		primitiveSize = manager.INTEGER_SIZE;
+    	case SimpleType.SIMPLE_TYPE_BOOLEAN:
+    		primitiveType = SimpleType.SIMPLE_TYPE_BOOLEAN;
+    		primitiveSize = PrimitiveTypeLength.INTEGER_SIZE;
     		break;
-    	case PersistenceManager.SIMPLE_TYPE_CHAR:
-    		primitiveType = PersistenceManager.SIMPLE_TYPE_CHAR;
-    		primitiveSize = manager.CHAR_SIZE;
+    	case SimpleType.SIMPLE_TYPE_CHAR:
+    		primitiveType = SimpleType.SIMPLE_TYPE_CHAR;
+    		primitiveSize = PrimitiveTypeLength.CHAR_SIZE;
     		return;
     	}
     	
@@ -316,7 +321,7 @@ public class CBPBinaryDeserializer
     	
     	if(isSetEAttribute)
     	{
-    		if(primitiveType == PersistenceManager.SIMPLE_TYPE_BOOLEAN)
+    		if(primitiveType == SimpleType.SIMPLE_TYPE_BOOLEAN)
     			setPrimitiveBooleanEAttributeValues(focusObject,eAttribute,featureValuesArray);
     		
     		else
@@ -324,7 +329,7 @@ public class CBPBinaryDeserializer
     	}
     	else
     	{
-    		if(primitiveType == PersistenceManager.SIMPLE_TYPE_BOOLEAN)
+    		if(primitiveType == SimpleType.SIMPLE_TYPE_BOOLEAN)
     			unsetPrimitiveBooleanEAttributeValues(focusObject,eAttribute,featureValuesArray);
     		
     		else
@@ -549,9 +554,9 @@ public class CBPBinaryDeserializer
     	
     	for(int i = 0; i < numInts; i++)
     	{
-    		int id = byteArrayToInt(Arrays.copyOfRange(buffer, startIndex,startIndex + manager.INTEGER_SIZE));
+    		int id = byteArrayToInt(Arrays.copyOfRange(buffer, startIndex,startIndex + PrimitiveTypeLength.INTEGER_SIZE));
     		
-    		startIndex = startIndex + manager.INTEGER_SIZE;
+    		startIndex = startIndex + PrimitiveTypeLength.INTEGER_SIZE;
     		
     		manager.addEObjectToContents(IDToEObjectMap.get(id));
     	}
@@ -586,21 +591,21 @@ public class CBPBinaryDeserializer
     {
     	switch(primitiveType)
     	{
-    	case PersistenceManager.SIMPLE_TYPE_BOOLEAN:
+    	case SimpleType.SIMPLE_TYPE_BOOLEAN:
     		return byteArrayToInt(bytes);
-    	case PersistenceManager.SIMPLE_TYPE_BYTE:
+    	case SimpleType.SIMPLE_TYPE_BYTE:
     		return byteArrayToByte(bytes);
-    	case PersistenceManager.SIMPLE_TYPE_CHAR:
+    	case SimpleType.SIMPLE_TYPE_CHAR:
     		return byteArrayToChar(bytes);
-    	case PersistenceManager.SIMPLE_TYPE_DOUBLE:
+    	case SimpleType.SIMPLE_TYPE_DOUBLE:
     		return byteArrayToDouble(bytes);
-    	case PersistenceManager.SIMPLE_TYPE_FLOAT:
+    	case SimpleType.SIMPLE_TYPE_FLOAT:
     		return byteArrayToFloat(bytes);
-    	case PersistenceManager.SIMPLE_TYPE_LONG:
+    	case SimpleType.SIMPLE_TYPE_LONG:
     		return byteArrayToLong(bytes);
-    	case PersistenceManager.SIMPLE_TYPE_INT:
+    	case SimpleType.SIMPLE_TYPE_INT:
     		return byteArrayToInt(bytes);
-    	case PersistenceManager.SIMPLE_TYPE_SHORT:
+    	case SimpleType.SIMPLE_TYPE_SHORT:
     		return byteArrayToShort(bytes);
     	}
     	return null;
@@ -643,7 +648,7 @@ public class CBPBinaryDeserializer
     
     private int readInt(InputStream in) throws IOException
     {
-    	byte[] bytes = new byte[manager.INTEGER_SIZE];
+    	byte[] bytes = new byte[PrimitiveTypeLength.INTEGER_SIZE];
     	in.read(bytes);
     	
     	return ByteBuffer.wrap(bytes).getInt();

@@ -6,7 +6,7 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.epsilon.cbp.util.EPackageElementsNamesMap;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 
 public abstract class CBPResource extends ResourceImpl
 {
@@ -19,9 +19,9 @@ public abstract class CBPResource extends ResourceImpl
 	{
 	}
 	
-	public EPackageElementsNamesMap populateEPackageElementNamesMap(EPackage ePackage)
+	public ModelElementIDMap populateEPackageElementNamesMap(EPackage ePackage)
 	{
-		EPackageElementsNamesMap ePackageElementsNamesMap = new EPackageElementsNamesMap();
+		ModelElementIDMap ePackageElementsNamesMap = new ModelElementIDMap();
 		
 		//for each eclassifier
 	    for(EClassifier eClassifier : ePackage.getEClassifiers())

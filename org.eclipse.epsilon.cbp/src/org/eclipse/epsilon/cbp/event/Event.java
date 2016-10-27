@@ -15,6 +15,8 @@ public abstract class Event {
 	public static final int REMOVE_EOBJ_FROM_RESOURCE = 3;
 	public static final int REMOVE_FROM_EREFERENCE = 4;
 	public static final int REMOVE_FROM_EATTRIBUTE = 5;
+	public static final int SET_EATTRIBUTE = 6;
+	public static final int SET_EREFERENCE = 7;
 
 	protected List<EObject> eObjectList = new ArrayList<EObject>();
 
