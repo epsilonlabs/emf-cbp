@@ -2,16 +2,25 @@ package org.eclipse.epsilon.cbp.util;
 
 public class SerialisationEventType {
 
-	//serialization event types
-	public static final int CREATE_AND_ADD_EOBJECTS_TO_RESOURCE = 0;
-	public static final int CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES = 1;
-    public static final int ADD_EOBJECTS_TO_RESOURCE = 2;
-    public static final int SET_EOBJECT_EREFERENCE_VALUES = 3;
-    public static final int SET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES = 4;
-    public static final int SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES = 5;
-    public static final int REMOVE_EOBJECTS_FROM_RESOURCE = 6;
-    public static final int UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES = 7;
-    public static final int UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES = 8;
-    public static final int UNSET_EOBJECT_EREFERENCE_VALUES = 9;
+
+	//resource related events
+	public static final int CREATE_AND_ADD_TO_RESOURCE = 0;
+	public static final int ADD_TO_RESOURCE = 1;
+	public static final int REMOVE_FROM_RESOURCE = 2;
+	
+	//attribute related events
+	public static final int SET_EATTRIBUTE_PRIMITIVE = 3;
+    public static final int SET_EATTRIBUTE_COMPLEX = 4;
+    public static final int ADD_TO_EATTRIBUTE_PRIMITIVE = 5;
+    public static final int ADD_TO_EATTRIBUTE_COMPLEX = 6;
+    public static final int UNSET_EATTRIBUTE_PRIMITIVE = 7;
+    public static final int UNSET_EATTRIBUTE_COMPLEX = 8;
+    
+    //reference related events
+	public static final int SET_EREFERENCE = 9;
+	public static final int CREATE_AND_SET_EREFERENCE = 10;
+	public static final int CREATE_AND_ADD_TO_EREFERENCE = 11;
+	public static final int ADD_TO_EREFERENCE = 12;
+    public static final int UNSET_EREFERENCE = 13;
 
 }

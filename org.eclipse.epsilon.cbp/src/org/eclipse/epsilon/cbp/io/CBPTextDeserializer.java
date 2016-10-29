@@ -83,28 +83,28 @@ public class CBPTextDeserializer {
 			 * method
 			 */
 			switch (eventType) {
-			case SerialisationEventType.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
 				createAndAddEObjectsToResource(line);
 				break;
-			case SerialisationEventType.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES:
+			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
 				createEObjectsAndSetEReferenceValues(line);
 				break;
-			case SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
 				handleEAttributeEvent(line,true);
 				break;
-			case SerialisationEventType.SET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.SET_EREFERENCE:
 				handleEReferenceEvent(line,true);
 				break;
-			case SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX:
 				handleEAttributeEvent(line,false);
 				break;
-			case SerialisationEventType.UNSET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.UNSET_EREFERENCE:
 				handleEReferenceEvent(line,false);
 				break;
-			case SerialisationEventType.ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.ADD_TO_RESOURCE:
 				createAndAddEObjectsToResource(line);
 				break;
-			case SerialisationEventType.REMOVE_EOBJECTS_FROM_RESOURCE:
+			case SerialisationEventType.REMOVE_FROM_RESOURCE:
 				removeEObjectsFromResource(line);
 				break;
 			default:

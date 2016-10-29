@@ -153,10 +153,10 @@ public class CBPBinarySerializer
     	
     	List<Object> eAttributeValuesList = e.getEAttributeValuesList();
     	
-    	int serializationType = SerialisationEventType.SET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES;
+    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
     	
     	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = SerialisationEventType.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES;
+    		serializationType = SerialisationEventType.UNSET_EATTRIBUTE_PRIMITIVE;
     	
         writePrimitive(out,serializationType);
         writePrimitive(out,changelog.getObjectId(focusObject));
@@ -184,10 +184,10 @@ public class CBPBinarySerializer
         	
         	List<Object> nullList = new ArrayList<Object>(Arrays.asList(nullsArray));
         	
-        	int complexSerializationType = SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+        	int complexSerializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
         	
-        	if(serializationType== SerialisationEventType.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES)
-        		complexSerializationType = SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+        	if(serializationType== SerialisationEventType.UNSET_EATTRIBUTE_PRIMITIVE)
+        		complexSerializationType = SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX;
         	
         	writeComplexEAttributes(focusObject,eAttribute,nullList,complexSerializationType,out);
         }
@@ -230,10 +230,10 @@ public class CBPBinarySerializer
     
     private void writeComplexEAttributes(EAttributeEvent e,OutputStream out) throws IOException
     {
-    	int serializationType = SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
     	
     	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES;
+    		serializationType = SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX;
     	
     	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,out);
     }
@@ -280,7 +280,7 @@ public class CBPBinarySerializer
     	{
     		if(!eObjectsToCreateList.isEmpty()) //CREATE_AND_ADD_TO_RESOURCE 
     		{
-    			writePrimitive(out,SerialisationEventType.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE);
+    			writePrimitive(out,SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE);
     			writePrimitive(out,eObjectsToCreateList.size());
     			
     			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
@@ -291,7 +291,7 @@ public class CBPBinarySerializer
     		}
     		if(!eObjectsToAddList.isEmpty()) //ADD TO RESOURCE
     		{
-    			writePrimitive(out, SerialisationEventType.ADD_EOBJECTS_TO_RESOURCE);
+    			writePrimitive(out, SerialisationEventType.ADD_TO_RESOURCE);
     			writePrimitive(out,eObjectsToAddList.size());
     			
     			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
@@ -305,7 +305,7 @@ public class CBPBinarySerializer
     	{
     		if(!eObjectsToCreateList.isEmpty())//CREATE_AND_SET_REF_VALUE
     		{
-    			writePrimitive(out,SerialisationEventType.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES);
+    			writePrimitive(out,SerialisationEventType.CREATE_AND_SET_EREFERENCE);
     			writePrimitive(out,changelog.getObjectId(focusObject));
     			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     			writePrimitive(out,eObjectsToCreateList.size());
@@ -317,7 +317,7 @@ public class CBPBinarySerializer
     		}
     		if(!eObjectsToAddList.isEmpty()) //SET_REFERENCE_VALUE
     		{
-    			writePrimitive(out,SerialisationEventType.SET_EOBJECT_EREFERENCE_VALUES);
+    			writePrimitive(out,SerialisationEventType.SET_EREFERENCE);
     			writePrimitive(out,changelog.getObjectId(focusObject));
     			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     			writePrimitive(out,eObjectsToAddList.size());
@@ -347,7 +347,7 @@ public class CBPBinarySerializer
     	
     	if(isRemoveFromResource)
     	{
-    		writePrimitive(out, SerialisationEventType.REMOVE_EOBJECTS_FROM_RESOURCE);
+    		writePrimitive(out, SerialisationEventType.REMOVE_FROM_RESOURCE);
     		writePrimitive(out,eObjectsList.size());
     		
     		for(EObject obj : eObjectsList)
@@ -359,7 +359,7 @@ public class CBPBinarySerializer
     	{
     		
     		
-    		writePrimitive(out,SerialisationEventType.UNSET_EOBJECT_EREFERENCE_VALUES);
+    		writePrimitive(out,SerialisationEventType.UNSET_EREFERENCE);
     		writePrimitive(out,changelog.getObjectId(focusObject));
     		writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     		writePrimitive(out,eObjectsList.size());

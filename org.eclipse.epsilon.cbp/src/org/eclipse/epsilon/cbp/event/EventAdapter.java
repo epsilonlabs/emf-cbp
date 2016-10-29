@@ -37,68 +37,94 @@ public class EventAdapter extends EContentAdapter
 	{
 		super.notifyChanged(n);
 		
+		//if n is touch and no adapter enabled, return
 		if(n.isTouch() || !adapter_enabled)
 		{
 			return;
 		}
 		
+		//switch by event type
 		switch(n.getEventType())
 		{
+			//if event is ADD
 			case Notification.ADD:
 			{
+				//if new value is EObject
 				if(n.getNewValue() instanceof EObject)
 				{
+					//if Notifier is resource
 					if(n.getNotifier() instanceof CBPResource)
 					{
+						//create add to resource event
 					   changelog.addEvent(new AddEObjectsToResourceEvent(n));
 					}
+					//if notifier is eobject
 					else if(n.getNotifier() instanceof EObject)
 					{
+						//create add to reference event
 						changelog.addEvent(new AddToEReferenceEvent(n)); 
 					} 
 				}
+				//else if new value is eattribute
 				else if(n.getFeature() instanceof EAttribute)
 				{
+					//create add to attribute event
 					changelog.addEvent(new AddToEAttributeEvent(n));
 				}
 				break;
 			}
+			//if event is SET
 			case Notification.SET:
 			{
+				//if new valueis EObject
 				if(n.getNewValue() instanceof EObject)
 				{
+					//if notifier is resource
 					if(n.getNotifier() instanceof CBPResource)
 					{
+						//create add to resource event
 					   changelog.addEvent(new AddEObjectsToResourceEvent(n));
 					}
+					//if notifier is eboject
 					else if(n.getNotifier() instanceof EObject)
 					{
-						changelog.addEvent(new AddToEReferenceEvent(n)); 
+						//create set ereference event
+						changelog.addEvent(new SetEReferenceEvent(n)); 
 					} 
 				}
+				//if feature is eattribte
 				else if(n.getFeature() instanceof EAttribute)
 				{
-					changelog.addEvent(new AddToEAttributeEvent(n));
+					//create add to eattribute event
+					changelog.addEvent(new SetEAttributeEvent(n));
 				}
+				//if new value is null
 				else if(n.getNewValue() == null)
 				{
+					//if notifier is resource
 					if(n.getNotifier() instanceof CBPResource)
 					{
+						//create remove from resource event
 					   changelog.addEvent(new RemoveFromResourceEvent(n));
 					}
+					//if notifier is eobject
 					else if(n.getNotifier() instanceof EObject)
 					{
+						//create remove from ereference event
 						changelog.addEvent(new RemoveFromEReferenceEvent(n)); 
 					} 
 				}
 				break;
 			}
+			
+			//if event is add many
 			case Notification.ADD_MANY:
 			{
 				@SuppressWarnings("unchecked")
 				List<Object> list =  (List<Object>) n.getNewValue();
 				if(list.get(0) instanceof EObject)
 				{
+					//if notifier is resource
 					if(n.getNotifier() instanceof CBPResource)
 					{
 					   changelog.addEvent(new AddEObjectsToResourceEvent(n));

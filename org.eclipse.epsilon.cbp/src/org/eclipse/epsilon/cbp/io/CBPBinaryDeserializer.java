@@ -69,34 +69,34 @@ public class CBPBinaryDeserializer
 		{
 			switch (readInt(inputStream))
 			{
-			case SerialisationEventType.CREATE_AND_ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
 				handleCreateAndAddToResource(inputStream);
 				break;
-			case SerialisationEventType.CREATE_EOBJECTS_AND_SET_EREFERENCE_VALUES:
+			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
 				handeCreateAndSetEReferenceValue(inputStream);
 				break;
-			case SerialisationEventType.ADD_EOBJECTS_TO_RESOURCE:
+			case SerialisationEventType.ADD_TO_RESOURCE:
 				handleAddToResource(inputStream);
 				break;
-			case SerialisationEventType.REMOVE_EOBJECTS_FROM_RESOURCE:
+			case SerialisationEventType.REMOVE_FROM_RESOURCE:
 				handleRemoveFromResource(inputStream);
 				break;
-			case SerialisationEventType.SET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.SET_EREFERENCE:
 				handleEReferenceEvent(inputStream,true);
 				break;
-			case SerialisationEventType.UNSET_EOBJECT_EREFERENCE_VALUES:
+			case SerialisationEventType.UNSET_EREFERENCE:
 				handleEReferenceEvent(inputStream,false);
 				break;
-			case SerialisationEventType.SET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
 				handleComplexEAttributeType(inputStream,true);
 				break;
-			case SerialisationEventType.UNSET_EOBJECT_COMPLEX_EATTRIBUTE_VALUES:
+			case SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX:
 				handleComplexEAttributeType(inputStream,false);
 				break;
-			case SerialisationEventType.SET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES:
+			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
 				handlePrimitiveEAttributeType(inputStream, true);
 				break;
-			case SerialisationEventType.UNSET_EOBJECT_PRIMITIVE_EATTRIBUTE_VALUES:
+			case SerialisationEventType.UNSET_EATTRIBUTE_PRIMITIVE:
 				handlePrimitiveEAttributeType(inputStream,false);
 				break;
 			}
