@@ -32,12 +32,8 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 
 import gnu.trove.map.TObjectIntMap;
 
-public class CBPTextSerializer 
+public class CBPTextSerialiser 
 {
-	
-	//dont know why you need classname
-	private final String classname = this.getClass().getSimpleName();
-	
 	//format id
 	private final String FORMAT_ID = "CBP_TEXT"; 
 	
@@ -62,7 +58,7 @@ public class CBPTextSerializer
 	//tet simple type name
 	private final TObjectIntMap<String> textSimpleTypeNameMap;
 	
-	public CBPTextSerializer(PersistenceManager manager, Changelog aChangelog, ModelElementIDMap 
+	public CBPTextSerialiser(PersistenceManager manager, Changelog aChangelog, ModelElementIDMap 
 			ePackageElementsNamesMap)
 	{
 		this.manager =  manager;
@@ -79,7 +75,7 @@ public class CBPTextSerializer
 	{
 		if(eventList.isEmpty()) //tbr
 		{
-			System.out.println(classname+" no events found, returning!");
+			System.out.println("CBPTextSerialiser: no events found, returning!");
 			return;
 		}
 			
@@ -608,7 +604,7 @@ public class CBPTextSerializer
 		{
 			try 
 			{
-				System.out.println(classname+" "+e.getEventType());
+				System.out.println("CBPTextSerialiser: "+e.getEventType());
 				throw new Exception("Error! first item in events list is not a ResourceEvent.");
 			} 
 			catch (Exception e1) 
@@ -620,7 +616,7 @@ public class CBPTextSerializer
 		
 		if(obj == null) //TBR
 		{
-			System.out.println(classname+" "+e.getEventType());
+			System.out.println("CBPTextSerialiser: "+e.getEventType());
 			System.exit(0);
 		}
 		

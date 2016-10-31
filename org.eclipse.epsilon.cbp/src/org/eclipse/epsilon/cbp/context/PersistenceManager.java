@@ -16,8 +16,8 @@ import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
 import org.eclipse.epsilon.cbp.io.CBPBinaryDeserializer;
 import org.eclipse.epsilon.cbp.io.CBPBinarySerializer;
-import org.eclipse.epsilon.cbp.io.CBPTextDeserializer;
-import org.eclipse.epsilon.cbp.io.CBPTextSerializer;
+import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
+import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.ResourceContentsToEventsConverter;
@@ -177,8 +177,8 @@ public class PersistenceManager
 		}
 		else if(resource instanceof CBPTextResourceImpl)
 		{
-			CBPTextSerializer serializer = 
-					new CBPTextSerializer(this, changelog,ePackageElementsNamesMap);
+			CBPTextSerialiser serializer = 
+					new CBPTextSerialiser(this, changelog,ePackageElementsNamesMap);
 			serializer.save(options);
 		}
 	}
@@ -192,7 +192,7 @@ public class PersistenceManager
 		}
 		else if(resource instanceof CBPTextResourceImpl)
 		{
-			CBPTextDeserializer textDeserializer = new CBPTextDeserializer(this,changelog,ePackageElementsNamesMap);
+			CBPTextDeserialiser textDeserializer = new CBPTextDeserialiser(this,changelog,ePackageElementsNamesMap);
 			textDeserializer.load(options);
 		}
 	}

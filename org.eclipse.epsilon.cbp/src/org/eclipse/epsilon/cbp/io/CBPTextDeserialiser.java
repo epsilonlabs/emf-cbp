@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -27,23 +26,34 @@ import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
+import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
-public class CBPTextDeserializer {
-	private final String classname = this.getClass().getSimpleName();
+public class CBPTextDeserialiser {
+	
+	//epackage
 	private EPackage ePackage = null;
+	
+	//change log
 	private final Changelog changelog;
 
-	private final HashMap<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
+	//id to eobject
+	private final TIntObjectMap<EObject> IDToEObjectMap = new TIntObjectHashMap<EObject>();
 	
+	//common simple type map (such a bad name)
 	private final TObjectIntMap<String> commonsimpleTypeNameMap;
 	
+	//text simple type name map (again, bad name)
 	private final TObjectIntMap<String> textSimpleTypeNameMap;
 
+	//persistence manager
 	private PersistenceManager manager;
+	
+	//model-element id map
 	private final ModelElementIDMap ePackageElementsNamesMap;
 
-	public CBPTextDeserializer(PersistenceManager manager, Changelog aChangelog,
+	public CBPTextDeserialiser(PersistenceManager manager, Changelog aChangelog,
 			ModelElementIDMap ePackageElementsNamesMap) {
 		this.manager = manager;
 		this.changelog = aChangelog;
@@ -53,6 +63,7 @@ public class CBPTextDeserializer {
 		this.textSimpleTypeNameMap = manager.getTextSimpleTypesMap();
 	}
 
+	
 	public void load(Map<?, ?> options) throws Exception {
 		BufferedReader br = new BufferedReader(
 				new InputStreamReader(new FileInputStream(manager.getURI().path()), manager.STRING_ENCODING));
@@ -65,7 +76,7 @@ public class CBPTextDeserializer {
 			String[] stringArray = line.split(" ");
 			ePackage = loadMetamodel(stringArray[1]);
 		} else {
-			System.out.println(classname + " Error, file empty");
+			System.out.println("CBPTextDeserialiser Error, file empty");
 			System.exit(0);
 		}
 
@@ -114,6 +125,7 @@ public class CBPTextDeserializer {
 		br.close();
 		manager.setResume(true);
 	}
+	
 	private void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
 	{
 		if (eReference.isMany()) {
