@@ -175,7 +175,7 @@ public class PersistenceManager
 		{
 			CBPTextSerialiser serializer = 
 					new CBPTextSerialiser(this, changelog,ePackageElementsNamesMap);
-			serializer.save(options);
+			serializer.serialise(options);
 		}
 	}
 	

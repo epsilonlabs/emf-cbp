@@ -636,5 +636,4 @@ public class CBPTextDeserialiser {
 		}
 		return str;
 	}
-
 }

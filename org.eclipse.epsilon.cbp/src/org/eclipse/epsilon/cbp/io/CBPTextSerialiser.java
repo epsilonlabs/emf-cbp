@@ -23,40 +23,14 @@ import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
-import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-import gnu.trove.map.TObjectIntMap;
-
-public class CBPTextSerialiser 
+public class CBPTextSerialiser extends AbstractCBPSerialiser
 {
-	//format id
-	private final String FORMAT_ID = "CBP_TEXT"; 
-	
-	//version number (wtf?)
-	private final double VERSION = 1.0;
-	
-	//event list
-    private final List<Event> eventList;
-    
-    //persistence manager
-	private final PersistenceManager manager;
-	
-	//change log
-	private final Changelog changelog; 
-	
-	//epackage element map
-	private final ModelElementIDMap ePackageElementsNamesMap;
-	
-	//common simple type name
-	private final TObjectIntMap<String> commonsimpleTypeNameMap;
-	
-	//tet simple type name
-	private final TObjectIntMap<String> textSimpleTypeNameMap;
 	
 	public CBPTextSerialiser(PersistenceManager manager, Changelog aChangelog, ModelElementIDMap 
 			ePackageElementsNamesMap)
@@ -71,7 +45,7 @@ public class CBPTextSerialiser
 		this.textSimpleTypeNameMap = manager.getTextSimpleTypesMap();
 	}
 	
-	public void save(Map<?,?> options) //tbr
+	public void serialise(Map<?,?> options) //tbr
 	{
 		if(eventList.isEmpty()) //tbr
 		{
@@ -135,12 +109,31 @@ public class CBPTextSerialiser
 		manager.setResume(true);
 	}
 	
+	/*
+	 * event type:
+	 * 2 [EObjectID*]
+	 */
+	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, PrintWriter out)
+	{
+		List<EObject> removedEObjectsList = e.getEObjectList();
+		out.print(SerialisationEventType.REMOVE_FROM_RESOURCE+" [");
+		
+		String delimiter = "";
+		
+		for(EObject obj : removedEObjectsList)
+		{
+			out.print(delimiter + changelog.getObjectId(obj));
+			delimiter = PersistenceManager.DELIMITER;
+		}
+		out.print("]");
+		out.println();
+	}
 	
 	/*
 	 * event has the format of:
 	 * 0 [(MetaElementTypeID objectID)* (,)*]
 	 */
-	private void handleAddToResourceEvent(AddEObjectsToResourceEvent e, PrintWriter out)
+	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, PrintWriter out)
 	{
 		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
     	
@@ -192,7 +185,7 @@ public class CBPTextSerialiser
 	 * event format:
 	 * 3/4 objectID EAttributeID [value*]
 	 */
-	private void handleSetEAttributeEvent(EAttributeEvent e, PrintWriter out)
+	protected void handleSetEAttributeEvent(EAttributeEvent e, PrintWriter out)
 	{
 		//get forcus object
 		EObject focusObject = e.getFocusObject();
@@ -266,7 +259,7 @@ public class CBPTextSerialiser
 	 * event format:
 	 * 5/6 objectID EAttributeID [value*]
 	 */
-	private void handleAddToEAttributeEvent(EAttributeEvent e, PrintWriter out) 
+	protected void handleAddToEAttributeEvent(EAttributeEvent e, PrintWriter out) 
 	{
 		//get forcus object
 		EObject focusObject = e.getFocusObject();
@@ -341,7 +334,7 @@ public class CBPTextSerialiser
 	 * 10 objectID EReferenceID [(ECLass ID, EObject)*(,)*]
 	 * 12/9 objectID EReferenceID [EObjectID]
 	 */
-	private void handleSetEReferenceEvent(SetEReferenceEvent e, PrintWriter out)
+	protected void handleSetEReferenceEvent(SetEReferenceEvent e, PrintWriter out)
 	{
 		boolean created = false;
 		EObject focusObject = e.getFocusObject();
@@ -432,7 +425,7 @@ public class CBPTextSerialiser
 	 * 10 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
 	 * 12 objectID EReferenceID [EObjectID*]
 	 */
-	private void handleAddToEReferenceEvent(AddToEReferenceEvent e, PrintWriter out)
+	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, PrintWriter out)
 	{
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
@@ -508,7 +501,7 @@ public class CBPTextSerialiser
 	 * event type:
 	 * 7/8 objectID EAttributeID [value*]
 	 */
-	private void handleRemoveFromAttributeEvent(EAttributeEvent e, PrintWriter out)
+	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, PrintWriter out)
 	{
 
 		//get forcus object
@@ -579,7 +572,7 @@ public class CBPTextSerialiser
 	 * event type:
 	 * 13 objectID EReferenceID [EObjectID*]
 	 */
-	private void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, PrintWriter out)
+	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, PrintWriter out)
 	{
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
@@ -599,76 +592,4 @@ public class CBPTextSerialiser
 		out.print("]");
 		out.println();
 	}
-
-	/*
-	 * event type:
-	 * 2 [EObjectID*]
-	 */
-	private void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, PrintWriter out)
-	{
-		List<EObject> removedEObjectsList = e.getEObjectList();
-		out.print(SerialisationEventType.REMOVE_FROM_RESOURCE+" [");
-		
-		String delimiter = "";
-		
-		for(EObject obj : removedEObjectsList)
-		{
-			out.print(delimiter + changelog.getObjectId(obj));
-			delimiter = PersistenceManager.DELIMITER;
-		}
-		out.print("]");
-		out.println();
-	}
-
-	private void serialiseHeader(PrintWriter out) 
-	{
-		//obj
-		EObject obj = null;
-		
-		//get first event
-		Event e = eventList.get(0);
-		
-		if(e instanceof ResourceEvent)
-		{
-			obj = ((ResourceEvent)e).getEObjectList().get(0);
-		}
-		else //throw tantrum
-		{
-			try 
-			{
-				System.out.println("CBPTextSerialiser: "+e.getEventType());
-				throw new Exception("Error! first item in events list is not a ResourceEvent.");
-			} 
-			catch (Exception e1) 
-			{
-				e1.printStackTrace();
-				System.exit(0);
-			}
-		}
-		
-		if(obj == null) //TBR
-		{
-			System.out.println("CBPTextSerialiser: "+e.getEventType());
-			System.exit(0);
-		}
-		
-		out.println(FORMAT_ID+" "+VERSION);
-		out.println("NAMESPACE_URI "+obj.eClass().getEPackage().getNsURI());
-	}
-	
-	
-	private int getTypeID(EDataType type)
-	{
-		if(commonsimpleTypeNameMap.containsKey(type.getName()))
-    	{
-			return commonsimpleTypeNameMap.get(type.getName());
-    	}
-		else if(textSimpleTypeNameMap.containsKey(type.getName()))
-		{
-			return textSimpleTypeNameMap.get(type.getName());
-		}
-    	
-    	return SimpleType.COMPLEX_TYPE;
-    }
-
 }
