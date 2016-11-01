@@ -135,6 +135,11 @@ public class CBPTextSerialiser
 		manager.setResume(true);
 	}
 	
+	
+	/*
+	 * event has the format of:
+	 * 0 [(MetaElementTypeID objectID)* (,)*]
+	 */
 	private void handleAddToResourceEvent(AddEObjectsToResourceEvent e, PrintWriter out)
 	{
 		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
@@ -183,6 +188,10 @@ public class CBPTextSerialiser
 		out.println();
 	}
 
+	/*
+	 * event format:
+	 * 3/4 objectID EAttributeID [value*]
+	 */
 	private void handleSetEAttributeEvent(EAttributeEvent e, PrintWriter out)
 	{
 		//get forcus object
@@ -252,7 +261,10 @@ public class CBPTextSerialiser
 	}
 
 
-	
+	/*
+	 * event format:
+	 * 5/6 objectID EAttributeID [value*]
+	 */
 	private void handleAddToEAttributeEvent(EAttributeEvent e, PrintWriter out) 
 	{
 		//get forcus object
@@ -321,6 +333,11 @@ public class CBPTextSerialiser
 		out.println();
 	}
 	
+	/*
+	 * event format:
+	 * 10 objectID EReferenceID [(ECLass ID, EObject)*(,)*]
+	 * 12/9 objectID EReferenceID [EObjectID]
+	 */
 	private void handleSetEReferenceEvent(SetEReferenceEvent e, PrintWriter out)
 	{
 		boolean created = false;
@@ -407,6 +424,11 @@ public class CBPTextSerialiser
 		out.println();
 	}
 
+	/*
+	 * event format:
+	 * 10 objectID EReferenceID [(ECLass ID, EObject)* ,*]
+	 * 12 objectID EReferenceID [EObjectID]
+	 */
 	private void handleAddToEReferenceEvent(AddToEReferenceEvent e, PrintWriter out)
 	{
 		EObject focusObject = e.getFocusObject();
@@ -479,7 +501,10 @@ public class CBPTextSerialiser
 		out.println();
 	}
 
-	
+	/*
+	 * event type:
+	 * 7/8 objectID EAttributeID [value*]
+	 */
 	private void handleRemoveFromAttributeEvent(EAttributeEvent e, PrintWriter out)
 	{
 
@@ -551,6 +576,10 @@ public class CBPTextSerialiser
 		out.println();
 	}
 	
+	/*
+	 * event type:
+	 * 13 objectID EReferenceID [EObjectID*]
+	 */
 	private void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, PrintWriter out)
 	{
 		EObject focusObject = e.getFocusObject();
@@ -572,6 +601,10 @@ public class CBPTextSerialiser
 		out.println();
 	}
 
+	/*
+	 * event type:
+	 * 2 [EObjectID*]
+	 */
 	private void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, PrintWriter out)
 	{
 		List<EObject> removedEObjectsList = e.getEObjectList();

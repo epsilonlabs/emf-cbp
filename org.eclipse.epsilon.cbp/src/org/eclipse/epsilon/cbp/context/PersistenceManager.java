@@ -28,12 +28,15 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class PersistenceManager 
 {
-	public static final String DELIMITER = ","; 
-	public static final String ESCAPE_CHAR ="+"; 
+	//delimiter
+	public static final String DELIMITER = ",";
+	//escaped char
+	public static final String ESCAPE_CHAR ="+";
+	//UTF-8 string encoding
 	public final Charset STRING_ENCODING = StandardCharsets.UTF_8;
-	public final String NULL_STRING = "pFgrW";
 	
-	//if you have redundancy it means you are doing it wrong
+	//Null string I dont know what this is
+	public final String NULL_STRING = "pFgrW";
 	
 	/*
 	 * Only remove redundant changes made during the current session.
@@ -111,16 +114,6 @@ public class PersistenceManager
 		return resume;
 	}
 	
-//	public boolean addEObjectsToContents(List<EObject> objects)
-//	{
-//		return resource.getContents().addAll(objects);
-//	}
-//	
-//	public boolean removeEObjectsFromContents(List<EObject> objects)
-//	{
-//		return resource.getContents().removeAll(objects);
-//	}
-	
 	public boolean addEObjectToContents(EObject object)
 	{
 		return resource.getContents().add(object);
@@ -130,11 +123,6 @@ public class PersistenceManager
 	{
 		return resource.getContents().remove(obj);
 	}
-	
-//	public Resource getResource()
-//	{
-//		return this.resource;
-//	}
 	
 	public URI getURI()
 	{

@@ -319,9 +319,10 @@ public class CBPTextDeserialiser {
 		}
 	}
 
+	
 	private void createAndAddEObjectsToResource(String line) {
+		
 		String[] objToCreateAndAddArray = tokeniseString(getValueInSquareBrackets(line));
-
 
 		for (String str : objToCreateAndAddArray) {
 			String[] stringArray = str.split(" ");
