@@ -84,19 +84,19 @@ public class CBPBinaryDeserializer
 			case SerialisationEventType.SET_EREFERENCE:
 				handleEReferenceEvent(inputStream,true);
 				break;
-			case SerialisationEventType.UNSET_EREFERENCE:
+			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
 				handleEReferenceEvent(inputStream,false);
 				break;
 			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
 				handleComplexEAttributeType(inputStream,true);
 				break;
-			case SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX:
+			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
 				handleComplexEAttributeType(inputStream,false);
 				break;
 			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
 				handlePrimitiveEAttributeType(inputStream, true);
 				break;
-			case SerialisationEventType.UNSET_EATTRIBUTE_PRIMITIVE:
+			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
 				handlePrimitiveEAttributeType(inputStream,false);
 				break;
 			}

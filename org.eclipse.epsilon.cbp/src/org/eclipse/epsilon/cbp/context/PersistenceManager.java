@@ -1,14 +1,14 @@
-
-//todo: specify encoding ?
-//http://www.javapractices.com/topic/TopicAction.do?Id=31
 package org.eclipse.epsilon.cbp.context;
 
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.impl.CBPBinaryResourceImpl;
@@ -52,6 +52,8 @@ public class PersistenceManager
 
 	private final CBPResource resource;
 	
+	private EList<EObject> contents;
+	
     private final ModelElementIDMap ePackageElementsNamesMap;
 	
 	private boolean resume = false;
@@ -65,6 +67,12 @@ public class PersistenceManager
 	{
 		this.changelog = changelog;
 		this.resource = resource;
+		contents = (EList<EObject>) new ArrayList<EObject>();
+		Iterator<EObject> it = resource.getAllContents();
+		while (it.hasNext()){
+			contents.add(it.next());
+		}
+		contents = resource.getContents();
 		this.ePackageElementsNamesMap = ePackageElementsNamesMap;
 		
 		populatecommonSimpleTypesMap();
@@ -116,12 +124,12 @@ public class PersistenceManager
 	
 	public boolean addEObjectToContents(EObject object)
 	{
-		return resource.getContents().add(object);
+		return contents.add(object);
 	}
 	
 	public boolean removeEObjectFromContents(EObject obj)
 	{
-		return resource.getContents().remove(obj);
+		return contents.remove(obj);
 	}
 	
 	public URI getURI()

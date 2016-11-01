@@ -206,7 +206,7 @@ public class CBPTextSerialiser
 		//get serialisation type flag
 		int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
 		
-		String newValue ;
+		String newValue;
 		String delimiter ="";
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
@@ -220,13 +220,13 @@ public class CBPTextSerialiser
 					newValue = String.valueOf(obj);
 					newValue = newValue.replace(PersistenceManager.DELIMITER, 
 							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					out.print(delimiter+newValue);	
 				}
-				else
-				{
-					newValue = manager.NULL_STRING;
-				}
+//				else
+//				{
+//					newValue = manager.NULL_STRING;
+//				}
 				
-				out.print(delimiter+newValue);	
 				delimiter = PersistenceManager.DELIMITER;
 			}
 			out.print("]");
@@ -246,13 +246,14 @@ public class CBPTextSerialiser
 				{
 					newValue = newValue.replace(PersistenceManager.DELIMITER, 
 							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					out.print(delimiter+newValue);
 				}
-				else
-				{
-					newValue = manager.NULL_STRING;
-				}
-				
-				out.print(delimiter+newValue);	
+//				else
+//				{
+//					newValue = manager.NULL_STRING;
+//				}
+//				
+//				out.print(delimiter+newValue);	
 				delimiter = PersistenceManager.DELIMITER;
 			}
 			out.print("]");
@@ -293,13 +294,14 @@ public class CBPTextSerialiser
 					newValue = String.valueOf(obj);
 					newValue = newValue.replace(PersistenceManager.DELIMITER, 
 							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					out.print(delimiter+newValue);
 				}
-				else
-				{
-					newValue = manager.NULL_STRING;
-				}
+//				else
+//				{
+//					newValue = manager.NULL_STRING;
+//				}
 				
-				out.print(delimiter+newValue);	
+//				out.print(delimiter+newValue);	
 				delimiter = PersistenceManager.DELIMITER;
 			}
 			out.print("]");
@@ -319,13 +321,14 @@ public class CBPTextSerialiser
 				{
 					newValue = newValue.replace(PersistenceManager.DELIMITER, 
 							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					out.print(delimiter+newValue);
 				}
-				else
-				{
-					newValue = manager.NULL_STRING;
-				}
-				
-				out.print(delimiter+newValue);	
+//				else
+//				{
+//					newValue = manager.NULL_STRING;
+//				}
+//				
+//				out.print(delimiter+newValue);	
 				delimiter = PersistenceManager.DELIMITER;
 			}
 			out.print("]");
@@ -426,8 +429,8 @@ public class CBPTextSerialiser
 
 	/*
 	 * event format:
-	 * 10 objectID EReferenceID [(ECLass ID, EObject)* ,*]
-	 * 12 objectID EReferenceID [EObjectID]
+	 * 10 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
+	 * 12 objectID EReferenceID [EObjectID*]
 	 */
 	private void handleAddToEReferenceEvent(AddToEReferenceEvent e, PrintWriter out)
 	{
@@ -518,7 +521,7 @@ public class CBPTextSerialiser
 		EDataType eDataType = eAttribute.getEAttributeType();
 		
 		//get serialisation type flag
-		int serializationType = SerialisationEventType.UNSET_EATTRIBUTE_PRIMITIVE;
+		int serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE;
 		
 		String newValue ;
 		String delimiter ="";
@@ -536,13 +539,8 @@ public class CBPTextSerialiser
 					newValue = String.valueOf(obj);
 					newValue = newValue.replace(PersistenceManager.DELIMITER, 
 							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					out.print(delimiter+newValue);	
 				}
-				else
-				{
-					newValue = manager.NULL_STRING;
-				}
-				
-				out.print(delimiter+newValue);	
 				delimiter = PersistenceManager.DELIMITER;
 			}
 			out.print("]");
@@ -550,7 +548,7 @@ public class CBPTextSerialiser
 		}
 		else //all other datatypes
 		{
-			serializationType = SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX;
+			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
 			out.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
 
@@ -562,13 +560,14 @@ public class CBPTextSerialiser
 				{
 					newValue = newValue.replace(PersistenceManager.DELIMITER, 
 							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					out.print(delimiter+newValue);
 				}
-				else
-				{
-					newValue = manager.NULL_STRING;
-				}
+//				else
+//				{
+//					newValue = manager.NULL_STRING;
+//				}
 				
-				out.print(delimiter+newValue);	
+//				out.print(delimiter+newValue);	
 				delimiter = PersistenceManager.DELIMITER;
 			}
 			out.print("]");
@@ -586,7 +585,7 @@ public class CBPTextSerialiser
 		EReference eReference = e.getEReference();
 		List<EObject> removedEObjectsList = e.getEObjectList();
 		
-		out.print(SerialisationEventType.UNSET_EREFERENCE+" "+
+		out.print(SerialisationEventType.REMOVE_FROM_EREFERENCE+" "+
 				changelog.getObjectId(focusObject)+" "+
                 (ePackageElementsNamesMap.getID(eReference.getName())+" ["));
 			

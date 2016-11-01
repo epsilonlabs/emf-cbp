@@ -156,7 +156,7 @@ public class CBPBinarySerializer
     	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
     	
     	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = SerialisationEventType.UNSET_EATTRIBUTE_PRIMITIVE;
+    		serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE;
     	
         writePrimitive(out,serializationType);
         writePrimitive(out,changelog.getObjectId(focusObject));
@@ -186,8 +186,8 @@ public class CBPBinarySerializer
         	
         	int complexSerializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
         	
-        	if(serializationType== SerialisationEventType.UNSET_EATTRIBUTE_PRIMITIVE)
-        		complexSerializationType = SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX;
+        	if(serializationType== SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE)
+        		complexSerializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
         	
         	writeComplexEAttributes(focusObject,eAttribute,nullList,complexSerializationType,out);
         }
@@ -233,7 +233,7 @@ public class CBPBinarySerializer
     	int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
     	
     	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = SerialisationEventType.UNSET_EATTRIBUTE_COMPLEX;
+    		serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
     	
     	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,out);
     }
@@ -359,7 +359,7 @@ public class CBPBinarySerializer
     	{
     		
     		
-    		writePrimitive(out,SerialisationEventType.UNSET_EREFERENCE);
+    		writePrimitive(out,SerialisationEventType.REMOVE_FROM_EREFERENCE);
     		writePrimitive(out,changelog.getObjectId(focusObject));
     		writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     		writePrimitive(out,eObjectsList.size());
