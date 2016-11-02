@@ -2,6 +2,7 @@
 package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,36 +23,22 @@ import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
+import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-import gnu.trove.map.TObjectIntMap;
-
-public class CBPBinarySerializer 
-{
-	private final String classname = this.getClass().getSimpleName();
-	private final String FORMAT_ID = "CBP_BIN"; 
-	private final int FORMAT_VERSION = 1;
+public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	
-	private final List<Event> eventList;
-    
-    private final PersistenceManager manager;
-    
-    private final Changelog changelog; 
-    
-    private final ModelElementIDMap ePackageElementsNamesMap;
-    
-    private final TObjectIntMap<String> commonSimpleTypeNameMap;
-    
-    public CBPBinarySerializer(PersistenceManager manager, Changelog changelog,ModelElementIDMap 
+	
+	
+    public CBPBinarySerialiser(PersistenceManager manager, Changelog changelog,ModelElementIDMap 
     		ePackageElementsNamesMap)
     {
     	this.manager =  manager;
@@ -60,10 +47,10 @@ public class CBPBinarySerializer
         
         this.eventList = manager.getChangelog().getEventsList();
         
-        this.commonSimpleTypeNameMap = manager.getCommonSimpleTypesMap();
+        this.commonsimpleTypeNameMap = manager.getCommonSimpleTypesMap();
     }
     
-    public void save(Map<?,?> options) throws IOException
+    public void serialise(Map<?,?> options) throws IOException
     {
     	if(eventList.isEmpty())
     		return;
@@ -73,7 +60,7 @@ public class CBPBinarySerializer
     
         //if we're not in resume mode, serialise initial entry
         if(!manager.isResume())
-            writeInitialRecord(outputStream);
+            serialiseHeader(outputStream);
         
         for(Event e : eventList)
         {
@@ -238,15 +225,6 @@ public class CBPBinarySerializer
     	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,out);
     }
     
-    private int getTypeID(EDataType type)
-    {
-    	if(commonSimpleTypeNameMap.containsKey(type.getName()))
-    	{
-    		return commonSimpleTypeNameMap.get(type.getName());
-    	}
-    	return SimpleType.COMPLEX_TYPE;
-    }
-    
     private void writeEObjectAdditionEvent(AddToEReferenceEvent e, OutputStream out) throws IOException
     {
         writeEObjectAdditionEvent(e.getEObjectList(),e.getFocusObject(),e.getEReference(),false,out);
@@ -370,42 +348,10 @@ public class CBPBinarySerializer
     		}
     	}
     }
-	private void writeInitialRecord(OutputStream out) throws IOException 
+    
+	private void serialiseHeader(OutputStream out) throws IOException 
 	{
-		EObject obj = null;
-		Event e = eventList.get(0);
 		
-		if(e instanceof EReferenceEvent)
-		{
-			obj = ((EReferenceEvent)e).getEObjectList().get(0);
-		}
-		else if(e instanceof ResourceEvent)
-		{
-			obj = ((ResourceEvent)e).getEObjectList().get(0);
-		}
-		else //throw tantrum
-		{
-			try 
-			{
-				System.out.println(classname+" "+e.getEventType());
-				throw new Exception("Error! first item in events list was not a ResourceEvent or an EReference event.");
-			} 
-			catch (Exception e1) 
-			{
-				e1.printStackTrace();
-				System.exit(0);
-			}
-		}
-		
-		if(obj == null) //TBR
-		{
-			System.out.println(classname+" "+e.getEventType());
-			System.exit(0);
-		}
-		
-		out.write(FORMAT_ID.getBytes(manager.STRING_ENCODING)); //FORMAT ID
-		writePrimitive(out, FORMAT_VERSION); //FORMAT VERSION
-		writeString(out,obj.eClass().getEPackage().getNsURI()); //NS URI
 	}
 	
 	
@@ -492,6 +438,103 @@ public class CBPBinarySerializer
 			writePrimitive(out,1);
 		else
 			writePrimitive(out,0);
+	}
+
+	@Override
+	public String getFormatID() {
+		return "CBP_BIN";
+	}
+
+	@Override
+	public double getVersion() {
+		return 1.0;
+	}
+
+	@Override
+	protected void serialiseHeader(Closeable out) {
+		OutputStream stream = (OutputStream) out;
+		EObject obj = null;
+		Event e = eventList.get(0);
+		
+		if(e instanceof ResourceEvent)
+		{
+			obj = ((ResourceEvent)e).getEObjectList().get(0);
+		}
+		else //throw tantrum
+		{
+			try 
+			{
+				throw new Exception("Error! first item in events list is not a ResourceEvent or an EReference event.");
+			} 
+			catch (Exception e1) 
+			{
+				e1.printStackTrace();
+				System.exit(0);
+			}
+		}
+		
+		if(obj == null)
+		{
+			System.out.println("CBPBinarySerialise: obj in initial record is null");
+			System.exit(0);
+		}
+		
+		try {
+			stream.write(getFormatID().getBytes(manager.STRING_ENCODING));
+			writePrimitive(stream, getVersion()); //FORMAT VERSION
+			writeString(stream,obj.eClass().getEPackage().getNsURI()); //NS URI	
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} //FORMAT ID
+	}
+
+	@Override
+	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

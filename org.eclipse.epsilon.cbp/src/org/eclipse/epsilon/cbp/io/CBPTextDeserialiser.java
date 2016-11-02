@@ -8,51 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
-import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
-public class CBPTextDeserialiser {
+public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
-	//epackage
-	private EPackage ePackage = null;
-	
-	//change log
-	private final Changelog changelog;
-
-	//id to eobject
-	private final TIntObjectMap<EObject> IDToEObjectMap = new TIntObjectHashMap<EObject>();
-	
-	//common simple type map (such a bad name)
-	private final TObjectIntMap<String> commonsimpleTypeNameMap;
-	
-	//text simple type name map (again, bad name)
-	private final TObjectIntMap<String> textSimpleTypeNameMap;
-
-	//persistence manager
-	private PersistenceManager manager;
-	
-	//model-element id map
-	private final ModelElementIDMap ePackageElementsNamesMap;
-
 	public CBPTextDeserialiser(PersistenceManager manager, Changelog aChangelog,
 			ModelElementIDMap ePackageElementsNamesMap) {
 		this.manager = manager;
@@ -62,9 +31,8 @@ public class CBPTextDeserialiser {
 		this.commonsimpleTypeNameMap = manager.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = manager.getTextSimpleTypesMap();
 	}
-
 	
-	public void load(Map<?, ?> options) throws Exception {
+	public void deserialise(Map<?, ?> options) throws Exception {
 		BufferedReader br = new BufferedReader(
 				new InputStreamReader(new FileInputStream(manager.getURI().path()), manager.STRING_ENCODING));
 
@@ -147,7 +115,7 @@ public class CBPTextDeserialiser {
 	 * event has the format of:
 	 * 0 [(MetaElementTypeID objectID)* (,)*]
 	 */
-	private void handleCreateAndAddToResource(String line) {
+	protected void handleCreateAndAddToResource(String line) {
 		
 		//break line into tokens
 		String[] objToCreateAndAddArray = tokeniseString(getValueInSquareBrackets(line));
@@ -179,7 +147,7 @@ public class CBPTextDeserialiser {
 	 * 2 [EObjectID*]
 	 */
 
-	private void handleRemoveFromResource(String line) {
+	protected void handleRemoveFromResource(String line) {
 		//tokenise string
 		String[] objValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 
@@ -194,7 +162,7 @@ public class CBPTextDeserialiser {
 	 * 3/4 objectID EAttributeID [value*]
 	 */
 
-	private void handleSetEAttribute(String line)
+	protected void handleSetEAttribute(String line)
 	{
 		String[] stringArray = line.split(" ");
 
@@ -208,7 +176,7 @@ public class CBPTextDeserialiser {
 		setEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
 
-	private void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
+	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
 	{
 		//get typeID;
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
@@ -253,7 +221,7 @@ public class CBPTextDeserialiser {
 	}
 
 	
-	private void handleAddToEAttribute(String line)
+	protected void handleAddToEAttribute(String line)
 	{
 		String[] stringArray = line.split(" ");
 
@@ -267,7 +235,7 @@ public class CBPTextDeserialiser {
 		addEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
 	
-	private void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
+	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
 	{
 		//get typeID;
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
@@ -302,7 +270,7 @@ public class CBPTextDeserialiser {
 		}
 	}
 	
-	private void handleRemoveFromEAttribute(String line)
+	protected void handleRemoveFromEAttribute(String line)
 	{
 		String[] stringArray = line.split(" ");
 
@@ -316,7 +284,7 @@ public class CBPTextDeserialiser {
 		RemoveEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
 	
-	private void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
+	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
 	{
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
 
@@ -346,7 +314,7 @@ public class CBPTextDeserialiser {
 		}
 	}
 
-	private void handleSetEReference(String line)
+	protected void handleSetEReference(String line)
 	{
 		String[] stringArray = line.split(" ");
 
@@ -361,7 +329,7 @@ public class CBPTextDeserialiser {
 
 	}
 	
-	private void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
+	protected void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
 	{
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")
@@ -376,7 +344,7 @@ public class CBPTextDeserialiser {
 		}
 	}
 	
-	private void handleCreateAndSetEReference(String line) 
+	protected void handleCreateAndSetEReference(String line) 
 	{
 		//split line
 		String[] stringArray = line.split(" ");
@@ -429,7 +397,7 @@ public class CBPTextDeserialiser {
 		}
 	}
 	
-	private void handleCreateAndAddToEReference(String line) 
+	protected void handleCreateAndAddToEReference(String line) 
 	{
 		//split line
 		String[] stringArray = line.split(" ");
@@ -480,7 +448,7 @@ public class CBPTextDeserialiser {
 		}
 	}
 	
-	private void handleAddToEReference(String line) 
+	protected void handleAddToEReference(String line) 
 	{
 		String[] stringArray = line.split(" ");
 
@@ -521,7 +489,7 @@ public class CBPTextDeserialiser {
 		}
 	}
 
-	private void handleRemoveFromEReference(String line)
+	protected void handleRemoveFromEReference(String line)
 	{
 		String[] stringArray = line.split(" ");
 
@@ -536,7 +504,7 @@ public class CBPTextDeserialiser {
 	}
 
 	
-	private void removeEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
+	protected void removeEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
 	{
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")
@@ -550,90 +518,4 @@ public class CBPTextDeserialiser {
 		}
 	}
 	
-	
-	
-
-	private int getTypeID(EDataType type) 
-	{
-		if(commonsimpleTypeNameMap.containsKey(type.getName()))
-    	{
-			return commonsimpleTypeNameMap.get(type.getName());
-    	}
-		else if(textSimpleTypeNameMap.containsKey(type.getName()))
-		{
-			return textSimpleTypeNameMap.get(type.getName());
-		}
-    	
-    	return SimpleType.COMPLEX_TYPE;
-	}
-
-	
-
-	private EPackage loadMetamodel(String metamodelURI) throws UnknownPackageException {
-		EPackage ePackage = null;
-
-		if (EPackage.Registry.INSTANCE.containsKey(metamodelURI))
-			ePackage = EPackage.Registry.INSTANCE.getEPackage(metamodelURI);
-
-		else
-			throw new UnknownPackageException(metamodelURI);
-
-		return ePackage;
-	}
-
-	private EObject createEObject(String eClassName)
-	{
-		return ePackage.getEFactoryInstance().create((EClass) ePackage.getEClassifier(eClassName));
-	}
-
-	/*
-	 * Tokenises a string seperated by a specified delimiter
-	 * http://stackoverflow.com/questions/18677762/handling-delimiter-with-
-	 * escape- -in-java-string-split-method
-	 */
-	private String[] tokeniseString(String input) {
-		String regex = "(?<!" + Pattern.quote(PersistenceManager.ESCAPE_CHAR) + ")"
-				+ Pattern.quote(PersistenceManager.DELIMITER);
-
-		String[] output = input.split(regex);
-
-		for (int i = 0; i < output.length; i++) {
-			output[i] = output[i].replace(PersistenceManager.ESCAPE_CHAR + PersistenceManager.DELIMITER,
-					PersistenceManager.DELIMITER);
-		}
-
-		return output;
-	}
-
-	// returns everything inbetween []
-	private String getValueInSquareBrackets(String str) {
-		Pattern p = Pattern.compile("\\[(.*?)\\]");
-		Matcher m = p.matcher(str);
-
-		String result = "";
-
-		if (m.find())
-			result = m.group(1);
-		return result;
-	}
-
-	private Object convertStringToPrimitive(String str, int primitiveTypeID) {
-		switch (primitiveTypeID) {
-		case SimpleType.SIMPLE_TYPE_INT:
-			return Integer.valueOf(str);
-		case SimpleType.SIMPLE_TYPE_SHORT:
-			return Short.valueOf(str);
-		case SimpleType.SIMPLE_TYPE_LONG:
-			return Long.valueOf(str);
-		case SimpleType.SIMPLE_TYPE_FLOAT:
-			return Float.valueOf(str);
-		case SimpleType.SIMPLE_TYPE_DOUBLE:
-			return Double.valueOf(str);
-		case SimpleType.SIMPLE_TYPE_CHAR:
-			return str.charAt(0);
-		case SimpleType.SIMPLE_TYPE_BOOLEAN:
-			return Boolean.valueOf(str);
-		}
-		return str;
-	}
 }

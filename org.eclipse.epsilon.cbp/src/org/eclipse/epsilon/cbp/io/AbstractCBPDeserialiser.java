@@ -1,5 +1,150 @@
 package org.eclipse.epsilon.cbp.io;
 
-public class AbstractCBPDeserialiser {
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.epsilon.cbp.context.PersistenceManager;
+import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
+import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.SimpleType;
+
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
+public abstract class AbstractCBPDeserialiser {
+	//epackage
+	protected EPackage ePackage = null;
+	
+	//change log
+	protected Changelog changelog;
+
+	//id to eobject
+	protected TIntObjectMap<EObject> IDToEObjectMap = new TIntObjectHashMap<EObject>();
+	
+	//common simple type map (such a bad name)
+	protected TObjectIntMap<String> commonsimpleTypeNameMap;
+	
+	//text simple type name map (again, bad name)
+	protected TObjectIntMap<String> textSimpleTypeNameMap;
+
+	//persistence manager
+	protected PersistenceManager manager;
+	
+	//model-element id map
+	protected ModelElementIDMap ePackageElementsNamesMap;
+	
+	public abstract void deserialise(Map<?, ?> options) throws Exception;
+
+	protected abstract void handleCreateAndAddToResource(String line);
+	protected abstract void handleRemoveFromResource(String line);
+	
+	protected abstract void handleSetEAttribute(String line);
+	protected abstract void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray);
+	protected abstract void handleAddToEAttribute(String line);
+	protected abstract void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray);
+	
+	protected abstract void handleRemoveFromEAttribute(String line);
+	protected abstract void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray );
+	
+	
+	protected abstract void handleSetEReference(String line);
+	protected abstract void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray);
+	protected abstract void handleCreateAndSetEReference(String line); 
+	protected abstract void handleCreateAndAddToEReference(String line) ;
+	protected abstract void handleAddToEReference(String line) ;
+	protected abstract void handleRemoveFromEReference(String line);
+	protected abstract void removeEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray);
+	
+	protected int getTypeID(EDataType type) 
+	{
+		if(commonsimpleTypeNameMap.containsKey(type.getName()))
+    	{
+			return commonsimpleTypeNameMap.get(type.getName());
+    	}
+		else if(textSimpleTypeNameMap.containsKey(type.getName()))
+		{
+			return textSimpleTypeNameMap.get(type.getName());
+		}
+    	
+    	return SimpleType.COMPLEX_TYPE;
+	}
+
+	
+
+	protected EPackage loadMetamodel(String metamodelURI) throws UnknownPackageException {
+		EPackage ePackage = null;
+
+		if (EPackage.Registry.INSTANCE.containsKey(metamodelURI))
+			ePackage = EPackage.Registry.INSTANCE.getEPackage(metamodelURI);
+
+		else
+			throw new UnknownPackageException(metamodelURI);
+
+		return ePackage;
+	}
+
+	protected EObject createEObject(String eClassName)
+	{
+		return ePackage.getEFactoryInstance().create((EClass) ePackage.getEClassifier(eClassName));
+	}
+
+	/*
+	 * Tokenises a string seperated by a specified delimiter
+	 * http://stackoverflow.com/questions/18677762/handling-delimiter-with-
+	 * escape- -in-java-string-split-method
+	 */
+	protected String[] tokeniseString(String input) {
+		String regex = "(?<!" + Pattern.quote(PersistenceManager.ESCAPE_CHAR) + ")"
+				+ Pattern.quote(PersistenceManager.DELIMITER);
+
+		String[] output = input.split(regex);
+
+		for (int i = 0; i < output.length; i++) {
+			output[i] = output[i].replace(PersistenceManager.ESCAPE_CHAR + PersistenceManager.DELIMITER,
+					PersistenceManager.DELIMITER);
+		}
+
+		return output;
+	}
+
+	// returns everything inbetween []
+	protected String getValueInSquareBrackets(String str) {
+		Pattern p = Pattern.compile("\\[(.*?)\\]");
+		Matcher m = p.matcher(str);
+
+		String result = "";
+
+		if (m.find())
+			result = m.group(1);
+		return result;
+	}
+
+	protected Object convertStringToPrimitive(String str, int primitiveTypeID) {
+		switch (primitiveTypeID) {
+		case SimpleType.SIMPLE_TYPE_INT:
+			return Integer.valueOf(str);
+		case SimpleType.SIMPLE_TYPE_SHORT:
+			return Short.valueOf(str);
+		case SimpleType.SIMPLE_TYPE_LONG:
+			return Long.valueOf(str);
+		case SimpleType.SIMPLE_TYPE_FLOAT:
+			return Float.valueOf(str);
+		case SimpleType.SIMPLE_TYPE_DOUBLE:
+			return Double.valueOf(str);
+		case SimpleType.SIMPLE_TYPE_CHAR:
+			return str.charAt(0);
+		case SimpleType.SIMPLE_TYPE_BOOLEAN:
+			return Boolean.valueOf(str);
+		}
+		return str;
+	}
 }

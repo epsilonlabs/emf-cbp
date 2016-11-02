@@ -15,7 +15,7 @@ import org.eclipse.epsilon.cbp.impl.CBPBinaryResourceImpl;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
 import org.eclipse.epsilon.cbp.io.CBPBinaryDeserializer;
-import org.eclipse.epsilon.cbp.io.CBPBinarySerializer;
+import org.eclipse.epsilon.cbp.io.CBPBinarySerialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 import org.eclipse.epsilon.cbp.util.Changelog;
@@ -162,10 +162,10 @@ public class PersistenceManager
 		
 		if(resource instanceof CBPBinaryResourceImpl)
 		{
-			CBPBinarySerializer serializer = 
-					new CBPBinarySerializer(this,changelog, ePackageElementsNamesMap);
+			CBPBinarySerialiser serializer = 
+					new CBPBinarySerialiser(this,changelog, ePackageElementsNamesMap);
 			try {
-				serializer.save(options);
+				serializer.serialise(options);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -189,7 +189,7 @@ public class PersistenceManager
 		else if(resource instanceof CBPTextResourceImpl)
 		{
 			CBPTextDeserialiser textDeserializer = new CBPTextDeserialiser(this,changelog,ePackageElementsNamesMap);
-			textDeserializer.load(options);
+			textDeserializer.deserialise(options);
 		}
 	}
 	
