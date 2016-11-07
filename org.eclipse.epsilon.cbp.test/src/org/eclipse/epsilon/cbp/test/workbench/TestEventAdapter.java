@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 
@@ -20,10 +23,15 @@ public class TestEventAdapter {
 	public static void main(String[] args) {
 		EventAdapter adapter = new EventAdapter(new Changelog());
 		
+	    Resource resource = new ResourceImpl();
+	    
+	    resource.eAdapters().add(adapter);
+	    
+		
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
 		University university = factory.createUniversity();
 		
-		university.eAdapters().add(adapter);
+		resource.getContents().add(university);
 		
 		university.getCodes().add("UoY");
 		
@@ -52,6 +60,8 @@ public class TestEventAdapter {
 		
 		EAttribute codes_eAttribute = (EAttribute) university_eClass.getEStructuralFeature("codes");
 		university.eUnset(codes_eAttribute);
+		
+		EcoreUtil.remove(cs);
 		
 		adapter.showLog();
 	}

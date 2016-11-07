@@ -8,9 +8,9 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EContentsEList;
-import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.Changelog;
 
 public class EventAdapter extends EContentAdapter
@@ -58,7 +58,7 @@ public class EventAdapter extends EContentAdapter
 				if(n.getNewValue() instanceof EObject)
 				{
 					//if Notifier is resource
-					if(n.getNotifier() instanceof CBPResource)
+					if(n.getNotifier() instanceof Resource)
 					{
 						//create add to resource event
 					   changelog.addEvent(new AddEObjectsToResourceEvent(n));
@@ -85,7 +85,7 @@ public class EventAdapter extends EContentAdapter
 				if(n.getNewValue() instanceof EObject)
 				{
 					//if notifier is resource
-					if(n.getNotifier() instanceof CBPResource)
+					if(n.getNotifier() instanceof Resource)
 					{
 						//create add to resource event
 					   changelog.addEvent(new AddEObjectsToResourceEvent(n));
@@ -107,7 +107,7 @@ public class EventAdapter extends EContentAdapter
 				else if(n.getNewValue() == null)
 				{
 					//if notifier is resource
-					if(n.getNotifier() instanceof CBPResource)
+					if(n.getNotifier() instanceof Resource)
 					{
 						//create remove from resource event
 					   changelog.addEvent(new RemoveFromResourceEvent(n));
@@ -130,7 +130,7 @@ public class EventAdapter extends EContentAdapter
 				if(list.get(0) instanceof EObject)
 				{
 					//if notifier is resource
-					if(n.getNotifier() instanceof CBPResource)
+					if(n.getNotifier() instanceof Resource)
 					{
 					   changelog.addEvent(new AddEObjectsToResourceEvent(n));
 					}
@@ -149,7 +149,7 @@ public class EventAdapter extends EContentAdapter
 			{
 				if(n.getOldValue() instanceof EObject)
 				{
-					if(n.getNotifier() instanceof CBPResource)
+					if(n.getNotifier() instanceof Resource)
 					{
 					   changelog.addEvent(new RemoveFromResourceEvent(n));
 					}
@@ -170,7 +170,7 @@ public class EventAdapter extends EContentAdapter
 				List<Object> list =  (List<Object>) n.getOldValue();
 				if(list.get(0) instanceof EObject)
 				{
-					if(n.getNotifier() instanceof CBPResource)
+					if(n.getNotifier() instanceof Resource)
 					{
 					   changelog.addEvent(new RemoveFromResourceEvent(n));
 					}
