@@ -107,7 +107,7 @@ public class Changelog
 		System.out.println(classname+" DEBUG!");
 		for(Event e : eventList)
 		{
-			System.out.println(e.getEventType());
+			System.out.println(e.getEventType() + " " + e.getClass().getSimpleName());
 		}
 	}
 }

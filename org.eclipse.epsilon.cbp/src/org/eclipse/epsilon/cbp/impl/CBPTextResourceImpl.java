@@ -53,7 +53,7 @@ public class CBPTextResourceImpl extends CBPResource
     
     
 	@Override
-	public void save(Map<?, ?> options)
+	public void save(Map<?, ?> options) throws IOException
 	{
 		persistenceManager.save(options);
 		

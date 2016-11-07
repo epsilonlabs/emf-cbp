@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="university" nsURI="http://university/1.0" nsPrefix="cbp">
+  <eClassifiers xsi:type="ecore:EClass" name="University">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="departments" lowerBound="1"
+        upperBound="-1" eType="#//Department" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="chancelor" eType="#//StaffMember"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="codes" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Student">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="enrolledModules" upperBound="-1"
+        eType="#//Module" eOpposite="#//Module/enrolledStudents"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tutor" eType="#//StaffMember"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="StaffMember">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="staffMemberType" eType="#//StaffMemberType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="taughtModules" upperBound="-1"
+        eType="#//Module" eOpposite="#//Module/moduleLecturers"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Department">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="staff" upperBound="-1"
+        eType="#//StaffMember" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="students" upperBound="-1"
+        eType="#//Student" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="modules" upperBound="-1"
+        eType="#//Module"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Module">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="moduleLecturers" upperBound="-1"
+        eType="#//StaffMember" eOpposite="#//StaffMember/taughtModules"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="enrolledStudents" upperBound="-1"
+        eType="#//Student" eOpposite="#//Student/enrolledModules"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="StaffMemberType">
+    <eLiterals name="Academic"/>
+    <eLiterals name="Research" value="1"/>
+    <eLiterals name="Technical" value="2"/>
+    <eLiterals name="Admin" value="3"/>
+    <eLiterals name="Honary" value="4"/>
+    <eLiterals name="ResearchStudent" value="5"/>
+    <eLiterals name="Other" value="6"/>
+  </eClassifiers>
+</ecore:EPackage>

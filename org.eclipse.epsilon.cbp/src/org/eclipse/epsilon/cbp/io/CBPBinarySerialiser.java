@@ -36,8 +36,6 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	
-	
-	
     public CBPBinarySerialiser(PersistenceManager manager, Changelog changelog,ModelElementIDMap 
     		ePackageElementsNamesMap)
     {
@@ -69,6 +67,9 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         	case Event.ADD_EOBJ_TO_RESOURCE:
         		writeEObjectAdditionEvent((AddEObjectsToResourceEvent)e, outputStream);
         		break;
+			case Event.SET_EATTRIBUTE:
+				handleSetEAttributeEvent((EAttributeEvent)e, outputStream);
+				break;
         	case Event.ADD_TO_EREFERENCE:
         		writeEObjectAdditionEvent((AddToEReferenceEvent)e,outputStream);
         		break;
@@ -132,6 +133,58 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	}
     }
     
+    /*
+     * format: 
+     * 3 object_ID EAttribute_ID size 
+     */
+    private void setPrimitiveEAttributes(EAttributeEvent e, OutputStream out, int primitiveType) throws IOException
+    {
+    	//get forcus object
+    	EObject focusObject = e.getFocusObject();
+    	
+    	//get eattribute
+    	EAttribute eAttribute = e.getEAttribute();
+    	
+    	//get lists
+    	List<Object> eAttributeValuesList = e.getEAttributeValuesList();
+    	
+    	//serialisation type
+    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
+    	
+        writePrimitive(out,serializationType);
+        writePrimitive(out,changelog.getObjectId(focusObject));
+        writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
+        writePrimitive(out,eAttributeValuesList.size());
+        
+//        int nullCounter = 0; 
+        
+        for(Object obj : eAttributeValuesList)
+        {
+        	if(obj == null)
+        	{
+//        		nullCounter++;
+        		continue;
+        	}
+        	
+        	writePrimitive(out,primitiveType,obj);
+        }
+//        if(nullCounter > 0) // for obj with null values, serialise as complex types
+//        {
+//        	String[] nullsArray = new String[nullCounter];
+//        	
+//        	Arrays.fill(nullsArray,manager.NULL_STRING);
+//        	
+//        	List<Object> nullList = new ArrayList<Object>(Arrays.asList(nullsArray));
+//        	
+//        	int complexSerializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
+//        	
+//        	if(serializationType== SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE)
+//        		complexSerializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
+//        	
+//        	writeComplexEAttributes(focusObject,eAttribute,nullList,complexSerializationType,out);
+//        }
+    }
+    
     private void writePrimitiveEAttributes(EAttributeEvent e, OutputStream out, int primitiveType) throws IOException
     {
     	EObject focusObject = e.getFocusObject();
@@ -180,12 +233,16 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         }
     }
     
+    /*
+     * format
+     * serialisationType Obj_id EAtt_id attr_size 
+     */
     private void writeComplexEAttributes(EObject focusObject, EAttribute eAttribute,List<Object> eAttributeValuesList,int serializationType,
     		OutputStream out) throws IOException
     {
-    	
+    	//get EDatatype
     	EDataType eDataType = eAttribute.getEAttributeType();
-  
+    	
     	writePrimitive(out,serializationType);
     	writePrimitive(out,changelog.getObjectId(focusObject));
     	writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
@@ -215,6 +272,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	}
     }
     
+    /*
+     * format:
+     * 4
+     */
     private void writeComplexEAttributes(EAttributeEvent e,OutputStream out) throws IOException
     {
     	int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
@@ -489,10 +550,43 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		} //FORMAT ID
 	}
 
+	/*
+	 * format:
+	 * 0 size id*
+	 */
 	@Override
-	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) {
-		// TODO Auto-generated method stub
+	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException {
+
+		OutputStream stream = (OutputStream) out;
+		List<EObject> eObjectsList = e.getEObjectList();
 		
+    	ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
+    	
+    	for(EObject obj : eObjectsList)
+    	{
+    		if(changelog.addObjectToMap(obj))
+    		{
+    			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
+    			eObjectsToCreateList.add(changelog.getObjectId(obj));
+    		}
+    		else
+    		{
+    			//this should not happen
+				System.err.println("handleAddToResourceEven: redundant creation");
+    		}
+    	}
+    		
+
+		if(!eObjectsToCreateList.isEmpty()) //CREATE_AND_ADD_TO_RESOURCE 
+		{
+			writePrimitive(stream,SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE);
+			writePrimitive(stream,eObjectsToCreateList.size());
+			
+			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
+			{
+				writePrimitive(stream,it.next());
+			}
+		}
 	}
 
 	@Override
@@ -501,16 +595,59 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		
 	}
 
+	/*
+	 * format:
+	 * 
+	 */
 	@Override
-	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) {
-		// TODO Auto-generated method stub
+	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
+		OutputStream stream = (OutputStream) out;
 		
-	}
+		//get EAttribute type
+    	EDataType type = e.getEAttribute().getEAttributeType();
+    	
+    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
+
+    	//handle EEnum
+    	if(type instanceof EEnum)
+    	{
+    		writeComplexEAttributes(e,stream);
+        	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,stream);
+    	}
+    	
+    	switch(getTypeID(type))
+    	{
+    	case SimpleType.SIMPLE_TYPE_INT:
+    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_INT);
+    		return;
+    	case SimpleType.SIMPLE_TYPE_SHORT:
+    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_SHORT);
+    		return;
+    	case SimpleType.SIMPLE_TYPE_LONG:
+    		setPrimitiveEAttributes(e,stream,SimpleType.SIMPLE_TYPE_LONG);
+    		return;
+    	case SimpleType.SIMPLE_TYPE_FLOAT:
+    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_FLOAT);
+    		return;
+    	case SimpleType.SIMPLE_TYPE_DOUBLE:
+    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_DOUBLE);
+    		return;
+    	case SimpleType.SIMPLE_TYPE_BOOLEAN:
+    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_BOOLEAN);
+    		return;
+    	case SimpleType.SIMPLE_TYPE_CHAR:
+    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_CHAR);
+    		return;
+    	case SimpleType.COMPLEX_TYPE:
+    		writeComplexEAttributes(e,stream);
+    		return;
+    	}
+    }
 
 	@Override
 	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) {
 		// TODO Auto-generated method stub
-		
+ 		
 	}
 
 	@Override

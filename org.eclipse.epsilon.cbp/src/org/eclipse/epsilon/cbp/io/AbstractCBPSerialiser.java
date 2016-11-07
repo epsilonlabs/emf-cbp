@@ -1,7 +1,7 @@
 package org.eclipse.epsilon.cbp.io;
 
 import java.io.Closeable;
-import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -49,10 +49,10 @@ public abstract class AbstractCBPSerialiser {
 	protected abstract void serialiseHeader(Closeable out); 
 
 	
-	protected abstract void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out);
+	protected abstract void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException;
 	protected abstract void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out);
 
-	protected abstract void handleSetEAttributeEvent(EAttributeEvent e, Closeable out);
+	protected abstract void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException;
 	protected abstract void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out);
 	
 	protected abstract void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out);

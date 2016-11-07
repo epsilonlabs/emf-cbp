@@ -137,7 +137,7 @@ public class PersistenceManager
 		return resource.getURI();
 	}
 
-	public void save(Map<?,?> options)
+	public void save(Map<?,?> options) throws IOException
 	{
 		
 		if(options != null)

@@ -32,6 +32,11 @@ public class EventAdapter extends EContentAdapter
 		this.changelog = aChangelog;
 	}
 	
+	public void showLog()
+	{
+		changelog.debug();
+	}
+	
 	@Override
 	public void notifyChanged(Notification n)
 	{
