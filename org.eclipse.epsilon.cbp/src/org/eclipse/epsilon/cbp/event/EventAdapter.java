@@ -34,7 +34,7 @@ public class EventAdapter extends EContentAdapter
 	
 	public void showLog()
 	{
-		changelog.debug();
+		changelog.printLog();
 	}
 	
 	@Override

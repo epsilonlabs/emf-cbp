@@ -194,8 +194,6 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		changelog.debug();
-		
 		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.SET_EREFERENCE);
 	}
 }

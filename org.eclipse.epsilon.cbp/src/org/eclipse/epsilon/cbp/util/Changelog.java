@@ -102,9 +102,8 @@ public class Changelog
 		return eventList;
 	}
 	
-	public void debug()
+	public void printLog()
 	{
-		System.out.println(classname+" DEBUG!");
 		for(Event e : eventList)
 		{
 			System.out.println(e.getEventType() + " " + e.getClass().getSimpleName());
