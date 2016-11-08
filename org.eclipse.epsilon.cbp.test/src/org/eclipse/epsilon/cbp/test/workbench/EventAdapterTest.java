@@ -7,7 +7,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 
@@ -18,7 +17,7 @@ import university.University;
 import university.UniversityFactory;
 import university.UniversityPackage;
 
-public class TestEventAdapter {
+public class EventAdapterTest {
 
 	public static void main(String[] args) {
 		EventAdapter adapter = new EventAdapter(new Changelog());
@@ -60,9 +59,8 @@ public class TestEventAdapter {
 		
 		EAttribute codes_eAttribute = (EAttribute) university_eClass.getEStructuralFeature("codes");
 		university.eUnset(codes_eAttribute);
-		
-		EcoreUtil.remove(cs);
-		
+
+		resource.getContents().remove(university);
 		adapter.showLog();
 	}
 }

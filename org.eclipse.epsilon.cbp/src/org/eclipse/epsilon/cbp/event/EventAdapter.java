@@ -16,7 +16,7 @@ import org.eclipse.epsilon.cbp.util.Changelog;
 public class EventAdapter extends EContentAdapter
 {
 	//change log
-	private final Changelog changelog;
+	protected final Changelog changelog;
 	
 	//class name (I dont know why it is needed)
 	private final String classname = this.getClass().getSimpleName();
@@ -270,4 +270,8 @@ public class EventAdapter extends EContentAdapter
             }
         }
     }
+    
+    public Changelog getChangelog() {
+		return changelog;
+	}
 }

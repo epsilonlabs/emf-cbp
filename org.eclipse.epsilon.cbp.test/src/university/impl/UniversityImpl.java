@@ -35,6 +35,7 @@ import university.UniversityPackage;
  *   <li>{@link university.impl.UniversityImpl#getDepartments <em>Departments</em>}</li>
  *   <li>{@link university.impl.UniversityImpl#getChancelor <em>Chancelor</em>}</li>
  *   <li>{@link university.impl.UniversityImpl#getCodes <em>Codes</em>}</li>
+ *   <li>{@link university.impl.UniversityImpl#getName <em>Name</em>}</li>
  * </ul>
  *
  * @generated
@@ -69,6 +70,26 @@ public class UniversityImpl extends EObjectImpl implements University {
 	 * @ordered
 	 */
 	protected EList<String> codes;
+
+	/**
+	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String NAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String name = NAME_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -161,6 +182,27 @@ public class UniversityImpl extends EObjectImpl implements University {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setName(String newName) {
+		String oldName = name;
+		name = newName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, UniversityPackage.UNIVERSITY__NAME, oldName, name));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -186,6 +228,8 @@ public class UniversityImpl extends EObjectImpl implements University {
 				return getChancelor();
 			case UniversityPackage.UNIVERSITY__CODES:
 				return getCodes();
+			case UniversityPackage.UNIVERSITY__NAME:
+				return getName();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -210,6 +254,9 @@ public class UniversityImpl extends EObjectImpl implements University {
 				getCodes().clear();
 				getCodes().addAll((Collection<? extends String>)newValue);
 				return;
+			case UniversityPackage.UNIVERSITY__NAME:
+				setName((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -231,6 +278,9 @@ public class UniversityImpl extends EObjectImpl implements University {
 			case UniversityPackage.UNIVERSITY__CODES:
 				getCodes().clear();
 				return;
+			case UniversityPackage.UNIVERSITY__NAME:
+				setName(NAME_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -249,6 +299,8 @@ public class UniversityImpl extends EObjectImpl implements University {
 				return chancelor != null;
 			case UniversityPackage.UNIVERSITY__CODES:
 				return codes != null && !codes.isEmpty();
+			case UniversityPackage.UNIVERSITY__NAME:
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -265,6 +317,8 @@ public class UniversityImpl extends EObjectImpl implements University {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (codes: ");
 		result.append(codes);
+		result.append(", name: ");
+		result.append(name);
 		result.append(')');
 		return result.toString();
 	}

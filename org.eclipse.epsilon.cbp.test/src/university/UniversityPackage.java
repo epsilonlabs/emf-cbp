@@ -94,13 +94,22 @@ public interface UniversityPackage extends EPackage {
 	int UNIVERSITY__CODES = 2;
 
 	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNIVERSITY__NAME = 3;
+
+	/**
 	 * The number of structural features of the '<em>University</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int UNIVERSITY_FEATURE_COUNT = 3;
+	int UNIVERSITY_FEATURE_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link university.impl.StudentImpl <em>Student</em>}' class.
@@ -223,13 +232,22 @@ public interface UniversityPackage extends EPackage {
 	int DEPARTMENT__MODULES = 2;
 
 	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DEPARTMENT__NAME = 3;
+
+	/**
 	 * The number of structural features of the '<em>Department</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int DEPARTMENT_FEATURE_COUNT = 3;
+	int DEPARTMENT_FEATURE_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link university.impl.ModuleImpl <em>Module</em>}' class.
@@ -321,6 +339,17 @@ public interface UniversityPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getUniversity_Codes();
+
+	/**
+	 * Returns the meta object for the attribute '{@link university.University#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see university.University#getName()
+	 * @see #getUniversity()
+	 * @generated
+	 */
+	EAttribute getUniversity_Name();
 
 	/**
 	 * Returns the meta object for class '{@link university.Student <em>Student</em>}'.
@@ -441,6 +470,17 @@ public interface UniversityPackage extends EPackage {
 	EReference getDepartment_Modules();
 
 	/**
+	 * Returns the meta object for the attribute '{@link university.Department#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see university.Department#getName()
+	 * @see #getDepartment()
+	 * @generated
+	 */
+	EAttribute getDepartment_Name();
+
+	/**
 	 * Returns the meta object for class '{@link university.Module <em>Module</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -539,6 +579,14 @@ public interface UniversityPackage extends EPackage {
 		EAttribute UNIVERSITY__CODES = eINSTANCE.getUniversity_Codes();
 
 		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute UNIVERSITY__NAME = eINSTANCE.getUniversity_Name();
+
+		/**
 		 * The meta object literal for the '{@link university.impl.StudentImpl <em>Student</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -631,6 +679,14 @@ public interface UniversityPackage extends EPackage {
 		 * @generated
 		 */
 		EReference DEPARTMENT__MODULES = eINSTANCE.getDepartment_Modules();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute DEPARTMENT__NAME = eINSTANCE.getDepartment_Name();
 
 		/**
 		 * The meta object literal for the '{@link university.impl.ModuleImpl <em>Module</em>}' class.

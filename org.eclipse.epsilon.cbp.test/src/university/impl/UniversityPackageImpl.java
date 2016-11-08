@@ -170,6 +170,15 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getUniversity_Name() {
+		return (EAttribute)universityEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getStudent() {
 		return studentEClass;
 	}
@@ -269,6 +278,15 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getDepartment_Name() {
+		return (EAttribute)departmentEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getModule() {
 		return moduleEClass;
 	}
@@ -332,6 +350,7 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		createEReference(universityEClass, UNIVERSITY__DEPARTMENTS);
 		createEReference(universityEClass, UNIVERSITY__CHANCELOR);
 		createEAttribute(universityEClass, UNIVERSITY__CODES);
+		createEAttribute(universityEClass, UNIVERSITY__NAME);
 
 		studentEClass = createEClass(STUDENT);
 		createEReference(studentEClass, STUDENT__ENROLLED_MODULES);
@@ -346,6 +365,7 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		createEReference(departmentEClass, DEPARTMENT__STAFF);
 		createEReference(departmentEClass, DEPARTMENT__STUDENTS);
 		createEReference(departmentEClass, DEPARTMENT__MODULES);
+		createEAttribute(departmentEClass, DEPARTMENT__NAME);
 
 		moduleEClass = createEClass(MODULE);
 		createEReference(moduleEClass, MODULE__MODULE_LECTURERS);
@@ -389,6 +409,7 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		initEReference(getUniversity_Departments(), this.getDepartment(), null, "departments", null, 1, -1, University.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getUniversity_Chancelor(), this.getStaffMember(), null, "chancelor", null, 0, 1, University.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getUniversity_Codes(), ecorePackage.getEString(), "codes", null, 0, -1, University.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getUniversity_Name(), ecorePackage.getEString(), "name", null, 0, 1, University.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(studentEClass, Student.class, "Student", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getStudent_EnrolledModules(), this.getModule(), this.getModule_EnrolledStudents(), "enrolledModules", null, 0, -1, Student.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -403,6 +424,7 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		initEReference(getDepartment_Staff(), this.getStaffMember(), null, "staff", null, 0, -1, Department.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getDepartment_Students(), this.getStudent(), null, "students", null, 0, -1, Department.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getDepartment_Modules(), this.getModule(), null, "modules", null, 0, -1, Department.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDepartment_Name(), ecorePackage.getEString(), "name", null, 0, 1, Department.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(moduleEClass, Module.class, "Module", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getModule_ModuleLecturers(), this.getStaffMember(), this.getStaffMember_TaughtModules(), "moduleLecturers", null, 0, -1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
