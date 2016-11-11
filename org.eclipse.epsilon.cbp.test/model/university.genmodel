@@ -28,6 +28,8 @@
     <genClasses ecoreClass="university.ecore#//StaffMember">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute university.ecore#//StaffMember/staffMemberType"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference university.ecore#//StaffMember/taughtModules"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute university.ecore#//StaffMember/first_name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute university.ecore#//StaffMember/last_name"/>
     </genClasses>
     <genClasses ecoreClass="university.ecore#//Department">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference university.ecore#//Department/staff"/>
@@ -38,6 +40,7 @@
     <genClasses ecoreClass="university.ecore#//Module">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference university.ecore#//Module/moduleLecturers"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference university.ecore#//Module/enrolledStudents"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute university.ecore#//Module/name"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

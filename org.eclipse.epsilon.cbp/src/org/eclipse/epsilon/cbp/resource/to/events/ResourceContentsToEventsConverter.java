@@ -1,7 +1,8 @@
-package org.eclipse.epsilon.cbp.util;
+package org.eclipse.epsilon.cbp.resource.to.events;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
+import org.eclipse.epsilon.cbp.util.Changelog;
 
 public class ResourceContentsToEventsConverter 
 {
@@ -22,16 +24,21 @@ public class ResourceContentsToEventsConverter
 	//resource under question
 	Resource resource;
 	
+	HashSet<EObject> eObjectsCounter = new HashSet<EObject>();
+	
 	public ResourceContentsToEventsConverter(Changelog changelog, Resource resource)
 	{
 		this.changelog = changelog;
 		this.resource = resource;
 	}
 	
+	public Changelog getChangelog() {
+		return changelog;
+	}
+	
 	public void convert()
 	{
 		//if resource is empty, do nothing
-		
 		Iterator<EObject> iterator = resource.getAllContents();
 		if (!iterator.hasNext()) {
 			return;
@@ -46,17 +53,27 @@ public class ResourceContentsToEventsConverter
 			//get obj
 			EObject obj = iterator.next();
 			
-			//create event to add to resource
-			AddEObjectsToResourceEvent e = new AddEObjectsToResourceEvent(obj);
-			changelog.addEvent(e);
-			
-			//handle all attributes
-			handleAttributes(obj);
-			
-			//handle all references
-			handleReferences(obj);
+			if (!eObjectsCounter.contains(obj)) {
+				eObjectsCounter.add(obj);
+				
+				//create event to add to resource
+				AddEObjectsToResourceEvent e = new AddEObjectsToResourceEvent(obj);
+				changelog.addEvent(e);
+				
+				//handle all attributes
+				handleAttributes(obj);
+				
+				//handle all references
+				handleReferences(obj);
+			}
+			else {
+				//handle all attributes
+				handleAttributes(obj);
+				
+				//handle all references
+				handleReferences(obj);
+			}
 		}
-		
 	}
 	
 	public void handleAttributes(EObject obj)
@@ -71,7 +88,7 @@ public class ResourceContentsToEventsConverter
 				//create add to attribute event
 				AddToEAttributeEvent e =
 						new AddToEAttributeEvent(obj,attr,obj.eGet(attr));
-				changelog.addEvent(e); 
+				changelog.addEvent(e);
 			}
 		}
 	}
@@ -137,10 +154,20 @@ public class ResourceContentsToEventsConverter
 		//for each obj in the list, create add to ereference event
 		for(EObject obj : eObjectList)
 		{
-			AddToEReferenceEvent e = 
-					new AddToEReferenceEvent(focusObject,obj,eRef);
-			changelog.addEvent(e);
+			if (eObjectsCounter.contains(obj)) {
+				AddToEReferenceEvent e = 
+						new AddToEReferenceEvent(focusObject,obj,eRef);
+				changelog.addEvent(e);	
+			}
+			else {
+				AddEObjectsToResourceEvent addEObjectsToResourceEvent = new AddEObjectsToResourceEvent(obj);
+				AddToEReferenceEvent e = 
+						new AddToEReferenceEvent(focusObject,obj,eRef);
+				changelog.addEvent(addEObjectsToResourceEvent);
+				changelog.addEvent(e);
+			}
+			
 		}
 	}
-
+	
 }

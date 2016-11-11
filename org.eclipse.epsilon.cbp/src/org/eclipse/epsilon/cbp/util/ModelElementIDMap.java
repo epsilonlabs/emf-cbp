@@ -19,7 +19,7 @@ public class ModelElementIDMap
 		if(namesMap.get(name) == null)
 		{
 			namesMap.put(name, counter);
-			counter = counter +1;
+			counter = counter + 1;
 		}
 	}
 	

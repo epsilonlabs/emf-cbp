@@ -7,48 +7,42 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
-import org.eclipse.epsilon.cbp.util.Changelog;
-import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 
 public class CBPTextResourceImpl extends CBPResource
 {
-	private final String classname = this.getClass().getSimpleName();
+	protected String classname = this.getClass().getSimpleName();
 	
-	private final Changelog changelog = new Changelog();
+	protected CBPContext context = new CBPContext();
  
-	private final PersistenceManager persistenceManager;
+	protected PersistenceManager persistenceManager;
 	
-    private final EventAdapter eventAdapter;
- 
-    private  final ModelElementIDMap ePackageElementsNamesMap;
-    		
+	protected EventAdapter eventAdapter;
     
     public CBPTextResourceImpl(URI uri, EPackage ePackage)
 	{
 		super(uri);
 		
-		eventAdapter = new EventAdapter(changelog);
+		eventAdapter = new EventAdapter(context.getChangelog());
 		
 		this.eAdapters().add(eventAdapter); 
 		
-		ePackageElementsNamesMap = populateEPackageElementNamesMap(ePackage);
+		context.populateEPackageElementNamesMap(ePackage);
 		
-		persistenceManager = new PersistenceManager(changelog,this, 
-				ePackageElementsNamesMap);
+		persistenceManager = new PersistenceManager(context,this);
 	}
     
     public CBPTextResourceImpl(EPackage ePackage)
     {
-		eventAdapter = new EventAdapter(changelog);
+		eventAdapter = new EventAdapter(context.getChangelog());
 		
 		this.eAdapters().add(eventAdapter); 
 		
-		ePackageElementsNamesMap = populateEPackageElementNamesMap(ePackage);
+		context.populateEPackageElementNamesMap(ePackage);
 		
-		persistenceManager = new PersistenceManager(changelog,this,
-				ePackageElementsNamesMap); 
+		persistenceManager = new PersistenceManager(context, this); 
     }
     
     
@@ -99,11 +93,6 @@ public class CBPTextResourceImpl extends CBPResource
 		}
 		
 		eventAdapter.setEnabled(true);
-	}
-		
-	public Changelog getChangelog()
-	{
-		return this.changelog;
 	}
 	
 }

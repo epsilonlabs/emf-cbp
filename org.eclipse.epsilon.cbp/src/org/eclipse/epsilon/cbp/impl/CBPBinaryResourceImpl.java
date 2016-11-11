@@ -5,18 +5,14 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
-import org.eclipse.epsilon.cbp.util.Changelog;
-import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 
 public class CBPBinaryResourceImpl extends CBPResource 
 {
-	//class name
-	private final String classname = this.getClass().getSimpleName();
-	
-	//change log
-	private final Changelog changelog = new Changelog();
+	//context
+	protected CBPContext context;
  
 	//persistence manager
 	private final PersistenceManager persistenceManager;
@@ -24,33 +20,28 @@ public class CBPBinaryResourceImpl extends CBPResource
 	//event adapter
     private final EventAdapter eventAdapter;
  
-    //epackage elements map
-    private final ModelElementIDMap ePackageElementsNamesMap;
-	
 	public CBPBinaryResourceImpl(URI uri, EPackage ePackage)
 	{
 		super(uri);
 		
-		eventAdapter = new EventAdapter(changelog);
+		eventAdapter = new EventAdapter(context.getChangelog());
 		
 		this.eAdapters().add(eventAdapter); 
 		
-		ePackageElementsNamesMap = populateEPackageElementNamesMap(ePackage);
+		context.populateEPackageElementNamesMap(ePackage);
 		
-		persistenceManager = new PersistenceManager(changelog,this, 
-				ePackageElementsNamesMap);
+		persistenceManager = new PersistenceManager(context,this);
 	}
 	
 	public CBPBinaryResourceImpl(EPackage ePackage)
 	{
-		eventAdapter = new EventAdapter(changelog);
+		eventAdapter = new EventAdapter(context.getChangelog());
 		
 		this.eAdapters().add(eventAdapter); 
 		
-		ePackageElementsNamesMap = populateEPackageElementNamesMap(ePackage);
+		context.populateEPackageElementNamesMap(ePackage);
 		
-		persistenceManager = new PersistenceManager(changelog,this, 
-				ePackageElementsNamesMap);
+		persistenceManager = new PersistenceManager(context,this);
 	}
 	
 	@Override
@@ -64,7 +55,7 @@ public class CBPBinaryResourceImpl extends CBPResource
 	{
 		eventAdapter.setEnabled(false);
 		
-		System.out.println(classname+": Load called!");
+		System.out.println("Load called on CBPBinaryResourceImpl");
 		
 		try {
 			persistenceManager.load(options);
@@ -75,11 +66,4 @@ public class CBPBinaryResourceImpl extends CBPResource
 		
 		eventAdapter.setEnabled(true);
 	}
-		
-	public Changelog getChangelog()
-	{
-		return this.changelog;
-	}
-	
-	
 }

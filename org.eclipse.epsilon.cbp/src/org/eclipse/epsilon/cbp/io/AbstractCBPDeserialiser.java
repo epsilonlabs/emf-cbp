@@ -10,9 +10,9 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
-import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
@@ -25,7 +25,7 @@ public abstract class AbstractCBPDeserialiser {
 	protected EPackage ePackage = null;
 	
 	//change log
-	protected Changelog changelog;
+	protected CBPContext context;
 
 	//id to eobject
 	protected TIntObjectMap<EObject> IDToEObjectMap = new TIntObjectHashMap<EObject>();

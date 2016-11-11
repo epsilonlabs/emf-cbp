@@ -26,8 +26,8 @@ public class EventAdapterTest {
 	    
 	    resource.eAdapters().add(adapter);
 	    
-		
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
 		University university = factory.createUniversity();
 		
 		resource.getContents().add(university);

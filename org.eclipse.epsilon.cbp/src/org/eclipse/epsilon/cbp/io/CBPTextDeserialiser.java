@@ -14,22 +14,22 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
-import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
-	public CBPTextDeserialiser(PersistenceManager manager, Changelog aChangelog,
+	public CBPTextDeserialiser(PersistenceManager manager, CBPContext context,
 			ModelElementIDMap ePackageElementsNamesMap) {
 		this.manager = manager;
-		this.changelog = aChangelog;
+		this.context = context;
 		this.ePackageElementsNamesMap = ePackageElementsNamesMap;
 
-		this.commonsimpleTypeNameMap = manager.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = manager.getTextSimpleTypesMap();
+		this.commonsimpleTypeNameMap = context.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = context.getTextSimpleTypesMap();
 	}
 	
 	public void deserialise(Map<?, ?> options) throws Exception {
@@ -132,7 +132,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			int id = Integer.valueOf(stringArray[1]);
 
 			//add object to change log
-			changelog.addObjectToMap(obj, id);
+			context.addObjectToMap(obj, id);
 			
 			//put to IDToEObjectMap
 			IDToEObjectMap.put(id, obj);
@@ -373,7 +373,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			int id = Integer.valueOf(temp[1]);
 
 			//add obj to change log
-			changelog.addObjectToMap(obj, id);
+			context.addObjectToMap(obj, id);
 
 			//put to IdToObjectMap
 			IDToEObjectMap.put(id, obj);
@@ -426,7 +426,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			int id = Integer.valueOf(temp[1]);
 
 			//add obj to change log
-			changelog.addObjectToMap(obj, id);
+			context.addObjectToMap(obj, id);
 
 			//put to IdToObjectMap
 			IDToEObjectMap.put(id, obj);

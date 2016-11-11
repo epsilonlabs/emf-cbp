@@ -10,4 +10,5 @@ Export-Package: org.eclipse.epsilon.cbp.context,
  org.eclipse.epsilon.cbp.exceptions,
  org.eclipse.epsilon.cbp.impl,
  org.eclipse.epsilon.cbp.io,
+ org.eclipse.epsilon.cbp.resource.to.events,
  org.eclipse.epsilon.cbp.util

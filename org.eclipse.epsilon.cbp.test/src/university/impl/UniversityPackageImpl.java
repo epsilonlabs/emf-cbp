@@ -242,6 +242,24 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getStaffMember_First_name() {
+		return (EAttribute)staffMemberEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStaffMember_Last_name() {
+		return (EAttribute)staffMemberEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getDepartment() {
 		return departmentEClass;
 	}
@@ -314,6 +332,15 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getModule_Name() {
+		return (EAttribute)moduleEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EEnum getStaffMemberType() {
 		return staffMemberTypeEEnum;
 	}
@@ -360,6 +387,8 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		staffMemberEClass = createEClass(STAFF_MEMBER);
 		createEAttribute(staffMemberEClass, STAFF_MEMBER__STAFF_MEMBER_TYPE);
 		createEReference(staffMemberEClass, STAFF_MEMBER__TAUGHT_MODULES);
+		createEAttribute(staffMemberEClass, STAFF_MEMBER__FIRST_NAME);
+		createEAttribute(staffMemberEClass, STAFF_MEMBER__LAST_NAME);
 
 		departmentEClass = createEClass(DEPARTMENT);
 		createEReference(departmentEClass, DEPARTMENT__STAFF);
@@ -370,6 +399,7 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		moduleEClass = createEClass(MODULE);
 		createEReference(moduleEClass, MODULE__MODULE_LECTURERS);
 		createEReference(moduleEClass, MODULE__ENROLLED_STUDENTS);
+		createEAttribute(moduleEClass, MODULE__NAME);
 
 		// Create enums
 		staffMemberTypeEEnum = createEEnum(STAFF_MEMBER_TYPE);
@@ -419,6 +449,8 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		initEClass(staffMemberEClass, StaffMember.class, "StaffMember", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getStaffMember_StaffMemberType(), this.getStaffMemberType(), "staffMemberType", null, 0, 1, StaffMember.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getStaffMember_TaughtModules(), this.getModule(), this.getModule_ModuleLecturers(), "taughtModules", null, 0, -1, StaffMember.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStaffMember_First_name(), ecorePackage.getEString(), "first_name", null, 0, 1, StaffMember.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStaffMember_Last_name(), ecorePackage.getEString(), "last_name", null, 0, 1, StaffMember.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(departmentEClass, Department.class, "Department", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getDepartment_Staff(), this.getStaffMember(), null, "staff", null, 0, -1, Department.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -429,6 +461,7 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 		initEClass(moduleEClass, Module.class, "Module", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getModule_ModuleLecturers(), this.getStaffMember(), this.getStaffMember_TaughtModules(), "moduleLecturers", null, 0, -1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getModule_EnrolledStudents(), this.getStudent(), this.getStudent_EnrolledModules(), "enrolledStudents", null, 0, -1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getModule_Name(), ecorePackage.getEString(), "name", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
 		initEEnum(staffMemberTypeEEnum, StaffMemberType.class, "StaffMemberType");

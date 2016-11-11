@@ -186,13 +186,31 @@ public interface UniversityPackage extends EPackage {
 	int STAFF_MEMBER__TAUGHT_MODULES = 1;
 
 	/**
+	 * The feature id for the '<em><b>First name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAFF_MEMBER__FIRST_NAME = 2;
+
+	/**
+	 * The feature id for the '<em><b>Last name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STAFF_MEMBER__LAST_NAME = 3;
+
+	/**
 	 * The number of structural features of the '<em>Staff Member</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int STAFF_MEMBER_FEATURE_COUNT = 2;
+	int STAFF_MEMBER_FEATURE_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link university.impl.DepartmentImpl <em>Department</em>}' class.
@@ -278,13 +296,22 @@ public interface UniversityPackage extends EPackage {
 	int MODULE__ENROLLED_STUDENTS = 1;
 
 	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MODULE__NAME = 2;
+
+	/**
 	 * The number of structural features of the '<em>Module</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int MODULE_FEATURE_COUNT = 2;
+	int MODULE_FEATURE_COUNT = 3;
 
 	/**
 	 * The meta object id for the '{@link university.StaffMemberType <em>Staff Member Type</em>}' enum.
@@ -427,6 +454,28 @@ public interface UniversityPackage extends EPackage {
 	EReference getStaffMember_TaughtModules();
 
 	/**
+	 * Returns the meta object for the attribute '{@link university.StaffMember#getFirst_name <em>First name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>First name</em>'.
+	 * @see university.StaffMember#getFirst_name()
+	 * @see #getStaffMember()
+	 * @generated
+	 */
+	EAttribute getStaffMember_First_name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link university.StaffMember#getLast_name <em>Last name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Last name</em>'.
+	 * @see university.StaffMember#getLast_name()
+	 * @see #getStaffMember()
+	 * @generated
+	 */
+	EAttribute getStaffMember_Last_name();
+
+	/**
 	 * Returns the meta object for class '{@link university.Department <em>Department</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -511,6 +560,17 @@ public interface UniversityPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getModule_EnrolledStudents();
+
+	/**
+	 * Returns the meta object for the attribute '{@link university.Module#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see university.Module#getName()
+	 * @see #getModule()
+	 * @generated
+	 */
+	EAttribute getModule_Name();
 
 	/**
 	 * Returns the meta object for enum '{@link university.StaffMemberType <em>Staff Member Type</em>}'.
@@ -647,6 +707,22 @@ public interface UniversityPackage extends EPackage {
 		EReference STAFF_MEMBER__TAUGHT_MODULES = eINSTANCE.getStaffMember_TaughtModules();
 
 		/**
+		 * The meta object literal for the '<em><b>First name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAFF_MEMBER__FIRST_NAME = eINSTANCE.getStaffMember_First_name();
+
+		/**
+		 * The meta object literal for the '<em><b>Last name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STAFF_MEMBER__LAST_NAME = eINSTANCE.getStaffMember_Last_name();
+
+		/**
 		 * The meta object literal for the '{@link university.impl.DepartmentImpl <em>Department</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -713,6 +789,14 @@ public interface UniversityPackage extends EPackage {
 		 * @generated
 		 */
 		EReference MODULE__ENROLLED_STUDENTS = eINSTANCE.getModule_EnrolledStudents();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute MODULE__NAME = eINSTANCE.getModule_Name();
 
 		/**
 		 * The meta object literal for the '{@link university.StaffMemberType <em>Staff Member Type</em>}' enum.

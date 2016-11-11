@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
@@ -26,7 +27,6 @@ import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
-import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
@@ -38,17 +38,17 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		return "CBP_TEXT";
 	}
 	
-	public CBPTextSerialiser(PersistenceManager manager, Changelog aChangelog, ModelElementIDMap 
+	public CBPTextSerialiser(PersistenceManager manager, CBPContext context, ModelElementIDMap 
 			ePackageElementsNamesMap)
 	{
 		this.manager =  manager;
-		this.changelog = aChangelog;
+		this.context = context;
 		this.ePackageElementsNamesMap = ePackageElementsNamesMap;
 		
-		this.eventList = manager.getChangelog().getEventsList();
+		this.eventList = context.getChangelog().getEventsList();
 		
-		this.commonsimpleTypeNameMap = manager.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = manager.getTextSimpleTypesMap();
+		this.commonsimpleTypeNameMap = context.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = context.getTextSimpleTypesMap();
 	}
 	
 	public void serialise(Map<?,?> options) throws IOException
@@ -59,7 +59,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			return;
 		}
 			
-		
 		Closeable printWriter = null;
 		//setup printwriter
 	    try
@@ -109,8 +108,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			}
 		}
 		
-		changelog.clearEvents();
-		
 		printWriter.close();
 		manager.setResume(true);
 	}
@@ -132,13 +129,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     	for(EObject obj : e.getEObjectList())
     	{
     		//if obj is not added already
-    		if(changelog.addObjectToMap(obj))
+    		if(context.addObjectToMap(obj))
     		{
     			//add type to object-to-create-list
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(changelog.getObjectId(obj));
+    			eObjectsToCreateList.add(context.getObjectId(obj));
     		}
     		else {
     			//should not happen
@@ -187,7 +184,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		
 		for(EObject obj : removedEObjectsList)
 		{
-			writer.print(delimiter + changelog.getObjectId(obj));
+			writer.print(delimiter + context.getObjectId(obj));
 			delimiter = PersistenceManager.DELIMITER;
 		}
 		writer.print("]");
@@ -218,7 +215,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		String delimiter ="";
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
-			writer.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
+			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
@@ -243,7 +240,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		{
 			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
 			
-			writer.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
+			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
@@ -293,7 +290,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		String delimiter ="";
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
-			writer.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
+			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
@@ -319,7 +316,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		{
 			serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX;
 			
-			writer.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
+			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
@@ -365,18 +362,18 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     	for(EObject obj : e.getEObjectList())
     	{
     		//if obj is not added already
-    		if(changelog.addObjectToMap(obj))
+    		if(context.addObjectToMap(obj))
     		{
     			//add type to object-to-create-list
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(changelog.getObjectId(obj));
+    			eObjectsToCreateList.add(context.getObjectId(obj));
     		}
     		else
     		{
     			//add id to object-to-add list
-    			eObjectsToAddList.add(changelog.getObjectId(obj));
+    			eObjectsToAddList.add(context.getObjectId(obj));
     		}
     	}
     	
@@ -388,7 +385,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		{
 			created = true;
 			writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE+" "+
-					changelog.getObjectId(focusObject)+" "+
+					context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eReference.getName())+" [");
 			
 	        int index = 0;
@@ -413,13 +410,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 			if (created) {
 				writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
-						changelog.getObjectId(focusObject)+" "+
+						context.getObjectId(focusObject)+" "+
 						ePackageElementsNamesMap.getID(eReference.getName())+
 						" [");
 			}
 			else {
 				writer.print(SerialisationEventType.SET_EREFERENCE+" "+
-						changelog.getObjectId(focusObject)+" "+
+						context.getObjectId(focusObject)+" "+
 						ePackageElementsNamesMap.getID(eReference.getName())+
 						" [");
 			}
@@ -453,19 +450,19 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     	for(EObject obj : e.getEObjectList())
     	{
     		//if obj is not added already
-    		if(changelog.addObjectToMap(obj))
+    		if(context.addObjectToMap(obj))
     		{
     			//add type to object-to-create-list
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(changelog.getObjectId(obj));
+    			eObjectsToCreateList.add(context.getObjectId(obj));
     			
     		}
     		else
     		{
     			//add id to object-to-add list
-    			eObjectsToAddList.add(changelog.getObjectId(obj));
+    			eObjectsToAddList.add(context.getObjectId(obj));
     		}
     	}
     	
@@ -477,7 +474,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		{
 
 			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE+" "+
-					changelog.getObjectId(focusObject)+" "+
+					context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eReference.getName())+" [");
 			
 	        int index = 0;
@@ -499,7 +496,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		if(!eObjectsToAddList.isEmpty())
 		{
 			writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
-					changelog.getObjectId(focusObject)+" "+
+					context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eReference.getName())+
 					" [");
 			
@@ -539,7 +536,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		
 		if(getTypeID(eDataType) != SimpleType.COMPLEX_TYPE )
 		{
-			writer.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
+			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
 			
 
@@ -560,7 +557,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		else //all other datatypes
 		{
 			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
-			writer.print((serializationType+" "+changelog.getObjectId(focusObject)+" "+
+			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
 					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
 
 			for(Object obj: e.getEAttributeValuesList())
@@ -599,14 +596,14 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		List<EObject> removedEObjectsList = e.getEObjectList();
 		
 		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE+" "+
-				changelog.getObjectId(focusObject)+" "+
+				context.getObjectId(focusObject)+" "+
                 (ePackageElementsNamesMap.getID(eReference.getName())+" ["));
 			
 		String delimiter = "";
 		
 		for(EObject obj : removedEObjectsList)
 		{
-			writer.print(delimiter + changelog.getObjectId(obj));
+			writer.print(delimiter + context.getObjectId(obj));
 			delimiter = PersistenceManager.DELIMITER;
 		}
 		writer.print("]");

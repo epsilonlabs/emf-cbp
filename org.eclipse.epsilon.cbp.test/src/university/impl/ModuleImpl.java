@@ -4,6 +4,7 @@ package university.impl;
 
 import java.util.Collection;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 
 import org.eclipse.emf.common.util.EList;
@@ -11,6 +12,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EObjectWithInverseResolvingEList;
@@ -31,6 +33,7 @@ import university.UniversityPackage;
  * <ul>
  *   <li>{@link university.impl.ModuleImpl#getModuleLecturers <em>Module Lecturers</em>}</li>
  *   <li>{@link university.impl.ModuleImpl#getEnrolledStudents <em>Enrolled Students</em>}</li>
+ *   <li>{@link university.impl.ModuleImpl#getName <em>Name</em>}</li>
  * </ul>
  *
  * @generated
@@ -55,6 +58,26 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * @ordered
 	 */
 	protected EList<Student> enrolledStudents;
+
+	/**
+	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String NAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String name = NAME_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -104,6 +127,27 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setName(String newName) {
+		String oldName = name;
+		name = newName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, UniversityPackage.MODULE__NAME, oldName, name));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
@@ -144,6 +188,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 				return getModuleLecturers();
 			case UniversityPackage.MODULE__ENROLLED_STUDENTS:
 				return getEnrolledStudents();
+			case UniversityPackage.MODULE__NAME:
+				return getName();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -165,6 +211,9 @@ public class ModuleImpl extends EObjectImpl implements Module {
 				getEnrolledStudents().clear();
 				getEnrolledStudents().addAll((Collection<? extends Student>)newValue);
 				return;
+			case UniversityPackage.MODULE__NAME:
+				setName((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -183,6 +232,9 @@ public class ModuleImpl extends EObjectImpl implements Module {
 			case UniversityPackage.MODULE__ENROLLED_STUDENTS:
 				getEnrolledStudents().clear();
 				return;
+			case UniversityPackage.MODULE__NAME:
+				setName(NAME_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -199,8 +251,26 @@ public class ModuleImpl extends EObjectImpl implements Module {
 				return moduleLecturers != null && !moduleLecturers.isEmpty();
 			case UniversityPackage.MODULE__ENROLLED_STUDENTS:
 				return enrolledStudents != null && !enrolledStudents.isEmpty();
+			case UniversityPackage.MODULE__NAME:
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 		}
 		return super.eIsSet(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String toString() {
+		if (eIsProxy()) return super.toString();
+
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (name: ");
+		result.append(name);
+		result.append(')');
+		return result.toString();
 	}
 
 } //ModuleImpl

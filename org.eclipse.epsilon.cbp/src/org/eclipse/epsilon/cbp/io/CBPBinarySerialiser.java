@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
@@ -36,11 +37,11 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	
-    public CBPBinarySerialiser(PersistenceManager manager, Changelog changelog,ModelElementIDMap 
+    public CBPBinarySerialiser(PersistenceManager manager, CBPContext context, ModelElementIDMap 
     		ePackageElementsNamesMap)
     {
     	this.manager =  manager;
-        this.changelog = changelog;
+        this.context = context;
         this.ePackageElementsNamesMap = ePackageElementsNamesMap;
         
         this.eventList = manager.getChangelog().getEventsList();
@@ -85,8 +86,6 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         		break;
         	}
         }
-        
-        changelog.clearEvents();
         
       	outputStream.close();
       	
@@ -152,7 +151,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
     	
         writePrimitive(out,serializationType);
-        writePrimitive(out,changelog.getObjectId(focusObject));
+        writePrimitive(out,context.getObjectId(focusObject));
         writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
         writePrimitive(out,eAttributeValuesList.size());
         
@@ -199,7 +198,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     		serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE;
     	
         writePrimitive(out,serializationType);
-        writePrimitive(out,changelog.getObjectId(focusObject));
+        writePrimitive(out,context.getObjectId(focusObject));
         writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
         writePrimitive(out,eAttributeValuesList.size());
         
@@ -244,7 +243,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	EDataType eDataType = eAttribute.getEAttributeType();
     	
     	writePrimitive(out,serializationType);
-    	writePrimitive(out,changelog.getObjectId(focusObject));
+    	writePrimitive(out,context.getObjectId(focusObject));
     	writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
     	writePrimitive(out,eAttributeValuesList.size());
     	
@@ -304,14 +303,14 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	
     	for(EObject obj : eObjectsList)
     	{
-    		if(changelog.addObjectToMap(obj))
+    		if(context.addObjectToMap(obj))
     		{
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
-    			eObjectsToCreateList.add(changelog.getObjectId(obj));
+    			eObjectsToCreateList.add(context.getObjectId(obj));
     		}
     		else
     		{
-    			eObjectsToAddList.add(changelog.getObjectId(obj));
+    			eObjectsToAddList.add(context.getObjectId(obj));
     		}
     	}
     		
@@ -345,7 +344,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     		if(!eObjectsToCreateList.isEmpty())//CREATE_AND_SET_REF_VALUE
     		{
     			writePrimitive(out,SerialisationEventType.CREATE_AND_SET_EREFERENCE);
-    			writePrimitive(out,changelog.getObjectId(focusObject));
+    			writePrimitive(out,context.getObjectId(focusObject));
     			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     			writePrimitive(out,eObjectsToCreateList.size());
     			
@@ -357,7 +356,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     		if(!eObjectsToAddList.isEmpty()) //SET_REFERENCE_VALUE
     		{
     			writePrimitive(out,SerialisationEventType.SET_EREFERENCE);
-    			writePrimitive(out,changelog.getObjectId(focusObject));
+    			writePrimitive(out,context.getObjectId(focusObject));
     			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     			writePrimitive(out,eObjectsToAddList.size());
     			
@@ -391,7 +390,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     		
     		for(EObject obj : eObjectsList)
     		{
-    			writePrimitive(out,changelog.getObjectId(obj));
+    			writePrimitive(out,context.getObjectId(obj));
     		}
     	}
     	else 
@@ -399,13 +398,13 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     		
     		
     		writePrimitive(out,SerialisationEventType.REMOVE_FROM_EREFERENCE);
-    		writePrimitive(out,changelog.getObjectId(focusObject));
+    		writePrimitive(out,context.getObjectId(focusObject));
     		writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
     		writePrimitive(out,eObjectsList.size());
     		
     		for(EObject obj: eObjectsList)
     		{
-    			writePrimitive(out,changelog.getObjectId(obj));
+    			writePrimitive(out,context.getObjectId(obj));
     		}
     	}
     }
@@ -564,10 +563,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	
     	for(EObject obj : eObjectsList)
     	{
-    		if(changelog.addObjectToMap(obj))
+    		if(context.addObjectToMap(obj))
     		{
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
-    			eObjectsToCreateList.add(changelog.getObjectId(obj));
+    			eObjectsToCreateList.add(context.getObjectId(obj));
     		}
     		else
     		{

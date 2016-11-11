@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
@@ -29,7 +30,7 @@ public abstract class AbstractCBPSerialiser {
 	protected PersistenceManager manager;
 	
 	//change log
-	protected Changelog changelog; 
+	protected CBPContext context; 
 	
 	//epackage element map
 	protected ModelElementIDMap ePackageElementsNamesMap;

@@ -18,12 +18,8 @@ public class EventAdapter extends EContentAdapter
 	//change log
 	protected final Changelog changelog;
 	
-	//class name (I dont know why it is needed)
-	private final String classname = this.getClass().getSimpleName();
-	
 	//flag adapter_enabled
 	private boolean adapter_enabled = true;
-	
 	
 	//constructor
 	public EventAdapter(Changelog aChangelog)
@@ -187,7 +183,7 @@ public class EventAdapter extends EContentAdapter
 			}
 			default:
 			{
-				System.out.println(classname+"Unhandled notification!" +n.toString());
+				System.out.println("EventAdapter: Unhandled notification!" +n.toString());
 				System.exit(0);
 				break;
 			}

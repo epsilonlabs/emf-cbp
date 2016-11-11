@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.context;
+package org.eclipse.epsilon.cbp.context; 
 
 
 import java.io.IOException;
@@ -18,9 +18,9 @@ import org.eclipse.epsilon.cbp.io.CBPBinaryDeserializer;
 import org.eclipse.epsilon.cbp.io.CBPBinarySerialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
+import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
-import org.eclipse.epsilon.cbp.util.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 import gnu.trove.map.TObjectIntMap;
@@ -38,6 +38,8 @@ public class PersistenceManager
 	//Null string I dont know what this is
 	public final String NULL_STRING = "pFgrW";
 	
+	protected CBPContext context;
+	
 	/*
 	 * Only remove redundant changes made during the current session.
 	 */
@@ -48,73 +50,27 @@ public class PersistenceManager
 	 */
 	String OPTION_OPTIMISE_MODEL ="OPTIMISE_MODEL";
 	
-	private final Changelog changelog; 
-
 	private final CBPResource resource;
 	
 	private EList<EObject> contents;
 	
-    private final ModelElementIDMap ePackageElementsNamesMap;
-	
 	private boolean resume = false;
 	
-	private final TObjectIntMap<String> textSimpleTypesMap = new TObjectIntHashMap<String>(2);
-	
-	private final TObjectIntMap<String> commonSimpleTypesMap = new TObjectIntHashMap<String>(13);
-	
-	public PersistenceManager(Changelog changelog, CBPResource resource, 
-			ModelElementIDMap ePackageElementsNamesMap)
+	public PersistenceManager(CBPContext context, CBPResource resource)
 	{
-		this.changelog = changelog;
+		this.context = context;
 		this.resource = resource;
-		contents = (EList<EObject>) new ArrayList<EObject>();
-		Iterator<EObject> it = resource.getAllContents();
-		while (it.hasNext()){
-			contents.add(it.next());
-		}
+		populateAllContents();
+	}
+	
+	protected void populateAllContents()
+	{
 		contents = resource.getContents();
-		this.ePackageElementsNamesMap = ePackageElementsNamesMap;
-		
-		populatecommonSimpleTypesMap();
-		populateTextSimpleTypesMap();
 	}
 	
 	public void setResume(boolean b)
 	{
 		resume = b;
-	}
-	
-	private void populateTextSimpleTypesMap()
-	{
-    	textSimpleTypesMap.put("EString", SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
-    	textSimpleTypesMap.put("EStringObject", SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
-	}
-	
-	private void populatecommonSimpleTypesMap()
-	{
-		commonSimpleTypesMap.put("EInt", SimpleType.SIMPLE_TYPE_INT);
-		commonSimpleTypesMap.put("EIntegerObject", SimpleType.SIMPLE_TYPE_INT);
-		commonSimpleTypesMap.put("EBoolean", SimpleType.SIMPLE_TYPE_BOOLEAN);
-		commonSimpleTypesMap.put("EBooleanObject", SimpleType.SIMPLE_TYPE_BOOLEAN);
-		commonSimpleTypesMap.put("EFloat", SimpleType.SIMPLE_TYPE_FLOAT);
-		commonSimpleTypesMap.put("EFloatObject", SimpleType.SIMPLE_TYPE_FLOAT);
-		commonSimpleTypesMap.put("EDouble", SimpleType.SIMPLE_TYPE_DOUBLE);
-		commonSimpleTypesMap.put("EDoubleObject", SimpleType.SIMPLE_TYPE_DOUBLE);
-		commonSimpleTypesMap.put("EShort", SimpleType.SIMPLE_TYPE_SHORT);
-		commonSimpleTypesMap.put("EShortObject", SimpleType.SIMPLE_TYPE_SHORT);
-		commonSimpleTypesMap.put("ELong", SimpleType.SIMPLE_TYPE_LONG);
-		commonSimpleTypesMap.put("ELongObject", SimpleType.SIMPLE_TYPE_LONG);
-		commonSimpleTypesMap.put("EChar", SimpleType.SIMPLE_TYPE_CHAR);
-	}
-	
-	public TObjectIntMap<String> getCommonSimpleTypesMap()
-	{
-		return commonSimpleTypesMap;
-	}
-	
-	public TObjectIntMap<String> getTextSimpleTypesMap()
-	{
-		return textSimpleTypesMap;
 	}
 	
 	public boolean isResume()
@@ -192,10 +148,4 @@ public class PersistenceManager
 			textDeserializer.deserialise(options);
 		}
 	}
-	
-	public Changelog getChangelog()
-	{
-		return this.changelog;
-	}
-	
 }

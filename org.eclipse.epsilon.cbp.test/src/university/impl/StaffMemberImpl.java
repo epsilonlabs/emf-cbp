@@ -33,6 +33,8 @@ import university.UniversityPackage;
  * <ul>
  *   <li>{@link university.impl.StaffMemberImpl#getStaffMemberType <em>Staff Member Type</em>}</li>
  *   <li>{@link university.impl.StaffMemberImpl#getTaughtModules <em>Taught Modules</em>}</li>
+ *   <li>{@link university.impl.StaffMemberImpl#getFirst_name <em>First name</em>}</li>
+ *   <li>{@link university.impl.StaffMemberImpl#getLast_name <em>Last name</em>}</li>
  * </ul>
  *
  * @generated
@@ -67,6 +69,46 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 	 * @ordered
 	 */
 	protected EList<Module> taughtModules;
+
+	/**
+	 * The default value of the '{@link #getFirst_name() <em>First name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFirst_name()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String FIRST_NAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getFirst_name() <em>First name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFirst_name()
+	 * @generated
+	 * @ordered
+	 */
+	protected String first_name = FIRST_NAME_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getLast_name() <em>Last name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getLast_name()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String LAST_NAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getLast_name() <em>Last name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getLast_name()
+	 * @generated
+	 * @ordered
+	 */
+	protected String last_name = LAST_NAME_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -125,6 +167,48 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getFirst_name() {
+		return first_name;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setFirst_name(String newFirst_name) {
+		String oldFirst_name = first_name;
+		first_name = newFirst_name;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, UniversityPackage.STAFF_MEMBER__FIRST_NAME, oldFirst_name, first_name));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getLast_name() {
+		return last_name;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setLast_name(String newLast_name) {
+		String oldLast_name = last_name;
+		last_name = newLast_name;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, UniversityPackage.STAFF_MEMBER__LAST_NAME, oldLast_name, last_name));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
@@ -161,6 +245,10 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 				return getStaffMemberType();
 			case UniversityPackage.STAFF_MEMBER__TAUGHT_MODULES:
 				return getTaughtModules();
+			case UniversityPackage.STAFF_MEMBER__FIRST_NAME:
+				return getFirst_name();
+			case UniversityPackage.STAFF_MEMBER__LAST_NAME:
+				return getLast_name();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -181,6 +269,12 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 				getTaughtModules().clear();
 				getTaughtModules().addAll((Collection<? extends Module>)newValue);
 				return;
+			case UniversityPackage.STAFF_MEMBER__FIRST_NAME:
+				setFirst_name((String)newValue);
+				return;
+			case UniversityPackage.STAFF_MEMBER__LAST_NAME:
+				setLast_name((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -199,6 +293,12 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 			case UniversityPackage.STAFF_MEMBER__TAUGHT_MODULES:
 				getTaughtModules().clear();
 				return;
+			case UniversityPackage.STAFF_MEMBER__FIRST_NAME:
+				setFirst_name(FIRST_NAME_EDEFAULT);
+				return;
+			case UniversityPackage.STAFF_MEMBER__LAST_NAME:
+				setLast_name(LAST_NAME_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -215,6 +315,10 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 				return staffMemberType != STAFF_MEMBER_TYPE_EDEFAULT;
 			case UniversityPackage.STAFF_MEMBER__TAUGHT_MODULES:
 				return taughtModules != null && !taughtModules.isEmpty();
+			case UniversityPackage.STAFF_MEMBER__FIRST_NAME:
+				return FIRST_NAME_EDEFAULT == null ? first_name != null : !FIRST_NAME_EDEFAULT.equals(first_name);
+			case UniversityPackage.STAFF_MEMBER__LAST_NAME:
+				return LAST_NAME_EDEFAULT == null ? last_name != null : !LAST_NAME_EDEFAULT.equals(last_name);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -231,6 +335,10 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (staffMemberType: ");
 		result.append(staffMemberType);
+		result.append(", first_name: ");
+		result.append(first_name);
+		result.append(", last_name: ");
+		result.append(last_name);
 		result.append(')');
 		return result.toString();
 	}
