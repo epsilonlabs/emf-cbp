@@ -63,7 +63,7 @@ public class DepartmentImpl extends EObjectImpl implements Department {
 	protected EList<Student> students;
 
 	/**
-	 * The cached value of the '{@link #getModules() <em>Modules</em>}' reference list.
+	 * The cached value of the '{@link #getModules() <em>Modules</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getModules()
@@ -142,7 +142,7 @@ public class DepartmentImpl extends EObjectImpl implements Department {
 	 */
 	public EList<Module> getModules() {
 		if (modules == null) {
-			modules = new EObjectResolvingEList<Module>(Module.class, this, UniversityPackage.DEPARTMENT__MODULES);
+			modules = new EObjectContainmentEList<Module>(Module.class, this, UniversityPackage.DEPARTMENT__MODULES);
 		}
 		return modules;
 	}
@@ -180,6 +180,8 @@ public class DepartmentImpl extends EObjectImpl implements Department {
 				return ((InternalEList<?>)getStaff()).basicRemove(otherEnd, msgs);
 			case UniversityPackage.DEPARTMENT__STUDENTS:
 				return ((InternalEList<?>)getStudents()).basicRemove(otherEnd, msgs);
+			case UniversityPackage.DEPARTMENT__MODULES:
+				return ((InternalEList<?>)getModules()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}

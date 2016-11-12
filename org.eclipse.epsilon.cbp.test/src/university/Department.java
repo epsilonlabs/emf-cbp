@@ -59,7 +59,7 @@ public interface Department extends EObject {
 	EList<Student> getStudents();
 
 	/**
-	 * Returns the value of the '<em><b>Modules</b></em>' reference list.
+	 * Returns the value of the '<em><b>Modules</b></em>' containment reference list.
 	 * The list contents are of type {@link university.Module}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -67,9 +67,9 @@ public interface Department extends EObject {
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Modules</em>' reference list.
+	 * @return the value of the '<em>Modules</em>' containment reference list.
 	 * @see university.UniversityPackage#getDepartment_Modules()
-	 * @model
+	 * @model containment="true"
 	 * @generated
 	 */
 	EList<Module> getModules();

@@ -29,7 +29,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="students" upperBound="-1"
         eType="#//Student" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="modules" upperBound="-1"
-        eType="#//Module"/>
+        eType="#//Module" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Module">

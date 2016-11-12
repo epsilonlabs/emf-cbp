@@ -241,7 +241,7 @@ public interface UniversityPackage extends EPackage {
 	int DEPARTMENT__STUDENTS = 1;
 
 	/**
-	 * The feature id for the '<em><b>Modules</b></em>' reference list.
+	 * The feature id for the '<em><b>Modules</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -508,10 +508,10 @@ public interface UniversityPackage extends EPackage {
 	EReference getDepartment_Students();
 
 	/**
-	 * Returns the meta object for the reference list '{@link university.Department#getModules <em>Modules</em>}'.
+	 * Returns the meta object for the containment reference list '{@link university.Department#getModules <em>Modules</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference list '<em>Modules</em>'.
+	 * @return the meta object for the containment reference list '<em>Modules</em>'.
 	 * @see university.Department#getModules()
 	 * @see #getDepartment()
 	 * @generated
@@ -749,7 +749,7 @@ public interface UniversityPackage extends EPackage {
 		EReference DEPARTMENT__STUDENTS = eINSTANCE.getDepartment_Students();
 
 		/**
-		 * The meta object literal for the '<em><b>Modules</b></em>' reference list feature.
+		 * The meta object literal for the '<em><b>Modules</b></em>' containment reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated

@@ -74,7 +74,7 @@ public class ResourceContentsToEventsConverterTest {
 		cs.getStudents().add(s1);
 		
 		Module mode = factory.createModule();
-		mode.setName("MFCS");
+		mode.setName("MODE");
 		mode.getModuleLecturers().add(member1);
 		mode.getEnrolledStudents().add(s1);
 		
