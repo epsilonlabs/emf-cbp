@@ -141,5 +141,9 @@ public class CBPContext {
 	    }
 	    return ePackageElementsNamesMap;
 	}
+	
+	public ModelElementIDMap getePackageElementsNamesMap() {
+		return ePackageElementsNamesMap;
+	}
 
 }

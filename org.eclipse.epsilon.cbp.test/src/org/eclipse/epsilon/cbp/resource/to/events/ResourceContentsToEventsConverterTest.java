@@ -30,13 +30,11 @@ public class ResourceContentsToEventsConverterTest {
 	public ResourceContentsToEventsConverter generateConverter()
 	{
 		
-		
 		EventAdapter adapter = new EventAdapter(new Changelog());
 		
 	    Resource resource = new ResourceImpl();
 	    
 		ResourceContentsToEventsConverter result = new ResourceContentsToEventsConverter(adapter.getChangelog(), resource);
-
 	    
 	    resource.eAdapters().add(adapter);
 		

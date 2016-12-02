@@ -103,7 +103,7 @@ public class PersistenceManager
 				if((boolean)options.get(OPTION_OPTIMISE_MODEL ) == true)
 				{
 					ResourceContentsToEventsConverter rc = 
-							new ResourceContentsToEventsConverter(changelog,resource);
+							new ResourceContentsToEventsConverter(context.getChangelog(),resource);
 					rc.convert();
 					resume = false;
 				}	
@@ -119,7 +119,7 @@ public class PersistenceManager
 		if(resource instanceof CBPBinaryResourceImpl)
 		{
 			CBPBinarySerialiser serializer = 
-					new CBPBinarySerialiser(this,changelog, ePackageElementsNamesMap);
+					new CBPBinarySerialiser(this,context.getChangelog(), context.getePackageElementsNamesMap());
 			try {
 				serializer.serialise(options);
 			} catch (IOException e) {
