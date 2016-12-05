@@ -5,8 +5,11 @@ import static org.junit.Assert.assertEquals;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.junit.Test;
@@ -38,12 +41,40 @@ public class ChangeLogTest {
 		converter.convert();
 		Changelog changelog = converter.getChangelog();
 		
-		converter.getChangelog().printLog();
-		
-		System.out.println(changelog.allOfType(SetEAttributeEvent.class).size());
 		assertEquals(changelog.allOfType(SetEAttributeEvent.class).size(), 10);
 	}
 
+	@Test
+	public void countAddToEAttributeEventTest() {
+		
+		ResourceContentsToEventsConverter converter = generateConverter();
+		converter.convert();
+		Changelog changelog = converter.getChangelog();
+		
+		assertEquals(changelog.allOfType(AddToEAttributeEvent.class).size(), 1);
+	}
+
+	@Test
+	public void countSetEReferenceEventTest() {
+		
+		ResourceContentsToEventsConverter converter = generateConverter();
+		converter.convert();
+		Changelog changelog = converter.getChangelog();
+		
+		assertEquals(changelog.allOfType(SetEReferenceEvent.class).size(), 2);
+	}
+	
+	@Test
+	public void countAddToEReferenceEventTest() {
+		
+		ResourceContentsToEventsConverter converter = generateConverter();
+		converter.convert();
+		Changelog changelog = converter.getChangelog();
+		
+		converter.getChangelog().printLog();
+		
+		assertEquals(changelog.allOfType(AddToEReferenceEvent.class).size(), 8);
+	}
 	
 	public ResourceContentsToEventsConverter generateConverter()
 	{

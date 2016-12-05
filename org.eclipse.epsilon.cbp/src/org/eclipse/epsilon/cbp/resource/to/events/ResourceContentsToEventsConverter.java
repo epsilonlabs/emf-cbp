@@ -146,8 +146,8 @@ public class ResourceContentsToEventsConverter
 			eObjectList.add((EObject) value);
 		}
 		
-		SetEReferenceEvent e = 
-				new SetEReferenceEvent(focusObject, value, eRef);
+		AddToEReferenceEvent e = 
+				new AddToEReferenceEvent(focusObject, value, eRef);
 		changelog.addEvent(e);
 	}
 	
