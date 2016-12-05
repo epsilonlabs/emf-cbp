@@ -11,6 +11,7 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.impl.CBPBinaryResourceImpl;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
@@ -28,98 +29,26 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class PersistenceManager 
 {
-	//delimiter
-	public static final String DELIMITER = ",";
-	//escaped char
-	public static final String ESCAPE_CHAR ="+";
-	//UTF-8 string encoding
-	public final Charset STRING_ENCODING = StandardCharsets.UTF_8;
-	
-	//Null string I dont know what this is
-	public final String NULL_STRING = "pFgrW";
-	
 	protected CBPContext context;
 	
-	/*
-	 * Only remove redundant changes made during the current session.
-	 */
-	String OPTION_OPTIMISE_SESSION = "OPTIMISE_SESSION";
-	
-	/*
-	 * Remove redundant changes from the entire model.
-	 */
-	String OPTION_OPTIMISE_MODEL ="OPTIMISE_MODEL";
-	
-	private final CBPResource resource;
-	
-	private EList<EObject> contents;
-	
-	private boolean resume = false;
+	protected Resource resource = null;
 	
 	public PersistenceManager(CBPContext context, CBPResource resource)
 	{
 		this.context = context;
-		this.resource = resource;
-		populateAllContents();
 	}
 	
-	protected void populateAllContents()
-	{
-		contents = resource.getContents();
-	}
-	
-	public void setResume(boolean b)
-	{
-		resume = b;
-	}
-	
-	public boolean isResume()
-	{
-		return resume;
-	}
-	
-	public boolean addEObjectToContents(EObject object)
-	{
-		return contents.add(object);
-	}
-	
-	public boolean removeEObjectFromContents(EObject obj)
-	{
-		return contents.remove(obj);
-	}
-	
-	public URI getURI()
-	{
-		return resource.getURI();
-	}
-
 	public void save(Map<?,?> options) throws IOException
 	{
 		
 		if(options != null)
 		{
-			if(options.containsKey(OPTION_OPTIMISE_MODEL))
-			{
-				if((boolean)options.get(OPTION_OPTIMISE_MODEL ) == true)
-				{
-					ResourceContentsToEventsConverter rc = 
-							new ResourceContentsToEventsConverter(context.getChangelog(),resource);
-					rc.convert();
-					resume = false;
-				}	
-			}
-			else if(options.containsKey(OPTION_OPTIMISE_SESSION))
-			{
-				if((boolean)options.get(OPTION_OPTIMISE_SESSION) == true)
-				{
-				}
-			}
 		}
 		
 		if(resource instanceof CBPBinaryResourceImpl)
 		{
 			CBPBinarySerialiser serializer = 
-					new CBPBinarySerialiser(this,context.getChangelog(), context.getePackageElementsNamesMap());
+					new CBPBinarySerialiser(this,context, context.getePackageElementsNamesMap());
 			try {
 				serializer.serialise(options);
 			} catch (IOException e) {
@@ -130,7 +59,7 @@ public class PersistenceManager
 		else if(resource instanceof CBPTextResourceImpl)
 		{
 			CBPTextSerialiser serializer = 
-					new CBPTextSerialiser(this, changelog,ePackageElementsNamesMap);
+					new CBPTextSerialiser(context, resource);
 			serializer.serialise(options);
 		}
 	}
@@ -139,12 +68,12 @@ public class PersistenceManager
 	{	
 		if(resource instanceof CBPBinaryResourceImpl)
 		{
-			CBPBinaryDeserializer deserializer = new CBPBinaryDeserializer(this,changelog,ePackageElementsNamesMap);
+			CBPBinaryDeserializer deserializer = new CBPBinaryDeserializer(context, resource);
 			deserializer.load(options);
 		}
 		else if(resource instanceof CBPTextResourceImpl)
 		{
-			CBPTextDeserialiser textDeserializer = new CBPTextDeserialiser(this,changelog,ePackageElementsNamesMap);
+			CBPTextDeserialiser textDeserializer = new CBPTextDeserialiser(context, resource);
 			textDeserializer.deserialise(options);
 		}
 	}

@@ -4,16 +4,18 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.context.CBPContext;
-import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 import gnu.trove.map.TIntObjectMap;
@@ -21,11 +23,14 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public abstract class AbstractCBPDeserialiser {
+	
 	//epackage
 	protected EPackage ePackage = null;
 	
 	//change log
 	protected CBPContext context;
+	
+	protected EList<EObject> contents;
 
 	//id to eobject
 	protected TIntObjectMap<EObject> IDToEObjectMap = new TIntObjectHashMap<EObject>();
@@ -36,13 +41,24 @@ public abstract class AbstractCBPDeserialiser {
 	//text simple type name map (again, bad name)
 	protected TObjectIntMap<String> textSimpleTypeNameMap;
 
-	//persistence manager
-	protected PersistenceManager manager;
-	
 	//model-element id map
 	protected ModelElementIDMap ePackageElementsNamesMap;
 	
+	protected Resource resource = null;
+	
+	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
+
+	
 	public abstract void deserialise(Map<?, ?> options) throws Exception;
+	
+	protected void setResource(Resource resource)
+	{
+		this.resource = resource;
+	}
+	
+	public Resource getResource() {
+		return resource;
+	}
 
 	protected abstract void handleCreateAndAddToResource(String line);
 	protected abstract void handleRemoveFromResource(String line);
@@ -103,14 +119,14 @@ public abstract class AbstractCBPDeserialiser {
 	 * escape- -in-java-string-split-method
 	 */
 	protected String[] tokeniseString(String input) {
-		String regex = "(?<!" + Pattern.quote(PersistenceManager.ESCAPE_CHAR) + ")"
-				+ Pattern.quote(PersistenceManager.DELIMITER);
+		String regex = "(?<!" + Pattern.quote(persistenceUtil.ESCAPE_CHAR) + ")"
+				+ Pattern.quote(persistenceUtil.DELIMITER);
 
 		String[] output = input.split(regex);
 
 		for (int i = 0; i < output.length; i++) {
-			output[i] = output[i].replace(PersistenceManager.ESCAPE_CHAR + PersistenceManager.DELIMITER,
-					PersistenceManager.DELIMITER);
+			output[i] = output[i].replace(persistenceUtil.ESCAPE_CHAR + persistenceUtil.DELIMITER,
+					persistenceUtil.DELIMITER);
 		}
 
 		return output;

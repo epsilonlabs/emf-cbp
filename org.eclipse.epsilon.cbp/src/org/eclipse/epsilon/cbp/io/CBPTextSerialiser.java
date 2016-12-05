@@ -16,9 +16,9 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.CBPContext;
-import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -27,7 +27,6 @@ import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
-import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
@@ -38,17 +37,17 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		return "CBP_TEXT";
 	}
 	
-	public CBPTextSerialiser(PersistenceManager manager, CBPContext context, ModelElementIDMap 
-			ePackageElementsNamesMap)
+	public CBPTextSerialiser(CBPContext context, Resource resource)
 	{
-		this.manager =  manager;
 		this.context = context;
-		this.ePackageElementsNamesMap = ePackageElementsNamesMap;
+		this.ePackageElementsNamesMap = context.getePackageElementsNamesMap();
 		
 		this.eventList = context.getChangelog().getEventsList();
 		
 		this.commonsimpleTypeNameMap = context.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = context.getTextSimpleTypesMap();
+		
+		this.resource = resource;
 	}
 	
 	public void serialise(Map<?,?> options) throws IOException
@@ -64,7 +63,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 	    try
         {
 	    	BufferedWriter bw = new BufferedWriter
-                    (new OutputStreamWriter(new FileOutputStream(manager.getURI().path(), manager.isResume()), manager.STRING_ENCODING));
+                    (new OutputStreamWriter(new FileOutputStream(resource.getURI().path(), context.isResume()), persistenceUtil.STRING_ENCODING));
             printWriter = new PrintWriter(bw);
         }
         catch(IOException e)
@@ -74,7 +73,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
         }
 		
 		//if we're not in resume mode, serialise initial entry
-		if(!manager.isResume())
+		if(!context.isResume())
 			serialiseHeader(printWriter);
 		
 		for(Event e : eventList)
@@ -109,7 +108,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		}
 		
 		printWriter.close();
-		manager.setResume(true);
+		context.setResume(true);
 	}
 	
 	@Override
@@ -158,7 +157,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			writer.print(delimiter+eObjectsToCreateList.get(index)+" "+eObjectsToCreateList.get(index+1));
     			
     			//set delimiter
-    			delimiter = PersistenceManager.DELIMITER;
+    			delimiter = persistenceUtil.DELIMITER;
     			
     			//increase index by 2
     			index = index + 2;
@@ -185,7 +184,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		for(EObject obj : removedEObjectsList)
 		{
 			writer.print(delimiter + context.getObjectId(obj));
-			delimiter = PersistenceManager.DELIMITER;
+			delimiter = persistenceUtil.DELIMITER;
 		}
 		writer.print("]");
 		writer.println();
@@ -223,8 +222,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				if(obj != null)
 				{
 					newValue = String.valueOf(obj);
-					newValue = newValue.replace(PersistenceManager.DELIMITER, 
-							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					newValue = newValue.replace(persistenceUtil.DELIMITER, 
+							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
 					writer.print(delimiter+newValue);	
 				}
 //				else
@@ -232,7 +231,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 //					newValue = manager.NULL_STRING;
 //				}
 				
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
 		}
@@ -249,8 +248,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				
 				if(newValue!= null)
 				{
-					newValue = newValue.replace(PersistenceManager.DELIMITER, 
-							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					newValue = newValue.replace(persistenceUtil.DELIMITER, 
+							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
 					writer.print(delimiter+newValue);
 				}
 //				else
@@ -259,7 +258,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 //				}
 //				
 //				out.print(delimiter+newValue);	
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
 		}
@@ -298,8 +297,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				if(obj != null)
 				{
 					newValue = String.valueOf(obj);
-					newValue = newValue.replace(PersistenceManager.DELIMITER, 
-							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					newValue = newValue.replace(persistenceUtil.DELIMITER, 
+							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
 					writer.print(delimiter+newValue);
 				}
 //				else
@@ -308,7 +307,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 //				}
 				
 //				out.print(delimiter+newValue);	
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
 		}
@@ -325,8 +324,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				
 				if(newValue!= null)
 				{
-					newValue = newValue.replace(PersistenceManager.DELIMITER, 
-							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					newValue = newValue.replace(persistenceUtil.DELIMITER, 
+							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
 					writer.print(delimiter+newValue);
 				}
 //				else
@@ -335,7 +334,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 //				}
 //				
 //				out.print(delimiter+newValue);	
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
 		}
@@ -395,7 +394,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			writer.print(delimiter+eObjectsToCreateList.get(index)+" "+eObjectsToCreateList.get(index+1));
     			
     			//set delimiter
-    			delimiter = PersistenceManager.DELIMITER;
+    			delimiter = persistenceUtil.DELIMITER;
     			
     			//increase index by 2
     			index = index + 2;
@@ -426,7 +425,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
 			{
 				writer.print(delimiter+it.next());
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");	
 		}
@@ -484,7 +483,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			writer.print(delimiter+eObjectsToCreateList.get(index)+" "+eObjectsToCreateList.get(index+1));
     			
     			//set delimiter
-    			delimiter = PersistenceManager.DELIMITER;
+    			delimiter = persistenceUtil.DELIMITER;
     			
     			//increase index by 2
     			index = index + 2;
@@ -504,7 +503,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
 			{
 				writer.print(delimiter+it.next());
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");	
 		}
@@ -545,11 +544,11 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				if(obj != null)
 				{
 					newValue = String.valueOf(obj);
-					newValue = newValue.replace(PersistenceManager.DELIMITER, 
-							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					newValue = newValue.replace(persistenceUtil.DELIMITER, 
+							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
 					writer.print(delimiter+newValue);	
 				}
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
 		
@@ -566,8 +565,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				
 				if(newValue!= null)
 				{
-					newValue = newValue.replace(PersistenceManager.DELIMITER, 
-							PersistenceManager.ESCAPE_CHAR+PersistenceManager.DELIMITER); //escape delimiter
+					newValue = newValue.replace(persistenceUtil.DELIMITER, 
+							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
 					writer.print(delimiter+newValue);
 				}
 //				else
@@ -576,7 +575,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 //				}
 				
 //				out.print(delimiter+newValue);	
-				delimiter = PersistenceManager.DELIMITER;
+				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
 		}
@@ -604,7 +603,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		for(EObject obj : removedEObjectsList)
 		{
 			writer.print(delimiter + context.getObjectId(obj));
-			delimiter = PersistenceManager.DELIMITER;
+			delimiter = persistenceUtil.DELIMITER;
 		}
 		writer.print("]");
 		writer.println();

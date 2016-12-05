@@ -21,6 +21,8 @@ public class CBPContext {
 	protected TObjectIntMap<String> commonSimpleTypesMap = new TObjectIntHashMap<String>(13);
 
 	protected ModelElementIDMap ePackageElementsNamesMap;
+	
+	private boolean resume = false;
 
 	
 	//eobject to id map
@@ -33,6 +35,15 @@ public class CBPContext {
 	{
 		populatecommonSimpleTypesMap();
 		populateTextSimpleTypesMap();
+	}
+	
+	public boolean isResume()
+	{
+		return resume;
+	}
+	
+	public void setResume(boolean resume) {
+		this.resume = resume;
 	}
 	
 	private void populateTextSimpleTypesMap()

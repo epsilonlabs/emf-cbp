@@ -13,28 +13,28 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.CBPContext;
-import org.eclipse.epsilon.cbp.context.PersistenceManager;
-import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
-	public CBPTextDeserialiser(PersistenceManager manager, CBPContext context,
-			ModelElementIDMap ePackageElementsNamesMap) {
-		this.manager = manager;
+	public CBPTextDeserialiser(CBPContext context, Resource resource) {
 		this.context = context;
-		this.ePackageElementsNamesMap = ePackageElementsNamesMap;
+		this.ePackageElementsNamesMap = context.getePackageElementsNamesMap();
 
 		this.commonsimpleTypeNameMap = context.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = context.getTextSimpleTypesMap();
+		
+		this.resource = resource;
+		contents = resource.getContents();
 	}
 	
 	public void deserialise(Map<?, ?> options) throws Exception {
 		BufferedReader br = new BufferedReader(
-				new InputStreamReader(new FileInputStream(manager.getURI().path()), manager.STRING_ENCODING));
+				new InputStreamReader(new FileInputStream(resource.getURI().path()), persistenceUtil.STRING_ENCODING));
 
 		String line;
 
@@ -108,7 +108,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			}
 		}
 		br.close();
-		manager.setResume(true);
+		context.setResume(true);
 	}
 	
 	/*
@@ -138,7 +138,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			IDToEObjectMap.put(id, obj);
 
 			// add to resource contents
-			manager.addEObjectToContents(obj); 
+			contents.add(obj);
 		}
 	}
 	
@@ -153,7 +153,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 		//for each string, get EBoject and remove from contents
 		for (String str : objValueStringsArray) {
-			manager.removeEObjectFromContents(IDToEObjectMap.get(Integer.valueOf(str)));
+			contents.remove(IDToEObjectMap.get(Integer.valueOf(str)));
 		}
 	}
 	

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.context.CBPContext;
-import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -15,8 +15,8 @@ import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
-import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 import gnu.trove.map.TObjectIntMap;
@@ -26,9 +26,6 @@ public abstract class AbstractCBPSerialiser {
 	//event list
     protected List<Event> eventList;
     
-    //persistence manager
-	protected PersistenceManager manager;
-	
 	//change log
 	protected CBPContext context; 
 	
@@ -41,11 +38,23 @@ public abstract class AbstractCBPSerialiser {
 	//tet simple type name
 	protected TObjectIntMap<String> textSimpleTypeNameMap;
 
+	protected Resource resource = null;
+	
+	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 	
 	public abstract void serialise(Map<?,?> options) throws Exception;
 	
 	public abstract String getFormatID();
 	public abstract double getVersion();
+	
+	protected void setResource(Resource resource)
+	{
+		this.resource = resource;
+	}
+	
+	public Resource getResource() {
+		return resource;
+	}
 	
 	protected abstract void serialiseHeader(Closeable out); 
 
