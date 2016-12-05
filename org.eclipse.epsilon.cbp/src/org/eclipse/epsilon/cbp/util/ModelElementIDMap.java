@@ -10,6 +10,8 @@ import com.google.common.collect.HashBiMap;
 
 public class ModelElementIDMap
 {
+	
+	//name-id map
 	private BiMap<String, Integer> namesMap = HashBiMap.create();
 	
 	int counter = 0;

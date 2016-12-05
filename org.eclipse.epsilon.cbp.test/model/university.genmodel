@@ -6,6 +6,7 @@
   <foreignModel>university.ecore</foreignModel>
   <genPackages prefix="University" disposableProviderFactory="true" ecorePackage="university.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="university.ecore#//StaffMemberType">
+      <genEnumLiterals ecoreEnumLiteral="university.ecore#//StaffMemberType/none"/>
       <genEnumLiterals ecoreEnumLiteral="university.ecore#//StaffMemberType/Academic"/>
       <genEnumLiterals ecoreEnumLiteral="university.ecore#//StaffMemberType/Research"/>
       <genEnumLiterals ecoreEnumLiteral="university.ecore#//StaffMemberType/Technical"/>

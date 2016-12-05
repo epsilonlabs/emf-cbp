@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.resource.to.events;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.util.Changelog;
 
@@ -25,6 +27,8 @@ public class ResourceContentsToEventsConverter
 	Resource resource;
 	
 	HashSet<EObject> eObjectsCounter = new HashSet<EObject>();
+	HashMap<EObject, Boolean> handledAttributeMap = new HashMap<EObject, Boolean>();
+	HashMap<EObject, Boolean> handledReferenceMap = new HashMap<EObject, Boolean>();
 	
 	public ResourceContentsToEventsConverter(Changelog changelog, Resource resource)
 	{
@@ -85,10 +89,17 @@ public class ResourceContentsToEventsConverter
 			if(obj.eIsSet(attr) && attr.isChangeable() && 
 					!attr.isTransient() && !attr.isVolatile())
 			{
-				//create add to attribute event
-				AddToEAttributeEvent e =
-						new AddToEAttributeEvent(obj,attr,obj.eGet(attr));
-				changelog.addEvent(e);
+				if (attr.isMany()) {
+					//create add to attribute event
+					AddToEAttributeEvent e =
+							new AddToEAttributeEvent(obj,attr,obj.eGet(attr));
+					changelog.addEvent(e);	
+				}
+				else {
+					SetEAttributeEvent e = new SetEAttributeEvent(obj, attr, obj.eGet(attr));
+					changelog.addEvent(e);
+				}
+				
 			}
 		}
 	}
@@ -99,17 +110,27 @@ public class ResourceContentsToEventsConverter
 		{
 			if (obj.eIsSet(ref)) {
 				if (ref.isContainment()) {
-					createAddToEReferenceEvent(obj, obj.eGet(ref), ref);
+					if (ref.isMany()) {
+						handleContainmentManyReference(obj, obj.eGet(ref), ref);	
+					}
+					else {
+						handleContainmentSingleReference(obj, obj.eGet(ref), ref);	
+					}
 				}
 				else {
-					createSetEReferenceEvent(obj, obj.eGet(ref), ref);
+					if (ref.isMany()) {
+						handleNonContainmentManyReference(obj, obj.eGet(ref), ref);
+					}
+					else {
+						handleNonContainmentSingleReference(obj, obj.eGet(ref), ref);	
+					}
 				}
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createSetEReferenceEvent(EObject focusObject,Object value, EReference eRef)
+	private void handleNonContainmentManyReference(EObject focusObject,Object value, EReference eRef)
 	{
 		//prepare an eobject list
 		List<EObject> eObjectList = new ArrayList<EObject>();
@@ -125,17 +146,36 @@ public class ResourceContentsToEventsConverter
 			eObjectList.add((EObject) value);
 		}
 		
-		//for each obj in the list, create add to ereference event
-		for(EObject obj : eObjectList)
-		{
-			SetEReferenceEvent e = 
-					new SetEReferenceEvent(focusObject,obj,eRef);
-			changelog.addEvent(e);
-		}
+		SetEReferenceEvent e = 
+				new SetEReferenceEvent(focusObject, value, eRef);
+		changelog.addEvent(e);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createAddToEReferenceEvent(EObject focusObject,Object value, EReference eRef)
+	private void handleNonContainmentSingleReference(EObject focusObject,Object value, EReference eRef)
+	{
+		//prepare an eobject list
+		List<EObject> eObjectList = new ArrayList<EObject>();
+		
+		//if value is collection
+		if(value instanceof Collection)
+		{
+			System.err.println("non-containment-should not happen");
+			 eObjectList = (List<EObject>) value;
+		}
+		//if value is single object
+		else
+		{
+			eObjectList.add((EObject) value);
+		}
+		
+		SetEReferenceEvent e = 
+				new SetEReferenceEvent(focusObject, value, eRef);
+		changelog.addEvent(e);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void handleContainmentManyReference(EObject focusObject, Object value, EReference eRef)
 	{
 		//prepare an eobject list
 		List<EObject> eObjectList = new ArrayList<EObject>();
@@ -155,19 +195,48 @@ public class ResourceContentsToEventsConverter
 		for(EObject obj : eObjectList)
 		{
 			if (eObjectsCounter.contains(obj)) {
-				AddToEReferenceEvent e = 
-						new AddToEReferenceEvent(focusObject,obj,eRef);
-				changelog.addEvent(e);	
+				
 			}
 			else {
 				AddEObjectsToResourceEvent addEObjectsToResourceEvent = new AddEObjectsToResourceEvent(obj);
-				AddToEReferenceEvent e = 
-						new AddToEReferenceEvent(focusObject,obj,eRef);
 				changelog.addEvent(addEObjectsToResourceEvent);
-				changelog.addEvent(e);
+				eObjectsCounter.add(obj);
 			}
-			
 		}
+		AddToEReferenceEvent e = 
+				new AddToEReferenceEvent(focusObject, value, eRef);
+		changelog.addEvent(e);	
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void handleContainmentSingleReference(EObject focusObject, Object value, EReference eRef)
+	{
+		//prepare an eobject list
+		List<EObject> eObjectList = new ArrayList<EObject>();
+		
+		//if value is collection
+		if(value instanceof Collection)
+		{
+			System.err.println("should not happen");
+			 eObjectList = (List<EObject>) value;
+		}
+		//if value is single object
+		else
+		{
+			eObjectList.add((EObject) value);
+		}
+		
+		for(EObject obj : eObjectList)
+		{
+			if (!eObjectsCounter.contains(obj)) {
+				AddEObjectsToResourceEvent addEObjectsToResourceEvent = new AddEObjectsToResourceEvent(obj);
+				changelog.addEvent(addEObjectsToResourceEvent);
+				eObjectsCounter.add(obj);
+			}
+		}
+		SetEReferenceEvent e = 
+				new SetEReferenceEvent(focusObject, value, eRef);
+		changelog.addEvent(e);
 	}
 	
 }

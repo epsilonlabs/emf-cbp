@@ -465,6 +465,7 @@ public class UniversityPackageImpl extends EPackageImpl implements UniversityPac
 
 		// Initialize enums and add enum literals
 		initEEnum(staffMemberTypeEEnum, StaffMemberType.class, "StaffMemberType");
+		addEEnumLiteral(staffMemberTypeEEnum, StaffMemberType.NONE);
 		addEEnumLiteral(staffMemberTypeEEnum, StaffMemberType.ACADEMIC);
 		addEEnumLiteral(staffMemberTypeEEnum, StaffMemberType.RESEARCH);
 		addEEnumLiteral(staffMemberTypeEEnum, StaffMemberType.TECHNICAL);

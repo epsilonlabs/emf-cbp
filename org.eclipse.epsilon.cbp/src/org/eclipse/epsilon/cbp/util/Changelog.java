@@ -3,7 +3,12 @@ package org.eclipse.epsilon.cbp.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.EAttributeEvent;
+import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Event;
+import org.eclipse.epsilon.cbp.event.ResourceEvent;
 
 public class Changelog 
 {
@@ -21,7 +26,6 @@ public class Changelog
 	public void clear()
 	{
 		eventList.clear();
-//		eObjToIDMap.clear();
 		current_id = 0;
 	}
 	
@@ -45,11 +49,29 @@ public class Changelog
 		return eventList;
 	}
 	
+	@SuppressWarnings("unchecked") 
+	public <T> ArrayList<T> allOfType(Class<T> c)
+	{
+		ArrayList<T> result = new ArrayList<T>();
+		for(Event e: eventList)
+		{
+			if (e.getClass().equals(c)) {
+				result.add((T) e);
+			}
+		}
+		return result;
+	}
+	
 	public void printLog()
 	{
 		for(Event e : eventList)
 		{
-			System.out.println(e.getEventType() + " " + e.getClass().getSimpleName() + e.getEObjectList().toString());
+			if (e instanceof EAttributeEvent) {
+				System.out.println(e.getEventType() + " " + e.getClass().getSimpleName() + ((EAttributeEvent) e).getEAttributeValuesList().toString());	
+			}
+			else {
+				System.out.println(e.getEventType() + " " + e.getClass().getSimpleName() + e.getEObjectList().toString());	
+			}
 		}
 	}
 }

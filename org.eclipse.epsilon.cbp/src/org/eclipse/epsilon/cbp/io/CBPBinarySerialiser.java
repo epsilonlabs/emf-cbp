@@ -18,9 +18,9 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.context.CBPContext;
-import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -29,24 +29,19 @@ import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
-import org.eclipse.epsilon.cbp.util.Changelog;
-import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	
-    public CBPBinarySerialiser(PersistenceManager manager, CBPContext context, ModelElementIDMap 
-    		ePackageElementsNamesMap)
+    public CBPBinarySerialiser(CBPContext context, Resource resource)
     {
-    	this.manager =  manager;
         this.context = context;
-        this.ePackageElementsNamesMap = ePackageElementsNamesMap;
-        
-        this.eventList = manager.getChangelog().getEventsList();
-        
-        this.commonsimpleTypeNameMap = manager.getCommonSimpleTypesMap();
+        this.ePackageElementsNamesMap = context.getePackageElementsNamesMap();
+        this.eventList = context.getChangelog().getEventsList();
+        this.commonsimpleTypeNameMap = context.getCommonSimpleTypesMap();
+        this.resource = resource;
     }
     
     public void serialise(Map<?,?> options) throws IOException
@@ -55,10 +50,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     		return;
     	
     	 OutputStream  outputStream = new BufferedOutputStream
-        		(new FileOutputStream(manager.getURI().path(), manager.isResume()));
+        		(new FileOutputStream(resource.getURI().path(), context.isResume()));
     
         //if we're not in resume mode, serialise initial entry
-        if(!manager.isResume())
+        if(!context.isResume())
             serialiseHeader(outputStream);
         
         for(Event e : eventList)
@@ -89,7 +84,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         
       	outputStream.close();
       	
-      	manager.setResume(true);
+      	context.setResume(true);
 	
     }
     
@@ -219,7 +214,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         {
         	String[] nullsArray = new String[nullCounter];
         	
-        	Arrays.fill(nullsArray,manager.NULL_STRING);
+        	Arrays.fill(nullsArray,persistenceUtil.NULL_STRING);
         	
         	List<Object> nullList = new ArrayList<Object>(Arrays.asList(nullsArray));
         	
@@ -252,7 +247,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     		for(Object obj : eAttributeValuesList)
     		{
     			if(obj == null)
-    				obj = manager.NULL_STRING;
+    				obj = persistenceUtil.NULL_STRING;
     			
     			writeString(out,(String)obj);
     		}
@@ -264,7 +259,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     			String valueString = EcoreUtil.convertToString(eDataType, obj);
     			
     			if(valueString == null)
-    				valueString = manager.NULL_STRING;
+    				valueString = persistenceUtil.NULL_STRING;
     			
     			writeString(out,valueString);
     		}
@@ -417,7 +412,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	
 	private void writeString(OutputStream out, String str) throws IOException
 	{
-		byte[] bytes = str.getBytes(manager.STRING_ENCODING);
+		byte[] bytes = str.getBytes(persistenceUtil.STRING_ENCODING);
 	
 		writePrimitive(out,bytes.length);
 		
@@ -540,7 +535,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 		
 		try {
-			stream.write(getFormatID().getBytes(manager.STRING_ENCODING));
+			stream.write(getFormatID().getBytes(persistenceUtil.STRING_ENCODING));
 			writePrimitive(stream, getVersion()); //FORMAT VERSION
 			writeString(stream,obj.eClass().getEPackage().getNsURI()); //NS URI	
 		} catch (IOException e1) {

@@ -29,14 +29,13 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 
 import gnu.trove.map.TObjectIntMap;
 
-public class CBPBinaryDeserializer 
+public class CBPBinaryDeserializer extends AbstractCBPDeserialiser
 {
 	private EPackage ePackage = null;
 	private final Changelog changelog;
 	
 	private final HashMap<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
 	
-	private final PersistenceManager manager;
     private final ModelElementIDMap ePackageElementsNamesMap;
     private final Charset STRING_ENCODING = StandardCharsets.UTF_8;
     

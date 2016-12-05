@@ -1,10 +1,13 @@
-package org.eclipse.epsilon.cbp.resource.to.events;
+package org.eclipse.epsilon.cbp.test.util;
 
 import static org.junit.Assert.assertEquals;
 
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
+import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.junit.Test;
 
@@ -16,16 +19,29 @@ import university.Student;
 import university.University;
 import university.UniversityFactory;
 
-public class ResourceContentsToEventsConverterTest {
+public class ChangeLogTest {
 
 	@Test
-	public void test() {
+	public void countAddEObjectsToResourceEventTest() {
 		
 		ResourceContentsToEventsConverter converter = generateConverter();
 		converter.convert();
+		Changelog changelog = converter.getChangelog();
+		
+		assertEquals(changelog.allOfType(AddEObjectsToResourceEvent.class).size(), 7);
+	}
+	
+	@Test
+	public void countSetEAttributeEventTest() {
+		
+		ResourceContentsToEventsConverter converter = generateConverter();
+		converter.convert();
+		Changelog changelog = converter.getChangelog();
+		
 		converter.getChangelog().printLog();
 		
-		assertEquals(true, true);
+		System.out.println(changelog.allOfType(SetEAttributeEvent.class).size());
+		assertEquals(changelog.allOfType(SetEAttributeEvent.class).size(), 10);
 	}
 
 	
@@ -47,7 +63,7 @@ public class ResourceContentsToEventsConverterTest {
 	    //create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
 		
-		// --create univewrsity
+		// --create university
 		University university = factory.createUniversity();
 		
 		//add university

@@ -48,7 +48,7 @@ public class StaffMemberImpl extends EObjectImpl implements StaffMember {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final StaffMemberType STAFF_MEMBER_TYPE_EDEFAULT = StaffMemberType.ACADEMIC;
+	protected static final StaffMemberType STAFF_MEMBER_TYPE_EDEFAULT = StaffMemberType.NONE;
 
 	/**
 	 * The cached value of the '{@link #getStaffMemberType() <em>Staff Member Type</em>}' attribute.

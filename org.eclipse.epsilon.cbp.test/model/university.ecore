@@ -40,12 +40,13 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="StaffMemberType">
-    <eLiterals name="Academic"/>
-    <eLiterals name="Research" value="1"/>
-    <eLiterals name="Technical" value="2"/>
-    <eLiterals name="Admin" value="3"/>
-    <eLiterals name="Honary" value="4"/>
-    <eLiterals name="ResearchStudent" value="5"/>
-    <eLiterals name="Other" value="6"/>
+    <eLiterals name="none" literal="none"/>
+    <eLiterals name="Academic" value="1"/>
+    <eLiterals name="Research" value="2"/>
+    <eLiterals name="Technical" value="3"/>
+    <eLiterals name="Admin" value="4"/>
+    <eLiterals name="Honary" value="5"/>
+    <eLiterals name="ResearchStudent" value="6"/>
+    <eLiterals name="Other" value="7"/>
   </eClassifiers>
 </ecore:EPackage>

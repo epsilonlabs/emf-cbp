@@ -19,6 +19,14 @@ import org.eclipse.emf.common.util.Enumerator;
  */
 public enum StaffMemberType implements Enumerator {
 	/**
+	 * The '<em><b>None</b></em>' literal object.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #NONE_VALUE
+	 * @generated
+	 * @ordered
+	 */
+	NONE(0, "none", "none"), /**
 	 * The '<em><b>Academic</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -26,7 +34,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	ACADEMIC(0, "Academic", "Academic"),
+	ACADEMIC(1, "Academic", "Academic"),
 
 	/**
 	 * The '<em><b>Research</b></em>' literal object.
@@ -36,7 +44,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	RESEARCH(1, "Research", "Research"),
+	RESEARCH(2, "Research", "Research"),
 
 	/**
 	 * The '<em><b>Technical</b></em>' literal object.
@@ -46,7 +54,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	TECHNICAL(2, "Technical", "Technical"),
+	TECHNICAL(3, "Technical", "Technical"),
 
 	/**
 	 * The '<em><b>Admin</b></em>' literal object.
@@ -56,7 +64,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	ADMIN(3, "Admin", "Admin"),
+	ADMIN(4, "Admin", "Admin"),
 
 	/**
 	 * The '<em><b>Honary</b></em>' literal object.
@@ -66,7 +74,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	HONARY(4, "Honary", "Honary"),
+	HONARY(5, "Honary", "Honary"),
 
 	/**
 	 * The '<em><b>Research Student</b></em>' literal object.
@@ -76,7 +84,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	RESEARCH_STUDENT(5, "ResearchStudent", "ResearchStudent"),
+	RESEARCH_STUDENT(6, "ResearchStudent", "ResearchStudent"),
 
 	/**
 	 * The '<em><b>Other</b></em>' literal object.
@@ -86,7 +94,22 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	OTHER(6, "Other", "Other");
+	OTHER(7, "Other", "Other");
+
+	/**
+	 * The '<em><b>None</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of '<em><b>None</b></em>' literal object isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @see #NONE
+	 * @model name="none"
+	 * @generated
+	 * @ordered
+	 */
+	public static final int NONE_VALUE = 0;
 
 	/**
 	 * The '<em><b>Academic</b></em>' literal value.
@@ -101,7 +124,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int ACADEMIC_VALUE = 0;
+	public static final int ACADEMIC_VALUE = 1;
 
 	/**
 	 * The '<em><b>Research</b></em>' literal value.
@@ -116,7 +139,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int RESEARCH_VALUE = 1;
+	public static final int RESEARCH_VALUE = 2;
 
 	/**
 	 * The '<em><b>Technical</b></em>' literal value.
@@ -131,7 +154,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int TECHNICAL_VALUE = 2;
+	public static final int TECHNICAL_VALUE = 3;
 
 	/**
 	 * The '<em><b>Admin</b></em>' literal value.
@@ -146,7 +169,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int ADMIN_VALUE = 3;
+	public static final int ADMIN_VALUE = 4;
 
 	/**
 	 * The '<em><b>Honary</b></em>' literal value.
@@ -161,7 +184,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int HONARY_VALUE = 4;
+	public static final int HONARY_VALUE = 5;
 
 	/**
 	 * The '<em><b>Research Student</b></em>' literal value.
@@ -176,7 +199,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int RESEARCH_STUDENT_VALUE = 5;
+	public static final int RESEARCH_STUDENT_VALUE = 6;
 
 	/**
 	 * The '<em><b>Other</b></em>' literal value.
@@ -191,7 +214,7 @@ public enum StaffMemberType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	public static final int OTHER_VALUE = 6;
+	public static final int OTHER_VALUE = 7;
 
 	/**
 	 * An array of all the '<em><b>Staff Member Type</b></em>' enumerators.
@@ -201,6 +224,7 @@ public enum StaffMemberType implements Enumerator {
 	 */
 	private static final StaffMemberType[] VALUES_ARRAY =
 		new StaffMemberType[] {
+			NONE,
 			ACADEMIC,
 			RESEARCH,
 			TECHNICAL,
@@ -264,6 +288,7 @@ public enum StaffMemberType implements Enumerator {
 	 */
 	public static StaffMemberType get(int value) {
 		switch (value) {
+			case NONE_VALUE: return NONE;
 			case ACADEMIC_VALUE: return ACADEMIC;
 			case RESEARCH_VALUE: return RESEARCH;
 			case TECHNICAL_VALUE: return TECHNICAL;
