@@ -1,10 +1,6 @@
 package org.eclipse.epsilon.cbp.context;
 
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.SimpleType;
@@ -20,10 +16,7 @@ public class CBPContext {
 	
 	protected TObjectIntMap<String> commonSimpleTypesMap = new TObjectIntHashMap<String>(13);
 
-	protected ModelElementIDMap ePackageElementsNamesMap;
-	
 	private boolean resume = false;
-
 	
 	//eobject to id map
 	protected TObjectIntMap<EObject> eObjToIDMap = new TObjectIntHashMap<EObject>();
@@ -44,6 +37,10 @@ public class CBPContext {
 	
 	public void setResume(boolean resume) {
 		this.resume = resume;
+	}
+	
+	public void setChangelog(Changelog changelog) {
+		this.changelog = changelog;
 	}
 	
 	private void populateTextSimpleTypesMap()
@@ -129,32 +126,4 @@ public class CBPContext {
 	public Changelog getChangelog() {
 		return changelog;
 	}
-	
-	public ModelElementIDMap populateEPackageElementNamesMap(EPackage ePackage)
-	{
-		ModelElementIDMap ePackageElementsNamesMap = new ModelElementIDMap();
-		
-		//for each eclassifier
-	    for(EClassifier eClassifier : ePackage.getEClassifiers())
-	    {
-	    	//if is EClass
-	        if(eClassifier instanceof EClass)
-	        {
-	            EClass eClass = (EClass) eClassifier;
-	            
-	            ePackageElementsNamesMap.addName(eClass.getName());
-	            
-	            for(EStructuralFeature feature : eClass.getEAllStructuralFeatures())
-	            {
-	                ePackageElementsNamesMap.addName(eClass.getName() + "-" + feature.getName());
-	            }
-	        }
-	    }
-	    return ePackageElementsNamesMap;
-	}
-	
-	public ModelElementIDMap getePackageElementsNamesMap() {
-		return ePackageElementsNamesMap;
-	}
-
 }

@@ -8,7 +8,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.impl.CBPBinaryResourceImpl;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
-import org.eclipse.epsilon.cbp.io.CBPBinaryDeserializer;
 import org.eclipse.epsilon.cbp.io.CBPBinarySerialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;

@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -40,7 +41,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 	public CBPTextSerialiser(CBPContext context, Resource resource)
 	{
 		this.context = context;
-		this.ePackageElementsNamesMap = context.getePackageElementsNamesMap();
 		
 		this.eventList = context.getChangelog().getEventsList();
 		
@@ -57,13 +57,25 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			System.out.println("CBPTextSerialiser: no events found, returning!");
 			return;
 		}
+		
+		if (options.get("ePackage") != null) {
+			ePackageElementsNamesMap = persistenceUtil.populateEPackageElementNamesMap((EPackage)options.get("ePackage"));
+		}
 			
 		Closeable printWriter = null;
 		//setup printwriter
 	    try
         {
-	    	BufferedWriter bw = new BufferedWriter
-                    (new OutputStreamWriter(new FileOutputStream(resource.getURI().path(), context.isResume()), persistenceUtil.STRING_ENCODING));
+	    	BufferedWriter bw = null;
+	    	if (options.get("path") != null) {
+	    		bw = new BufferedWriter
+	                    (new OutputStreamWriter(new FileOutputStream((String)options.get("path"), context.isResume()), persistenceUtil.STRING_ENCODING));
+			}
+	    	else {
+	    		bw = new BufferedWriter
+	                    (new OutputStreamWriter(new FileOutputStream(resource.getURI().path(), context.isResume()), persistenceUtil.STRING_ENCODING));	
+			}
+	    	
             printWriter = new PrintWriter(bw);
         }
         catch(IOException e)
@@ -110,6 +122,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		printWriter.close();
 		context.setResume(true);
 	}
+	
 	
 	@Override
 	public double getVersion() {
@@ -215,7 +228,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
 			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -240,7 +253,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
 			
 			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -290,7 +303,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
 			writer.print((serializationType+" "+context.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -416,7 +429,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			else {
 				writer.print(SerialisationEventType.SET_EREFERENCE+" "+
 						context.getObjectId(focusObject)+" "+
-						ePackageElementsNamesMap.getID(eReference.getName())+
+						ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eReference.getName())+
 						" [");
 			}
 			
@@ -496,7 +509,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		{
 			writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
 					context.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eReference.getName())+
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eReference.getName())+
 					" [");
 			
 			delimiter="";

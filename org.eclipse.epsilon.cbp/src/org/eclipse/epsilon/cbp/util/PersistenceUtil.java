@@ -3,6 +3,11 @@ package org.eclipse.epsilon.cbp.util;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
 public class PersistenceUtil {
 
 	//delimiter
@@ -28,6 +33,29 @@ public class PersistenceUtil {
 			instance = new PersistenceUtil();
 		}
 		return instance;
+	}
+	
+	public ModelElementIDMap populateEPackageElementNamesMap(EPackage ePackage)
+	{
+		ModelElementIDMap ePackageElementsNamesMap = new ModelElementIDMap();
+		
+		//for each eclassifier
+	    for(EClassifier eClassifier : ePackage.getEClassifiers())
+	    {
+	    	//if is EClass
+	        if(eClassifier instanceof EClass)
+	        {
+	            EClass eClass = (EClass) eClassifier;
+	            
+	            ePackageElementsNamesMap.addName(eClass.getName());
+	            
+	            for(EStructuralFeature feature : eClass.getEAllStructuralFeatures())
+	            {
+	                ePackageElementsNamesMap.addName(eClass.getName() + "-" + feature.getName());
+	            }
+	        }
+	    }
+	    return ePackageElementsNamesMap;
 	}
 
 }

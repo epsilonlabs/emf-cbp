@@ -2,14 +2,16 @@ package org.eclipse.epsilon.cbp.test.text.serialiser;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
-import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
-import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
-import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
-import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
+import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.junit.Test;
@@ -21,58 +23,58 @@ import university.StaffMemberType;
 import university.Student;
 import university.University;
 import university.UniversityFactory;
+import university.UniversityPackage;
 
-public class SerialiserTest {
+public class TextSerialiserTest {
 
 	@Test
-	public void countAddEObjectsToResourceEventTest() {
+	public void testAddToResourceEvent() {
 		
 		ResourceContentsToEventsConverter converter = generateConverter();
+		
+		//create adapter
+		EventAdapter adapter = new EventAdapter(new Changelog());
+		
+		//create resource
+	    Resource resource = new ResourceImpl();
+	    
+	    //create converter
+	    
+		//add adapter to resource
+	    resource.eAdapters().add(adapter);
+		
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+		
+		//add university
+		resource.getContents().add(university);
+		
 		converter.convert();
 		Changelog changelog = converter.getChangelog();
 		
-		assertEquals(changelog.allOfType(AddEObjectsToResourceEvent.class).size(), 7);
+		CBPContext context = new CBPContext();
+		context.setChangelog(changelog);
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(context, resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("test.txt");
+		System.out.println(f.getAbsolutePath());
+		options.put("path", f.getAbsolutePath());
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		assertEquals(true, true);
 	}
 	
-	@Test
-	public void countSetEAttributeEventTest() {
-		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
-		
-		assertEquals(changelog.allOfType(SetEAttributeEvent.class).size(), 10);
-	}
-
-	@Test
-	public void countAddToEAttributeEventTest() {
-		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
-		
-		assertEquals(changelog.allOfType(AddToEAttributeEvent.class).size(), 1);
-	}
-
-	@Test
-	public void countSetEReferenceEventTest() {
-		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
-		
-		assertEquals(changelog.allOfType(SetEReferenceEvent.class).size(), 2);
-	}
-	
-	@Test
-	public void countAddToEReferenceEventTest() {
-		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
-		
-		assertEquals(changelog.allOfType(AddToEReferenceEvent.class).size(), 8);
-	}
 	
 	public ResourceContentsToEventsConverter generateConverter()
 	{
