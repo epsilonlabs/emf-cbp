@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.test.util;
+package org.eclipse.epsilon.cbp.test.text.serialiser;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,9 +8,6 @@ import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
-import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
-import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
-import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
@@ -25,7 +22,7 @@ import university.Student;
 import university.University;
 import university.UniversityFactory;
 
-public class ChangeLogTest {
+public class SerialiserTest {
 
 	@Test
 	public void countAddEObjectsToResourceEventTest() {
@@ -75,36 +72,6 @@ public class ChangeLogTest {
 		Changelog changelog = converter.getChangelog();
 		
 		assertEquals(changelog.allOfType(AddToEReferenceEvent.class).size(), 8);
-	}
-	
-	@Test
-	public void countRemoveFromResourceTest()
-	{
-		//in the change log there should be 0 remove events
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();		
-		assertEquals(changelog.allOfType(RemoveFromResourceEvent.class).size(), 0);
-	}
-	
-	@Test
-	public void countRemoveFromEAttributeTest()
-	{
-		//in the change log there should be 0 remove events
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();		
-		assertEquals(changelog.allOfType(RemoveFromEAttributeEvent.class).size(), 0);
-	}
-	
-	@Test
-	public void countRemoveFromEReferenceTest()
-	{
-		//in the change log there should be 0 remove events
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();		
-		assertEquals(changelog.allOfType(RemoveFromEReferenceEvent.class).size(), 0);
 	}
 	
 	public ResourceContentsToEventsConverter generateConverter()
