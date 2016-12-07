@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.impl.CBPResource;
+import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.Changelog;
@@ -36,7 +38,7 @@ public class TextSerialiserTest {
 		EventAdapter adapter = new EventAdapter(new Changelog());
 		
 		//create resource
-	    Resource resource = new ResourceImpl();
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 	    
 	    //create converter
 	    
@@ -55,10 +57,7 @@ public class TextSerialiserTest {
 		converter.convert();
 		Changelog changelog = converter.getChangelog();
 		
-		CBPContext context = new CBPContext();
-		context.setChangelog(changelog);
-		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(context, resource);
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
 
 		Map<String, Object> options = new HashMap<String, Object>();
 		options.put("ePackage", UniversityPackage.eINSTANCE);

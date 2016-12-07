@@ -5,8 +5,7 @@ Bundle-SymbolicName: org.eclipse.epsilon.cbp; singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Require-Bundle: org.eclipse.emf.ecore,
  org.junit
-Export-Package: org.eclipse.epsilon.cbp.context,
- org.eclipse.epsilon.cbp.event,
+Export-Package: org.eclipse.epsilon.cbp.event,
  org.eclipse.epsilon.cbp.exceptions,
  org.eclipse.epsilon.cbp.impl,
  org.eclipse.epsilon.cbp.io,

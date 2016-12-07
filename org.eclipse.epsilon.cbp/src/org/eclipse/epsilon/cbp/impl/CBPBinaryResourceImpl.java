@@ -4,50 +4,27 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.epsilon.cbp.context.CBPContext;
-import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
+import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
 
 public class CBPBinaryResourceImpl extends CBPResource 
 {
-	//context
-	protected CBPContext context;
- 
-	//persistence manager
-	private final PersistenceManager persistenceManager;
-	
 	//event adapter
     private final EventAdapter eventAdapter;
  
-	public CBPBinaryResourceImpl(URI uri, EPackage ePackage)
+	public CBPBinaryResourceImpl(URI uri)
 	{
 		super(uri);
 		
-		eventAdapter = new EventAdapter(context.getChangelog());
+		eventAdapter = new EventAdapter(changelog);
 		
 		this.eAdapters().add(eventAdapter); 
-		
-		context.populateEPackageElementNamesMap(ePackage);
-		
-		persistenceManager = new PersistenceManager(context,this);
-	}
-	
-	public CBPBinaryResourceImpl(EPackage ePackage)
-	{
-		eventAdapter = new EventAdapter(context.getChangelog());
-		
-		this.eAdapters().add(eventAdapter); 
-		
-		context.populateEPackageElementNamesMap(ePackage);
-		
-		persistenceManager = new PersistenceManager(context,this);
 	}
 	
 	@Override
 	public void save(Map<?, ?> options) throws IOException
 	{
-		persistenceManager.save(options);
 	}
 	
 	@Override
@@ -58,12 +35,21 @@ public class CBPBinaryResourceImpl extends CBPResource
 		System.out.println("Load called on CBPBinaryResourceImpl");
 		
 		try {
-			persistenceManager.load(options);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		eventAdapter.setEnabled(true);
+	}
+
+	@Override
+	public AbstractCBPSerialiser getSerialiser() {
+		return null;
+	}
+
+	@Override
+	public AbstractCBPDeserialiser getDeserialiser() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

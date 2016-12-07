@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EDataType;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -15,6 +13,7 @@ import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
+import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SimpleType;
@@ -26,9 +25,6 @@ public abstract class AbstractCBPSerialiser {
 	//event list
     protected List<Event> eventList;
     
-	//change log
-	protected CBPContext context; 
-	
 	//epackage element map
 	protected ModelElementIDMap ePackageElementsNamesMap;
 	
@@ -38,7 +34,7 @@ public abstract class AbstractCBPSerialiser {
 	//tet simple type name
 	protected TObjectIntMap<String> textSimpleTypeNameMap;
 
-	protected Resource resource = null;
+	protected CBPResource resource = null;
 	
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 	
@@ -47,12 +43,7 @@ public abstract class AbstractCBPSerialiser {
 	public abstract String getFormatID();
 	public abstract double getVersion();
 	
-	protected void setResource(Resource resource)
-	{
-		this.resource = resource;
-	}
-	
-	public Resource getResource() {
+	public CBPResource getResource() {
 		return resource;
 	}
 	

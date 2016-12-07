@@ -12,8 +12,8 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
+import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SimpleType;
@@ -26,9 +26,6 @@ public abstract class AbstractCBPDeserialiser {
 	
 	//epackage
 	protected EPackage ePackage = null;
-	
-	//change log
-	protected CBPContext context;
 	
 	protected EList<EObject> contents;
 
@@ -44,17 +41,12 @@ public abstract class AbstractCBPDeserialiser {
 	//model-element id map
 	protected ModelElementIDMap ePackageElementsNamesMap;
 	
-	protected Resource resource = null;
+	protected CBPResource resource = null;
 	
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 
 	
 	public abstract void deserialise(Map<?, ?> options) throws Exception;
-	
-	protected void setResource(Resource resource)
-	{
-		this.resource = resource;
-	}
 	
 	public Resource getResource() {
 		return resource;

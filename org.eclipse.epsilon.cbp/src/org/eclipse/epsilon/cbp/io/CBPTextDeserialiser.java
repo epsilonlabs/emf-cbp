@@ -13,20 +13,17 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.context.CBPContext;
+import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
-	public CBPTextDeserialiser(CBPContext context, Resource resource) {
-		this.context = context;
-		this.ePackageElementsNamesMap = context.getePackageElementsNamesMap();
+	public CBPTextDeserialiser(CBPResource resource) {
 
-		this.commonsimpleTypeNameMap = context.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = context.getTextSimpleTypesMap();
+		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
 		
 		this.resource = resource;
 		contents = resource.getContents();
@@ -108,7 +105,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			}
 		}
 		br.close();
-		context.setResume(true);
+		resource.setResume(true);
 	}
 	
 	/*
@@ -132,7 +129,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			int id = Integer.valueOf(stringArray[1]);
 
 			//add object to change log
-			context.addObjectToMap(obj, id);
+			resource.addObjectToMap(obj, id);
 			
 			//put to IDToEObjectMap
 			IDToEObjectMap.put(id, obj);
@@ -373,7 +370,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			int id = Integer.valueOf(temp[1]);
 
 			//add obj to change log
-			context.addObjectToMap(obj, id);
+			resource.addObjectToMap(obj, id);
 
 			//put to IdToObjectMap
 			IDToEObjectMap.put(id, obj);
@@ -426,7 +423,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			int id = Integer.valueOf(temp[1]);
 
 			//add obj to change log
-			context.addObjectToMap(obj, id);
+			resource.addObjectToMap(obj, id);
 
 			//put to IdToObjectMap
 			IDToEObjectMap.put(id, obj);
