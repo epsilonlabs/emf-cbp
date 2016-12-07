@@ -3,9 +3,7 @@ package org.eclipse.epsilon.cbp.test.text.serialiser;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +19,8 @@ import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
+import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.junit.Test;
 
 import university.Department;
@@ -48,11 +48,6 @@ public class TextSerialiserTest {
 
 		//add university
 		resource.getContents().add(university);
-		
-		Department department = factory.createDepartment();
-		university.getDepartments().add(department);
-
-		resource.getChangelog().printLog();
 
 		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
 
@@ -75,7 +70,51 @@ public class TextSerialiserTest {
 			System.out.println(l);
 		}
 		
-		assertEquals(lines.get(2), "0 [0 0]");
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(2), "0 [" + map.getID(university.eClass().getName())+" 0]");
+	}
+	
+	@Test
+	public void testAddToEAttributeEvent() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		for(String l: lines)
+		{
+			System.out.println(l);
+		}
+		
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		
+		assertEquals(lines.get(2), "0 [" + map.getID(university.eClass().getName())+" 0]");
 	}
 	
 	public ArrayList<String> getLines(String path)
