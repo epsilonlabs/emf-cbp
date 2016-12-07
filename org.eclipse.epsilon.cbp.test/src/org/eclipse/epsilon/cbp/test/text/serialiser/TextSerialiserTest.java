@@ -63,7 +63,6 @@ public class TextSerialiserTest {
 		Map<String, Object> options = new HashMap<String, Object>();
 		options.put("ePackage", UniversityPackage.eINSTANCE);
 		File f = new File("test.txt");
-		System.out.println(f.getAbsolutePath());
 		options.put("path", f.getAbsolutePath());
 		try {
 			serialiser.serialise(options);
