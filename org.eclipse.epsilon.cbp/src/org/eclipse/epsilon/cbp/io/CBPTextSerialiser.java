@@ -444,7 +444,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 	/*
 	 * event format:
-	 * 10 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
+	 * 11 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
 	 * 12 objectID EReferenceID [EObjectID*]
 	 */
 	@Override
@@ -484,7 +484,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE+" "+
 					resource.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eReference.getName())+" [");
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eReference.getName())+" [");
 			
 	        int index = 0;
     		for(int i = 0; i < (eObjectsToCreateList.size() / 2); i++)

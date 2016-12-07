@@ -2,8 +2,13 @@ package org.eclipse.epsilon.cbp.test.text.serialiser;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,29 +40,27 @@ public class TextSerialiserTest {
 		//create resource
 	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 	    
-	    //create adapter
-	  	EventAdapter adapter = new EventAdapter(resource.getChangelog());
-	    
-	    //create converter
-	    
-		//add adapter to resource
-	    resource.eAdapters().add(adapter);
-		
 	    //create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
 		
 		// --create university
 		University university = factory.createUniversity();
-		
+
 		//add university
 		resource.getContents().add(university);
 		
+		Department department = factory.createDepartment();
+		university.getDepartments().add(department);
+
+		resource.getChangelog().printLog();
+
 		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
 
 		Map<String, Object> options = new HashMap<String, Object>();
 		options.put("ePackage", UniversityPackage.eINSTANCE);
 		File f = new File("model/test.txt");
 		options.put("path", f.getAbsolutePath());
+		
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
@@ -65,7 +68,33 @@ public class TextSerialiserTest {
 			e.printStackTrace();
 		}
 		
-		assertEquals(true, true);
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		for(String l: lines)
+		{
+			System.out.println(l);
+		}
+		
+		assertEquals(lines.get(2), "0 [0 0]");
+	}
+	
+	public ArrayList<String> getLines(String path)
+	{
+		ArrayList<String> lines = new ArrayList<String>();
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
+			String line;
+			while((line = reader.readLine())!=null)
+			{
+				lines.add(line);
+			}
+			reader.close();
+			return lines;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	
