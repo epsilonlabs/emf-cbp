@@ -32,13 +32,11 @@ public class TextSerialiserTest {
 	@Test
 	public void testAddToResourceEvent() {
 		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		
-		//create adapter
-		EventAdapter adapter = new EventAdapter(new Changelog());
-		
 		//create resource
 	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create adapter
+	  	EventAdapter adapter = new EventAdapter(resource.getChangelog());
 	    
 	    //create converter
 	    
@@ -54,14 +52,11 @@ public class TextSerialiserTest {
 		//add university
 		resource.getContents().add(university);
 		
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
-		
 		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
 
 		Map<String, Object> options = new HashMap<String, Object>();
 		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("test.txt");
+		File f = new File("model/test.txt");
 		options.put("path", f.getAbsolutePath());
 		try {
 			serialiser.serialise(options);

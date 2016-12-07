@@ -2,7 +2,6 @@ package org.eclipse.epsilon.cbp.resource.to.events;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,8 +26,6 @@ public class ResourceContentsToEventsConverter
 	Resource resource;
 	
 	HashSet<EObject> eObjectsCounter = new HashSet<EObject>();
-	HashMap<EObject, Boolean> handledAttributeMap = new HashMap<EObject, Boolean>();
-	HashMap<EObject, Boolean> handledReferenceMap = new HashMap<EObject, Boolean>();
 	
 	public ResourceContentsToEventsConverter(Changelog changelog, Resource resource)
 	{

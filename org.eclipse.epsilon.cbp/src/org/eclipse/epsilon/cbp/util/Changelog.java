@@ -3,12 +3,8 @@ package org.eclipse.epsilon.cbp.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
-import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Event;
-import org.eclipse.epsilon.cbp.event.ResourceEvent;
 
 public class Changelog 
 {

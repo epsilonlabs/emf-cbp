@@ -6,7 +6,6 @@ import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
 import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
 import org.eclipse.epsilon.cbp.util.Changelog;
-import org.eclipse.epsilon.cbp.util.SimpleType;
 
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -14,7 +13,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 public abstract class CBPResource extends ResourceImpl
 {
 
-	protected Changelog changelog;
+	protected Changelog changelog = new Changelog();
 	
 
 	private boolean resume = false;
