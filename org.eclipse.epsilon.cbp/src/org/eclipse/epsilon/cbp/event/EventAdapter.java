@@ -74,6 +74,12 @@ public class EventAdapter extends EContentAdapter
 				}
 				break;
 			}
+			
+			case Notification.UNSET:
+			{
+				System.err.println("this is called");
+			}
+			
 			//if event is SET
 			case Notification.SET:
 			{
@@ -93,12 +99,7 @@ public class EventAdapter extends EContentAdapter
 						changelog.addEvent(new SetEReferenceEvent(n)); 
 					} 
 				}
-				//if feature is eattribte
-				else if(n.getFeature() instanceof EAttribute)
-				{
-					//create add to eattribute event
-					changelog.addEvent(new SetEAttributeEvent(n));
-				}
+				
 				//if new value is null
 				else if(n.getNewValue() == null)
 				{
@@ -111,9 +112,22 @@ public class EventAdapter extends EContentAdapter
 					//if notifier is eobject
 					else if(n.getNotifier() instanceof EObject)
 					{
-						//create remove from ereference event
-						changelog.addEvent(new RemoveFromEReferenceEvent(n)); 
-					} 
+						if (n.getFeature() instanceof EAttribute) {
+							changelog.addEvent(new RemoveFromEAttributeEvent(n));
+						}
+						else if (n.getFeature() instanceof EReference) {
+							//create remove from ereference event
+							changelog.addEvent(new RemoveFromEReferenceEvent(n));
+						}
+					}
+				}
+				else if (n.getNewValue() != null) {
+					//if feature is eattribte
+					if(n.getFeature() instanceof EAttribute)
+					{
+						//create add to eattribute event
+						changelog.addEvent(new SetEAttributeEvent(n));
+					}
 				}
 				break;
 			}

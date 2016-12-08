@@ -546,7 +546,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		if(getTypeID(eDataType) != SimpleType.COMPLEX_TYPE )
 		{
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" +eAttribute.getName())+" ["));
 			
 
 			for(Object obj: e.getEAttributeValuesList())
@@ -567,7 +567,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		{
 			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eAttribute.getName())+" ["));
 
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -606,7 +606,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		
 		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE+" "+
 				resource.getObjectId(focusObject)+" "+
-                (ePackageElementsNamesMap.getID(eReference.getName())+" ["));
+                (ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" +eReference.getName())+" ["));
 			
 		String delimiter = "";
 		

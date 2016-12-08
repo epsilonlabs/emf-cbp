@@ -11,24 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
-import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
-import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.junit.Test;
 
 import university.Department;
-import university.Module;
 import university.StaffMember;
-import university.StaffMemberType;
-import university.Student;
 import university.University;
 import university.UniversityFactory;
 import university.UniversityPackage;
@@ -244,14 +236,280 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		for(String l: lines)
-		{
-			System.out.println(l);
-		}
-		
 		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
 		
 		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_SET_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("chancelor").getName())+" ["+ map.getID(member1.eClass().getName())  +" 1]");
+	}
+	
+	/*
+	 * event type:
+	 * 7/8 objectID EAttributeID [value*]
+	 */
+	@Test
+	public void testRemoveFromEAttributeEvent_one() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		university.getCodes().add("UoY");
+		
+		university.getCodes().clear();
+		//university.getCodes().remove("UoY");
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY]");
+	}
+	
+	/*
+	 * event type:
+	 * 7/8 objectID EAttributeID [value*]
+	 */
+	@Test
+	public void testRemoveFromEAttributeEvent_two() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		university.getCodes().add("UoY");
+		university.getCodes().add("111");
+
+		
+		university.getCodes().clear();
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(5), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY,111]");
+	}
+	
+	/*
+	 * event type:
+	 * 7/8 objectID EAttributeID [value*]
+	 */
+	@Test
+	public void testRemoveFromEAttributeEvent_three() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		university.setName("University of York");
+		
+		university.setName(null);
+		//university.eUnset(university.eClass().getEStructuralFeature("name"));
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("name").getName())+" [University of York]");
+	}
+	
+	/*
+	 * event type:
+	 * 13 objectID EReferenceID [EObjectID*]
+	 */
+	@Test
+	public void testRemoveFromEReferenceEvent_one() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		Department department = factory.createDepartment();
+		
+		university.getDepartments().add(department);
+		
+		university.getDepartments().clear();
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("departments").getName())+" [1]");
+	}
+	
+	/*
+	 * event type:
+	 * 13 objectID EReferenceID [EObjectID*]
+	 */
+	@Test
+	public void testRemoveFromEReferenceEvent_two() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		StaffMember chancelor = factory.createStaffMember();
+		
+		university.setChancelor(chancelor);
+		
+		university.setChancelor(null);
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("chancelor").getName())+" [1]");
+	}
+	
+	/*
+	 * event type:
+	 * 2 [EObjectID*]
+	 */
+	@Test
+	public void testRemoveFromResource() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		resource.getContents().remove(university);
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+//		for(String l: lines)
+//		{
+//			System.out.println(l);
+//		}
+		assertEquals(lines.get(3), SerialisationEventType.REMOVE_FROM_RESOURCE + " [0]");
 	}
 	
 	public ArrayList<String> getLines(String path)
@@ -271,81 +529,5 @@ public class TextSerialiserTest {
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	
-	public ResourceContentsToEventsConverter generateConverter()
-	{
-		
-		//create adapter
-		EventAdapter adapter = new EventAdapter(new Changelog());
-		
-		//create resource
-	    Resource resource = new ResourceImpl();
-	    
-	    //create converter
-		ResourceContentsToEventsConverter converter = new ResourceContentsToEventsConverter(adapter.getChangelog(), resource);
-	    
-		//add adapter to resource
-	    resource.eAdapters().add(adapter);
-		
-	    //create factory
-		UniversityFactory factory = UniversityFactory.eINSTANCE;
-		
-		// --create university
-		University university = factory.createUniversity();
-		
-		//add university
-		resource.getContents().add(university);
-		
-		// --set university attributes
-		university.getCodes().add("UoY");
-		university.setName("University of York");
-		
-		// --create department and set attribute
-		Department cs = factory.createDepartment();
-		cs.setName("Computer Science");
-		
-		//add department to university
-		university.getDepartments().add(cs);
-		
-		// --create staff member 1, set attribute
-		StaffMember member1 = factory.createStaffMember();
-		member1.setFirst_name("John");
-		member1.setStaffMemberType(StaffMemberType.ACADEMIC);
-		//add member1 to department
-		cs.getStaff().add(member1);
-		
-		// --create staff member 2, set attributes
-		StaffMember member2 = factory.createStaffMember();
-		member2.setFirst_name("Dimitris");
-		member2.setStaffMemberType(StaffMemberType.ACADEMIC);
-		//add member 2 to department
-		cs.getStaff().add(member2);
-		
-		// --create chancelor, set attributes
-		StaffMember chancelor = factory.createStaffMember();
-		chancelor.setFirst_name("Carol");
-		chancelor.setStaffMemberType(StaffMemberType.OTHER);
-		//add chancelor to uni
-		university.setChancelor(chancelor);
-		
-		// --create student 1, set attributes
-		Student s1 = factory.createStudent();
-		s1.setId(12345);
-		s1.setTutor(member1);
-		//add to department
-		cs.getStudents().add(s1);
-		
-		// --create module, set attibutes
-		Module mode = factory.createModule();
-		mode.setName("MODE");
-		mode.getModuleLecturers().add(member1);
-		mode.getEnrolledStudents().add(s1);
-		
-		//add to department
-		cs.getModules().add(mode);
-		
-		return converter;
 	}
 }
