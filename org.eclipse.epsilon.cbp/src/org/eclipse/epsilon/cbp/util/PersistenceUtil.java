@@ -38,6 +38,11 @@ public class PersistenceUtil {
 		populateTextSimpleTypesMap();
 	}
 	
+	public void reset()
+	{
+		ePackageElementsNamesMap = null;
+	}
+	
 	public static PersistenceUtil getInstance()
 	{
 		if (instance == null) {
@@ -46,7 +51,7 @@ public class PersistenceUtil {
 		return instance;
 	}
 	
-	public ModelElementIDMap populateEPackageElementNamesMap(EPackage ePackage)
+	public ModelElementIDMap generateEPackageElementNamesMap(EPackage ePackage)
 	{
 		ePackageElementsNamesMap = new ModelElementIDMap();
 		

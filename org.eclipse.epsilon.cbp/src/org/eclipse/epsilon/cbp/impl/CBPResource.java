@@ -22,7 +22,7 @@ public abstract class CBPResource extends ResourceImpl
 	protected TObjectIntMap<EObject> eObjToIDMap = new TObjectIntHashMap<EObject>();
 
 	//current id, increases when an object is encountered
-	protected static int current_id = 0; 
+	protected int current_id = 0; 
 
 	public CBPResource(URI uri)
 	{

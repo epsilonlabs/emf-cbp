@@ -56,7 +56,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		}
 		
 		if (options.get("ePackage") != null) {
-			ePackageElementsNamesMap = persistenceUtil.populateEPackageElementNamesMap((EPackage)options.get("ePackage"));
+			ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap((EPackage)options.get("ePackage"));
 		}
 			
 		Closeable printWriter = null;
@@ -326,7 +326,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX;
 			
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eAttribute.getName())+" ["));
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eAttribute.getName())+" ["));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -395,7 +395,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			created = true;
 			writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE+" "+
 					resource.getObjectId(focusObject)+" "+
-					ePackageElementsNamesMap.getID(eReference.getName())+" [");
+					ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" + eReference.getName())+" [");
 			
 	        int index = 0;
     		for(int i = 0; i < (eObjectsToCreateList.size() / 2); i++)
