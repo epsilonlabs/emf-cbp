@@ -144,7 +144,7 @@ public class ResourceContentsToEventsConverter
 		}
 		
 		AddToEReferenceEvent e = 
-				new AddToEReferenceEvent(focusObject, value, eRef);
+				new AddToEReferenceEvent(focusObject, eRef, value);
 		changelog.addEvent(e);
 	}
 	
@@ -167,7 +167,7 @@ public class ResourceContentsToEventsConverter
 		}
 		
 		SetEReferenceEvent e = 
-				new SetEReferenceEvent(focusObject, value, eRef);
+				new SetEReferenceEvent(focusObject, eRef, value);
 		changelog.addEvent(e);
 	}
 	
@@ -201,7 +201,7 @@ public class ResourceContentsToEventsConverter
 			}
 		}
 		AddToEReferenceEvent e = 
-				new AddToEReferenceEvent(focusObject, value, eRef);
+				new AddToEReferenceEvent(focusObject, eRef, value);
 		changelog.addEvent(e);	
 	}
 	
@@ -232,7 +232,7 @@ public class ResourceContentsToEventsConverter
 			}
 		}
 		SetEReferenceEvent e = 
-				new SetEReferenceEvent(focusObject, value, eRef);
+				new SetEReferenceEvent(focusObject, eRef, value);
 		changelog.addEvent(e);
 	}
 	

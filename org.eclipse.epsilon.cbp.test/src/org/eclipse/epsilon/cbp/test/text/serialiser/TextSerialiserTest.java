@@ -153,6 +153,54 @@ public class TextSerialiserTest {
 	
 	/*
 	 * event format:
+	 * 3 objectID EAttributeID [value*]
+	 */
+	@Test
+	public void testSetEAttributeEvent_complex() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		Department department = factory.createDepartment();
+		department.setName("CS");
+	
+		university.getDepartments().add(department);
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		for(String l: lines)
+		{
+			System.out.println(l);
+		}
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		//assertEquals(lines.get(3), SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("name").getName())+" [University of York]");
+	}
+	
+	/*
+	 * event format:
 	 * 11 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
 	 * 12 objectID EReferenceID [EObjectID*]
 	 */

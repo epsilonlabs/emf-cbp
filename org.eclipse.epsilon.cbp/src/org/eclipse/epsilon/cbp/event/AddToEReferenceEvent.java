@@ -6,7 +6,7 @@ import org.eclipse.emf.ecore.EReference;
 
 public class AddToEReferenceEvent extends EReferenceEvent
 {
-	public AddToEReferenceEvent(EObject focusObject,Object newValue,EReference eReference)
+	public AddToEReferenceEvent(EObject focusObject, EReference eReference, Object newValue)
     {
         super(Event.ADD_TO_EREFERENCE, focusObject,eReference,newValue);
     }
