@@ -1,10 +1,11 @@
-package org.eclipse.epsilon.cbp.resource.to.events;
+package org.eclipse.epsilon.cbp.test;
 
 import static org.junit.Assert.assertEquals;
 
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.resource.to.events.ResourceContentsToEventsConverter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.junit.Test;
 

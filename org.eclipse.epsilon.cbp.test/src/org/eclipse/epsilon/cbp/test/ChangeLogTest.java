@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.test.util;
+package org.eclipse.epsilon.cbp.test;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.test.text.serialiser;
+package org.eclipse.epsilon.cbp.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import university.Department;
 import university.StaffMember;
+import university.StaffMemberType;
 import university.University;
 import university.UniversityFactory;
 import university.UniversityPackage;
@@ -56,7 +57,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -98,7 +98,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -107,6 +106,51 @@ public class TextSerialiserTest {
 		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
 		
 		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY]");
+	}
+	
+	/*
+	 * event format:
+	 * 6 objectID EAttributeID [value*]
+	 */
+	@Test
+	public void testAddToEAttributeEventMultiple() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		ArrayList<String> codes = new ArrayList<String>();
+		codes.add("UoY");
+		codes.add("1234");
+		
+		university.getCodes().addAll(codes);
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY,1234]");
 	}
 	
 	/*
@@ -140,7 +184,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -170,10 +213,11 @@ public class TextSerialiserTest {
 		//add university
 		resource.getContents().add(university);
 
-		Department department = factory.createDepartment();
-		department.setName("CS");
-	
-		university.getDepartments().add(department);
+		StaffMember chancelor = factory.createStaffMember();
+		
+		university.setChancelor(chancelor);
+		
+		chancelor.setStaffMemberType(StaffMemberType.OTHER);
 		
 		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
 
@@ -185,18 +229,14 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
-		for(String l: lines)
-		{
-			System.out.println(l);
-		}
+		
 		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
 		
-		//assertEquals(lines.get(3), SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("name").getName())+" [University of York]");
+		assertEquals(lines.get(4), SerialisationEventType.SET_EATTRIBUTE_COMPLEX + " 1 " + map.getID(chancelor.eClass().getName()+ "-" + chancelor.eClass().getEStructuralFeature("staffMemberType").getName())+" [Other]");
 	}
 	
 	/*
@@ -233,7 +273,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -242,6 +281,60 @@ public class TextSerialiserTest {
 		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
 		
 		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("departments").getName())+" ["+ map.getID(department.eClass().getName())  +" 1]");
+	}
+	
+	/*
+	 * event format:
+	 * 11 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
+	 * 12 objectID EReferenceID [EObjectID*]
+	 */
+	@Test
+	public void testAddToEReferenceEventMultiple() {
+		
+		//create resource
+	    CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
+	    
+	    //create factory
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		
+		// --create university
+		University university = factory.createUniversity();
+
+		//add university
+		resource.getContents().add(university);
+
+		Department department1 = factory.createDepartment();
+		
+		Department department2 = factory.createDepartment();
+		
+		ArrayList<Department> departments = new ArrayList<Department>();
+		
+		departments.add(department1);
+		departments.add(department2);
+		
+		university.getDepartments().addAll(departments);
+		
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
+
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put("ePackage", UniversityPackage.eINSTANCE);
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		
+		try {
+			serialiser.serialise(options);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		for(String l: lines)
+		{
+			System.out.println(l);
+		}
+		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
+		
+		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("departments").getName())+" ["+ map.getID(department1.eClass().getName())  +" 1," +  map.getID(department1.eClass().getName()) +" 2]");
 	}
 	
 	/*
@@ -278,7 +371,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -323,7 +415,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -369,7 +460,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -414,7 +504,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -460,7 +549,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -506,7 +594,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -548,7 +635,6 @@ public class TextSerialiserTest {
 		try {
 			serialiser.serialise(options);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -573,7 +659,6 @@ public class TextSerialiserTest {
 			reader.close();
 			return lines;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

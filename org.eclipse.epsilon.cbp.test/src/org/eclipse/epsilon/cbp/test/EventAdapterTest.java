@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.event;
+package org.eclipse.epsilon.cbp.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,6 +7,8 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.epsilon.cbp.event.Event;
+import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.junit.Test;
 
