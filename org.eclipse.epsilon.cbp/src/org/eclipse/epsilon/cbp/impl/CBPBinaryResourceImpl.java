@@ -32,7 +32,6 @@ public class CBPBinaryResourceImpl extends CBPResource
 	{
 		eventAdapter.setEnabled(false);
 		
-		System.out.println("Load called on CBPBinaryResourceImpl");
 		
 		try {
 		} catch (Exception e) {

@@ -27,7 +27,12 @@ public class CBPTextResourceImpl extends CBPResource
 	@Override
 	public void save(Map<?, ?> options) throws IOException
 	{
-		
+		AbstractCBPSerialiser serialiser = getSerialiser();
+		try {
+			serialiser.serialise(options);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -36,9 +41,10 @@ public class CBPTextResourceImpl extends CBPResource
 	{
 		eventAdapter.setEnabled(false);
 		
+		AbstractCBPDeserialiser deserialiser = getDeserialiser();
 		try {
+			deserialiser.deserialise(options);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
