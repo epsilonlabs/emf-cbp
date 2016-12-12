@@ -420,7 +420,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			if (created) {
 				writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
 						resource.getObjectId(focusObject)+" "+
-						ePackageElementsNamesMap.getID(eReference.getName())+
+						ePackageElementsNamesMap.getID(focusObject.eClass().getName() + "-" +eReference.getName())+
 						" [");
 			}
 			else {
