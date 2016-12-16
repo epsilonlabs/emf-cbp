@@ -17,10 +17,9 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.context.CBPContext;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -29,62 +28,99 @@ import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
+import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	
-    public CBPBinarySerialiser(CBPContext context, Resource resource)
+    public CBPBinarySerialiser(CBPResource resource)
     {
-        this.context = context;
-        this.ePackageElementsNamesMap = context.getePackageElementsNamesMap();
-        this.eventList = context.getChangelog().getEventsList();
-        this.commonsimpleTypeNameMap = context.getCommonSimpleTypesMap();
-        this.resource = resource;
+    	this.eventList = resource.getChangelog().getEventsList();
+		
+		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
+		
+		this.resource = resource;
     }
     
     public void serialise(Map<?,?> options) throws IOException
     {
-    	if(eventList.isEmpty())
-    		return;
+		if(eventList.isEmpty()) //tbr
+		{
+			System.out.println("CBPTextSerialiser: no events found, returning!");
+			return;
+		}
+
+		if (options.get("ePackage") != null) {
+			ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap((EPackage)options.get("ePackage"));
+		}
+
     	
     	 OutputStream  outputStream = new BufferedOutputStream
-        		(new FileOutputStream(resource.getURI().path(), context.isResume()));
+        		(new FileOutputStream(resource.getURI().path(), resource.isResume()));
     
         //if we're not in resume mode, serialise initial entry
-        if(!context.isResume())
+        if(!resource.isResume())
             serialiseHeader(outputStream);
         
         for(Event e : eventList)
         {
         	switch(e.getEventType())
         	{
-        	case Event.ADD_EOBJ_TO_RESOURCE:
-        		writeEObjectAdditionEvent((AddEObjectsToResourceEvent)e, outputStream);
-        		break;
+        	
+			case Event.ADD_EOBJ_TO_RESOURCE:
+				handleAddToResourceEvent((AddEObjectsToResourceEvent)e, outputStream);
+				break;
 			case Event.SET_EATTRIBUTE:
 				handleSetEAttributeEvent((EAttributeEvent)e, outputStream);
 				break;
-        	case Event.ADD_TO_EREFERENCE:
-        		writeEObjectAdditionEvent((AddToEReferenceEvent)e,outputStream);
-        		break;
-        	case Event.REMOVE_EOBJ_FROM_RESOURCE:
-        		writeEObjectRemovalEvent((RemoveFromResourceEvent)e,outputStream);
-        		break;
-        	case Event.REMOVE_FROM_EREFERENCE:
-        		writeEObjectRemovalEvent((RemoveFromEReferenceEvent)e, outputStream);
-        		break;
-        	case Event.ADD_TO_EATTRIBUTE:
-        	case Event.REMOVE_FROM_EATTRIBUTE:
-        		writeEAttributeEvent((EAttributeEvent)e,outputStream);
-        		break;
+			case Event.ADD_TO_EATTRIBUTE:
+				handleAddToEAttributeEvent((EAttributeEvent)e, outputStream);
+				break;
+			case Event.SET_EREFERENCE:
+				handleSetEReferenceEvent((SetEReferenceEvent)e, outputStream);
+				break;
+			case Event.ADD_TO_EREFERENCE:
+				handleAddToEReferenceEvent((AddToEReferenceEvent)e, outputStream);
+				break;
+			case Event.REMOVE_FROM_EATTRIBUTE:
+				handleRemoveFromAttributeEvent((EAttributeEvent)e, outputStream);
+				break;
+			case Event.REMOVE_FROM_EREFERENCE:
+				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent)e, outputStream);
+				break;
+			case Event.REMOVE_EOBJ_FROM_RESOURCE:
+				handleRemoveFromResourceEvent((RemoveFromResourceEvent)e, outputStream);
+				break;
+
+        	
+//        	case Event.ADD_EOBJ_TO_RESOURCE:
+//        		writeEObjectAdditionEvent((AddEObjectsToResourceEvent)e, outputStream);
+//        		break;
+//			case Event.SET_EATTRIBUTE:
+//				handleSetEAttributeEvent((EAttributeEvent)e, outputStream);
+//				break;
+//        	case Event.ADD_TO_EREFERENCE:
+//        		writeEObjectAdditionEvent((AddToEReferenceEvent)e,outputStream);
+//        		break;
+//        	case Event.REMOVE_EOBJ_FROM_RESOURCE:
+//        		writeEObjectRemovalEvent((RemoveFromResourceEvent)e,outputStream);
+//        		break;
+//        	case Event.REMOVE_FROM_EREFERENCE:
+//        		writeEObjectRemovalEvent((RemoveFromEReferenceEvent)e, outputStream);
+//        		break;
+//        	case Event.ADD_TO_EATTRIBUTE:
+//        	case Event.REMOVE_FROM_EATTRIBUTE:
+//        		writeEAttributeEvent((EAttributeEvent)e,outputStream);
+//        		break;
         	}
         }
         
       	outputStream.close();
       	
-      	context.setResume(true);
+      	resource.setResume(true);
 	
     }
     
@@ -146,7 +182,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
     	
         writePrimitive(out,serializationType);
-        writePrimitive(out,context.getObjectId(focusObject));
+        writePrimitive(out,resource.getObjectId(focusObject));
         writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
         writePrimitive(out,eAttributeValuesList.size());
         
@@ -172,6 +208,8 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 //        	
 //        	int complexSerializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
 //        	
+        
+        
 //        	if(serializationType== SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE)
 //        		complexSerializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
 //        	
@@ -238,7 +276,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	EDataType eDataType = eAttribute.getEAttributeType();
     	
     	writePrimitive(out,serializationType);
-    	writePrimitive(out,context.getObjectId(focusObject));
+    	writePrimitive(out,resource.getObjectId(focusObject));
     	writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
     	writePrimitive(out,eAttributeValuesList.size());
     	
@@ -546,7 +584,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
 	/*
 	 * format:
-	 * 0 size id*
+	 * 0 size (typeID id)*
 	 */
 	@Override
 	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException {
@@ -558,10 +596,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	
     	for(EObject obj : eObjectsList)
     	{
-    		if(context.addObjectToMap(obj))
+    		if(resource.addObjectToMap(obj))
     		{
     			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
-    			eObjectsToCreateList.add(context.getObjectId(obj));
+    			eObjectsToCreateList.add(resource.getObjectId(obj));
     		}
     		else
     		{
@@ -569,7 +607,6 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 				System.err.println("handleAddToResourceEven: redundant creation");
     		}
     	}
-    		
 
 		if(!eObjectsToCreateList.isEmpty()) //CREATE_AND_ADD_TO_RESOURCE 
 		{
@@ -590,18 +627,57 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	}
 
 	/*
-	 * format:
+	 * format: 
+	 * 4
 	 * 
 	 */
 	@Override
 	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
 		OutputStream stream = (OutputStream) out;
 		
-		//get EAttribute type
-    	EDataType type = e.getEAttribute().getEAttributeType();
+		EObject focusObject = e.getFocusObject();
+		
+		//get attr
+		EAttribute eAttribute = e.getEAttribute();
+		
+		//get data type
+		EDataType eDataType = eAttribute.getEAttributeType();
     	
-    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
+    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
 
+    	if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
+    		switch(getTypeID(eDataType))
+        	{
+        	case SimpleType.SIMPLE_TYPE_INT:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_INT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_SHORT:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_SHORT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_LONG:
+        		setPrimitiveEAttributes(e,stream,SimpleType.SIMPLE_TYPE_LONG);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_FLOAT:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_FLOAT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_DOUBLE:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_DOUBLE);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_BOOLEAN:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_BOOLEAN);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_CHAR:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_CHAR);
+        		return;
+        	case SimpleType.COMPLEX_TYPE:
+        		writeComplexEAttributes(e,stream);
+        		return;
+        	}
+		}
+    	else {
+			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
+		}
+    	
     	//handle EEnum
     	if(type instanceof EEnum)
     	{
@@ -609,33 +685,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,stream);
     	}
     	
-    	switch(getTypeID(type))
-    	{
-    	case SimpleType.SIMPLE_TYPE_INT:
-    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_INT);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_SHORT:
-    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_SHORT);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_LONG:
-    		setPrimitiveEAttributes(e,stream,SimpleType.SIMPLE_TYPE_LONG);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_FLOAT:
-    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_FLOAT);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_DOUBLE:
-    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_DOUBLE);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_BOOLEAN:
-    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_BOOLEAN);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_CHAR:
-    		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_CHAR);
-    		return;
-    	case SimpleType.COMPLEX_TYPE:
-    		writeComplexEAttributes(e,stream);
-    		return;
-    	}
+    	
     }
 
 	@Override

@@ -4,11 +4,14 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
+import org.eclipse.epsilon.cbp.event.EPackageRegistrationEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
@@ -22,6 +25,9 @@ import gnu.trove.map.TObjectIntMap;
 
 public abstract class AbstractCBPSerialiser {
 
+	//epacks involved
+	protected Set<EPackage> ePackages;
+	
 	//event list
     protected List<Event> eventList;
     
@@ -49,6 +55,7 @@ public abstract class AbstractCBPSerialiser {
 	
 	protected abstract void serialiseHeader(Closeable out); 
 
+	protected abstract void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out);
 	
 	protected abstract void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException;
 	protected abstract void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out);

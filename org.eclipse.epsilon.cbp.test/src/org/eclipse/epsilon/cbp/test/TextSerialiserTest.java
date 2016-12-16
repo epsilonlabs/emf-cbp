@@ -11,10 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
-import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.junit.Test;
@@ -62,9 +63,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(2), SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE+" [" + map.getID(university.eClass().getName())+" 0]");
+		assertEquals(lines.get(2), SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE+" [" + getID(university.eClass())+" 0]");
 	}
 	
 	/*
@@ -103,9 +102,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY]");
+		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY]");
 	}
 	
 	/*
@@ -148,9 +145,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY,1234]");
+		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY,1234]");
 	}
 	
 	/*
@@ -189,9 +184,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(3), SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("name").getName())+" [University of York]");
+		assertEquals(lines.get(3), SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("name"))+" [University of York]");
 	}
 	
 	/*
@@ -234,9 +227,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(4), SerialisationEventType.SET_EATTRIBUTE_COMPLEX + " 1 " + map.getID(chancelor.eClass().getName()+ "-" + chancelor.eClass().getEStructuralFeature("staffMemberType").getName())+" [Other]");
+		assertEquals(lines.get(4), SerialisationEventType.SET_EATTRIBUTE_COMPLEX + " 1 " + getID(chancelor.eClass(), chancelor.eClass().getEStructuralFeature("staffMemberType"))+" [Other]");
 	}
 	
 	/*
@@ -278,9 +269,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("departments").getName())+" ["+ map.getID(department.eClass().getName())  +" 1]");
+		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("departments"))+" ["+ getID(department.eClass())  +" 1]");
 	}
 	
 	/*
@@ -332,9 +321,8 @@ public class TextSerialiserTest {
 		{
 			System.out.println(l);
 		}
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
 		
-		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("departments").getName())+" ["+ map.getID(department1.eClass().getName())  +" 1," +  map.getID(department1.eClass().getName()) +" 2]");
+		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("departments"))+" ["+ getID(department1.eClass())  +" 1," +  getID(department1.eClass()) +" 2]");
 	}
 	
 	/*
@@ -376,9 +364,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_SET_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("chancelor").getName())+" ["+ map.getID(member1.eClass().getName())  +" 1]");
+		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_SET_EREFERENCE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("chancelor"))+" ["+ getID(member1.eClass())  +" 1]");
 	}
 	
 	/*
@@ -420,9 +406,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY]");
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY]");
 	}
 	
 	/*
@@ -465,9 +449,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(5), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("codes").getName())+" [UoY,111]");
+		assertEquals(lines.get(5), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY,111]");
 	}
 	
 	/*
@@ -509,9 +491,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("name").getName())+" [University of York]");
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("name"))+" [University of York]");
 	}
 	
 	/*
@@ -554,9 +534,8 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("departments").getName())+" [1]");
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + getID(university.eClass(),
+				university.eClass().getEStructuralFeature("departments"))+" [1]");
 	}
 	
 	/*
@@ -599,9 +578,7 @@ public class TextSerialiserTest {
 		
 		ArrayList<String> lines = getLines(f.getAbsolutePath());
 		
-		ModelElementIDMap map = PersistenceUtil.getInstance().getePackageElementsNamesMap();
-		
-		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + map.getID(university.eClass().getName()+ "-" + university.eClass().getEStructuralFeature("chancelor").getName())+" [1]");
+		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("chancelor"))+" [1]");
 	}
 	
 	/*
@@ -663,4 +640,15 @@ public class TextSerialiserTest {
 		}
 		return null;
 	}
+	
+	public int getID(EClass eClass, EStructuralFeature feature)
+	{
+		return PersistenceUtil.getInstance().getePackageElementsNamesMap().getID(eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName());
+	}
+	
+	public int getID(EClass eClass)
+	{
+		return PersistenceUtil.getInstance().getePackageElementsNamesMap().getID(eClass.getEPackage().getName() + "-" + eClass.getName());
+	}
+
 }

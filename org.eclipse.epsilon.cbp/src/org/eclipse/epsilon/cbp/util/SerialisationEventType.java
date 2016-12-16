@@ -22,5 +22,8 @@ public class SerialisationEventType {
 	public static final int CREATE_AND_ADD_TO_EREFERENCE = 11;
 	public static final int ADD_TO_EREFERENCE = 12;
     public static final int REMOVE_FROM_EREFERENCE = 13;
+    
+    //EPackage registration event
+    public static final int REGISTER_EPACKAGE = 14;
 
 }

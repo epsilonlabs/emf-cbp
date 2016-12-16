@@ -36,8 +36,9 @@ public class EventAdapterTest {
 		resource.getContents().add(university);
 
 		Changelog changelog = adapter.getChangelog();
+		changelog.printLog();
 
-		assertEquals(changelog.getEventsList().get(0).getEventType(), Event.ADD_EOBJ_TO_RESOURCE);
+		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.ADD_EOBJ_TO_RESOURCE);
 	}
 	
 	@Test
@@ -59,7 +60,7 @@ public class EventAdapterTest {
 		
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.ADD_TO_EREFERENCE);
+		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.ADD_TO_EREFERENCE);
 	}
 	
 	@Test
@@ -80,7 +81,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.ADD_TO_EATTRIBUTE);
+		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.ADD_TO_EATTRIBUTE);
 	}
 	
 	@Test
@@ -101,7 +102,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.REMOVE_EOBJ_FROM_RESOURCE);
+		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.REMOVE_EOBJ_FROM_RESOURCE);
 	}
 	
 	@Test
@@ -127,7 +128,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.REMOVE_FROM_EREFERENCE);
+		assertEquals(changelog.getEventsList().get(3).getEventType(), Event.REMOVE_FROM_EREFERENCE);
 	}
 
 	@Test
@@ -152,7 +153,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.REMOVE_FROM_EATTRIBUTE);
+		assertEquals(changelog.getEventsList().get(3).getEventType(), Event.REMOVE_FROM_EATTRIBUTE);
 	}
 	
 	@Test
@@ -173,7 +174,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.SET_EATTRIBUTE);
+		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.SET_EATTRIBUTE);
 	}
 	
 	@Test
@@ -196,6 +197,6 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.SET_EREFERENCE);
+		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.SET_EREFERENCE);
 	}
 }

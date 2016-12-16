@@ -32,24 +32,12 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
 	public void deserialise(Map<?, ?> options) throws Exception {
 		
-		if (options.get("ePackage") != null) {
-			ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap((EPackage)options.get("ePackage"));
-		}
-		
 		BufferedReader br = new BufferedReader(
 				new InputStreamReader(new FileInputStream(resource.getURI().path()), persistenceUtil.STRING_ENCODING));
 
 		String line;
 
 		br.readLine(); // skip file format info
-
-		if ((line = br.readLine()) != null) {
-			String[] stringArray = line.split(" ");
-			ePackage = loadMetamodel(stringArray[1]);
-		} else {
-			System.out.println("CBPTextDeserialiser Error, file empty");
-			System.exit(0);
-		}
 
 		while ((line = br.readLine()) != null) {
 			// System.out.println(line);
@@ -62,6 +50,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 			//Switches over various event types, calls appropriate handler method
 			switch (eventType) {
+			case SerialisationEventType.REGISTER_EPACKAGE:
+				handleRegisterEPackage(line);
+				break;
 			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
 				handleCreateAndAddToResource(line);
 				break;
@@ -124,7 +115,6 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		String[] objToCreateAndAddArray = tokeniseString(getValueInSquareBrackets(line));
 
 		for (String str : objToCreateAndAddArray) {
-			
 			
 			String[] stringArray = str.split(" ");
 			
@@ -522,8 +512,17 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
 	protected String getPropertyName(String str)
 	{
-		int index = str.indexOf("-");
-		return str.substring(index+1, str.length());
+		String[] index = str.split("-");
+		return index[2];
+	}
+	
+	@Override
+	protected void handleRegisterEPackage(String line) {
+		int index = line.indexOf(" ");
+		String nsuri = line.substring(index+1, line.length());
+		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsuri);
+		ePackages.add(ePackage);
+		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(ePackage);
 	}
 	
 }

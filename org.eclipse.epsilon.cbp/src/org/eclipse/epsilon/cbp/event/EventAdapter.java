@@ -1,11 +1,13 @@
 package org.eclipse.epsilon.cbp.event;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -19,6 +21,10 @@ public class EventAdapter extends EContentAdapter {
 
 	// flag adapter_enabled
 	private boolean adapter_enabled = true;
+	
+	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
+	
+	protected EPackage currentEPackage = null;
 
 	// constructor
 	public EventAdapter(Changelog aChangelog) {
@@ -46,8 +52,10 @@ public class EventAdapter extends EContentAdapter {
 			if (n.getNotifier() instanceof Resource) {
 				if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
 					// create add to resource event
-					changelog.addEvent(new AddEObjectsToResourceEvent(n));
 					EObject newValue = (EObject) n.getNewValue();
+					EPackage ePackage = newValue.eClass().getEPackage();
+					handleEPackage(ePackage);
+					changelog.addEvent(new AddEObjectsToResourceEvent(n));
 					for (EStructuralFeature feature : newValue.eClass().getEAllStructuralFeatures()) {
 						if (newValue.eIsSet(feature)) {
 							if (feature instanceof EAttribute) {
@@ -110,8 +118,11 @@ public class EventAdapter extends EContentAdapter {
 			if (n.getNotifier() instanceof Resource) {
 				if (n.getNewValue() != null) {
 					if (n.getNewValue() instanceof EObject) {
-						changelog.addEvent(new AddEObjectsToResourceEvent(n));
 						EObject newValue = (EObject) n.getNewValue();
+						EPackage ePackage = newValue.eClass().getEPackage();
+						handleEPackage(ePackage);
+						changelog.addEvent(new AddEObjectsToResourceEvent(n));
+
 						for (EStructuralFeature feature : newValue.eClass().getEAllStructuralFeatures()) {
 							if (newValue.eIsSet(feature)) {
 								if (feature instanceof EAttribute) {
@@ -186,7 +197,11 @@ public class EventAdapter extends EContentAdapter {
 			if (list.get(0) instanceof EObject) {
 				// if notifier is resource
 				if (n.getNotifier() instanceof Resource) {
+					EObject obj = (EObject) list.get(0);
+					EPackage ePackage = obj.eClass().getEPackage();
+					handleEPackage(ePackage);
 					changelog.addEvent(new AddEObjectsToResourceEvent(n));
+
 				} else if (n.getNotifier() instanceof EObject) {
 					changelog.addEvent(new AddToEReferenceEvent(n));
 				}
@@ -299,5 +314,26 @@ public class EventAdapter extends EContentAdapter {
 
 	public Changelog getChangelog() {
 		return changelog;
+	}
+	
+	public void handleEPackage(EPackage ePackage)
+	{
+		if (currentEPackage == null) {
+			currentEPackage = ePackage;
+			ePackages.add(ePackage);
+			changelog.addEvent(new EPackageRegistrationEvent(Event.REGISTER_EPACKAGE, ePackage));
+		}
+		else {
+			if (!ePackage.equals(currentEPackage)) {
+				if (ePackages.contains(ePackage)) {
+					currentEPackage = ePackage;
+				}
+				else {
+					ePackages.add(ePackage);
+					currentEPackage = ePackage;
+					changelog.addEvent(new EPackageRegistrationEvent(Event.REGISTER_EPACKAGE, ePackage));
+				}
+			}
+		}
 	}
 }

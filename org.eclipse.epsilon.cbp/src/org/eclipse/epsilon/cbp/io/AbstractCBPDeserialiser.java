@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.cbp.io;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +13,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
@@ -25,7 +25,8 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 public abstract class AbstractCBPDeserialiser {
 	
 	//epackage
-	protected EPackage ePackage = null;
+
+	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 	
 	protected EList<EObject> contents;
 
@@ -51,6 +52,8 @@ public abstract class AbstractCBPDeserialiser {
 	public Resource getResource() {
 		return resource;
 	}
+	
+	protected abstract void handleRegisterEPackage(String line);
 
 	protected abstract void handleCreateAndAddToResource(String line);
 	protected abstract void handleRemoveFromResource(String line);
@@ -86,23 +89,24 @@ public abstract class AbstractCBPDeserialiser {
     	return SimpleType.COMPLEX_TYPE;
 	}
 
-	
-
-	protected EPackage loadMetamodel(String metamodelURI) throws UnknownPackageException {
-		EPackage ePackage = null;
-
-		if (EPackage.Registry.INSTANCE.containsKey(metamodelURI))
-			ePackage = EPackage.Registry.INSTANCE.getEPackage(metamodelURI);
-
-		else
-			throw new UnknownPackageException(metamodelURI);
-
-		return ePackage;
-	}
-
-	protected EObject createEObject(String eClassName)
+	protected EObject createEObject(String name)
 	{
-		return ePackage.getEFactoryInstance().create((EClass) ePackage.getEClassifier(eClassName));
+		String[] tokens = name.split("-");
+		
+		EPackage ePackage = getEPackage(tokens[0]);
+		
+		return ePackage.getEFactoryInstance().create((EClass) ePackage.getEClassifier(tokens[1]));
+	}
+	
+	protected EPackage getEPackage(String name)
+	{
+		for(EPackage ep: ePackages)
+		{
+			if (ep.getName().equals(name)) {
+				return ep;
+			}
+		}
+		return null;
 	}
 
 	/*

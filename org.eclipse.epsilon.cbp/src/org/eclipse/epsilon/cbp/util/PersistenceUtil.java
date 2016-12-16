@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.util;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
@@ -31,6 +32,7 @@ public class PersistenceUtil {
 	
 	protected TObjectIntMap<String> commonSimpleTypesMap = new TObjectIntHashMap<String>(13);
 
+	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 	
 	private PersistenceUtil()
 	{
@@ -53,7 +55,18 @@ public class PersistenceUtil {
 	
 	public ModelElementIDMap generateEPackageElementNamesMap(EPackage ePackage)
 	{
-		ePackageElementsNamesMap = new ModelElementIDMap();
+		if (ePackageElementsNamesMap == null) {
+			ePackageElementsNamesMap = new ModelElementIDMap();	
+		}
+		
+		if (ePackages.contains(ePackage)) {
+			return ePackageElementsNamesMap;
+		}
+		else {
+			ePackages.add(ePackage);
+		}
+		
+		String packageName = ePackage.getName();
 		
 		//for each eclassifier
 	    for(EClassifier eClassifier : ePackage.getEClassifiers())
@@ -63,11 +76,13 @@ public class PersistenceUtil {
 	        {
 	            EClass eClass = (EClass) eClassifier;
 	            
-	            ePackageElementsNamesMap.addName(eClass.getName());
+	            String className = eClass.getName();
+	            
+	            ePackageElementsNamesMap.addName(packageName + "-" + className);
 	            
 	            for(EStructuralFeature feature : eClass.getEAllStructuralFeatures())
 	            {
-	                ePackageElementsNamesMap.addName(eClass.getName() + "-" + feature.getName());
+	                ePackageElementsNamesMap.addName(packageName + "-" + className + "-" + feature.getName());
 	            }
 	        }
 	    }
