@@ -47,10 +47,6 @@ public abstract class CBPResource extends ResourceImpl
 		this.resume = resume;
 	}
 	
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
-	
 	public void setChangelog(Changelog changelog) {
 		this.changelog = changelog;
 	}

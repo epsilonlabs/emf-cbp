@@ -15,7 +15,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
-import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.junit.Test;
@@ -25,7 +24,6 @@ import university.StaffMember;
 import university.StaffMemberType;
 import university.University;
 import university.UniversityFactory;
-import university.UniversityPackage;
 
 public class TextSerialiserTest {
 
@@ -48,21 +46,13 @@ public class TextSerialiserTest {
 		//add university
 		resource.getContents().add(university);
 
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
-		
+		ArrayList<String> lines = getLines();
 		assertEquals(lines.get(2), SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE+" [" + getID(university.eClass())+" 0]");
 	}
 	
@@ -87,20 +77,13 @@ public class TextSerialiserTest {
 
 		university.getCodes().add("UoY");
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY]");
 	}
@@ -130,20 +113,13 @@ public class TextSerialiserTest {
 		
 		university.getCodes().addAll(codes);
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY,1234]");
 	}
@@ -169,20 +145,13 @@ public class TextSerialiserTest {
 
 		university.setName("University of York");
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(3), SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("name"))+" [University of York]");
 	}
@@ -212,20 +181,13 @@ public class TextSerialiserTest {
 		
 		chancelor.setStaffMemberType(StaffMemberType.OTHER);
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(4), SerialisationEventType.SET_EATTRIBUTE_COMPLEX + " 1 " + getID(chancelor.eClass(), chancelor.eClass().getEStructuralFeature("staffMemberType"))+" [Other]");
 	}
@@ -254,20 +216,13 @@ public class TextSerialiserTest {
 		
 		university.getDepartments().add(department);
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("departments"))+" ["+ getID(department.eClass())  +" 1]");
 	}
@@ -303,20 +258,13 @@ public class TextSerialiserTest {
 		
 		university.getDepartments().addAll(departments);
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		for(String l: lines)
 		{
 			System.out.println(l);
@@ -349,20 +297,13 @@ public class TextSerialiserTest {
 		
 		university.setChancelor(member1);
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(3), SerialisationEventType.CREATE_AND_SET_EREFERENCE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("chancelor"))+" ["+ getID(member1.eClass())  +" 1]");
 	}
@@ -391,20 +332,13 @@ public class TextSerialiserTest {
 		university.getCodes().clear();
 		//university.getCodes().remove("UoY");
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY]");
 	}
@@ -434,20 +368,13 @@ public class TextSerialiserTest {
 		
 		university.getCodes().clear();
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(5), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("codes"))+" [UoY,111]");
 	}
@@ -476,20 +403,13 @@ public class TextSerialiserTest {
 		university.setName(null);
 		//university.eUnset(university.eClass().getEStructuralFeature("name"));
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("name"))+" [University of York]");
 	}
@@ -519,20 +439,13 @@ public class TextSerialiserTest {
 		
 		university.getDepartments().clear();
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + getID(university.eClass(),
 				university.eClass().getEStructuralFeature("departments"))+" [1]");
@@ -563,20 +476,13 @@ public class TextSerialiserTest {
 		
 		university.setChancelor(null);
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 		
 		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 " + getID(university.eClass(), university.eClass().getEStructuralFeature("chancelor"))+" [1]");
 	}
@@ -602,20 +508,13 @@ public class TextSerialiserTest {
 
 		resource.getContents().remove(university);
 		
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			serialiser.serialise(options);
+			resource.save(getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		ArrayList<String> lines = getLines(f.getAbsolutePath());
+		ArrayList<String> lines = getLines();
 //		for(String l: lines)
 //		{
 //			System.out.println(l);
@@ -623,8 +522,10 @@ public class TextSerialiserTest {
 		assertEquals(lines.get(3), SerialisationEventType.REMOVE_FROM_RESOURCE + " [0]");
 	}
 	
-	public ArrayList<String> getLines(String path)
+	public ArrayList<String> getLines()
 	{
+		String path = (String) getOptions().get("path");
+				
 		ArrayList<String> lines = new ArrayList<String>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
@@ -649,6 +550,14 @@ public class TextSerialiserTest {
 	public int getID(EClass eClass)
 	{
 		return PersistenceUtil.getInstance().getePackageElementsNamesMap().getID(eClass.getEPackage().getName() + "-" + eClass.getName());
+	}
+	
+	public Map<String, Object> getOptions()
+	{
+		Map<String, Object> options = new HashMap<String, Object>();
+		File f = new File("model/test.txt");
+		options.put("path", f.getAbsolutePath());
+		return options;
 	}
 
 }

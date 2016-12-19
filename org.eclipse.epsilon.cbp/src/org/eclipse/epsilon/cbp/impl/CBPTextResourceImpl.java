@@ -29,6 +29,10 @@ public class CBPTextResourceImpl extends CBPResource
 	@Override
 	public void save(Map<?, ?> options) throws IOException
 	{
+		if (options.get("debug") != null) {
+			debug = (boolean) options.get("debug");	
+		}
+		
 		AbstractCBPSerialiser serialiser = getSerialiser();
 		try {
 			serialiser.serialise(options);

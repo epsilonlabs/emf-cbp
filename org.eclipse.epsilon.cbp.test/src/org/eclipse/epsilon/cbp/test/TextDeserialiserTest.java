@@ -33,8 +33,6 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
-import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
-import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 import org.junit.Test;
 
 import university.Department;
@@ -43,7 +41,6 @@ import university.StaffMemberType;
 import university.Student;
 import university.University;
 import university.UniversityFactory;
-import university.UniversityPackage;
 
 public class TextDeserialiserTest {
 	private boolean ignoreWhitespace = false, ignoreUnorderedMoves = true;	
@@ -125,22 +122,16 @@ public class TextDeserialiserTest {
 		//add university
 		resource1.getContents().add(university);
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
-		} catch (Exception e) {
-			e.printStackTrace();
+			resource1.save(getOptions());
+			resource2.load(getOptions());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+
 		
 		assertEquals(compare(resource1, resource2), true);
 	}
@@ -162,21 +153,14 @@ public class TextDeserialiserTest {
 		
 		resource1.getContents().remove(university);
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
-
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
 		
 		try {
-			deserialiser.deserialise(options);
-		} catch (Exception e) {
-			e.printStackTrace();
+			resource1.save(getOptions());
+			resource2.load(getOptions());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 		
 		assertEquals(compare(resource1, resource2), true);
@@ -199,20 +183,13 @@ public class TextDeserialiserTest {
 		
 		university.setName("University of York");
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
-		} catch (Exception e) {
+			resource1.save(getOptions());
+			resource2.load(getOptions());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -240,20 +217,13 @@ public class TextDeserialiserTest {
 		
 		chancelor.setStaffMemberType(StaffMemberType.OTHER);
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
-		} catch (Exception e) {
+			resource1.save(getOptions());
+			resource2.load(getOptions());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -277,20 +247,13 @@ public class TextDeserialiserTest {
 		
 		university.getCodes().add("UOY");
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
-		} catch (Exception e) {
+			resource1.save(getOptions());
+			resource2.load(getOptions());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -316,19 +279,11 @@ public class TextDeserialiserTest {
 		
 		university.getCodes().clear();
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
-
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
 		
 		try {
-			deserialiser.deserialise(options);
+			resource1.save(getOptions());
+			resource2.load(getOptions());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -360,19 +315,11 @@ public class TextDeserialiserTest {
 		
 		chancelor.setStaffMemberType(null);
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
-
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
 		
 		try {
-			deserialiser.deserialise(options);
+			resource1.save(getOptions());
+			resource2.load(getOptions());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -409,19 +356,11 @@ public class TextDeserialiserTest {
 		
 		stu1.setTutor(lecturer1);
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
+			resource1.save(getOptions());
+			resource2.load(getOptions());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -458,19 +397,11 @@ public class TextDeserialiserTest {
 		
 		stu1.setTutor(lecturer1);
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
+			resource1.save(getOptions());
+			resource2.load(getOptions());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -511,19 +442,11 @@ public class TextDeserialiserTest {
 		
 		lecturer1.getTaughtModules().add(mode);
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
+			resource1.save(getOptions());
+			resource2.load(getOptions());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -552,19 +475,11 @@ public class TextDeserialiserTest {
 		
 		university.getDepartments().clear();
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
+			resource1.save(getOptions());
+			resource2.load(getOptions());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -595,19 +510,11 @@ public class TextDeserialiserTest {
 		
 		resource1.getChangelog().printLog();
 		
-		serialise(resource1);
-		
 		CBPResource resource2 = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
 
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(resource2);
-		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
-		
 		try {
-			deserialiser.deserialise(options);
+			resource1.save(getOptions());
+			resource2.load(getOptions());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -636,20 +543,12 @@ public class TextDeserialiserTest {
 		return cmp.getDifferences().isEmpty() ? true : false;
 	}
 	
-	public void serialise(CBPResource resource)
+	public Map<String, Object> getOptions()
 	{
-		CBPTextSerialiser serialiser = new CBPTextSerialiser(resource);
-
 		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("ePackage", UniversityPackage.eINSTANCE);
 		File f = new File("model/test.txt");
 		options.put("path", f.getAbsolutePath());
-		
-		try {
-			serialiser.serialise(options);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		return options;
 	}
 
 }
