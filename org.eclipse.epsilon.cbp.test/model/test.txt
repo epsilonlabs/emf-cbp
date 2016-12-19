@@ -1,4 +1,4 @@
 CBP_TEXT 1.0
-14 http://university/1.0
-0 [0 0]
-3 0 4 [University of York]
+REGISTER_EPACKAGE http://university/1.0
+CREATE_AND_ADD_TO_RESOURCE [university-University 0]
+CREATE_AND_SET_EREFERENCE 0 university-University-chancelor [university-StaffMember 1]

@@ -646,6 +646,6 @@ public class CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 	
 	public String getID(EClass eClass)
 	{
-		return eClass.getEPackage().getName()+"-"+eClass.getName()+"-";
+		return eClass.getEPackage().getName()+"-"+eClass.getName();
 	}
 }

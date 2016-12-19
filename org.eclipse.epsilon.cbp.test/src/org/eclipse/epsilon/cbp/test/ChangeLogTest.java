@@ -30,9 +30,7 @@ public class ChangeLogTest {
 	@Test
 	public void countAddEObjectsToResourceEventTest() {
 		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
+		Changelog changelog = getChangelog();
 		
 		assertEquals(changelog.allOfType(AddEObjectsToResourceEvent.class).size(), 7);
 	}
@@ -40,19 +38,14 @@ public class ChangeLogTest {
 	@Test
 	public void countSetEAttributeEventTest() {
 		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
-		
+		Changelog changelog = getChangelog();
 		assertEquals(changelog.allOfType(SetEAttributeEvent.class).size(), 10);
 	}
 
 	@Test
 	public void countAddToEAttributeEventTest() {
 		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
+		Changelog changelog = getChangelog();
 		
 		assertEquals(changelog.allOfType(AddToEAttributeEvent.class).size(), 1);
 	}
@@ -60,9 +53,7 @@ public class ChangeLogTest {
 	@Test
 	public void countSetEReferenceEventTest() {
 		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
+		Changelog changelog = getChangelog();
 		
 		assertEquals(changelog.allOfType(SetEReferenceEvent.class).size(), 2);
 	}
@@ -70,9 +61,7 @@ public class ChangeLogTest {
 	@Test
 	public void countAddToEReferenceEventTest() {
 		
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();
+		Changelog changelog = getChangelog();
 		
 		assertEquals(changelog.allOfType(AddToEReferenceEvent.class).size(), 8);
 	}
@@ -81,9 +70,7 @@ public class ChangeLogTest {
 	public void countRemoveFromResourceTest()
 	{
 		//in the change log there should be 0 remove events
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();		
+		Changelog changelog = getChangelog();	
 		assertEquals(changelog.allOfType(RemoveFromResourceEvent.class).size(), 0);
 	}
 	
@@ -91,9 +78,7 @@ public class ChangeLogTest {
 	public void countRemoveFromEAttributeTest()
 	{
 		//in the change log there should be 0 remove events
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();		
+		Changelog changelog = getChangelog();	
 		assertEquals(changelog.allOfType(RemoveFromEAttributeEvent.class).size(), 0);
 	}
 	
@@ -101,13 +86,11 @@ public class ChangeLogTest {
 	public void countRemoveFromEReferenceTest()
 	{
 		//in the change log there should be 0 remove events
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		Changelog changelog = converter.getChangelog();		
+		Changelog changelog = getChangelog();	
 		assertEquals(changelog.allOfType(RemoveFromEReferenceEvent.class).size(), 0);
 	}
 	
-	public ResourceContentsToEventsConverter generateConverter()
+	public Changelog getChangelog()
 	{
 		
 		//create adapter
@@ -179,6 +162,8 @@ public class ChangeLogTest {
 		//add to department
 		cs.getModules().add(mode);
 		
-		return converter;
+		converter.convert();
+		
+		return converter.getChangelog();
 	}
 }

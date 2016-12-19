@@ -45,6 +45,9 @@ public class CBPTextResourceImpl extends CBPResource
 	@Override
 	public void load(Map<?, ?> options)throws IOException
 	{
+		if (options.get("debug") != null) {
+			debug = (boolean) options.get("debug");	
+		}
 		eventAdapter.setEnabled(false);
 		
 		AbstractCBPDeserialiser deserialiser = getDeserialiser();

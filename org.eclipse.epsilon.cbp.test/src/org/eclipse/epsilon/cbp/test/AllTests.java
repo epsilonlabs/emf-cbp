@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ ChangeLogTest.class, EventAdapterTest.class, ResourceContentsToEventsConverterTest.class,
-		TextSerialiserTest.class, TextDeserialiserTest.class })
+		TextSerialiserTest.class, TextDeserialiserTest.class, VerboseTextDeserialiserTest.class, VerboseTextSerialiserTest.class })
 public class AllTests {
 
 }
