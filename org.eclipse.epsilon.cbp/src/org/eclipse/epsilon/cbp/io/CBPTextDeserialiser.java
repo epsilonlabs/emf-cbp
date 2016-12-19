@@ -42,63 +42,114 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		while ((line = br.readLine()) != null) {
 			// System.out.println(line);
 			StringTokenizer st = new StringTokenizer(line);
-
-			int eventType = -1;
-
-			if (st.hasMoreElements())
-				eventType = Integer.valueOf(st.nextToken());
-
-			//Switches over various event types, calls appropriate handler method
-			switch (eventType) {
-			case SerialisationEventType.REGISTER_EPACKAGE:
-				handleRegisterEPackage(line);
-				break;
-			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
-				handleCreateAndAddToResource(line);
-				break;
-			case SerialisationEventType.REMOVE_FROM_RESOURCE:
-				handleRemoveFromResource(line);
-				break;
 			
-			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
-				handleSetEAttribute(line);
-				break;
-				
-			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
-				handleSetEAttribute(line);
-				break;
-				
-			case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE:
-				handleAddToEAttribute(line);
-				break;
-			case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX:
-				handleAddToEAttribute(line);
-				break;
-				
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
-				handleRemoveFromEAttribute(line);
-				break;
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
-				handleRemoveFromEAttribute(line);
-				break;
+			if (debug) {
+				String eventType = null;
 
-			case SerialisationEventType.SET_EREFERENCE:
-				handleSetEReference(line);
-				break;
-			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
-				handleCreateAndSetEReference(line);
-				break;
-			case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
-				handleCreateAndAddToEReference(line);
-				break;
-			case SerialisationEventType.ADD_TO_EREFERENCE:
-				handleAddToEReference(line);
-				break;	
-			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
-				handleRemoveFromEReference(line);
-				break;
-			default:
-				break;
+				if (st.hasMoreElements())
+					eventType = String.valueOf(st.nextToken());
+
+				//Switches over various event types, calls appropriate handler method
+				switch (eventType) {
+				case SerialisationEventType.REGISTER_EPACKAGE_VERBOSE:
+					handleRegisterEPackage(line);
+					break;
+				case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE_VERBOSE:
+					handleCreateAndAddToResource(line);
+					break;
+				case SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE:
+					handleRemoveFromResource(line);
+					break;
+				case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE_VERBOSE:
+					handleSetEAttribute(line);
+					break;
+				case SerialisationEventType.SET_EATTRIBUTE_COMPLEX_VERBOSE:
+					handleSetEAttribute(line);
+					break;
+				case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE_VERBOSE:
+					handleAddToEAttribute(line);
+					break;
+				case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX_VERBOSE:
+					handleAddToEAttribute(line);
+					break;
+				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE_VERBOSE:
+					handleRemoveFromEAttribute(line);
+					break;
+				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX_VERBOSE:
+					handleRemoveFromEAttribute(line);
+					break;
+				case SerialisationEventType.SET_EREFERENCE_VERBOSE:
+					handleSetEReference(line);
+					break;
+				case SerialisationEventType.CREATE_AND_SET_EREFERENCE_VERBOSE:
+					handleCreateAndSetEReference(line);
+					break;
+				case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE_VERBOSE:
+					handleCreateAndAddToEReference(line);
+					break;
+				case SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE:
+					handleAddToEReference(line);
+					break;	
+				case SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE:
+					handleRemoveFromEReference(line);
+					break;
+				default:
+					break;
+				}
+			}
+			else {
+				int eventType = -1;
+
+				if (st.hasMoreElements())
+					eventType = Integer.valueOf(st.nextToken());
+
+				//Switches over various event types, calls appropriate handler method
+				switch (eventType) {
+				case SerialisationEventType.REGISTER_EPACKAGE:
+					handleRegisterEPackage(line);
+					break;
+				case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
+					handleCreateAndAddToResource(line);
+					break;
+				case SerialisationEventType.REMOVE_FROM_RESOURCE:
+					handleRemoveFromResource(line);
+					break;
+				case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
+					handleSetEAttribute(line);
+					break;
+				case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
+					handleSetEAttribute(line);
+					break;
+				case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE:
+					handleAddToEAttribute(line);
+					break;
+				case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX:
+					handleAddToEAttribute(line);
+					break;
+				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
+					handleRemoveFromEAttribute(line);
+					break;
+				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
+					handleRemoveFromEAttribute(line);
+					break;
+				case SerialisationEventType.SET_EREFERENCE:
+					handleSetEReference(line);
+					break;
+				case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
+					handleCreateAndSetEReference(line);
+					break;
+				case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
+					handleCreateAndAddToEReference(line);
+					break;
+				case SerialisationEventType.ADD_TO_EREFERENCE:
+					handleAddToEReference(line);
+					break;	
+				case SerialisationEventType.REMOVE_FROM_EREFERENCE:
+					handleRemoveFromEReference(line);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 		br.close();
@@ -118,8 +169,15 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			
 			String[] stringArray = str.split(" ");
 			
-			//create eobject with the first token
-			EObject obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[0])));
+			EObject obj = null;
+			if (debug) {
+				//create eobject with the first token
+				obj = createEObject(String.valueOf(stringArray[0]));
+			}
+			else {
+				//create eobject with the first token
+				obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[0])));	
+			}
 
 			//get the object ID with the second token
 			int id = Integer.valueOf(stringArray[1]);
@@ -161,8 +219,15 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EAttribute eAttribute = (EAttribute) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EAttribute eAttribute = null;
+		if (debug) {
+			eAttribute = (EAttribute) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			eAttribute = (EAttribute) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
+		}
 
 		String[] featureValuesArray = tokeniseString(getValueInSquareBrackets(line));
 
@@ -220,8 +285,16 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EAttribute eAttribute = (EAttribute) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EAttribute eAttribute = null;
+		
+		if (debug) {
+			eAttribute = (EAttribute) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			eAttribute = (EAttribute) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
+		}
 
 		String[] featureValuesArray = tokeniseString(getValueInSquareBrackets(line));
 
@@ -269,8 +342,16 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EAttribute eAttribute = (EAttribute) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EAttribute eAttribute = null;
+		
+		if (debug) {
+			eAttribute = (EAttribute) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			eAttribute = (EAttribute) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
+		}
 
 		String[] featureValuesArray = tokeniseString(getValueInSquareBrackets(line));
 
@@ -312,9 +393,16 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
-
-		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EReference eReference = null;
+		if (debug) {
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
+		}
+		
 
 		String[] featureValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 		
@@ -345,9 +433,20 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		//create focus object
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		//get ereference
-		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EReference eReference = null;
+		
+		if (debug) {
+			//get ereference
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			//get ereference
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		}
+		
+		
 
 		//get values
 		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
@@ -359,9 +458,17 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			//split string
 			String[] temp = str.split(" ");
 
-			//create obj
-			EObject obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));
-
+			EObject obj = null;
+			
+			if (debug) {
+				//create obj
+				obj = createEObject(String.valueOf(temp[0]));
+			}
+			else {
+				//create obj
+				obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));	
+			}
+			
 			//get id
 			int id = Integer.valueOf(temp[1]);
 
@@ -398,9 +505,19 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		//create focus object
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		//get ereference
-		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EReference eReference = null;
+		
+		if (debug) {
+			//get ereference
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			//get ereference
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		}
+		
 
 		//get values
 		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
@@ -412,8 +529,16 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			//split string
 			String[] temp = str.split(" ");
 
-			//create obj
-			EObject obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));
+			EObject obj = null;
+			
+			if (debug) {
+				//create obj
+				obj = createEObject(String.valueOf(temp[0]));
+			}
+			else {
+				//create obj
+				obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));	
+			}
 
 			//get id
 			int id = Integer.valueOf(temp[1]);
@@ -447,8 +572,16 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EReference eReference = null;
+		
+		if (debug) {
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
+		}
 
 		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 
@@ -487,8 +620,17 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
+		EReference eReference = null;
+		
+		if (debug) {
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
+		}
+		else {
+			eReference = (EReference) focusObject.eClass()
+					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
+		}
+		
 
 		String[] featureValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 		

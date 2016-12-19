@@ -62,18 +62,16 @@ public class CBPTextResourceImpl extends CBPResource
 
 	@Override
 	public AbstractCBPSerialiser getSerialiser() {
-		if (debug) {
-			return new CBPVerboseTextSerialiser(this);
-		}
-		return new CBPTextSerialiser(this);
+		CBPTextSerialiser serialiser = new CBPTextSerialiser(this);
+		serialiser.setDebug(debug);
+		return serialiser;
 	}
 
 	@Override
 	public AbstractCBPDeserialiser getDeserialiser() {
-		if (debug) {
-			return new CBPVerboseTextDeserialiser(this);
-		}
-		return new CBPTextDeserialiser(this);
+		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(this);
+		deserialiser.setDebug(debug);
+		return deserialiser;
 	}
 	
 }
