@@ -10,8 +10,6 @@ import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
 import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
-import org.eclipse.epsilon.cbp.io.CBPVerboseTextDeserialiser;
-import org.eclipse.epsilon.cbp.io.CBPVerboseTextSerialiser;
 
 public class CBPTextResourceImpl extends CBPResource
 {

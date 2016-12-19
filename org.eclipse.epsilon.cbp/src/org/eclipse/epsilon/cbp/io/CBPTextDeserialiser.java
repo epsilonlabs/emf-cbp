@@ -158,12 +158,12 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
 	/*
 	 * event has the format of:
-	 * 0 [(MetaElementTypeID objectID)* (,)*]
+	 * 0 (MetaElementTypeID objectID(,)?)*
 	 */
 	protected void handleCreateAndAddToResource(String line) {
 		
 		//break line into tokens
-		String[] objToCreateAndAddArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] objToCreateAndAddArray = tokeniseString(getSubString(line, 1));
 
 		for (String str : objToCreateAndAddArray) {
 			
@@ -195,12 +195,12 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	
 	/*
 	 * event format:
-	 * 2 [EObjectID*]
+	 * 2 EObjectID*
 	 */
 
 	protected void handleRemoveFromResource(String line) {
 		//tokenise string
-		String[] objValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] objValueStringsArray = tokeniseString(getSubString(line, 1));
 
 		//for each string, get EBoject and remove from contents
 		for (String str : objValueStringsArray) {
@@ -229,7 +229,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
 		}
 
-		String[] featureValuesArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] featureValuesArray = tokeniseString(getSubString(line, 3));
 
 		setEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
@@ -278,7 +278,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 
-	
+	/*
+	 * event format:
+	 * 3/4 objectID EAttributeID [value*]
+	 */
 	protected void handleAddToEAttribute(String line)
 	{
 		String[] stringArray = line.split(" ");
@@ -296,7 +299,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
 		}
 
-		String[] featureValuesArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] featureValuesArray = tokeniseString(getSubString(line, 3));
 
 		addEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
@@ -336,6 +339,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
+	/*
+	 * event type:
+	 * 7/8 objectID EAttributeID value*
+	 */
 	protected void handleRemoveFromEAttribute(String line)
 	{
 		String[] stringArray = line.split(" ");
@@ -353,10 +360,11 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
 		}
 
-		String[] featureValuesArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] featureValuesArray = tokeniseString(getSubString(line, 3));
 
 		RemoveEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
+	
 	
 	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
 	{
@@ -388,6 +396,11 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 
+	/*
+	 * event format:
+	 * 10 objectID EReferenceID (ECLass ID, EObject (,)?)*
+	 * 12/9 objectID EReferenceID EObjectID
+	 */
 	protected void handleSetEReference(String line)
 	{
 		String[] stringArray = line.split(" ");
@@ -404,7 +417,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 		
 
-		String[] featureValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] featureValueStringsArray = tokeniseString(getSubString(line, 3));
 		
 		setEReferenceValues(focusObject, eReference,featureValueStringsArray);
 
@@ -449,7 +462,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		
 
 		//get values
-		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] refValueStringsArray = tokeniseString(getSubString(line, 3));
 
 		//prepare objectToAddList
 		List<EObject> eObjectToAddList = new ArrayList<EObject>();
@@ -520,7 +533,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		
 
 		//get values
-		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] refValueStringsArray = tokeniseString(getSubString(line, 3));
 
 		//prepare objectToAddList
 		List<EObject> eObjectToAddList = new ArrayList<EObject>();
@@ -583,7 +596,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
 		}
 
-		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] refValueStringsArray = tokeniseString(getSubString(line, 3));
 
 		List<EObject> eObjectToAddList = new ArrayList<EObject>();
 
@@ -630,9 +643,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			eReference = (EReference) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));	
 		}
-		
-
-		String[] featureValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
+		String[] featureValueStringsArray = tokeniseString(getSubString(line, 3));
 		
 		removeEReferenceValues(focusObject, eReference,featureValueStringsArray);
 	}
@@ -665,6 +676,17 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsuri);
 		ePackages.add(ePackage);
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(ePackage);
+	}
+	
+	public String getSubString(String str, int offset)
+	{
+		String[] arr = str.split(" ");
+		int count = offset;
+		for(int i = 0; i < offset; i++)
+		{
+			count += arr[i].length();
+		}
+		return str.substring(count, str.length());
 	}
 	
 }

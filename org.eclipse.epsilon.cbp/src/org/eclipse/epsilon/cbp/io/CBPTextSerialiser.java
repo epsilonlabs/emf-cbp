@@ -131,7 +131,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 	/*
 	 * event has the format of:
-	 * 0 [(MetaElementTypeID objectID)* ,*]
+	 * 0 (MetaElementTypeID objectID(, )?)*
 	 */
 	@Override
 	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) {
@@ -162,10 +162,10 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		if(!eObjectsToCreateList.isEmpty())
 		{
 			if (debug) {
-				writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE_VERBOSE+" [");
+				writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE_VERBOSE+" ");
 			}
 			else {
-				writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE+" [");	
+				writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE+" ");
 			}
 				
 
@@ -181,15 +181,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			//increase index by 2
     			index = index + 2;
     		}
-    		
-    		writer.print("]");
 		}
 		writer.println();
 	}
 
 	/*
 	 * event type:
-	 * 2 [EObjectID*]
+	 * 2 EObjectID*
 	 */
 	@Override
 	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) {
@@ -197,10 +195,10 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		PrintWriter writer = (PrintWriter) out;
 		List<EObject> removedEObjectsList = e.getEObjectList();
 		if (debug) {
-			writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE+" [");
+			writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE+" ");
 		}
 		else {
-			writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE+" [");	
+			writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE+" ");	
 		}
 		
 		
@@ -211,13 +209,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			writer.print(delimiter + resource.getObjectId(obj));
 			delimiter = persistenceUtil.DELIMITER;
 		}
-		writer.print("]");
 		writer.println();
 	}
 
 	/*
 	 * event format:
-	 * 3/4 objectID EAttributeID [value*]
+	 * 3/4 objectID EAttributeID value*
 	 */
 	@Override
 	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) {
@@ -243,7 +240,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
+					getID(focusObject.eClass(), eAttribute)+" "));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -257,7 +254,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");
 		}
 		else //all other datatypes
 		{
@@ -270,7 +266,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			
 			
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
+					getID(focusObject.eClass(), eAttribute)+" "));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -284,14 +280,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");
 		}
 		writer.println();
 	}
 
 	/*
 	 * event format:
-	 * 5/6 objectID EAttributeID [value*]
+	 * 5/6 objectID EAttributeID value*
 	 */
 	@Override
 	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) {
@@ -317,7 +312,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
+					getID(focusObject.eClass(), eAttribute)+" "));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -330,7 +325,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");
 		}
 		else //all other datatypes
 		{
@@ -343,7 +337,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			
 			
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
+					getID(focusObject.eClass(), eAttribute)+" "));
 			
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -357,15 +351,14 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");
 		}
 		writer.println();
 	}
 
 	/*
 	 * event format:
-	 * 10 objectID EReferenceID [(ECLass ID, EObject)*(,)*]
-	 * 12/9 objectID EReferenceID [EObjectID]
+	 * 10 objectID EReferenceID (ECLass ID, EObject (,)?)*
+	 * 12/9 objectID EReferenceID EObjectID
 	 */
 	@Override
 	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) {
@@ -407,12 +400,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			if (debug) {
 				writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE_VERBOSE+" "+
 						resource.getObjectId(focusObject)+" "+
-						getID(focusObject.eClass(), eReference)+" [");
+						getID(focusObject.eClass(), eReference)+" ");
 			}
 			else {
 				writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE+" "+
 						resource.getObjectId(focusObject)+" "+
-						getID(focusObject.eClass(), eReference)+" [");
+						getID(focusObject.eClass(), eReference)+" ");
 			}
 			
 	        int index = 0;
@@ -427,8 +420,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			//increase index by 2
     			index = index + 2;
     		}
-    		
-    		writer.print("]");
 		}
 		
 		//if add list is not empty
@@ -440,13 +431,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 					writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE+" "+
 							resource.getObjectId(focusObject)+" "+
 							getID(focusObject.eClass(), eReference)+
-							" [");	
+							" ");	
 				}
 				else {
 					writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
 							resource.getObjectId(focusObject)+" "+
 							getID(focusObject.eClass(), eReference)+
-							" [");
+							" ");
 				}
 				
 			}
@@ -455,13 +446,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 					writer.print(SerialisationEventType.SET_EREFERENCE_VERBOSE+" "+
 							resource.getObjectId(focusObject)+" "+
 							getID(focusObject.eClass(), eReference)+
-							" [");	
+							" ");	
 				}
 				else {
 					writer.print(SerialisationEventType.SET_EREFERENCE+" "+
 							resource.getObjectId(focusObject)+" "+
 							getID(focusObject.eClass(), eReference)+
-							" [");
+							" ");
 				}
 				
 			}
@@ -473,15 +464,14 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				writer.print(delimiter+it.next());
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");	
 		}
 		writer.println();
 	}
 
 	/*
 	 * event format:
-	 * 11 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
-	 * 12 objectID EReferenceID [EObjectID*]
+	 * 11 objectID EReferenceID ((ECLass ID, EObject ID) (,)?)*
+	 * 12 objectID EReferenceID EObjectID*
 	 */
 	@Override
 	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) {
@@ -519,12 +509,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			if (debug) {
 				writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE_VERBOSE+" "+
 						resource.getObjectId(focusObject)+" "+
-						getID(focusObject.eClass(), eReference)+" [");	
+						getID(focusObject.eClass(), eReference)+" ");	
 			}
 			else {
 				writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE+" "+
 						resource.getObjectId(focusObject)+" "+
-						getID(focusObject.eClass(), eReference)+" [");
+						getID(focusObject.eClass(), eReference)+" ");
 			}
 			
 			
@@ -540,7 +530,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			//increase index by 2
     			index = index + 2;
     		}
-    		writer.print("]");
 		}
 		
 		//if add list is not empty
@@ -550,13 +539,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE+" "+
 						resource.getObjectId(focusObject)+" "+
 						getID(focusObject.eClass(), eReference)+
-						" [");	
+						" ");	
 			}
 			else {
 				writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
 						resource.getObjectId(focusObject)+" "+
 						getID(focusObject.eClass(), eReference)+
-						" [");
+						" ");
 			}
 			
 			
@@ -566,14 +555,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				writer.print(delimiter+it.next());
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");	
 		}
 		writer.println();
 	}
 
 	/*
 	 * event type:
-	 * 7/8 objectID EAttributeID [value*]
+	 * 7/8 objectID EAttributeID value*
 	 */
 	@Override
 	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) {
@@ -600,7 +588,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		if(getTypeID(eDataType) != SimpleType.COMPLEX_TYPE )
 		{
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
+					getID(focusObject.eClass(), eAttribute)+" "));
 			
 
 			for(Object obj: e.getEAttributeValuesList())
@@ -614,8 +602,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");
-		
 		}
 		else //all other datatypes
 		{
@@ -627,7 +613,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			}
 			
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
+					getID(focusObject.eClass(), eAttribute)+" "));
 
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -641,14 +627,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");
 		}
 		writer.println();
 	}
 
 	/*
 	 * event type:
-	 * 13 objectID EReferenceID [EObjectID*]
+	 * 13 objectID EReferenceID EObjectID*
 	 */
 	@Override
 	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) {
@@ -661,12 +646,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		if (debug) {
 			writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE+" "+
 					resource.getObjectId(focusObject)+" "+
-	                (getID(focusObject.eClass(), eReference)+" ["));
+	                (getID(focusObject.eClass(), eReference)+" "));
 		}
 		else {
 			writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE+" "+
 					resource.getObjectId(focusObject)+" "+
-	                (getID(focusObject.eClass(), eReference)+" ["));
+	                (getID(focusObject.eClass(), eReference)+" "));
 		}
 					
 		String delimiter = "";
@@ -676,7 +661,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			writer.print(delimiter + resource.getObjectId(obj));
 			delimiter = persistenceUtil.DELIMITER;
 		}
-		writer.print("]");
 		writer.println();
 	}
 
