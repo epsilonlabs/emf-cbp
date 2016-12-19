@@ -18,7 +18,7 @@ public abstract class Event {
 	public static final int SET_EATTRIBUTE = 6;
 	public static final int SET_EREFERENCE = 7;
 	public static final int REGISTER_EPACKAGE= 8;
-
+	
 	protected List<EObject> eObjectList = new ArrayList<EObject>();
 
 	public Event(int eventType)

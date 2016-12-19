@@ -15,6 +15,7 @@ public abstract class CBPResource extends ResourceImpl
 
 	protected Changelog changelog = new Changelog();
 	
+	protected boolean debug = false;
 
 	private boolean resume = false;
 	
@@ -44,6 +45,10 @@ public abstract class CBPResource extends ResourceImpl
 	
 	public void setResume(boolean resume) {
 		this.resume = resume;
+	}
+	
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 	
 	public void setChangelog(Changelog changelog) {

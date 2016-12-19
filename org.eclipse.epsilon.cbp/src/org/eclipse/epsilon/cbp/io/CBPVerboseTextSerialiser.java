@@ -33,14 +33,14 @@ import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-public class CBPTextSerialiser extends AbstractCBPSerialiser
+public class CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 {
 	@Override
 	public String getFormatID() {
 		return "CBP_TEXT";
 	}
 	
-	public CBPTextSerialiser(CBPResource resource)
+	public CBPVerboseTextSerialiser(CBPResource resource)
 	{
 		this.ePackages = new HashSet<EPackage>();
 		this.eventList = resource.getChangelog().getEventsList();
@@ -136,7 +136,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 	@Override
 	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) {
 		PrintWriter writer = (PrintWriter) out;
-		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
+		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
     	
     	for(EObject obj : e.getEObjectList())
     	{
@@ -147,7 +147,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			eObjectsToCreateList.add(getID(obj.eClass())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj));
+    			eObjectsToCreateList.add(resource.getObjectId(obj) + "");
     		}
     		else {
     			//should not happen
@@ -161,7 +161,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     	//if create list is not empty
 		if(!eObjectsToCreateList.isEmpty())
 		{
-			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE+" [");	
+			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE_VERBOSE+" [");	
 
 	        int index = 0;
     		for(int i = 0; i < (eObjectsToCreateList.size() / 2); i++)
@@ -190,7 +190,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 
 		PrintWriter writer = (PrintWriter) out;
 		List<EObject> removedEObjectsList = e.getEObjectList();
-		writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE+" [");
+		writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE+" [");
 		
 		String delimiter = "";
 		
@@ -221,7 +221,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		EDataType eDataType = eAttribute.getEAttributeType();
 		
 		//get serialisation type flag
-		int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
+		String serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE_VERBOSE;
 		
 		String newValue;
 		String delimiter ="";
@@ -246,7 +246,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		}
 		else //all other datatypes
 		{
-			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
+			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX_VERBOSE;
 			
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
 					getID(focusObject.eClass(), eAttribute)+" ["));
@@ -286,7 +286,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		EDataType eDataType = eAttribute.getEAttributeType();
 		
 		//get serialisation type flag
-		int serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE;
+		String serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE_VERBOSE;
 		
 		String newValue ;
 		String delimiter ="";
@@ -310,7 +310,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		}
 		else //all other datatypes
 		{
-			serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX;
+			serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX_VERBOSE;
 			
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
 					getID(focusObject.eClass(), eAttribute)+" ["));
@@ -346,8 +346,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
 		
-		ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
-		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
+		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
+		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
     	
     	for(EObject obj : e.getEObjectList())
     	{
@@ -358,12 +358,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			eObjectsToCreateList.add(getID(obj.eClass())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj));
+    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
     		}
     		else
     		{
     			//add id to object-to-add list
-    			eObjectsToAddList.add(resource.getObjectId(obj));
+    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
     		}
     	}
     	
@@ -374,7 +374,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		if(!eObjectsToCreateList.isEmpty())
 		{
 			created = true;
-			writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE+" "+
+			writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE_VERBOSE+" "+
 					resource.getObjectId(focusObject)+" "+
 					getID(focusObject.eClass(), eReference)+" [");
 			
@@ -399,13 +399,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		{
 
 			if (created) {
-				writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
+				writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE+" "+
 						resource.getObjectId(focusObject)+" "+
 						getID(focusObject.eClass(), eReference)+
 						" [");
 			}
 			else {
-				writer.print(SerialisationEventType.SET_EREFERENCE+" "+
+				writer.print(SerialisationEventType.SET_EREFERENCE_VERBOSE+" "+
 						resource.getObjectId(focusObject)+" "+
 						getID(focusObject.eClass(), eReference)+
 						" [");
@@ -413,7 +413,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 			
 					
 			delimiter="";
-			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
+			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
 			{
 				writer.print(delimiter+it.next());
 				delimiter = persistenceUtil.DELIMITER;
@@ -434,8 +434,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		PrintWriter writer = (PrintWriter) out;
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
-		ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
-		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
+		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
+		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
     	
     	for(EObject obj : e.getEObjectList())
     	{
@@ -446,13 +446,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
     			eObjectsToCreateList.add(getID(obj.eClass())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj));
+    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
     			
     		}
     		else
     		{
     			//add id to object-to-add list
-    			eObjectsToAddList.add(resource.getObjectId(obj));
+    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
     		}
     	}
     	
@@ -463,7 +463,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		if(!eObjectsToCreateList.isEmpty())
 		{
 
-			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE+" "+
+			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE_VERBOSE+" "+
 					resource.getObjectId(focusObject)+" "+
 					getID(focusObject.eClass(), eReference)+" [");
 			
@@ -485,13 +485,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		//if add list is not empty
 		if(!eObjectsToAddList.isEmpty())
 		{
-			writer.print(SerialisationEventType.ADD_TO_EREFERENCE+" "+
+			writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE+" "+
 					resource.getObjectId(focusObject)+" "+
 					getID(focusObject.eClass(), eReference)+
 					" [");
 			
 			delimiter="";
-			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
+			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
 			{
 				writer.print(delimiter+it.next());
 				delimiter = persistenceUtil.DELIMITER;
@@ -519,7 +519,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		EDataType eDataType = eAttribute.getEAttributeType();
 		
 		//get serialisation type flag
-		int serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE;
+		String serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE_VERBOSE;
 		
 		String newValue ;
 		String delimiter ="";
@@ -546,7 +546,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		}
 		else //all other datatypes
 		{
-			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
+			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX_VERBOSE;
 			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
 					getID(focusObject.eClass(), eAttribute)+" ["));
 
@@ -579,7 +579,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		EReference eReference = e.getEReference();
 		List<EObject> removedEObjectsList = e.getEObjectList();
 		
-		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE+" "+
+		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE+" "+
 				resource.getObjectId(focusObject)+" "+
                 (getID(focusObject.eClass(), eReference)+" ["));
 			
@@ -636,16 +636,16 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
 		PrintWriter writer = (PrintWriter) out;
 		
-		writer.println(SerialisationEventType.REGISTER_EPACKAGE + " " + e.getePackage().getNsURI());
+		writer.println(SerialisationEventType.REGISTER_EPACKAGE_VERBOSE + " " + e.getePackage().getNsURI());
 	}
 	
-	public int getID(EClass eClass, EStructuralFeature feature)
+	public String getID(EClass eClass, EStructuralFeature feature)
 	{
-		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName());
+		return eClass.getEPackage().getName()+"-"+eClass.getName()+"-"+feature.getName();
 	}
 	
-	public int getID(EClass eClass)
+	public String getID(EClass eClass)
 	{
-		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName());
+		return eClass.getEPackage().getName()+"-"+eClass.getName()+"-";
 	}
 }
