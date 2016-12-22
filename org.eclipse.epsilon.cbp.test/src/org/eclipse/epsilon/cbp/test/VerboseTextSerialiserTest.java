@@ -48,7 +48,6 @@ public class VerboseTextSerialiserTest {
 		try {
 			resource.save(getOptions());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		ArrayList<String> lines = getLines();

@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -60,16 +62,16 @@ public abstract class AbstractCBPSerialiser {
 	protected abstract void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out);
 	
 	protected abstract void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException;
-	protected abstract void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out);
+	protected abstract void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) throws IOException;
 
 	protected abstract void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException;
-	protected abstract void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out);
+	protected abstract void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException;
 	
-	protected abstract void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out);
-	protected abstract void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out);
+	protected abstract void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) throws IOException;
+	protected abstract void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) throws IOException;
 	
-	protected abstract void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out);
-	protected abstract void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out);
+	protected abstract void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) throws IOException;
+	protected abstract void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) throws IOException;
 	
 	protected int getTypeID(EDataType type)
 	{
@@ -87,5 +89,21 @@ public abstract class AbstractCBPSerialiser {
 	
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+	
+	public String getID(EClass eClass, EStructuralFeature feature)
+	{
+		if (debug) {
+			return eClass.getEPackage().getName()+"-"+eClass.getName()+"-"+feature.getName();
+		}
+		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName())+"";
+	}
+	
+	public String getID(EClass eClass)
+	{
+		if (debug) {
+			return eClass.getEPackage().getName()+"-"+eClass.getName();
+		}
+		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName())+"";
 	}
 }

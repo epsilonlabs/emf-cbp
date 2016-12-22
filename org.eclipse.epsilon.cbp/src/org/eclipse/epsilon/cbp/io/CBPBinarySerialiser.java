@@ -8,14 +8,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
-import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -23,10 +21,10 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
+import org.eclipse.epsilon.cbp.event.EPackageRegistrationEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
-import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
@@ -61,7 +59,6 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	 OutputStream  outputStream = new BufferedOutputStream
         		(new FileOutputStream(resource.getURI().path(), resource.isResume()));
     
-        //if we're not in resume mode, serialise initial entry
         if(!resource.isResume())
             serialiseHeader(outputStream);
         
@@ -69,7 +66,9 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         {
         	switch(e.getEventType())
         	{
-        	
+			case Event.REGISTER_EPACKAGE:
+				handleEPackageRegistrationEvent((EPackageRegistrationEvent) e, outputStream);
+				break;
 			case Event.ADD_EOBJ_TO_RESOURCE:
 				handleAddToResourceEvent((AddEObjectsToResourceEvent)e, outputStream);
 				break;
@@ -94,75 +93,429 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			case Event.REMOVE_EOBJ_FROM_RESOURCE:
 				handleRemoveFromResourceEvent((RemoveFromResourceEvent)e, outputStream);
 				break;
-
-        	
-//        	case Event.ADD_EOBJ_TO_RESOURCE:
-//        		writeEObjectAdditionEvent((AddEObjectsToResourceEvent)e, outputStream);
-//        		break;
-//			case Event.SET_EATTRIBUTE:
-//				handleSetEAttributeEvent((EAttributeEvent)e, outputStream);
-//				break;
-//        	case Event.ADD_TO_EREFERENCE:
-//        		writeEObjectAdditionEvent((AddToEReferenceEvent)e,outputStream);
-//        		break;
-//        	case Event.REMOVE_EOBJ_FROM_RESOURCE:
-//        		writeEObjectRemovalEvent((RemoveFromResourceEvent)e,outputStream);
-//        		break;
-//        	case Event.REMOVE_FROM_EREFERENCE:
-//        		writeEObjectRemovalEvent((RemoveFromEReferenceEvent)e, outputStream);
-//        		break;
-//        	case Event.ADD_TO_EATTRIBUTE:
-//        	case Event.REMOVE_FROM_EATTRIBUTE:
-//        		writeEAttributeEvent((EAttributeEvent)e,outputStream);
-//        		break;
         	}
         }
-        
       	outputStream.close();
-      	
       	resource.setResume(true);
+    }
+
+    
+	@Override
+	public String getFormatID() {
+		return "CBP_BIN";
+	}
+
+	@Override
+	public double getVersion() {
+		return 1.0;
+	}
+
+	@Override
+	protected void serialiseHeader(Closeable out) {
+		OutputStream stream = (OutputStream) out;
+		
+		EPackage ePackage = null;
+		
+		Event e = eventList.get(0);
+		
+		if(e instanceof EPackageRegistrationEvent)
+		{
+			ePackage = ((EPackageRegistrationEvent)e).getePackage();
+		}
+		else //throw tantrum
+		{
+			try 
+			{
+				System.err.println("CBPTextSerialiser: "+e.getEventType());
+				throw new Exception("Error! first item in events list is not a EPackageRegistrationEvent.");
+			} 
+			catch (Exception e1) 
+			{
+				e1.printStackTrace();
+				System.exit(0);
+			}
+		}
+		
+		if(ePackage == null)
+		{
+			System.out.println("CBPTextSerialiser: "+e.getEventType());
+			System.exit(0);
+		}
+		try {
+			stream.write(getFormatID().getBytes(persistenceUtil.STRING_ENCODING));
+			writePrimitive(stream, getVersion()); //FORMAT VERSION
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} 
+	}
+
+	/*
+	 * format:
+	 * 0 size (typeID id)*
+	 */
+	@Override
+	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException {
+
+		//cast to outputstream
+		OutputStream stream = (OutputStream) out;
+		
+		//prepare eobject list
+		List<EObject> eObjectsList = e.getEObjectList();
+		
+		//prepare eobjectToCreateList
+    	ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
+    	
+    	//for each object
+    	for(EObject obj : eObjectsList)
+    	{
+    		//if new
+    		if(resource.addObjectToMap(obj))
+    		{
+    			//add add type id
+    			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
+    			
+    			//add object id
+    			eObjectsToCreateList.add(resource.getObjectId(obj));
+    		}
+    		else
+    		{
+    			//this should not happen
+				System.err.println("handleAddToResourceEven: redundant creation");
+    		}
+    	}
+		if(!eObjectsToCreateList.isEmpty()) //CREATE_AND_ADD_TO_RESOURCE 
+		{
+			writePrimitive(stream,SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE);
+			writePrimitive(stream,eObjectsToCreateList.size());
+			
+			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
+			{
+				writePrimitive(stream,it.next());
+			}
+		}
+	}
+
+	@Override
+	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) throws IOException{
+		//cast to outputstream
+		OutputStream stream = (OutputStream) out;
+		
+		List<EObject> removedEObjectsList = e.getEObjectList();
+
+		writePrimitive(stream, SerialisationEventType.REMOVE_FROM_RESOURCE);
+		writePrimitive(stream, removedEObjectsList.size());
+		
+		for(EObject obj : removedEObjectsList)
+		{
+			writePrimitive(stream, resource.getObjectId(obj));
+		}
+	}
+
+	/*
+	 * format: 
+	 * 3/4 obj_ID attribute_id size values
+	 * 
+	 */
+	@Override
+	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
+		OutputStream stream = (OutputStream) out;
+		
+		EObject focusObject = e.getFocusObject();
+		
+		//get attr
+		EAttribute eAttribute = e.getEAttribute();
+		
+		//get data type
+		EDataType eDataType = eAttribute.getEAttributeType();
+    	
+    	if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
+    		switch(getTypeID(eDataType))
+        	{
+        	case SimpleType.SIMPLE_TYPE_INT:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_INT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_SHORT:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_SHORT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_LONG:
+        		setPrimitiveEAttributes(e,stream,SimpleType.SIMPLE_TYPE_LONG);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_FLOAT:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_FLOAT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_DOUBLE:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_DOUBLE);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_BOOLEAN:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_BOOLEAN);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_CHAR:
+        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_CHAR);
+        		return;
+        	}
+		}
+    	else {
+			int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
+        	writeComplexEAttributes(focusObject, eAttribute, e.getEAttributeValuesList(), serializationType, stream);
+		}
+    }
+
+	@Override
+	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
+		OutputStream stream = (OutputStream) out;
+		
+		EObject focusObject = e.getFocusObject();
+		
+		//get attr
+		EAttribute eAttribute = e.getEAttribute();
+		
+		//get data type
+		EDataType eDataType = eAttribute.getEAttributeType();
+    	
+    	if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
+    		switch(getTypeID(eDataType))
+        	{
+        	case SimpleType.SIMPLE_TYPE_INT:
+        		addPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_INT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_SHORT:
+        		addPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_SHORT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_LONG:
+        		addPrimitiveEAttributes(e,stream,SimpleType.SIMPLE_TYPE_LONG);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_FLOAT:
+        		addPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_FLOAT);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_DOUBLE:
+        		addPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_DOUBLE);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_BOOLEAN:
+        		addPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_BOOLEAN);
+        		return;
+        	case SimpleType.SIMPLE_TYPE_CHAR:
+        		addPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_CHAR);
+        		return;
+        	}
+		}
+    	else {
+			int serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX;
+        	writeComplexEAttributes(focusObject, eAttribute, e.getEAttributeValuesList(), serializationType, stream);
+		}
+    }
+
+	@Override
+	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) throws IOException{
+
+		OutputStream stream = (OutputStream) out;
+		
+		boolean created = false;
+		EObject focusObject = e.getFocusObject();
+		EReference eReference = e.getEReference();
+		
+		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
+		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
+    	
+    	for(EObject obj : e.getEObjectList())
+    	{
+    		//if obj is not added already
+    		if(resource.addObjectToMap(obj))
+    		{
+    			//add type to object-to-create-list
+    			eObjectsToCreateList.add(getID(obj.eClass())); 
+    			
+    			//add id to object-to-create-list
+    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
+    		}
+    		else
+    		{
+    			//add id to object-to-add list
+    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
+    		}
+    	}
+    	
+    	//if create list is not empty
+		if(!eObjectsToCreateList.isEmpty())
+		{
+			created = true;
+			writePrimitive(stream, SerialisationEventType.CREATE_AND_SET_EREFERENCE);
+			writePrimitive(stream, resource.getObjectId(focusObject));
+			writeString(stream, getID(focusObject.eClass(), eReference));
+			writePrimitive(stream, eObjectsToCreateList.size());
+			for(Iterator<String> it = eObjectsToCreateList.iterator(); it.hasNext();)
+			{
+				writeString(stream, it.next());
+			}
+		}
+		
+		//if add list is not empty
+		if(!eObjectsToAddList.isEmpty())
+		{
+			if (created) {
+				writePrimitive(stream, SerialisationEventType.ADD_TO_EREFERENCE);
+				writePrimitive(stream, resource.getObjectId(focusObject));
+				writeString(stream, getID(focusObject.eClass(), eReference));
+				writePrimitive(stream, eObjectsToAddList.size());
+			}
+			else {
+				writePrimitive(stream, SerialisationEventType.SET_EREFERENCE);
+				writePrimitive(stream, resource.getObjectId(focusObject));
+				writeString(stream, getID(focusObject.eClass(), eReference));
+				writePrimitive(stream, eObjectsToAddList.size());
+				
+			}
+			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
+			{
+				writeString(stream, it.next());
+			}
+		}
+	}
+
+	@Override
+	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) throws IOException {
+
+		OutputStream stream = (OutputStream) out;
+		
+		EObject focusObject = e.getFocusObject();
+		EReference eReference = e.getEReference();
+		
+		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
+		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
+    	
+    	for(EObject obj : e.getEObjectList())
+    	{
+    		//if obj is not added already
+    		if(resource.addObjectToMap(obj))
+    		{
+    			//add type to object-to-create-list
+    			eObjectsToCreateList.add(getID(obj.eClass())); 
+    			
+    			//add id to object-to-create-list
+    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
+    		}
+    		else
+    		{
+    			//add id to object-to-add list
+    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
+    		}
+    	}
+    	
+    	//if create list is not empty
+		if(!eObjectsToCreateList.isEmpty())
+		{
+			writePrimitive(stream, SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE);
+			writePrimitive(stream, resource.getObjectId(focusObject));
+			writeString(stream, getID(focusObject.eClass(), eReference));
+			writePrimitive(stream, eObjectsToCreateList.size());
+			for(Iterator<String> it = eObjectsToCreateList.iterator(); it.hasNext();)
+			{
+				writeString(stream, it.next());
+			}
+		}
+		
+		//if add list is not empty
+		if(!eObjectsToAddList.isEmpty())
+		{
+			writePrimitive(stream, SerialisationEventType.ADD_TO_EREFERENCE);
+			writePrimitive(stream, resource.getObjectId(focusObject));
+			writeString(stream, getID(focusObject.eClass(), eReference));
+			writePrimitive(stream, eObjectsToAddList.size());
+			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
+			{
+				writeString(stream, it.next());
+			}
+		}
+	}
+
+	@Override
+	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) throws IOException{
+		OutputStream stream = (OutputStream) out;
+		//get forcus object
+		EObject focusObject = e.getFocusObject();
+		
+		//get attr
+		EAttribute eAttribute = e.getEAttribute();
+		
+		//get data type
+		EDataType eDataType = eAttribute.getEAttributeType();
+		
+		if(getTypeID(eDataType) != SimpleType.COMPLEX_TYPE)
+		{
+			writePrimitive(stream,SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE);
+			writePrimitive(stream, resource.getObjectId(focusObject));
+			writeString(stream, getID(focusObject.eClass(), eAttribute));
+			int size = 0;
+			for(Object obj: e.getEAttributeValuesList())
+			{
+				if (obj != null) {
+					size++;
+				}
+			}
+			writePrimitive(stream, size);
+			
+			for(Object obj: e.getEAttributeValuesList())
+			{
+				if (obj != null) {
+					writeString(stream, String.valueOf(obj));
+				}
+			}
+		}
+		else {
+			writePrimitive(stream,SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX);
+			writePrimitive(stream, resource.getObjectId(focusObject));
+			writeString(stream, getID(focusObject.eClass(), eAttribute));
+			int size = 0;
+			for(Object obj: e.getEAttributeValuesList())
+			{
+				if (obj != null) {
+					size++;
+				}
+			}
+			writePrimitive(stream, size);
+			
+			for(Object obj: e.getEAttributeValuesList())
+			{
+				if (obj != null) {
+					String newValue = (EcoreUtil.convertToString(eDataType, obj));
+					if (newValue != null) {
+						writeString(stream, newValue);
+					}
+				}
+			}
+		}
+    }
+
+	@Override
+	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) throws IOException{
+		OutputStream stream = (OutputStream) out;
+		EObject focusObject = e.getFocusObject();
+		EReference eReference = e.getEReference();
+		List<EObject> removedEObjectsList = e.getEObjectList();
+		
+		writePrimitive(stream,SerialisationEventType.REMOVE_FROM_EREFERENCE);
+		writePrimitive(stream, resource.getObjectId(focusObject));
+		writeString(stream, getID(focusObject.eClass(), eReference));
+		writePrimitive(stream, removedEObjectsList.size());
+
+		for(EObject eObject: removedEObjectsList)
+		{
+			writePrimitive(stream, resource.getObjectId(eObject));
+		}
+	}
+
+	@Override
+	protected void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out) {
+		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
+		OutputStream stream = (OutputStream) out;
+		int serialisationType = SerialisationEventType.REGISTER_EPACKAGE;
+		try {
+			writePrimitive(stream, serialisationType);
+			writeString(stream, e.getePackage().getNsURI());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
 	
-    }
-    
-    private void writeEAttributeEvent(EAttributeEvent e, OutputStream out) throws IOException
-    {
-    	EDataType type = e.getEAttribute().getEAttributeType();
-    	
-    	if(type instanceof EEnum)
-    	{
-    		writeComplexEAttributes(e,out);
-    		return;
-    	}
-    	
-    	switch(getTypeID(type))
-    	{
-    	case SimpleType.SIMPLE_TYPE_INT:
-    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_INT);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_SHORT:
-    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_SHORT);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_LONG:
-    		writePrimitiveEAttributes(e,out,SimpleType.SIMPLE_TYPE_LONG);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_FLOAT:
-    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_FLOAT);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_DOUBLE:
-    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_DOUBLE);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_BOOLEAN:
-    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_BOOLEAN);
-    		return;
-    	case SimpleType.SIMPLE_TYPE_CHAR:
-    		writePrimitiveEAttributes(e,out, SimpleType.SIMPLE_TYPE_CHAR);
-    		return;
-    	case SimpleType.COMPLEX_TYPE:
-    		writeComplexEAttributes(e,out);
-    		return;
-    	}
-    }
-    
     /*
      * format: 
      * 3 object_ID EAttribute_ID size 
@@ -184,87 +537,63 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
         writePrimitive(out,serializationType);
         writePrimitive(out,resource.getObjectId(focusObject));
         writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
-        writePrimitive(out,eAttributeValuesList.size());
-        
-//        int nullCounter = 0; 
+        int size = 0;
+        for(Object obj: eAttributeValuesList)
+        {
+        	if (obj != null) {
+				size++;
+			}
+        }
+        writePrimitive(out,size);
         
         for(Object obj : eAttributeValuesList)
         {
-        	if(obj == null)
+        	if(obj != null)
         	{
-//        		nullCounter++;
-        		continue;
+            	writePrimitive(out ,primitiveType, obj);
         	}
-        	
-        	writePrimitive(out,primitiveType,obj);
         }
-//        if(nullCounter > 0) // for obj with null values, serialise as complex types
-//        {
-//        	String[] nullsArray = new String[nullCounter];
-//        	
-//        	Arrays.fill(nullsArray,manager.NULL_STRING);
-//        	
-//        	List<Object> nullList = new ArrayList<Object>(Arrays.asList(nullsArray));
-//        	
-//        	int complexSerializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
-//        	
-        
-        
-//        	if(serializationType== SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE)
-//        		complexSerializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
-//        	
-//        	writeComplexEAttributes(focusObject,eAttribute,nullList,complexSerializationType,out);
-//        }
     }
     
-    private void writePrimitiveEAttributes(EAttributeEvent e, OutputStream out, int primitiveType) throws IOException
+    /*
+     * format: 
+     * 3 object_ID EAttribute_ID size 
+     */
+    private void addPrimitiveEAttributes(EAttributeEvent e, OutputStream out, int primitiveType) throws IOException
     {
+    	//get forcus object
     	EObject focusObject = e.getFocusObject();
     	
+    	//get eattribute
     	EAttribute eAttribute = e.getEAttribute();
     	
+    	//get lists
     	List<Object> eAttributeValuesList = e.getEAttributeValuesList();
     	
-    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
-    	
-    	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE;
+    	//serialisation type
+    	int serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE;
     	
         writePrimitive(out,serializationType);
-        writePrimitive(out,context.getObjectId(focusObject));
+        writePrimitive(out,resource.getObjectId(focusObject));
         writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
-        writePrimitive(out,eAttributeValuesList.size());
-        
-        int nullCounter = 0;
+        int size = 0;
+        for(Object obj: eAttributeValuesList)
+        {
+        	if (obj != null) {
+				size++;
+			}
+        }
+        writePrimitive(out,size);
         
         for(Object obj : eAttributeValuesList)
         {
-        	if(obj == null)
+        	if(obj != null)
         	{
-        		nullCounter++;
-        		continue;
+            	writePrimitive(out ,primitiveType, obj);
         	}
-        	
-        	writePrimitive(out,primitiveType,obj);
-        }
-        
-        if(nullCounter > 0) // for obj with null values, serialise as complex types
-        {
-        	String[] nullsArray = new String[nullCounter];
-        	
-        	Arrays.fill(nullsArray,persistenceUtil.NULL_STRING);
-        	
-        	List<Object> nullList = new ArrayList<Object>(Arrays.asList(nullsArray));
-        	
-        	int complexSerializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
-        	
-        	if(serializationType== SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE)
-        		complexSerializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
-        	
-        	writeComplexEAttributes(focusObject,eAttribute,nullList,complexSerializationType,out);
         }
     }
-    
+	
     /*
      * format
      * serialisationType Obj_id EAtt_id attr_size 
@@ -278,185 +607,25 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	writePrimitive(out,serializationType);
     	writePrimitive(out,resource.getObjectId(focusObject));
     	writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
-    	writePrimitive(out,eAttributeValuesList.size());
+    	int size = 0;
+    	for(Object obj: eAttributeValuesList)
+    	{
+    		if (obj != null) {
+				size++;
+			}
+    	}
+    	writePrimitive(out, size);
     	
-    	if(eDataType.getName().equals("EString"))
-    	{
-    		for(Object obj : eAttributeValuesList)
-    		{
-    			if(obj == null)
-    				obj = persistenceUtil.NULL_STRING;
-    			
-    			writeString(out,(String)obj);
-    		}
-    	}
-    	else
-    	{
-    		for(Object obj : eAttributeValuesList)
-    		{
-    			String valueString = EcoreUtil.convertToString(eDataType, obj);
-    			
-    			if(valueString == null)
-    				valueString = persistenceUtil.NULL_STRING;
-    			
-    			writeString(out,valueString);
-    		}
-    	}
+    	for(Object obj : eAttributeValuesList)
+		{
+			String valueString = EcoreUtil.convertToString(eDataType, obj);
+			if(valueString != null)
+			{
+				writeString(out,valueString);
+			}
+		}
     }
     
-    /*
-     * format:
-     * 4
-     */
-    private void writeComplexEAttributes(EAttributeEvent e,OutputStream out) throws IOException
-    {
-    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
-    	
-    	if(e.getEventType() == Event.REMOVE_FROM_EATTRIBUTE)
-    		serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX;
-    	
-    	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,out);
-    }
-    
-    private void writeEObjectAdditionEvent(AddToEReferenceEvent e, OutputStream out) throws IOException
-    {
-        writeEObjectAdditionEvent(e.getEObjectList(),e.getFocusObject(),e.getEReference(),false,out);
-    }
-    
-    private void writeEObjectAdditionEvent(AddEObjectsToResourceEvent e, OutputStream out) throws IOException
-    {
-        writeEObjectAdditionEvent(e.getEObjectList(),null,null,true,out);
-    }
-    
-    private void writeEObjectAdditionEvent(List<EObject> eObjectsList,EObject focusObject, 
-            EReference eReference,boolean isAddToResource, OutputStream out) throws IOException
-    {
-    	ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
-    	ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
-    	
-    	for(EObject obj : eObjectsList)
-    	{
-    		if(context.addObjectToMap(obj))
-    		{
-    			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
-    			eObjectsToCreateList.add(context.getObjectId(obj));
-    		}
-    		else
-    		{
-    			eObjectsToAddList.add(context.getObjectId(obj));
-    		}
-    	}
-    		
-    	if(isAddToResource) 
-    	{
-    		if(!eObjectsToCreateList.isEmpty()) //CREATE_AND_ADD_TO_RESOURCE 
-    		{
-    			writePrimitive(out,SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE);
-    			writePrimitive(out,eObjectsToCreateList.size());
-    			
-    			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
-    			{
-    				writePrimitive(out,it.next());
-    			}
-    			eObjectsToCreateList.clear();
-    		}
-    		if(!eObjectsToAddList.isEmpty()) //ADD TO RESOURCE
-    		{
-    			writePrimitive(out, SerialisationEventType.ADD_TO_RESOURCE);
-    			writePrimitive(out,eObjectsToAddList.size());
-    			
-    			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
-    			{
-    				writePrimitive(out,it.next());
-    			}
-    			eObjectsToAddList.clear();
-    		}
-    	}
-    	else 
-    	{
-    		if(!eObjectsToCreateList.isEmpty())//CREATE_AND_SET_REF_VALUE
-    		{
-    			writePrimitive(out,SerialisationEventType.CREATE_AND_SET_EREFERENCE);
-    			writePrimitive(out,context.getObjectId(focusObject));
-    			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
-    			writePrimitive(out,eObjectsToCreateList.size());
-    			
-    			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
-    			{
-    				writePrimitive(out,it.next());
-    			}
-    		}
-    		if(!eObjectsToAddList.isEmpty()) //SET_REFERENCE_VALUE
-    		{
-    			writePrimitive(out,SerialisationEventType.SET_EREFERENCE);
-    			writePrimitive(out,context.getObjectId(focusObject));
-    			writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
-    			writePrimitive(out,eObjectsToAddList.size());
-    			
-    			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
-    			{
-    				writePrimitive(out,it.next());
-    			}
-    		}
-    	}
-    }
-
-    private void writeEObjectRemovalEvent(RemoveFromEReferenceEvent e, OutputStream out) throws IOException
-    {
-        writeEObjectRemovalEvent(e.getEObjectList(),e.getFocusObject(),e.getEReference(),false,out);
-    }
-    
-    private void writeEObjectRemovalEvent(RemoveFromResourceEvent e, OutputStream out) throws IOException
-    {
-        writeEObjectRemovalEvent(e.getEObjectList(),null,null,true,out);
-    }
-    
-    private void writeEObjectRemovalEvent(List<EObject> eObjectsList,EObject focusObject, 
-            EReference eReference,boolean isRemoveFromResource, OutputStream out) throws IOException
-    {
-    	//List<EObject> removed_obj_list = e.getEObjectList();
-    	
-    	if(isRemoveFromResource)
-    	{
-    		writePrimitive(out, SerialisationEventType.REMOVE_FROM_RESOURCE);
-    		writePrimitive(out,eObjectsList.size());
-    		
-    		for(EObject obj : eObjectsList)
-    		{
-    			writePrimitive(out,context.getObjectId(obj));
-    		}
-    	}
-    	else 
-    	{
-    		
-    		
-    		writePrimitive(out,SerialisationEventType.REMOVE_FROM_EREFERENCE);
-    		writePrimitive(out,context.getObjectId(focusObject));
-    		writePrimitive(out,ePackageElementsNamesMap.getID(eReference.getName()));
-    		writePrimitive(out,eObjectsList.size());
-    		
-    		for(EObject obj: eObjectsList)
-    		{
-    			writePrimitive(out,context.getObjectId(obj));
-    		}
-    	}
-    }
-    
-	private void serialiseHeader(OutputStream out) throws IOException 
-	{
-		
-	}
-	
-	
-	private void writeString(OutputStream out, String str) throws IOException
-	{
-		byte[] bytes = str.getBytes(persistenceUtil.STRING_ENCODING);
-	
-		writePrimitive(out,bytes.length);
-		
-		out.write(bytes);
-	}
-	
 	private void writePrimitive(OutputStream out, int primitiveType, Object obj ) throws IOException
 	{
 		switch(primitiveType)
@@ -486,45 +655,64 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			writePrimitive(out,(short)obj);
 			return;
 		}
-		
 	}
 	
+	private void writeString(OutputStream out, String str) throws IOException
+	{
+		//get bytes
+		byte[] bytes = str.getBytes(persistenceUtil.STRING_ENCODING);
+	
+		//write the length of str
+		writePrimitive(out,bytes.length);
+		
+		//write the bytes
+		out.write(bytes);
+	}
+	
+	//write int
 	private void writePrimitive(OutputStream out, int i) throws IOException
 	{
 		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.INTEGER_SIZE).putInt(i).array();
 		out.write(bytes);
 	}
 	
+	//write short
 	private void writePrimitive(OutputStream out, short s) throws IOException
 	{
 		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.SHORT_SIZE).putShort(s).array();
 		out.write(bytes);
 	}
 	
+	//write byte
 	private void writePrimitive(OutputStream out, byte b) throws IOException
 	{
 		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.BYTE_SIZE).put(b).array();
 		out.write(bytes);
 	}
 	
+	//write char
 	private void writePrimitive(OutputStream out, char c) throws IOException
 	{
 		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.CHAR_SIZE).putChar(c).array();
 		out.write(bytes);
 	}
 	
+	//write double
 	private void writePrimitive(OutputStream out, double d) throws IOException
 	{
 		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.DOUBLE_SIZE).putDouble(d).array();
 		out.write(bytes);
 	}
 	
+	
+	//write long
 	private void writePrimitive(OutputStream out, long l) throws IOException
 	{
 		byte[] bytes = ByteBuffer.allocate(PrimitiveTypeLength.LONG_SIZE).putLong(l).array();
 		out.write(bytes);
 	}
 	
+	//write boolean
 	private void writePrimitive(OutputStream out, boolean b) throws IOException
 	{
 		if(b)
@@ -533,189 +721,5 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			writePrimitive(out,0);
 	}
 
-	@Override
-	public String getFormatID() {
-		return "CBP_BIN";
-	}
-
-	@Override
-	public double getVersion() {
-		return 1.0;
-	}
-
-	@Override
-	protected void serialiseHeader(Closeable out) {
-		OutputStream stream = (OutputStream) out;
-		EObject obj = null;
-		Event e = eventList.get(0);
-		
-		if(e instanceof ResourceEvent)
-		{
-			obj = ((ResourceEvent)e).getEObjectList().get(0);
-		}
-		else //throw tantrum
-		{
-			try 
-			{
-				throw new Exception("Error! first item in events list is not a ResourceEvent or an EReference event.");
-			} 
-			catch (Exception e1) 
-			{
-				e1.printStackTrace();
-				System.exit(0);
-			}
-		}
-		
-		if(obj == null)
-		{
-			System.out.println("CBPBinarySerialise: obj in initial record is null");
-			System.exit(0);
-		}
-		
-		try {
-			stream.write(getFormatID().getBytes(persistenceUtil.STRING_ENCODING));
-			writePrimitive(stream, getVersion()); //FORMAT VERSION
-			writeString(stream,obj.eClass().getEPackage().getNsURI()); //NS URI	
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} //FORMAT ID
-	}
-
-	/*
-	 * format:
-	 * 0 size (typeID id)*
-	 */
-	@Override
-	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException {
-
-		OutputStream stream = (OutputStream) out;
-		List<EObject> eObjectsList = e.getEObjectList();
-		
-    	ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
-    	
-    	for(EObject obj : eObjectsList)
-    	{
-    		if(resource.addObjectToMap(obj))
-    		{
-    			eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
-    			eObjectsToCreateList.add(resource.getObjectId(obj));
-    		}
-    		else
-    		{
-    			//this should not happen
-				System.err.println("handleAddToResourceEven: redundant creation");
-    		}
-    	}
-
-		if(!eObjectsToCreateList.isEmpty()) //CREATE_AND_ADD_TO_RESOURCE 
-		{
-			writePrimitive(stream,SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE);
-			writePrimitive(stream,eObjectsToCreateList.size());
-			
-			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
-			{
-				writePrimitive(stream,it.next());
-			}
-		}
-	}
-
-	@Override
-	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/*
-	 * format: 
-	 * 4
-	 * 
-	 */
-	@Override
-	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
-		OutputStream stream = (OutputStream) out;
-		
-		EObject focusObject = e.getFocusObject();
-		
-		//get attr
-		EAttribute eAttribute = e.getEAttribute();
-		
-		//get data type
-		EDataType eDataType = eAttribute.getEAttributeType();
-    	
-    	int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
-
-    	if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
-    		switch(getTypeID(eDataType))
-        	{
-        	case SimpleType.SIMPLE_TYPE_INT:
-        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_INT);
-        		return;
-        	case SimpleType.SIMPLE_TYPE_SHORT:
-        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_SHORT);
-        		return;
-        	case SimpleType.SIMPLE_TYPE_LONG:
-        		setPrimitiveEAttributes(e,stream,SimpleType.SIMPLE_TYPE_LONG);
-        		return;
-        	case SimpleType.SIMPLE_TYPE_FLOAT:
-        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_FLOAT);
-        		return;
-        	case SimpleType.SIMPLE_TYPE_DOUBLE:
-        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_DOUBLE);
-        		return;
-        	case SimpleType.SIMPLE_TYPE_BOOLEAN:
-        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_BOOLEAN);
-        		return;
-        	case SimpleType.SIMPLE_TYPE_CHAR:
-        		setPrimitiveEAttributes(e,stream, SimpleType.SIMPLE_TYPE_CHAR);
-        		return;
-        	case SimpleType.COMPLEX_TYPE:
-        		writeComplexEAttributes(e,stream);
-        		return;
-        	}
-		}
-    	else {
-			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
-		}
-    	
-    	//handle EEnum
-    	if(type instanceof EEnum)
-    	{
-    		writeComplexEAttributes(e,stream);
-        	writeComplexEAttributes(e.getFocusObject(),e.getEAttribute(),e.getEAttributeValuesList(),serializationType,stream);
-    	}
-    	
-    	
-    }
-
-	@Override
-	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) {
-		// TODO Auto-generated method stub
- 		
-	}
-
-	@Override
-	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 }
