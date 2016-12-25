@@ -54,26 +54,26 @@ public abstract class AbstractCBPDeserialiser {
 		return resource;
 	}
 	
-	protected abstract void handleRegisterEPackage(String line);
+	protected abstract void handleRegisterEPackage(Object entry);
 
-	protected abstract void handleCreateAndAddToResource(String line);
-	protected abstract void handleRemoveFromResource(String line);
+	protected abstract void handleCreateAndAddToResource(Object entry);
+	protected abstract void handleRemoveFromResource(Object entry);
 	
-	protected abstract void handleSetEAttribute(String line);
+	protected abstract void handleSetEAttribute(Object entry);
 	protected abstract void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray);
-	protected abstract void handleAddToEAttribute(String line);
+	protected abstract void handleAddToEAttribute(Object entry);
 	protected abstract void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray);
 	
-	protected abstract void handleRemoveFromEAttribute(String line);
+	protected abstract void handleRemoveFromEAttribute(Object entry);
 	protected abstract void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray );
 	
 	
-	protected abstract void handleSetEReference(String line);
+	protected abstract void handleSetEReference(Object entry);
 	protected abstract void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray);
-	protected abstract void handleCreateAndSetEReference(String line); 
-	protected abstract void handleCreateAndAddToEReference(String line) ;
-	protected abstract void handleAddToEReference(String line) ;
-	protected abstract void handleRemoveFromEReference(String line);
+	protected abstract void handleCreateAndSetEReference(Object entry); 
+	protected abstract void handleCreateAndAddToEReference(Object entry) ;
+	protected abstract void handleAddToEReference(Object entry) ;
+	protected abstract void handleRemoveFromEReference(Object entry);
 	protected abstract void removeEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray);
 	
 	protected int getTypeID(EDataType type) 

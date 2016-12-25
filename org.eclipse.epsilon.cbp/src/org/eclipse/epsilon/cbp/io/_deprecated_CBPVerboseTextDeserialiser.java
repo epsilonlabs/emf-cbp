@@ -19,9 +19,9 @@ import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
+public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 	
-	public CBPVerboseTextDeserialiser(CBPResource resource) {
+	public _deprecated_CBPVerboseTextDeserialiser(CBPResource resource) {
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
@@ -107,8 +107,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 	 * event has the format of:
 	 * 0 [(MetaElementTypeID objectID)* (,)*]
 	 */
-	protected void handleCreateAndAddToResource(String line) {
-		
+	protected void handleCreateAndAddToResource(Object entry) {
+		String line = (String) entry;
+
 		//break line into tokens
 		String[] objToCreateAndAddArray = tokeniseString(getValueInSquareBrackets(line));
 
@@ -138,7 +139,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 	 * 2 [EObjectID*]
 	 */
 
-	protected void handleRemoveFromResource(String line) {
+	protected void handleRemoveFromResource(Object entry) {
+		String line = (String) entry;
+
 		//tokenise string
 		String[] objValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 
@@ -153,8 +156,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 	 * 3/4 objectID EAttributeID [value*]
 	 */
 
-	protected void handleSetEAttribute(String line)
-	{
+	protected void handleSetEAttribute(Object entry) {
+		String line = (String) entry;
+
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -167,7 +171,7 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 		setEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
 
-	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
+	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray)
 	{
 		//get typeID;
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
@@ -212,8 +216,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 	}
 
 	
-	protected void handleAddToEAttribute(String line)
-	{
+	protected void handleAddToEAttribute(Object entry) {
+		String line = (String) entry;
+
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -261,8 +266,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected void handleRemoveFromEAttribute(String line)
-	{
+	protected void handleRemoveFromEAttribute(Object entry) {	
+		String line = (String) entry;
+
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -305,8 +311,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 
-	protected void handleSetEReference(String line)
-	{
+	protected void handleSetEReference(Object entry) {
+		String line = (String) entry;
+
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -335,8 +342,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected void handleCreateAndSetEReference(String line) 
-	{
+	protected void handleCreateAndSetEReference(Object entry) {
+		String line = (String) entry;
+
 		//split line
 		String[] stringArray = line.split(" ");
 
@@ -388,8 +396,10 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected void handleCreateAndAddToEReference(String line) 
-	{
+	protected void handleCreateAndAddToEReference(Object entry) {
+		
+		String line = (String) entry;
+
 		//split line
 		String[] stringArray = line.split(" ");
 
@@ -439,8 +449,10 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected void handleAddToEReference(String line) 
-	{
+	protected void handleAddToEReference(Object entry) {
+		
+		String line = (String) entry;
+
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -479,8 +491,9 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 
-	protected void handleRemoveFromEReference(String line)
-	{
+	protected void handleRemoveFromEReference(Object entry)	{
+		String line = (String) entry;
+
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -515,7 +528,8 @@ public class CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
 	}
 	
 	@Override
-	protected void handleRegisterEPackage(String line) {
+	protected void handleRegisterEPackage(Object entry) {
+		String line = (String) entry;
 		int index = line.indexOf(" ");
 		String nsuri = line.substring(index+1, line.length());
 		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsuri);

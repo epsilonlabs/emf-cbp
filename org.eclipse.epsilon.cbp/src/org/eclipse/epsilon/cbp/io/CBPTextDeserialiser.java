@@ -160,7 +160,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	 * event has the format of:
 	 * 0 (MetaElementTypeID objectID(,)?)*
 	 */
-	protected void handleCreateAndAddToResource(String line) {
+	protected void handleCreateAndAddToResource(Object entry) {
+		
+		String line = (String) entry;
 		
 		//break line into tokens
 		String[] objToCreateAndAddArray = tokeniseString(getSubString(line, 1));
@@ -198,7 +200,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	 * 2 EObjectID*
 	 */
 
-	protected void handleRemoveFromResource(String line) {
+	protected void handleRemoveFromResource(Object entry) {
+		
+		String line = (String) entry;
+		
 		//tokenise string
 		String[] objValueStringsArray = tokeniseString(getSubString(line, 1));
 
@@ -213,8 +218,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	 * 3/4 objectID EAttributeID [value*]
 	 */
 
-	protected void handleSetEAttribute(String line)
-	{
+	protected void handleSetEAttribute(Object entry) {
+		String line = (String) entry;
+		
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -282,8 +288,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	 * event format:
 	 * 3/4 objectID EAttributeID [value*]
 	 */
-	protected void handleAddToEAttribute(String line)
-	{
+	protected void handleAddToEAttribute(Object entry) {
+		String line = (String) entry;
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -343,8 +349,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	 * event type:
 	 * 7/8 objectID EAttributeID value*
 	 */
-	protected void handleRemoveFromEAttribute(String line)
-	{
+	protected void handleRemoveFromEAttribute(Object entry) {
+		String line = (String) entry;
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -401,8 +407,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	 * 10 objectID EReferenceID (ECLass ID, EObject (,)?)*
 	 * 12/9 objectID EReferenceID EObjectID
 	 */
-	protected void handleSetEReference(String line)
-	{
+	protected void handleSetEReference(Object entry) {
+		String line = (String) entry;
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -438,8 +444,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected void handleCreateAndSetEReference(String line) 
-	{
+	protected void handleCreateAndSetEReference(Object entry) {
+		
+		String line = (String) entry;
+		
 		//split line
 		String[] stringArray = line.split(" ");
 
@@ -510,8 +518,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected void handleCreateAndAddToEReference(String line) 
-	{
+	protected void handleCreateAndAddToEReference(Object entry) {
+		String line = (String) entry;
+		
 		//split line
 		String[] stringArray = line.split(" ");
 
@@ -579,8 +588,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected void handleAddToEReference(String line) 
-	{
+	protected void handleAddToEReference(Object entry) {
+		
+		String line = (String) entry;
+		
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -627,8 +638,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 
-	protected void handleRemoveFromEReference(String line)
-	{
+	protected void handleRemoveFromEReference(Object entry) {
+		
+		String line = (String) entry;
+		
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
@@ -670,7 +683,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	}
 	
 	@Override
-	protected void handleRegisterEPackage(String line) {
+	protected void handleRegisterEPackage(Object entry) {
+		String line = (String) entry;
 		int index = line.indexOf(" ");
 		String nsuri = line.substring(index+1, line.length());
 		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsuri);

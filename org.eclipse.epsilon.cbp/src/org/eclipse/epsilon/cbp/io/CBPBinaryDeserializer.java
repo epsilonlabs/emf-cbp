@@ -19,8 +19,8 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.context.PersistenceManager;
 import org.eclipse.epsilon.cbp.exceptions.UnknownPackageException;
+import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.Changelog;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
@@ -31,30 +31,20 @@ import gnu.trove.map.TObjectIntMap;
 
 public class CBPBinaryDeserializer extends AbstractCBPDeserialiser
 {
-	private EPackage ePackage = null;
-	private final Changelog changelog;
-	
-	private final HashMap<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
-	
-    private final ModelElementIDMap ePackageElementsNamesMap;
     private final Charset STRING_ENCODING = StandardCharsets.UTF_8;
     
-    private final TObjectIntMap<String> commonSimpleTypeNameMap;
+    public CBPBinaryDeserializer(CBPResource resource) {
 
-    public CBPBinaryDeserializer(PersistenceManager manager, Changelog aChangelog,
-            ModelElementIDMap ePackageElementsNamesMap)
-    {
-    	 this.manager = manager;
-         this.changelog = aChangelog;
-         this.ePackageElementsNamesMap = ePackageElementsNamesMap;
-         
-         this.commonSimpleTypeNameMap = manager.getCommonSimpleTypesMap();
-    }
+		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
+		
+		this.resource = resource;
+		contents = resource.getContents();
+	}
     
     public void load(Map<?,?> options) throws Exception
     { 
-    	InputStream inputStream = new BufferedInputStream
-				(new FileInputStream(manager.getURI().path()));
+    	InputStream inputStream = new BufferedInputStream(new FileInputStream(resource.getURI().path()));
 		
     	/*Read File Header*/
 		 inputStream.skip(11); // skip file header
@@ -68,51 +58,88 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser
 		{
 			switch (readInt(inputStream))
 			{
+
+			case SerialisationEventType.REGISTER_EPACKAGE:
+				handleRegisterEPackage(inputStream);
+				break;
 			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
 				handleCreateAndAddToResource(inputStream);
-				break;
-			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
-				handeCreateAndSetEReferenceValue(inputStream);
-				break;
-			case SerialisationEventType.ADD_TO_RESOURCE:
-				handleAddToResource(inputStream);
 				break;
 			case SerialisationEventType.REMOVE_FROM_RESOURCE:
 				handleRemoveFromResource(inputStream);
 				break;
-			case SerialisationEventType.SET_EREFERENCE:
-				handleEReferenceEvent(inputStream,true);
-				break;
-			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
-				handleEReferenceEvent(inputStream,false);
+			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
+				handleSetEAttribute(inputStream);
 				break;
 			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
-				handleComplexEAttributeType(inputStream,true);
+				handleSetEAttribute(inputStream);
 				break;
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
-				handleComplexEAttributeType(inputStream,false);
+			case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE:
+				handleAddToEAttribute(inputStream);
 				break;
-			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
-				handlePrimitiveEAttributeType(inputStream, true);
+			case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX:
+				handleAddToEAttribute(inputStream);
 				break;
 			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
-				handlePrimitiveEAttributeType(inputStream,false);
+				handleRemoveFromEAttribute(inputStream);
 				break;
+			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
+				handleRemoveFromEAttribute(inputStream);
+				break;
+			case SerialisationEventType.SET_EREFERENCE:
+				handleSetEReference(inputStream);
+				break;
+			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
+				handleCreateAndSetEReference(inputStream);
+				break;
+			case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
+				handleCreateAndAddToEReference(inputStream);
+				break;
+			case SerialisationEventType.ADD_TO_EREFERENCE:
+				handleAddToEReference(inputStream);
+				break;	
+			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
+				handleRemoveFromEReference(inputStream);
+				break;
+			default:
+				break;
+			
+//			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
+//				handleCreateAndAddToResource(inputStream);
+//				break;
+//			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
+//				handeCreateAndSetEReferenceValue(inputStream);
+//				break;
+//			case SerialisationEventType.ADD_TO_RESOURCE:
+//				handleAddToResource(inputStream);
+//				break;
+//			case SerialisationEventType.REMOVE_FROM_RESOURCE:
+//				handleRemoveFromResource(inputStream);
+//				break;
+//			case SerialisationEventType.SET_EREFERENCE:
+//				handleEReferenceEvent(inputStream,true);
+//				break;
+//			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
+//				handleEReferenceEvent(inputStream,false);
+//				break;
+//			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
+//				handleComplexEAttributeType(inputStream,true);
+//				break;
+//			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
+//				handleComplexEAttributeType(inputStream,false);
+//				break;
+//			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
+//				handlePrimitiveEAttributeType(inputStream, true);
+//				break;
+//			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
+//				handlePrimitiveEAttributeType(inputStream,false);
+//				break;
 			}
 		}
 		
 		inputStream.close();	
     }
-    
-    private int getTypeID(EDataType type)
-    {
-    	if(commonSimpleTypeNameMap.containsKey(type.getName()))
-    	{
-    		return commonSimpleTypeNameMap.get(type.getName());
-    	}
-    	return SimpleType.COMPLEX_TYPE;
-    }
-    
+       
     private void setPrimitiveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray)
     {
 		if(eAttribute.isMany())
@@ -652,4 +679,107 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser
     	
     	return ByteBuffer.wrap(bytes).getInt();
     }
+
+	@Override
+	public void deserialise(Map<?, ?> options) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleRegisterEPackage(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleCreateAndAddToResource(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleRemoveFromResource(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleSetEAttribute(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleAddToEAttribute(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleRemoveFromEAttribute(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleSetEReference(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleCreateAndSetEReference(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleCreateAndAddToEReference(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleAddToEReference(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleRemoveFromEReference(Object entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void removeEReferenceValues(EObject focusObject, EReference eReference,
+			String[] featureValueStringsArray) {
+		// TODO Auto-generated method stub
+		
+	}
 }

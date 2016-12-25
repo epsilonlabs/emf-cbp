@@ -33,14 +33,14 @@ import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-public class CBPVerboseTextSerialiser extends AbstractCBPSerialiser
+public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 {
 	@Override
 	public String getFormatID() {
 		return "CBP_TEXT";
 	}
 	
-	public CBPVerboseTextSerialiser(CBPResource resource)
+	public _deprecated_CBPVerboseTextSerialiser(CBPResource resource)
 	{
 		this.ePackages = new HashSet<EPackage>();
 		this.eventList = resource.getChangelog().getEventsList();
