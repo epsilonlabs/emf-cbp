@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -91,19 +89,4 @@ public abstract class AbstractCBPSerialiser {
 		this.debug = debug;
 	}
 	
-	public String getID(EClass eClass, EStructuralFeature feature)
-	{
-		if (debug) {
-			return eClass.getEPackage().getName()+"-"+eClass.getName()+"-"+feature.getName();
-		}
-		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName())+"";
-	}
-	
-	public String getID(EClass eClass)
-	{
-		if (debug) {
-			return eClass.getEPackage().getName()+"-"+eClass.getName();
-		}
-		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName())+"";
-	}
 }

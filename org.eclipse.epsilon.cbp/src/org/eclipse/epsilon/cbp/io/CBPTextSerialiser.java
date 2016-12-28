@@ -14,10 +14,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
@@ -710,6 +712,21 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser
 		else {
 			writer.println(SerialisationEventType.REGISTER_EPACKAGE + " " + e.getePackage().getNsURI());	
 		}
-		
+	}
+	
+	public String getID(EClass eClass, EStructuralFeature feature)
+	{
+		if (debug) {
+			return eClass.getEPackage().getName()+"-"+eClass.getName()+"-"+feature.getName();
+		}
+		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName())+"";
+	}
+	
+	public String getID(EClass eClass)
+	{
+		if (debug) {
+			return eClass.getEPackage().getName()+"-"+eClass.getName();
+		}
+		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName())+"";
 	}
 }

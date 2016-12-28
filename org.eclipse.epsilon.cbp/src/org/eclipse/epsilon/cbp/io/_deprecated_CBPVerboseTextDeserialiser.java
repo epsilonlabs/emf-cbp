@@ -536,5 +536,35 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 		ePackages.add(ePackage);
 		//ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(ePackage);
 	}
+
+	@Override
+	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void setEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void removeEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

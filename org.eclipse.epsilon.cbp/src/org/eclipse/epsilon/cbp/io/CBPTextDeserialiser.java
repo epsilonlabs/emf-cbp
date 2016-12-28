@@ -240,8 +240,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		setEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
 
-	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
+	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray)
 	{
+		String[] valuesArray = (String[]) featureValuesArray;
 		//get typeID;
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
 
@@ -258,14 +259,14 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			//if typeID is complex
 			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
 			{
-				for (String str : featureValuesArray) 
+				for (String str : valuesArray) 
 				{
 					featureValuesList.add(EcoreUtil.createFromString(eAttribute.getEAttributeType(), str));
 				}
 			} 
 			else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
 			{
-				for (String str : featureValuesArray) 
+				for (String str : valuesArray) 
 				{
 					featureValuesList.add(convertStringToPrimitive(str, primitiveTypeID));
 				}
@@ -275,11 +276,11 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		{
 			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
 			{
-				focusObject.eSet(eAttribute, EcoreUtil.createFromString(eAttribute.getEAttributeType(), featureValuesArray[0]));
+				focusObject.eSet(eAttribute, EcoreUtil.createFromString(eAttribute.getEAttributeType(), valuesArray[0]));
 			} 
 			else 
 			{
-				focusObject.eSet(eAttribute, convertStringToPrimitive(featureValuesArray[0], primitiveTypeID));
+				focusObject.eSet(eAttribute, convertStringToPrimitive(valuesArray[0], primitiveTypeID));
 			}
 		}
 	}
@@ -310,8 +311,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		addEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
 	
-	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
+	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray )
 	{
+		String[] valuesArray = (String[]) featureValuesArray;
+
 		//get typeID;
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
 
@@ -325,14 +328,14 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			//if typeID is complex
 			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
 			{
-				for (String str : featureValuesArray) 
+				for (String str : valuesArray) 
 				{
 					featureValuesList.add(EcoreUtil.createFromString(eAttribute.getEAttributeType(), str));
 				}
 			} 
 			else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
 			{
-				for (String str : featureValuesArray) 
+				for (String str : valuesArray) 
 				{
 					featureValuesList.add(convertStringToPrimitive(str, primitiveTypeID));
 				}
@@ -372,8 +375,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	}
 	
 	
-	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
+	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray )
 	{
+		String[] valuesArray = (String[]) featureValuesArray;
+
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
 
 		if (eAttribute.isMany()) 
@@ -383,14 +388,14 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 			
 			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
 			{
-				for (String str : featureValuesArray) 
+				for (String str : valuesArray) 
 				{
 					featureValuesList.remove(EcoreUtil.createFromString(eAttribute.getEAttributeType(), str));
 				}
 			} 
 			else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
 			{
-				for (String str : featureValuesArray) 
+				for (String str : valuesArray) 
 				{
 					featureValuesList.remove(convertStringToPrimitive(str, primitiveTypeID));
 				}
@@ -429,18 +434,20 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 
 	}
 	
-	protected void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
+	protected void setEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray)
 	{
+		String[] valuesArray = (String[]) featureValuesArray;
+
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
 
 			featureValuesList.clear();
-			for (String str : featureValueStringsArray) {
+			for (String str : valuesArray) {
 				featureValuesList.add(IDToEObjectMap.get(Integer.valueOf(str)));
 			}
 		} else {
-			focusObject.eSet(eReference, IDToEObjectMap.get(Integer.valueOf(featureValueStringsArray[0])));
+			focusObject.eSet(eReference, IDToEObjectMap.get(Integer.valueOf(valuesArray[0])));
 		}
 	}
 	
@@ -662,13 +669,15 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 	}
 
 	
-	protected void removeEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
+	protected void removeEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray)
 	{
+		String[] valuesArray = (String[]) featureValuesArray;
+
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
 
-			for (String str : featureValueStringsArray) {
+			for (String str : valuesArray) {
 				featureValuesList.remove(IDToEObjectMap.get(Integer.valueOf(str)));
 			}
 		} else {
@@ -676,11 +685,6 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser{
 		}
 	}
 	
-	protected String getPropertyName(String str)
-	{
-		String[] index = str.split("-");
-		return index[2];
-	}
 	
 	@Override
 	protected void handleRegisterEPackage(Object entry) {

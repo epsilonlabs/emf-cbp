@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
@@ -195,6 +197,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 	}
 
+	/*
+	 * format:
+	 * 2 size id*
+	 */
 	@Override
 	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) throws IOException{
 		//cast to outputstream
@@ -304,6 +310,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
     }
 
+	/*
+	 * format:
+	 * 
+	 */
 	@Override
 	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) throws IOException{
 
@@ -313,8 +323,8 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
 		
-		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
-		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
+		ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
+		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
     	
     	for(EObject obj : e.getEObjectList())
     	{
@@ -325,12 +335,12 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     			eObjectsToCreateList.add(getID(obj.eClass())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
+    			eObjectsToCreateList.add(resource.getObjectId(obj));
     		}
     		else
     		{
     			//add id to object-to-add list
-    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
+    			eObjectsToAddList.add(resource.getObjectId(obj));
     		}
     	}
     	
@@ -340,11 +350,11 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			created = true;
 			writePrimitive(stream, SerialisationEventType.CREATE_AND_SET_EREFERENCE);
 			writePrimitive(stream, resource.getObjectId(focusObject));
-			writeString(stream, getID(focusObject.eClass(), eReference));
+			writePrimitive(stream, getID(focusObject.eClass(), eReference));
 			writePrimitive(stream, eObjectsToCreateList.size());
-			for(Iterator<String> it = eObjectsToCreateList.iterator(); it.hasNext();)
+			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
 			{
-				writeString(stream, it.next());
+				writePrimitive(stream, it.next());
 			}
 		}
 		
@@ -354,19 +364,18 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			if (created) {
 				writePrimitive(stream, SerialisationEventType.ADD_TO_EREFERENCE);
 				writePrimitive(stream, resource.getObjectId(focusObject));
-				writeString(stream, getID(focusObject.eClass(), eReference));
+				writePrimitive(stream, getID(focusObject.eClass(), eReference));
 				writePrimitive(stream, eObjectsToAddList.size());
 			}
 			else {
 				writePrimitive(stream, SerialisationEventType.SET_EREFERENCE);
 				writePrimitive(stream, resource.getObjectId(focusObject));
-				writeString(stream, getID(focusObject.eClass(), eReference));
+				writePrimitive(stream, getID(focusObject.eClass(), eReference));
 				writePrimitive(stream, eObjectsToAddList.size());
-				
 			}
-			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
+			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
 			{
-				writeString(stream, it.next());
+				writePrimitive(stream, it.next());
 			}
 		}
 	}
@@ -379,8 +388,8 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
 		
-		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
-		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
+		ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
+		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
     	
     	for(EObject obj : e.getEObjectList())
     	{
@@ -391,12 +400,12 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     			eObjectsToCreateList.add(getID(obj.eClass())); 
     			
     			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
+    			eObjectsToCreateList.add(resource.getObjectId(obj));
     		}
     		else
     		{
     			//add id to object-to-add list
-    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
+    			eObjectsToAddList.add(resource.getObjectId(obj));
     		}
     	}
     	
@@ -405,11 +414,11 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		{
 			writePrimitive(stream, SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE);
 			writePrimitive(stream, resource.getObjectId(focusObject));
-			writeString(stream, getID(focusObject.eClass(), eReference));
+			writePrimitive(stream, getID(focusObject.eClass(), eReference));
 			writePrimitive(stream, eObjectsToCreateList.size());
-			for(Iterator<String> it = eObjectsToCreateList.iterator(); it.hasNext();)
+			for(Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();)
 			{
-				writeString(stream, it.next());
+				writePrimitive(stream, it.next());
 			}
 		}
 		
@@ -418,15 +427,19 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		{
 			writePrimitive(stream, SerialisationEventType.ADD_TO_EREFERENCE);
 			writePrimitive(stream, resource.getObjectId(focusObject));
-			writeString(stream, getID(focusObject.eClass(), eReference));
+			writePrimitive(stream, getID(focusObject.eClass(), eReference));
 			writePrimitive(stream, eObjectsToAddList.size());
-			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
+			for(Iterator<Integer> it = eObjectsToAddList.iterator(); it.hasNext();)
 			{
-				writeString(stream, it.next());
+				writePrimitive(stream, it.next());
 			}
 		}
 	}
 
+	/*
+	 * format:
+	 * 7/8 objID featureID size value*
+	 */
 	@Override
 	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) throws IOException{
 		OutputStream stream = (OutputStream) out;
@@ -443,7 +456,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		{
 			writePrimitive(stream,SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE);
 			writePrimitive(stream, resource.getObjectId(focusObject));
-			writeString(stream, getID(focusObject.eClass(), eAttribute));
+			writePrimitive(stream, getID(focusObject.eClass(), eAttribute));
 			int size = 0;
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -463,7 +476,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		else {
 			writePrimitive(stream,SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX);
 			writePrimitive(stream, resource.getObjectId(focusObject));
-			writeString(stream, getID(focusObject.eClass(), eAttribute));
+			writePrimitive(stream, getID(focusObject.eClass(), eAttribute));
 			int size = 0;
 			for(Object obj: e.getEAttributeValuesList())
 			{
@@ -494,7 +507,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		
 		writePrimitive(stream,SerialisationEventType.REMOVE_FROM_EREFERENCE);
 		writePrimitive(stream, resource.getObjectId(focusObject));
-		writeString(stream, getID(focusObject.eClass(), eReference));
+		writePrimitive(stream, getID(focusObject.eClass(), eReference));
 		writePrimitive(stream, removedEObjectsList.size());
 
 		for(EObject eObject: removedEObjectsList)
@@ -503,6 +516,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 	}
 
+	/*
+	 * format:
+	 * 14 str
+	 */
 	@Override
 	protected void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out) {
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
@@ -510,7 +527,8 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		int serialisationType = SerialisationEventType.REGISTER_EPACKAGE;
 		try {
 			writePrimitive(stream, serialisationType);
-			writeString(stream, e.getePackage().getNsURI());
+			String nsuri = e.getePackage().getNsURI();
+			writeString(stream, nsuri);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -536,7 +554,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
     	
         writePrimitive(out,serializationType);
         writePrimitive(out,resource.getObjectId(focusObject));
-        writePrimitive(out,ePackageElementsNamesMap.getID(eAttribute.getName()));
+        writePrimitive(out,getID(focusObject.eClass(), eAttribute));
         int size = 0;
         for(Object obj: eAttributeValuesList)
         {
@@ -721,5 +739,13 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			writePrimitive(out,0);
 	}
 
+	public int getID(EClass eClass, EStructuralFeature feature)
+	{
+		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName());
+	}
 	
+	public int getID(EClass eClass)
+	{
+		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName());
+	}
 }

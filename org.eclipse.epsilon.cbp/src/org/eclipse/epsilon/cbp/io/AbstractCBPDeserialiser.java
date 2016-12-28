@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.cbp.io;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -54,27 +55,27 @@ public abstract class AbstractCBPDeserialiser {
 		return resource;
 	}
 	
-	protected abstract void handleRegisterEPackage(Object entry);
+	protected abstract void handleRegisterEPackage(Object entry) throws IOException;
 
-	protected abstract void handleCreateAndAddToResource(Object entry);
-	protected abstract void handleRemoveFromResource(Object entry);
+	protected abstract void handleCreateAndAddToResource(Object entry) throws IOException;
+	protected abstract void handleRemoveFromResource(Object entry) throws IOException;
 	
-	protected abstract void handleSetEAttribute(Object entry);
-	protected abstract void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray);
-	protected abstract void handleAddToEAttribute(Object entry);
-	protected abstract void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray);
+	protected abstract void handleSetEAttribute(Object entry) throws IOException;
+	protected abstract void setEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray);
+	protected abstract void handleAddToEAttribute(Object entry) throws IOException;
+	protected abstract void addEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray);
 	
-	protected abstract void handleRemoveFromEAttribute(Object entry);
-	protected abstract void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray );
+	protected abstract void handleRemoveFromEAttribute(Object entry) throws IOException;
+	protected abstract void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray );
 	
 	
-	protected abstract void handleSetEReference(Object entry);
-	protected abstract void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray);
-	protected abstract void handleCreateAndSetEReference(Object entry); 
-	protected abstract void handleCreateAndAddToEReference(Object entry) ;
-	protected abstract void handleAddToEReference(Object entry) ;
-	protected abstract void handleRemoveFromEReference(Object entry);
-	protected abstract void removeEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray);
+	protected abstract void handleSetEReference(Object entry) throws IOException;
+	protected abstract void setEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray);
+	protected abstract void handleCreateAndSetEReference(Object entry) throws IOException; 
+	protected abstract void handleCreateAndAddToEReference(Object entry) throws IOException ;
+	protected abstract void handleAddToEReference(Object entry) throws IOException ;
+	protected abstract void handleRemoveFromEReference(Object entry) throws IOException;
+	protected abstract void removeEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray);
 	
 	protected int getTypeID(EDataType type) 
 	{
@@ -128,6 +129,13 @@ public abstract class AbstractCBPDeserialiser {
 
 		return output;
 	}
+	
+	protected String getPropertyName(String str)
+	{
+		String[] index = str.split("-");
+		return index[2];
+	}
+
 
 	// returns everything inbetween []
 	protected String getValueInSquareBrackets(String str) {
