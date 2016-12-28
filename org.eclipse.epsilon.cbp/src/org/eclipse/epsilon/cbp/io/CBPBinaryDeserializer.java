@@ -33,6 +33,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		this.resource = resource;
 		contents = resource.getContents();
 	}
+
 	@Override
 	public void deserialise(Map<?, ?> options) throws Exception {
 		InputStream inputStream = new BufferedInputStream(new FileInputStream(resource.getURI().path()));
@@ -302,12 +303,6 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		}
 	}
 
-	@Override
-	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-
-	}
-
 	/*
 	 * format: 3/4 obj_ID attribute_id size values
 	 */
@@ -400,12 +395,6 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			else
 				handlePrimitiveEAttributeValues(focusObject, eAttribute, featureValuesArray, false);
 		}
-	}
-
-	@Override
-	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -502,12 +491,6 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		}
 	}
 
-	@Override
-	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-
-	}
-
 	/*
 	 * format: 9 objectID referenceID size objectIDs*
 	 */
@@ -538,12 +521,6 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			index = index + 4;
 		}
 		setEReferenceValues(focusObject, eReference, intArray);
-	}
-
-	@Override
-	protected void setEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -700,8 +677,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	}
 
 	/*
-	 * format:
-	 * 12 objectID featureIDe size values
+	 * format: 12 objectID featureIDe size values
 	 */
 	@Override
 	protected void handleRemoveFromEReference(Object entry) throws IOException {
@@ -720,7 +696,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 		in.read(buffer);
 
-		int[] intArray = new int[numInts]; 
+		int[] intArray = new int[numInts];
 
 		int index = 0;
 
@@ -730,12 +706,6 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			index = index + 4;
 		}
 		removeFromEReference(focusObject, eReference, intArray);
-	}
-
-	@Override
-	protected void removeEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-
 	}
 
 	private int readInt(InputStream in) throws IOException {
@@ -938,7 +908,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			focusObject.eSet(eReference, IDToEObjectMap.get(eObjectIDArray[0]));
 		}
 	}
-	
+
 	private void removeFromEReference(EObject focusObject, EReference eReference, int[] eObjectIDArray) {
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")

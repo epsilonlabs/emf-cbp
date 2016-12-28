@@ -14,101 +14,91 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class PersistenceUtil {
 
-	//delimiter
+	// delimiter
 	public final String DELIMITER = ",";
-	//escaped char
-	public final String ESCAPE_CHAR ="+";
-	//UTF-8 string encoding
+	// escaped char
+	public final String ESCAPE_CHAR = "+";
+	// UTF-8 string encoding
 	public final Charset STRING_ENCODING = StandardCharsets.UTF_8;
-	
-	//Null string I dont know what this is
+
+	// Null string I dont know what this is
 	public final String NULL_STRING = "pFgrW";
-	
+
 	private static PersistenceUtil instance = null;
-	
+
 	ModelElementIDMap ePackageElementsNamesMap = null;
-	
+
 	protected TObjectIntMap<String> textSimpleTypesMap = new TObjectIntHashMap<String>(2);
-	
+
 	protected TObjectIntMap<String> commonSimpleTypesMap = new TObjectIntHashMap<String>(13);
 
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
-	
-	private PersistenceUtil()
-	{
+
+	private PersistenceUtil() {
 		populatecommonSimpleTypesMap();
 		populateTextSimpleTypesMap();
 	}
-	
-	public void reset()
-	{
+
+	public void reset() {
 		ePackageElementsNamesMap = null;
 	}
-	
-	public static PersistenceUtil getInstance()
-	{
+
+	public static PersistenceUtil getInstance() {
 		if (instance == null) {
 			instance = new PersistenceUtil();
 		}
 		return instance;
 	}
-	
-	public ModelElementIDMap generateEPackageElementNamesMap(EPackage ePackage)
-	{
+
+	public ModelElementIDMap generateEPackageElementNamesMap(EPackage ePackage) {
 		if (ePackageElementsNamesMap == null) {
-			ePackageElementsNamesMap = new ModelElementIDMap();	
+			ePackageElementsNamesMap = new ModelElementIDMap();
 		}
-		
+
 		if (ePackages.contains(ePackage)) {
 			return ePackageElementsNamesMap;
-		}
-		else {
+		} else {
 			ePackages.add(ePackage);
 		}
-		
+
 		String packageName = ePackage.getName();
-		
-		//for each eclassifier
-	    for(EClassifier eClassifier : ePackage.getEClassifiers())
-	    {
-	    	//if is EClass
-	        if(eClassifier instanceof EClass)
-	        {
-	            EClass eClass = (EClass) eClassifier;
-	            
-	            String className = eClass.getName();
-	            
-	            ePackageElementsNamesMap.addName(packageName + "-" + className);
-	            
-	            for(EStructuralFeature feature : eClass.getEAllStructuralFeatures())
-	            {
-	                ePackageElementsNamesMap.addName(packageName + "-" + className + "-" + feature.getName());
-	            }
-	        }
-	    }
-	    return ePackageElementsNamesMap;
+
+		// for each eclassifier
+		for (EClassifier eClassifier : ePackage.getEClassifiers()) {
+			// if is EClass
+			if (eClassifier instanceof EClass) {
+				EClass eClass = (EClass) eClassifier;
+
+				String className = eClass.getName();
+
+				ePackageElementsNamesMap.addName(packageName + "-" + className);
+
+				for (EStructuralFeature feature : eClass.getEAllStructuralFeatures()) {
+					ePackageElementsNamesMap.addName(packageName + "-" + className + "-" + feature.getName());
+				}
+			}
+		}
+		return ePackageElementsNamesMap;
 	}
-	
+
 	public ModelElementIDMap getePackageElementsNamesMap() {
 		return ePackageElementsNamesMap;
 	}
-	
+
 	public TObjectIntMap<String> getCommonSimpleTypesMap() {
 		return commonSimpleTypesMap;
 	}
-	
+
 	public TObjectIntMap<String> getTextSimpleTypesMap() {
 		return textSimpleTypesMap;
 	}
-	
-	private void populateTextSimpleTypesMap()
-	{
-    	textSimpleTypesMap.put("EString", SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
-    	textSimpleTypesMap.put("EStringObject", SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
+
+	private void populateTextSimpleTypesMap() {
+		textSimpleTypesMap.put("EString", SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
+		textSimpleTypesMap.put("EStringObject", SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
 	}
-	
-	private void populatecommonSimpleTypesMap()
-	{
+
+	private void populatecommonSimpleTypesMap() {
 		commonSimpleTypesMap.put("EInt", SimpleType.SIMPLE_TYPE_INT);
 		commonSimpleTypesMap.put("EIntegerObject", SimpleType.SIMPLE_TYPE_INT);
 		commonSimpleTypesMap.put("EBoolean", SimpleType.SIMPLE_TYPE_BOOLEAN);
@@ -123,6 +113,5 @@ public class PersistenceUtil {
 		commonSimpleTypesMap.put("ELongObject", SimpleType.SIMPLE_TYPE_LONG);
 		commonSimpleTypesMap.put("EChar", SimpleType.SIMPLE_TYPE_CHAR);
 	}
-
 
 }

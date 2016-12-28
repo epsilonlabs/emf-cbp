@@ -33,169 +33,153 @@ import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
-{
+public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser {
 	@Override
 	public String getFormatID() {
 		return "CBP_TEXT";
 	}
-	
-	public _deprecated_CBPVerboseTextSerialiser(CBPResource resource)
-	{
+
+	public _deprecated_CBPVerboseTextSerialiser(CBPResource resource) {
 		this.ePackages = new HashSet<EPackage>();
 		this.eventList = resource.getChangelog().getEventsList();
-		
+
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-		
+
 		this.resource = resource;
 	}
-	
-	public void serialise(Map<?,?> options) throws IOException
-	{
-		if(eventList.isEmpty()) //tbr
+
+	public void serialise(Map<?, ?> options) throws IOException {
+		if (eventList.isEmpty()) // tbr
 		{
 			System.err.println("CBPTextSerialiser: no events found, returning!");
 			return;
 		}
-		
+
 		Closeable printWriter = null;
-		//setup printwriter
-	    try
-        {
-	    	BufferedWriter bw = null;
-	    	if (options.get("path") != null) {
-	    		bw = new BufferedWriter
-	                    (new OutputStreamWriter(new FileOutputStream((String)options.get("path"), resource.isResume()), persistenceUtil.STRING_ENCODING));
+		// setup printwriter
+		try {
+			BufferedWriter bw = null;
+			if (options.get("path") != null) {
+				bw = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream((String) options.get("path"), resource.isResume()),
+								persistenceUtil.STRING_ENCODING));
+			} else {
+				bw = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream(resource.getURI().path(), resource.isResume()),
+								persistenceUtil.STRING_ENCODING));
 			}
-	    	else {
-	    		bw = new BufferedWriter
-	                    (new OutputStreamWriter(new FileOutputStream(resource.getURI().path(), resource.isResume()), persistenceUtil.STRING_ENCODING));	
-			}
-	    	
-            printWriter = new PrintWriter(bw);
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-            System.exit(0);
-        }
-		
-		//if we're not in resume mode, serialise initial entry
-		if(!resource.isResume())
+
+			printWriter = new PrintWriter(bw);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+
+		// if we're not in resume mode, serialise initial entry
+		if (!resource.isResume())
 			serialiseHeader(printWriter);
-		
-		for(Event e : eventList)
-		{
-			switch(e.getEventType())
-			{
+
+		for (Event e : eventList) {
+			switch (e.getEventType()) {
 			case Event.REGISTER_EPACKAGE:
 				handleEPackageRegistrationEvent((EPackageRegistrationEvent) e, printWriter);
 				break;
 			case Event.ADD_EOBJ_TO_RESOURCE:
-				handleAddToResourceEvent((AddEObjectsToResourceEvent)e, printWriter);
+				handleAddToResourceEvent((AddEObjectsToResourceEvent) e, printWriter);
 				break;
 			case Event.SET_EATTRIBUTE:
-				handleSetEAttributeEvent((EAttributeEvent)e, printWriter);
+				handleSetEAttributeEvent((EAttributeEvent) e, printWriter);
 				break;
 			case Event.ADD_TO_EATTRIBUTE:
-				handleAddToEAttributeEvent((EAttributeEvent)e, printWriter);
+				handleAddToEAttributeEvent((EAttributeEvent) e, printWriter);
 				break;
 			case Event.SET_EREFERENCE:
-				handleSetEReferenceEvent((SetEReferenceEvent)e, printWriter);
+				handleSetEReferenceEvent((SetEReferenceEvent) e, printWriter);
 				break;
 			case Event.ADD_TO_EREFERENCE:
-				handleAddToEReferenceEvent((AddToEReferenceEvent)e, printWriter);
+				handleAddToEReferenceEvent((AddToEReferenceEvent) e, printWriter);
 				break;
 			case Event.REMOVE_FROM_EATTRIBUTE:
-				handleRemoveFromAttributeEvent((EAttributeEvent)e, printWriter);
+				handleRemoveFromAttributeEvent((EAttributeEvent) e, printWriter);
 				break;
 			case Event.REMOVE_FROM_EREFERENCE:
-				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent)e, printWriter);
+				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent) e, printWriter);
 				break;
 			case Event.REMOVE_EOBJ_FROM_RESOURCE:
-				handleRemoveFromResourceEvent((RemoveFromResourceEvent)e, printWriter);
+				handleRemoveFromResourceEvent((RemoveFromResourceEvent) e, printWriter);
 				break;
 			}
 		}
-		
+
 		printWriter.close();
 		resource.setResume(true);
 	}
-	
-	
+
 	@Override
 	public double getVersion() {
 		return 1.0;
 	}
 
 	/*
-	 * event has the format of:
-	 * 0 [(MetaElementTypeID objectID)* ,*]
+	 * event has the format of: 0 [(MetaElementTypeID objectID)* ,*]
 	 */
 	@Override
 	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) {
 		PrintWriter writer = (PrintWriter) out;
 		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
-    	
-    	for(EObject obj : e.getEObjectList())
-    	{
-    		//if obj is not added already
-    		if(resource.addObjectToMap(obj))
-    		{
-    			//add type to object-to-create-list
-    			eObjectsToCreateList.add(getID(obj.eClass())); 
-    			
-    			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj) + "");
-    		}
-    		else {
-    			//should not happen
+
+		for (EObject obj : e.getEObjectList()) {
+			// if obj is not added already
+			if (resource.addObjectToMap(obj)) {
+				// add type to object-to-create-list
+				eObjectsToCreateList.add(getID(obj.eClass()));
+
+				// add id to object-to-create-list
+				eObjectsToCreateList.add(resource.getObjectId(obj) + "");
+			} else {
+				// should not happen
 				System.err.println("redundant creation");
 			}
-    	}
-    	
-    	//delimiter
-    	String delimiter= "";
-    	
-    	//if create list is not empty
-		if(!eObjectsToCreateList.isEmpty())
-		{
-			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE_VERBOSE+" [");	
+		}
 
-	        int index = 0;
-    		for(int i = 0; i < (eObjectsToCreateList.size() / 2); i++)
-    		{
-    			//add type-id pair
-    			writer.print(delimiter+eObjectsToCreateList.get(index)+" "+eObjectsToCreateList.get(index+1));
-    			
-    			//set delimiter
-    			delimiter = persistenceUtil.DELIMITER;
-    			
-    			//increase index by 2
-    			index = index + 2;
-    		}
-    		
-    		writer.print("]");
+		// delimiter
+		String delimiter = "";
+
+		// if create list is not empty
+		if (!eObjectsToCreateList.isEmpty()) {
+			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE_VERBOSE + " [");
+
+			int index = 0;
+			for (int i = 0; i < (eObjectsToCreateList.size() / 2); i++) {
+				// add type-id pair
+				writer.print(delimiter + eObjectsToCreateList.get(index) + " " + eObjectsToCreateList.get(index + 1));
+
+				// set delimiter
+				delimiter = persistenceUtil.DELIMITER;
+
+				// increase index by 2
+				index = index + 2;
+			}
+
+			writer.print("]");
 		}
 		writer.println();
 	}
 
 	/*
-	 * event type:
-	 * 2 [EObjectID*]
+	 * event type: 2 [EObjectID*]
 	 */
 	@Override
 	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
 		List<EObject> removedEObjectsList = e.getEObjectList();
-		writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE+" [");
-		
+		writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE + " [");
+
 		String delimiter = "";
-		
-		for(EObject obj : removedEObjectsList)
-		{
+
+		for (EObject obj : removedEObjectsList) {
 			writer.print(delimiter + resource.getObjectId(obj));
 			delimiter = persistenceUtil.DELIMITER;
 		}
@@ -204,62 +188,58 @@ public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 	}
 
 	/*
-	 * event format:
-	 * 3/4 objectID EAttributeID [value*]
+	 * event format: 3/4 objectID EAttributeID [value*]
 	 */
 	@Override
 	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		//get forcus object
+		// get forcus object
 		EObject focusObject = e.getFocusObject();
-		
-		//get attr
+
+		// get attr
 		EAttribute eAttribute = e.getEAttribute();
-		
-		//get data type
+
+		// get data type
 		EDataType eDataType = eAttribute.getEAttributeType();
-		
-		//get serialisation type flag
+
+		// get serialisation type flag
 		String serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE_VERBOSE;
-		
+
 		String newValue;
-		String delimiter ="";
+		String delimiter = "";
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
-			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
-			
-			for(Object obj: e.getEAttributeValuesList())
-			{
-				if(obj != null)
-				{
+			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
+					+ getID(focusObject.eClass(), eAttribute) + " ["));
+
+			for (Object obj : e.getEAttributeValuesList()) {
+				if (obj != null) {
 					newValue = String.valueOf(obj);
-					newValue = newValue.replace(persistenceUtil.DELIMITER, 
-							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
-					writer.print(delimiter+newValue);	
+					newValue = newValue.replace(persistenceUtil.DELIMITER,
+							persistenceUtil.ESCAPE_CHAR + persistenceUtil.DELIMITER); // escape
+																						// delimiter
+					writer.print(delimiter + newValue);
 				}
-				
+
 				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
-		}
-		else //all other datatypes
+		} else // all other datatypes
 		{
 			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX_VERBOSE;
-			
-			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
-			
-			for(Object obj: e.getEAttributeValuesList())
-			{
+
+			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
+					+ getID(focusObject.eClass(), eAttribute) + " ["));
+
+			for (Object obj : e.getEAttributeValuesList()) {
 				newValue = (EcoreUtil.convertToString(eDataType, obj));
-				
-				if(newValue!= null)
-				{
-					newValue = newValue.replace(persistenceUtil.DELIMITER, 
-							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
-					writer.print(delimiter+newValue);
+
+				if (newValue != null) {
+					newValue = newValue.replace(persistenceUtil.DELIMITER,
+							persistenceUtil.ESCAPE_CHAR + persistenceUtil.DELIMITER); // escape
+																						// delimiter
+					writer.print(delimiter + newValue);
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
@@ -269,61 +249,57 @@ public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 	}
 
 	/*
-	 * event format:
-	 * 5/6 objectID EAttributeID [value*]
+	 * event format: 5/6 objectID EAttributeID [value*]
 	 */
 	@Override
 	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		//get forcus object
+		// get forcus object
 		EObject focusObject = e.getFocusObject();
-		
-		//get attr
+
+		// get attr
 		EAttribute eAttribute = e.getEAttribute();
-		
-		//get data type
+
+		// get data type
 		EDataType eDataType = eAttribute.getEAttributeType();
-		
-		//get serialisation type flag
+
+		// get serialisation type flag
 		String serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE_VERBOSE;
-		
-		String newValue ;
-		String delimiter ="";
+
+		String newValue;
+		String delimiter = "";
 
 		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
-			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
-			
-			for(Object obj: e.getEAttributeValuesList())
-			{
-				if(obj != null)
-				{
+			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
+					+ getID(focusObject.eClass(), eAttribute) + " ["));
+
+			for (Object obj : e.getEAttributeValuesList()) {
+				if (obj != null) {
 					newValue = String.valueOf(obj);
-					newValue = newValue.replace(persistenceUtil.DELIMITER, 
-							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
-					writer.print(delimiter+newValue);
+					newValue = newValue.replace(persistenceUtil.DELIMITER,
+							persistenceUtil.ESCAPE_CHAR + persistenceUtil.DELIMITER); // escape
+																						// delimiter
+					writer.print(delimiter + newValue);
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
-		}
-		else //all other datatypes
+		} else // all other datatypes
 		{
 			serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX_VERBOSE;
-			
-			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
-			
-			for(Object obj: e.getEAttributeValuesList())
-			{
+
+			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
+					+ getID(focusObject.eClass(), eAttribute) + " ["));
+
+			for (Object obj : e.getEAttributeValuesList()) {
 				newValue = (EcoreUtil.convertToString(eDataType, obj));
-				
-				if(newValue!= null)
-				{
-					newValue = newValue.replace(persistenceUtil.DELIMITER, 
-							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
-					writer.print(delimiter+newValue);
+
+				if (newValue != null) {
+					newValue = newValue.replace(persistenceUtil.DELIMITER,
+							persistenceUtil.ESCAPE_CHAR + persistenceUtil.DELIMITER); // escape
+																						// delimiter
+					writer.print(delimiter + newValue);
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
@@ -333,100 +309,83 @@ public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 	}
 
 	/*
-	 * event format:
-	 * 10 objectID EReferenceID [(ECLass ID, EObject)*(,)*]
-	 * 12/9 objectID EReferenceID [EObjectID]
+	 * event format: 10 objectID EReferenceID [(ECLass ID, EObject)*(,)*] 12/9
+	 * objectID EReferenceID [EObjectID]
 	 */
 	@Override
 	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		
+
 		boolean created = false;
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
-		
+
 		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
 		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
-    	
-    	for(EObject obj : e.getEObjectList())
-    	{
-    		//if obj is not added already
-    		if(resource.addObjectToMap(obj))
-    		{
-    			//add type to object-to-create-list
-    			eObjectsToCreateList.add(getID(obj.eClass())); 
-    			
-    			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
-    		}
-    		else
-    		{
-    			//add id to object-to-add list
-    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
-    		}
-    	}
-    	
-    	//delimiter
-    	String delimiter= "";
-    	
-    	//if create list is not empty
-		if(!eObjectsToCreateList.isEmpty())
-		{
-			created = true;
-			writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE_VERBOSE+" "+
-					resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eReference)+" [");
-			
-	        int index = 0;
-    		for(int i = 0; i < (eObjectsToCreateList.size() / 2); i++)
-    		{
-    			//add type-id pair
-    			writer.print(delimiter+eObjectsToCreateList.get(index)+" "+eObjectsToCreateList.get(index+1));
-    			
-    			//set delimiter
-    			delimiter = persistenceUtil.DELIMITER;
-    			
-    			//increase index by 2
-    			index = index + 2;
-    		}
-    		
-    		writer.print("]");
+
+		for (EObject obj : e.getEObjectList()) {
+			// if obj is not added already
+			if (resource.addObjectToMap(obj)) {
+				// add type to object-to-create-list
+				eObjectsToCreateList.add(getID(obj.eClass()));
+
+				// add id to object-to-create-list
+				eObjectsToCreateList.add(resource.getObjectId(obj) + "");
+			} else {
+				// add id to object-to-add list
+				eObjectsToAddList.add(resource.getObjectId(obj) + "");
+			}
 		}
-		
-		//if add list is not empty
-		if(!eObjectsToAddList.isEmpty())
-		{
+
+		// delimiter
+		String delimiter = "";
+
+		// if create list is not empty
+		if (!eObjectsToCreateList.isEmpty()) {
+			created = true;
+			writer.print(SerialisationEventType.CREATE_AND_SET_EREFERENCE_VERBOSE + " "
+					+ resource.getObjectId(focusObject) + " " + getID(focusObject.eClass(), eReference) + " [");
+
+			int index = 0;
+			for (int i = 0; i < (eObjectsToCreateList.size() / 2); i++) {
+				// add type-id pair
+				writer.print(delimiter + eObjectsToCreateList.get(index) + " " + eObjectsToCreateList.get(index + 1));
+
+				// set delimiter
+				delimiter = persistenceUtil.DELIMITER;
+
+				// increase index by 2
+				index = index + 2;
+			}
+
+			writer.print("]");
+		}
+
+		// if add list is not empty
+		if (!eObjectsToAddList.isEmpty()) {
 
 			if (created) {
-				writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE+" "+
-						resource.getObjectId(focusObject)+" "+
-						getID(focusObject.eClass(), eReference)+
-						" [");
+				writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE + " " + resource.getObjectId(focusObject)
+						+ " " + getID(focusObject.eClass(), eReference) + " [");
+			} else {
+				writer.print(SerialisationEventType.SET_EREFERENCE_VERBOSE + " " + resource.getObjectId(focusObject)
+						+ " " + getID(focusObject.eClass(), eReference) + " [");
 			}
-			else {
-				writer.print(SerialisationEventType.SET_EREFERENCE_VERBOSE+" "+
-						resource.getObjectId(focusObject)+" "+
-						getID(focusObject.eClass(), eReference)+
-						" [");
-			}
-			
-					
-			delimiter="";
-			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
-			{
-				writer.print(delimiter+it.next());
+
+			delimiter = "";
+			for (Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();) {
+				writer.print(delimiter + it.next());
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");	
+			writer.print("]");
 		}
 		writer.println();
 	}
 
 	/*
-	 * event format:
-	 * 11 objectID EReferenceID [(ECLass ID, EObject ID)* ,*]
-	 * 12 objectID EReferenceID [EObjectID*]
+	 * event format: 11 objectID EReferenceID [(ECLass ID, EObject ID)* ,*] 12
+	 * objectID EReferenceID [EObjectID*]
 	 */
 	@Override
 	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) {
@@ -436,129 +395,112 @@ public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 		EReference eReference = e.getEReference();
 		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
 		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
-    	
-    	for(EObject obj : e.getEObjectList())
-    	{
-    		//if obj is not added already
-    		if(resource.addObjectToMap(obj))
-    		{
-    			//add type to object-to-create-list
-    			eObjectsToCreateList.add(getID(obj.eClass())); 
-    			
-    			//add id to object-to-create-list
-    			eObjectsToCreateList.add(resource.getObjectId(obj)+"");
-    			
-    		}
-    		else
-    		{
-    			//add id to object-to-add list
-    			eObjectsToAddList.add(resource.getObjectId(obj)+"");
-    		}
-    	}
-    	
-    	//delimiter
-    	String delimiter= "";
-    	
-    	//if create list is not empty
-		if(!eObjectsToCreateList.isEmpty())
-		{
 
-			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE_VERBOSE+" "+
-					resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eReference)+" [");
-			
-	        int index = 0;
-    		for(int i = 0; i < (eObjectsToCreateList.size() / 2); i++)
-    		{
-    			//add type-id pair
-    			writer.print(delimiter+eObjectsToCreateList.get(index)+" "+eObjectsToCreateList.get(index+1));
-    			
-    			//set delimiter
-    			delimiter = persistenceUtil.DELIMITER;
-    			
-    			//increase index by 2
-    			index = index + 2;
-    		}
-    		writer.print("]");
+		for (EObject obj : e.getEObjectList()) {
+			// if obj is not added already
+			if (resource.addObjectToMap(obj)) {
+				// add type to object-to-create-list
+				eObjectsToCreateList.add(getID(obj.eClass()));
+
+				// add id to object-to-create-list
+				eObjectsToCreateList.add(resource.getObjectId(obj) + "");
+
+			} else {
+				// add id to object-to-add list
+				eObjectsToAddList.add(resource.getObjectId(obj) + "");
+			}
 		}
-		
-		//if add list is not empty
-		if(!eObjectsToAddList.isEmpty())
-		{
-			writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE+" "+
-					resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eReference)+
-					" [");
-			
-			delimiter="";
-			for(Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();)
-			{
-				writer.print(delimiter+it.next());
+
+		// delimiter
+		String delimiter = "";
+
+		// if create list is not empty
+		if (!eObjectsToCreateList.isEmpty()) {
+
+			writer.print(SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE_VERBOSE + " "
+					+ resource.getObjectId(focusObject) + " " + getID(focusObject.eClass(), eReference) + " [");
+
+			int index = 0;
+			for (int i = 0; i < (eObjectsToCreateList.size() / 2); i++) {
+				// add type-id pair
+				writer.print(delimiter + eObjectsToCreateList.get(index) + " " + eObjectsToCreateList.get(index + 1));
+
+				// set delimiter
+				delimiter = persistenceUtil.DELIMITER;
+
+				// increase index by 2
+				index = index + 2;
+			}
+			writer.print("]");
+		}
+
+		// if add list is not empty
+		if (!eObjectsToAddList.isEmpty()) {
+			writer.print(SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE + " " + resource.getObjectId(focusObject)
+					+ " " + getID(focusObject.eClass(), eReference) + " [");
+
+			delimiter = "";
+			for (Iterator<String> it = eObjectsToAddList.iterator(); it.hasNext();) {
+				writer.print(delimiter + it.next());
 				delimiter = persistenceUtil.DELIMITER;
 			}
-			writer.print("]");	
+			writer.print("]");
 		}
 		writer.println();
 	}
 
 	/*
-	 * event type:
-	 * 7/8 objectID EAttributeID [value*]
+	 * event type: 7/8 objectID EAttributeID [value*]
 	 */
 	@Override
 	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		//get forcus object
+		// get forcus object
 		EObject focusObject = e.getFocusObject();
-		
-		//get attr
-		EAttribute eAttribute = e.getEAttribute();
-		
-		//get data type
-		EDataType eDataType = eAttribute.getEAttributeType();
-		
-		//get serialisation type flag
-		String serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE_VERBOSE;
-		
-		String newValue ;
-		String delimiter ="";
-		
-		if(getTypeID(eDataType) != SimpleType.COMPLEX_TYPE )
-		{
-			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
-			
 
-			for(Object obj: e.getEAttributeValuesList())
-			{
-				if(obj != null)
-				{
+		// get attr
+		EAttribute eAttribute = e.getEAttribute();
+
+		// get data type
+		EDataType eDataType = eAttribute.getEAttributeType();
+
+		// get serialisation type flag
+		String serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE_VERBOSE;
+
+		String newValue;
+		String delimiter = "";
+
+		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
+			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
+					+ getID(focusObject.eClass(), eAttribute) + " ["));
+
+			for (Object obj : e.getEAttributeValuesList()) {
+				if (obj != null) {
 					newValue = String.valueOf(obj);
-					newValue = newValue.replace(persistenceUtil.DELIMITER, 
-							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
-					writer.print(delimiter+newValue);	
+					newValue = newValue.replace(persistenceUtil.DELIMITER,
+							persistenceUtil.ESCAPE_CHAR + persistenceUtil.DELIMITER); // escape
+																						// delimiter
+					writer.print(delimiter + newValue);
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
 			writer.print("]");
-		
-		}
-		else //all other datatypes
+
+		} else // all other datatypes
 		{
 			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX_VERBOSE;
-			writer.print((serializationType+" "+resource.getObjectId(focusObject)+" "+
-					getID(focusObject.eClass(), eAttribute)+" ["));
+			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
+					+ getID(focusObject.eClass(), eAttribute) + " ["));
 
-			for(Object obj: e.getEAttributeValuesList())
-			{
+			for (Object obj : e.getEAttributeValuesList()) {
 				newValue = (EcoreUtil.convertToString(eDataType, obj));
-				
-				if(newValue!= null)
-				{
-					newValue = newValue.replace(persistenceUtil.DELIMITER, 
-							persistenceUtil.ESCAPE_CHAR+persistenceUtil.DELIMITER); //escape delimiter
-					writer.print(delimiter+newValue);
+
+				if (newValue != null) {
+					newValue = newValue.replace(persistenceUtil.DELIMITER,
+							persistenceUtil.ESCAPE_CHAR + persistenceUtil.DELIMITER); // escape
+																						// delimiter
+					writer.print(delimiter + newValue);
 				}
 				delimiter = persistenceUtil.DELIMITER;
 			}
@@ -568,8 +510,7 @@ public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 	}
 
 	/*
-	 * event type:
-	 * 13 objectID EReferenceID [EObjectID*]
+	 * event type: 13 objectID EReferenceID [EObjectID*]
 	 */
 	@Override
 	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) {
@@ -578,15 +519,13 @@ public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 		EObject focusObject = e.getFocusObject();
 		EReference eReference = e.getEReference();
 		List<EObject> removedEObjectsList = e.getEObjectList();
-		
-		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE+" "+
-				resource.getObjectId(focusObject)+" "+
-                (getID(focusObject.eClass(), eReference)+" ["));
-			
+
+		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE + " " + resource.getObjectId(focusObject)
+				+ " " + (getID(focusObject.eClass(), eReference) + " ["));
+
 		String delimiter = "";
-		
-		for(EObject obj : removedEObjectsList)
-		{
+
+		for (EObject obj : removedEObjectsList) {
 			writer.print(delimiter + resource.getObjectId(obj));
 			delimiter = persistenceUtil.DELIMITER;
 		}
@@ -598,54 +537,46 @@ public class _deprecated_CBPVerboseTextSerialiser extends AbstractCBPSerialiser
 	protected void serialiseHeader(Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		
-		//epackage
+
+		// epackage
 		EPackage ePackage = null;
-		
-		//get first event
+
+		// get first event
 		Event e = eventList.get(0);
-		
-		if(e instanceof EPackageRegistrationEvent)
+
+		if (e instanceof EPackageRegistrationEvent) {
+			ePackage = ((EPackageRegistrationEvent) e).getePackage();
+		} else // throw tantrum
 		{
-			ePackage = ((EPackageRegistrationEvent)e).getePackage();
-		}
-		else //throw tantrum
-		{
-			try 
-			{
-				System.err.println("CBPTextSerialiser: "+e.getEventType());
+			try {
+				System.err.println("CBPTextSerialiser: " + e.getEventType());
 				throw new Exception("Error! first item in events list is not a EPackageRegistrationEvent.");
-			} 
-			catch (Exception e1) 
-			{
+			} catch (Exception e1) {
 				e1.printStackTrace();
 				System.exit(0);
 			}
 		}
-		if(ePackage == null)
-		{
-			System.out.println("CBPTextSerialiser: "+e.getEventType());
+		if (ePackage == null) {
+			System.out.println("CBPTextSerialiser: " + e.getEventType());
 			System.exit(0);
 		}
-		
-		writer.println(getFormatID()+" "+getVersion());
+
+		writer.println(getFormatID() + " " + getVersion());
 	}
 
 	@Override
 	protected void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out) {
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
 		PrintWriter writer = (PrintWriter) out;
-		
+
 		writer.println(SerialisationEventType.REGISTER_EPACKAGE_VERBOSE + " " + e.getePackage().getNsURI());
 	}
-	
-	public String getID(EClass eClass, EStructuralFeature feature)
-	{
-		return eClass.getEPackage().getName()+"-"+eClass.getName()+"-"+feature.getName();
+
+	public String getID(EClass eClass, EStructuralFeature feature) {
+		return eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName();
 	}
-	
-	public String getID(EClass eClass)
-	{
-		return eClass.getEPackage().getName()+"-"+eClass.getName();
+
+	public String getID(EClass eClass) {
+		return eClass.getEPackage().getName() + "-" + eClass.getName();
 	}
 }

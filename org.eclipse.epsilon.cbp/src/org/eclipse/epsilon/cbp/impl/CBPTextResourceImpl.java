@@ -11,26 +11,23 @@ import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 
-public class CBPTextResourceImpl extends CBPResource
-{
+public class CBPTextResourceImpl extends CBPResource {
 	protected EventAdapter eventAdapter;
-    
-    public CBPTextResourceImpl(URI uri)
-	{
+
+	public CBPTextResourceImpl(URI uri) {
 		super(uri);
-		
+
 		eventAdapter = new EventAdapter(changelog);
-		
-		this.eAdapters().add(eventAdapter); 
+
+		this.eAdapters().add(eventAdapter);
 	}
-    
+
 	@Override
-	public void save(Map<?, ?> options) throws IOException
-	{
+	public void save(Map<?, ?> options) throws IOException {
 		if (options.get("debug") != null) {
-			debug = (boolean) options.get("debug");	
+			debug = (boolean) options.get("debug");
 		}
-		
+
 		AbstractCBPSerialiser serialiser = getSerialiser();
 		try {
 			serialiser.serialise(options);
@@ -38,23 +35,21 @@ public class CBPTextResourceImpl extends CBPResource
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	@Override
-	public void load(Map<?, ?> options)throws IOException
-	{
+	public void load(Map<?, ?> options) throws IOException {
 		if (options.get("debug") != null) {
-			debug = (boolean) options.get("debug");	
+			debug = (boolean) options.get("debug");
 		}
 		eventAdapter.setEnabled(false);
-		
+
 		AbstractCBPDeserialiser deserialiser = getDeserialiser();
 		try {
 			deserialiser.deserialise(options);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		eventAdapter.setEnabled(true);
 	}
 
@@ -71,5 +66,5 @@ public class CBPTextResourceImpl extends CBPResource
 		deserialiser.setDebug(debug);
 		return deserialiser;
 	}
-	
+
 }

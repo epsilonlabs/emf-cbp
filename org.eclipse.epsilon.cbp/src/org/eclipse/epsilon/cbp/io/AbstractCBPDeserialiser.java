@@ -7,12 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
@@ -24,86 +22,79 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public abstract class AbstractCBPDeserialiser {
-	
-	//epackage
+
+	// epackage
 
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
-	
+
 	protected EList<EObject> contents;
 
-	//id to eobject
+	// id to eobject
 	protected TIntObjectMap<EObject> IDToEObjectMap = new TIntObjectHashMap<EObject>();
-	
-	//common simple type map (such a bad name)
+
+	// common simple type map (such a bad name)
 	protected TObjectIntMap<String> commonsimpleTypeNameMap;
-	
-	//text simple type name map (again, bad name)
+
+	// text simple type name map (again, bad name)
 	protected TObjectIntMap<String> textSimpleTypeNameMap;
 
-	//model-element id map
+	// model-element id map
 	protected ModelElementIDMap ePackageElementsNamesMap;
-	
+
 	protected CBPResource resource = null;
-	
+
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 
 	protected boolean debug = false;
-	
+
 	public abstract void deserialise(Map<?, ?> options) throws Exception;
-	
+
 	public Resource getResource() {
 		return resource;
 	}
-	
+
 	protected abstract void handleRegisterEPackage(Object entry) throws IOException;
 
 	protected abstract void handleCreateAndAddToResource(Object entry) throws IOException;
+
 	protected abstract void handleRemoveFromResource(Object entry) throws IOException;
-	
+
 	protected abstract void handleSetEAttribute(Object entry) throws IOException;
-	protected abstract void setEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray);
+
 	protected abstract void handleAddToEAttribute(Object entry) throws IOException;
-	protected abstract void addEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray);
-	
+
 	protected abstract void handleRemoveFromEAttribute(Object entry) throws IOException;
-	protected abstract void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray );
-	
-	
+
 	protected abstract void handleSetEReference(Object entry) throws IOException;
-	protected abstract void setEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray);
-	protected abstract void handleCreateAndSetEReference(Object entry) throws IOException; 
-	protected abstract void handleCreateAndAddToEReference(Object entry) throws IOException ;
-	protected abstract void handleAddToEReference(Object entry) throws IOException ;
+
+	protected abstract void handleCreateAndSetEReference(Object entry) throws IOException;
+
+	protected abstract void handleCreateAndAddToEReference(Object entry) throws IOException;
+
+	protected abstract void handleAddToEReference(Object entry) throws IOException;
+
 	protected abstract void handleRemoveFromEReference(Object entry) throws IOException;
-	protected abstract void removeEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray);
-	
-	protected int getTypeID(EDataType type) 
-	{
-		if(commonsimpleTypeNameMap.containsKey(type.getName()))
-    	{
+
+	protected int getTypeID(EDataType type) {
+		if (commonsimpleTypeNameMap.containsKey(type.getName())) {
 			return commonsimpleTypeNameMap.get(type.getName());
-    	}
-		else if(textSimpleTypeNameMap.containsKey(type.getName()))
-		{
+		} else if (textSimpleTypeNameMap.containsKey(type.getName())) {
 			return textSimpleTypeNameMap.get(type.getName());
 		}
-    	
-    	return SimpleType.COMPLEX_TYPE;
+
+		return SimpleType.COMPLEX_TYPE;
 	}
 
-	protected EObject createEObject(String name)
-	{
+	protected EObject createEObject(String name) {
 		String[] tokens = name.split("-");
-		
+
 		EPackage ePackage = getEPackage(tokens[0]);
-		
+
 		return ePackage.getEFactoryInstance().create((EClass) ePackage.getEClassifier(tokens[1]));
 	}
-	
-	protected EPackage getEPackage(String name)
-	{
-		for(EPackage ep: ePackages)
-		{
+
+	protected EPackage getEPackage(String name) {
+		for (EPackage ep : ePackages) {
 			if (ep.getName().equals(name)) {
 				return ep;
 			}
@@ -129,13 +120,11 @@ public abstract class AbstractCBPDeserialiser {
 
 		return output;
 	}
-	
-	protected String getPropertyName(String str)
-	{
+
+	protected String getPropertyName(String str) {
 		String[] index = str.split("-");
 		return index[2];
 	}
-
 
 	// returns everything inbetween []
 	protected String getValueInSquareBrackets(String str) {
@@ -168,7 +157,7 @@ public abstract class AbstractCBPDeserialiser {
 		}
 		return str;
 	}
-	
+
 	public void setDebug(boolean debug) {
 		this.debug = debug;
 	}

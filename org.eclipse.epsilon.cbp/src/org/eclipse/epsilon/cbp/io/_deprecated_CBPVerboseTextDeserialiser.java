@@ -19,19 +19,19 @@ import org.eclipse.epsilon.cbp.impl.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser{
-	
+public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeserialiser {
+
 	public _deprecated_CBPVerboseTextDeserialiser(CBPResource resource) {
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-		
+
 		this.resource = resource;
 		contents = resource.getContents();
 	}
-	
+
 	public void deserialise(Map<?, ?> options) throws Exception {
-		
+
 		BufferedReader br = new BufferedReader(
 				new InputStreamReader(new FileInputStream(resource.getURI().path()), persistenceUtil.STRING_ENCODING));
 
@@ -48,7 +48,8 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			if (st.hasMoreElements())
 				eventType = String.valueOf(st.nextToken());
 
-			//Switches over various event types, calls appropriate handler method
+			// Switches over various event types, calls appropriate handler
+			// method
 			switch (eventType) {
 			case SerialisationEventType.REGISTER_EPACKAGE_VERBOSE:
 				handleRegisterEPackage(line);
@@ -59,15 +60,15 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			case SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE:
 				handleRemoveFromResource(line);
 				break;
-			
+
 			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE_VERBOSE:
 				handleSetEAttribute(line);
 				break;
-				
+
 			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX_VERBOSE:
 				handleSetEAttribute(line);
 				break;
-				
+
 			case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE_VERBOSE:
 				handleAddToEAttribute(line);
 				break;
@@ -91,7 +92,7 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 				break;
 			case SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE:
 				handleAddToEReference(line);
-				break;	
+				break;
 			case SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE:
 				handleRemoveFromEReference(line);
 				break;
@@ -102,58 +103,55 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 		br.close();
 		resource.setResume(true);
 	}
-	
+
 	/*
-	 * event has the format of:
-	 * 0 [(MetaElementTypeID objectID)* (,)*]
+	 * event has the format of: 0 [(MetaElementTypeID objectID)* (,)*]
 	 */
 	protected void handleCreateAndAddToResource(Object entry) {
 		String line = (String) entry;
 
-		//break line into tokens
+		// break line into tokens
 		String[] objToCreateAndAddArray = tokeniseString(getValueInSquareBrackets(line));
 
 		for (String str : objToCreateAndAddArray) {
-			
+
 			String[] stringArray = str.split(" ");
-			
-			//create eobject with the first token
+
+			// create eobject with the first token
 			EObject obj = createEObject(String.valueOf(stringArray[0]));
 
-			//get the object ID with the second token
+			// get the object ID with the second token
 			int id = Integer.valueOf(stringArray[1]);
 
-			//add object to change log
+			// add object to change log
 			resource.addObjectToMap(obj, id);
-			
-			//put to IDToEObjectMap
+
+			// put to IDToEObjectMap
 			IDToEObjectMap.put(id, obj);
 
 			// add to resource contents
 			contents.add(obj);
 		}
 	}
-	
+
 	/*
-	 * event format:
-	 * 2 [EObjectID*]
+	 * event format: 2 [EObjectID*]
 	 */
 
 	protected void handleRemoveFromResource(Object entry) {
 		String line = (String) entry;
 
-		//tokenise string
+		// tokenise string
 		String[] objValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 
-		//for each string, get EBoject and remove from contents
+		// for each string, get EBoject and remove from contents
 		for (String str : objValueStringsArray) {
 			contents.remove(IDToEObjectMap.get(Integer.valueOf(str)));
 		}
 	}
-	
+
 	/*
-	 * event format:
-	 * 3/4 objectID EAttributeID [value*]
+	 * event format: 3/4 objectID EAttributeID [value*]
 	 */
 
 	protected void handleSetEAttribute(Object entry) {
@@ -171,51 +169,40 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 		setEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
 
-	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray)
-	{
-		//get typeID;
+	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray) {
+		// get typeID;
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
 
-		//if is many
-		if (eAttribute.isMany()) 
-		{
+		// if is many
+		if (eAttribute.isMany()) {
 			@SuppressWarnings("unchecked")
-			//feature values
+			// feature values
 			EList<Object> featureValuesList = (EList<Object>) focusObject.eGet(eAttribute);
 
-			//clear since this is set
+			// clear since this is set
 			featureValuesList.clear();
-			
-			//if typeID is complex
-			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
-			{
-				for (String str : featureValuesArray) 
-				{
+
+			// if typeID is complex
+			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) {
+				for (String str : featureValuesArray) {
 					featureValuesList.add(EcoreUtil.createFromString(eAttribute.getEAttributeType(), str));
 				}
-			} 
-			else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
+			} else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
 			{
-				for (String str : featureValuesArray) 
-				{
+				for (String str : featureValuesArray) {
 					featureValuesList.add(convertStringToPrimitive(str, primitiveTypeID));
 				}
 			}
-		} 
-		else 
-		{
-			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
-			{
-				focusObject.eSet(eAttribute, EcoreUtil.createFromString(eAttribute.getEAttributeType(), featureValuesArray[0]));
-			} 
-			else 
-			{
+		} else {
+			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) {
+				focusObject.eSet(eAttribute,
+						EcoreUtil.createFromString(eAttribute.getEAttributeType(), featureValuesArray[0]));
+			} else {
 				focusObject.eSet(eAttribute, convertStringToPrimitive(featureValuesArray[0], primitiveTypeID));
 			}
 		}
 	}
 
-	
 	protected void handleAddToEAttribute(Object entry) {
 		String line = (String) entry;
 
@@ -230,43 +217,35 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 
 		addEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
-	
-	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
-	{
-		//get typeID;
+
+	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray) {
+		// get typeID;
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
 
-		//if is many
-		if (eAttribute.isMany()) 
-		{
+		// if is many
+		if (eAttribute.isMany()) {
 			@SuppressWarnings("unchecked")
-			//feature values
+			// feature values
 			EList<Object> featureValuesList = (EList<Object>) focusObject.eGet(eAttribute);
 
-			//if typeID is complex
-			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
-			{
-				for (String str : featureValuesArray) 
-				{
+			// if typeID is complex
+			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) {
+				for (String str : featureValuesArray) {
 					featureValuesList.add(EcoreUtil.createFromString(eAttribute.getEAttributeType(), str));
 				}
-			} 
-			else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
+			} else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
 			{
-				for (String str : featureValuesArray) 
-				{
+				for (String str : featureValuesArray) {
 					featureValuesList.add(convertStringToPrimitive(str, primitiveTypeID));
 				}
 			}
-		} 
-		else 
-		{
+		} else {
 			System.err.println("adding eattribute values to non-collection: use SetEAttributeEvent");
-			//should not happen
+			// should not happen
 		}
 	}
-	
-	protected void handleRemoveFromEAttribute(Object entry) {	
+
+	protected void handleRemoveFromEAttribute(Object entry) {
 		String line = (String) entry;
 
 		String[] stringArray = line.split(" ");
@@ -280,33 +259,25 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 
 		RemoveEAttributeValues(focusObject, eAttribute, featureValuesArray);
 	}
-	
-	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray )
-	{
+
+	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, String[] featureValuesArray) {
 		int primitiveTypeID = getTypeID(eAttribute.getEAttributeType());
 
-		if (eAttribute.isMany()) 
-		{
+		if (eAttribute.isMany()) {
 			@SuppressWarnings("unchecked")
 			EList<Object> featureValuesList = (EList<Object>) focusObject.eGet(eAttribute);
-			
-			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) 
-			{
-				for (String str : featureValuesArray) 
-				{
+
+			if (primitiveTypeID == SimpleType.COMPLEX_TYPE) {
+				for (String str : featureValuesArray) {
 					featureValuesList.remove(EcoreUtil.createFromString(eAttribute.getEAttributeType(), str));
 				}
-			} 
-			else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
+			} else // primitiveTypeID != PersistenceManager.COMPLEX_TYPE
 			{
-				for (String str : featureValuesArray) 
-				{
+				for (String str : featureValuesArray) {
 					featureValuesList.remove(convertStringToPrimitive(str, primitiveTypeID));
 				}
 			}
-		} 
-		else 
-		{
+		} else {
 			focusObject.eUnset(eAttribute);
 		}
 	}
@@ -322,13 +293,12 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 				.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 
 		String[] featureValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
-		
-		setEReferenceValues(focusObject, eReference,featureValueStringsArray);
+
+		setEReferenceValues(focusObject, eReference, featureValueStringsArray);
 
 	}
-	
-	protected void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
-	{
+
+	protected void setEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray) {
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
@@ -341,43 +311,43 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			focusObject.eSet(eReference, IDToEObjectMap.get(Integer.valueOf(featureValueStringsArray[0])));
 		}
 	}
-	
+
 	protected void handleCreateAndSetEReference(Object entry) {
 		String line = (String) entry;
 
-		//split line
+		// split line
 		String[] stringArray = line.split(" ");
 
-		//create focus object
+		// create focus object
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		//get ereference
+		// get ereference
 		EReference eReference = (EReference) focusObject.eClass()
 				.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 
-		//get values
+		// get values
 		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 
-		//prepare objectToAddList
+		// prepare objectToAddList
 		List<EObject> eObjectToAddList = new ArrayList<EObject>();
 
 		for (String str : refValueStringsArray) {
-			//split string
+			// split string
 			String[] temp = str.split(" ");
 
-			//create obj
+			// create obj
 			EObject obj = createEObject(String.valueOf(temp[0]));
 
-			//get id
+			// get id
 			int id = Integer.valueOf(temp[1]);
 
-			//add obj to change log
+			// add obj to change log
 			resource.addObjectToMap(obj, id);
 
-			//put to IdToObjectMap
+			// put to IdToObjectMap
 			IDToEObjectMap.put(id, obj);
 
-			//add to objectToAddList
+			// add to objectToAddList
 			eObjectToAddList.add(obj);
 		}
 
@@ -385,9 +355,9 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
 
-			//clear because this is set
+			// clear because this is set
 			featureValuesList.clear();
-			
+
 			for (EObject obj : eObjectToAddList) {
 				featureValuesList.add(obj);
 			}
@@ -395,44 +365,44 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			focusObject.eSet(eReference, eObjectToAddList.get(0));
 		}
 	}
-	
+
 	protected void handleCreateAndAddToEReference(Object entry) {
-		
+
 		String line = (String) entry;
 
-		//split line
+		// split line
 		String[] stringArray = line.split(" ");
 
-		//create focus object
+		// create focus object
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		//get ereference
+		// get ereference
 		EReference eReference = (EReference) focusObject.eClass()
 				.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 
-		//get values
+		// get values
 		String[] refValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
 
-		//prepare objectToAddList
+		// prepare objectToAddList
 		List<EObject> eObjectToAddList = new ArrayList<EObject>();
 
 		for (String str : refValueStringsArray) {
-			//split string
+			// split string
 			String[] temp = str.split(" ");
 
-			//create obj
+			// create obj
 			EObject obj = createEObject(String.valueOf(temp[0]));
 
-			//get id
+			// get id
 			int id = Integer.valueOf(temp[1]);
 
-			//add obj to change log
+			// add obj to change log
 			resource.addObjectToMap(obj, id);
 
-			//put to IdToObjectMap
+			// put to IdToObjectMap
 			IDToEObjectMap.put(id, obj);
 
-			//add to objectToAddList
+			// add to objectToAddList
 			eObjectToAddList.add(obj);
 		}
 
@@ -445,12 +415,12 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			}
 		} else {
 			System.err.println("create and add to non-many reference, warning");
-			//should not happen
+			// should not happen
 		}
 	}
-	
+
 	protected void handleAddToEReference(Object entry) {
-		
+
 		String line = (String) entry;
 
 		String[] stringArray = line.split(" ");
@@ -467,9 +437,9 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 		for (String str : refValueStringsArray) {
 
 			int id = Integer.valueOf(str);
-			
+
 			EObject obj = IDToEObjectMap.get(id);
-			
+
 			if (obj == null) {
 				System.err.println("error when handling addToEReference: obj " + id + " not found");
 			}
@@ -486,12 +456,12 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			}
 		} else {
 			System.err.println("add to non-many reference, error, operation not applicable");
-			//this should not happen
-			//focusObject.eSet(eReference, eObjectToAddList.get(0));
+			// this should not happen
+			// focusObject.eSet(eReference, eObjectToAddList.get(0));
 		}
 	}
 
-	protected void handleRemoveFromEReference(Object entry)	{
+	protected void handleRemoveFromEReference(Object entry) {
 		String line = (String) entry;
 
 		String[] stringArray = line.split(" ");
@@ -502,13 +472,12 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 				.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 
 		String[] featureValueStringsArray = tokeniseString(getValueInSquareBrackets(line));
-		
-		removeEReferenceValues(focusObject, eReference,featureValueStringsArray);
+
+		removeEReferenceValues(focusObject, eReference, featureValueStringsArray);
 	}
 
-	
-	protected void removeEReferenceValues(EObject focusObject, EReference eReference, String[] featureValueStringsArray)
-	{
+	protected void removeEReferenceValues(EObject focusObject, EReference eReference,
+			String[] featureValueStringsArray) {
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
@@ -520,51 +489,21 @@ public class _deprecated_CBPVerboseTextDeserialiser extends AbstractCBPDeseriali
 			focusObject.eUnset(eReference);
 		}
 	}
-	
-	protected String getPropertyName(String str)
-	{
+
+	protected String getPropertyName(String str) {
 		String[] index = str.split("-");
 		return index[2];
 	}
-	
+
 	@Override
 	protected void handleRegisterEPackage(Object entry) {
 		String line = (String) entry;
 		int index = line.indexOf(" ");
-		String nsuri = line.substring(index+1, line.length());
+		String nsuri = line.substring(index + 1, line.length());
 		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsuri);
 		ePackages.add(ePackage);
-		//ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(ePackage);
+		// ePackageElementsNamesMap =
+		// persistenceUtil.generateEPackageElementNamesMap(ePackage);
 	}
 
-	@Override
-	protected void setEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void addEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void RemoveEAttributeValues(EObject focusObject, EAttribute eAttribute, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void setEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void removeEReferenceValues(EObject focusObject, EReference eReference, Object[] featureValuesArray) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

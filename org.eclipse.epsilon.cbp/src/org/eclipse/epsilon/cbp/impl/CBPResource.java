@@ -10,96 +10,84 @@ import org.eclipse.epsilon.cbp.util.Changelog;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
-public abstract class CBPResource extends ResourceImpl
-{
+public abstract class CBPResource extends ResourceImpl {
 
 	protected Changelog changelog = new Changelog();
-	
+
 	protected boolean debug = false;
 
 	private boolean resume = false;
-	
-	//eobject to id map
+
+	// eobject to id map
 	protected TObjectIntMap<EObject> eObjToIDMap = new TObjectIntHashMap<EObject>();
 
-	//current id, increases when an object is encountered
-	protected int current_id = 0; 
+	// current id, increases when an object is encountered
+	protected int current_id = 0;
 
-	public CBPResource(URI uri)
-	{
+	public CBPResource(URI uri) {
 		super(uri);
 	}
-	
-	public CBPResource()
-	{
+
+	public CBPResource() {
 	}
-	
+
 	public abstract AbstractCBPSerialiser getSerialiser();
+
 	public abstract AbstractCBPDeserialiser getDeserialiser();
-	
-	
-	public boolean isResume()
-	{
+
+	public boolean isResume() {
 		return resume;
 	}
-	
+
 	public void setResume(boolean resume) {
 		this.resume = resume;
 	}
-	
+
 	public void setChangelog(Changelog changelog) {
 		this.changelog = changelog;
 	}
-	
-	//add object to map, return false if object exists
-	public boolean addObjectToMap(EObject obj)
-	{
-		//if obj is not in the map
-		if(!eObjToIDMap.containsKey(obj))
-		{
-			//put current id 
+
+	// add object to map, return false if object exists
+	public boolean addObjectToMap(EObject obj) {
+		// if obj is not in the map
+		if (!eObjToIDMap.containsKey(obj)) {
+			// put current id
 			eObjToIDMap.put(obj, current_id);
-			
-			//increase current id
-			current_id = current_id +1;
+
+			// increase current id
+			current_id = current_id + 1;
 			return true;
 		}
 		return false;
 	}
-	
-	//add object to map with a specific id
-	public boolean addObjectToMap(EObject obj, int id)
-	{
-		//if obj is not in the map
-		if(!eObjToIDMap.containsKey(obj))
-		{
-			//put id
+
+	// add object to map with a specific id
+	public boolean addObjectToMap(EObject obj, int id) {
+		// if obj is not in the map
+		if (!eObjToIDMap.containsKey(obj)) {
+			// put id
 			eObjToIDMap.put(obj, id);
-			
-			//if current id is less than id, set current id
-			if(id >= current_id)
-			{
+
+			// if current id is less than id, set current id
+			if (id >= current_id) {
 				current_id = id + 1;
 			}
 			return true;
 		}
 		return false;
 	}
-	
-	//get the object id based on obj
-	public int getObjectId(EObject obj)
-	{
-		if(!eObjToIDMap.containsKey(obj))
-		{
+
+	// get the object id based on obj
+	public int getObjectId(EObject obj) {
+		if (!eObjToIDMap.containsKey(obj)) {
 			System.out.println("ChangeLog: search returned false");
 			System.exit(0);
 		}
 		return eObjToIDMap.get(obj);
 	}
-	
+
 	public Changelog getChangelog() {
 		return changelog;
 	}
 
-	
 }
