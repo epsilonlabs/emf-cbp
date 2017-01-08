@@ -12,6 +12,7 @@ import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 
 public class CBPTextResourceImpl extends CBPResource {
+	
 	protected EventAdapter eventAdapter;
 
 	public CBPTextResourceImpl(URI uri) {
@@ -49,8 +50,6 @@ public class CBPTextResourceImpl extends CBPResource {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		eventAdapter.setEnabled(true);
 	}
 
 	@Override

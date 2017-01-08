@@ -160,7 +160,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			// if new
 			if (resource.addObjectToMap(obj)) {
 				// add add type id
-				eObjectsToCreateList.add(ePackageElementsNamesMap.getID(obj.eClass().getName()));
+				eObjectsToCreateList.add(getID(obj.eClass()));
 
 				// add object id
 				eObjectsToCreateList.add(resource.getObjectId(obj));
