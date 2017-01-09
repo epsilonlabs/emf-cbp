@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %pluginName
+Bundle-Name: EMF-CBP test suite
 Bundle-SymbolicName: org.eclipse.epsilon.cbp.test;singleton:=true
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.1.0
 Bundle-ClassPath: .
-Bundle-Vendor: %providerName
+Bundle-Vendor: University of York
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: university,
