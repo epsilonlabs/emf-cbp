@@ -39,7 +39,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		InputStream inputStream = new BufferedInputStream(new FileInputStream(resource.getURI().path()));
 
 		/* Read File Header */
-		inputStream.skip(11); // skip file header
+		inputStream.skip(15); // skip file header
 
 		/* Read binary records */
 		while (inputStream.available() > 0) {
@@ -88,37 +88,6 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 				break;
 			default:
 				break;
-
-			// case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
-			// handleCreateAndAddToResource(inputStream);
-			// break;
-			// case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
-			// handeCreateAndSetEReferenceValue(inputStream);
-			// break;
-			// case SerialisationEventType.ADD_TO_RESOURCE:
-			// handleAddToResource(inputStream);
-			// break;
-			// case SerialisationEventType.REMOVE_FROM_RESOURCE:
-			// handleRemoveFromResource(inputStream);
-			// break;
-			// case SerialisationEventType.SET_EREFERENCE:
-			// handleEReferenceEvent(inputStream,true);
-			// break;
-			// case SerialisationEventType.REMOVE_FROM_EREFERENCE:
-			// handleEReferenceEvent(inputStream,false);
-			// break;
-			// case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
-			// handleComplexEAttributeType(inputStream,true);
-			// break;
-			// case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
-			// handleComplexEAttributeType(inputStream,false);
-			// break;
-			// case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
-			// handlePrimitiveEAttributeType(inputStream, true);
-			// break;
-			// case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
-			// handlePrimitiveEAttributeType(inputStream,false);
-			// break;
 			}
 		}
 
@@ -232,7 +201,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 		int dataType = getTypeID(eDataType);
 
-		if (dataType != SimpleType.COMPLEX_TYPE) {
+		if (dataType == SimpleType.COMPLEX_TYPE || dataType == SimpleType.TEXT_SIMPLE_TYPE_ESTRING) {
 
 			int numStrings = readInt(in);
 
@@ -326,7 +295,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 		int dataType = getTypeID(eDataType);
 
-		if (dataType != SimpleType.COMPLEX_TYPE) {
+		if (dataType == SimpleType.COMPLEX_TYPE || dataType == SimpleType.TEXT_SIMPLE_TYPE_ESTRING) {
 
 			int numStrings = readInt(in);
 
@@ -534,7 +503,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 
 		EReference ref = (EReference) focusObject.eClass()
-				.getEStructuralFeature(ePackageElementsNamesMap.getName(readInt(in)));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
 
 		int numInts = readInt(in);
 
@@ -595,7 +564,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 
 		EReference ref = (EReference) focusObject.eClass()
-				.getEStructuralFeature(ePackageElementsNamesMap.getName(readInt(in)));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
 
 		int numInts = readInt(in);
 

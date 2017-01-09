@@ -189,7 +189,6 @@ public class BinaryDeserialiserTest {
 			resource1.save(getOptions());
 			resource2.load(getOptions());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

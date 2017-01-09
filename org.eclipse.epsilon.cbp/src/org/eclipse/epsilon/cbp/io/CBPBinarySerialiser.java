@@ -213,9 +213,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
 		// get data type
 		EDataType eDataType = eAttribute.getEAttributeType();
-
-		if (getTypeID(eDataType) != SimpleType.COMPLEX_TYPE) {
-			switch (getTypeID(eDataType)) {
+		
+		int typeID = getTypeID(eDataType);
+		if (typeID != SimpleType.COMPLEX_TYPE) {
+			switch (typeID) {
 			case SimpleType.SIMPLE_TYPE_INT:
 				setPrimitiveEAttributes(e, stream, SimpleType.SIMPLE_TYPE_INT);
 				return;
@@ -236,6 +237,9 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 				return;
 			case SimpleType.SIMPLE_TYPE_CHAR:
 				setPrimitiveEAttributes(e, stream, SimpleType.SIMPLE_TYPE_CHAR);
+				return;
+			case SimpleType.TEXT_SIMPLE_TYPE_ESTRING:
+				setPrimitiveEAttributes(e, stream, SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
 				return;
 			}
 		} else {
@@ -278,6 +282,9 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 				return;
 			case SimpleType.SIMPLE_TYPE_CHAR:
 				addPrimitiveEAttributes(e, stream, SimpleType.SIMPLE_TYPE_CHAR);
+				return;
+			case SimpleType.TEXT_SIMPLE_TYPE_ESTRING:
+				setPrimitiveEAttributes(e, stream, SimpleType.TEXT_SIMPLE_TYPE_ESTRING);
 				return;
 			}
 		} else {
@@ -513,7 +520,12 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
 		for (Object obj : eAttributeValuesList) {
 			if (obj != null) {
-				writePrimitive(out, primitiveType, obj);
+				if (primitiveType == SimpleType.TEXT_SIMPLE_TYPE_ESTRING ) {
+					writeString(out, (String) obj);
+				}
+				else {
+					writePrimitive(out, primitiveType, obj);	
+				}
 			}
 		}
 	}
@@ -536,7 +548,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
 		writePrimitive(out, serializationType);
 		writePrimitive(out, resource.getObjectId(focusObject));
-		writePrimitive(out, ePackageElementsNamesMap.getID(eAttribute.getName()));
+		writePrimitive(out, getID(focusObject.eClass(), eAttribute));
 		int size = 0;
 		for (Object obj : eAttributeValuesList) {
 			if (obj != null) {
@@ -562,7 +574,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
 		writePrimitive(out, serializationType);
 		writePrimitive(out, resource.getObjectId(focusObject));
-		writePrimitive(out, ePackageElementsNamesMap.getID(eAttribute.getName()));
+		writePrimitive(out, getID(focusObject.eClass(), eAttribute));
 		int size = 0;
 		for (Object obj : eAttributeValuesList) {
 			if (obj != null) {
