@@ -13,8 +13,8 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.epsilon.cbp.impl.CBPResource;
-import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
+import org.eclipse.epsilon.cbp.resource.CBPResource;
+import org.eclipse.epsilon.cbp.resource.CBPTextResourceImpl;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.junit.Test;
 

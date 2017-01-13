@@ -31,8 +31,8 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.epsilon.cbp.impl.CBPResource;
-import org.eclipse.epsilon.cbp.impl.CBPTextResourceImpl;
+import org.eclipse.epsilon.cbp.resource.CBPResource;
+import org.eclipse.epsilon.cbp.resource.CBPTextResourceImpl;
 import org.junit.Test;
 
 import university.Department;

@@ -31,8 +31,8 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.epsilon.cbp.impl.CBPBinaryResourceImpl;
-import org.eclipse.epsilon.cbp.impl.CBPResource;
+import org.eclipse.epsilon.cbp.resource.CBPBinaryResourceImpl;
+import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.junit.Test;
 
 import university.Department;
@@ -524,7 +524,7 @@ public class BinaryDeserialiserTest {
 
 		university.setChancelor(null);
 
-		resource1.getChangelog().printLog();
+		//resource1.getChangelog().printLog();
 
 		CBPResource resource2 = new CBPBinaryResourceImpl(
 				URI.createFileURI(new File("model/test.cbpbin").getAbsolutePath()));

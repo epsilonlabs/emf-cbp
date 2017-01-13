@@ -1,5 +1,5 @@
 
-package org.eclipse.epsilon.cbp.impl;
+package org.eclipse.epsilon.cbp.resource;
 
 import java.io.IOException;
 import java.util.Map;
@@ -12,7 +12,7 @@ import org.eclipse.epsilon.cbp.io.CBPTextDeserialiser;
 import org.eclipse.epsilon.cbp.io.CBPTextSerialiser;
 
 public class CBPTextResourceImpl extends CBPResource {
-	
+
 	protected EventAdapter eventAdapter;
 
 	public CBPTextResourceImpl(URI uri) {
@@ -39,16 +39,24 @@ public class CBPTextResourceImpl extends CBPResource {
 
 	@Override
 	public void load(Map<?, ?> options) throws IOException {
-		if (options.get("debug") != null) {
-			debug = (boolean) options.get("debug");
+		boolean defaultLoading = false;
+		if (options.get("DEFAULT_LOADING") != null) {
+			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
 		}
-		eventAdapter.setEnabled(false);
+		if (defaultLoading) {
+			super.load(options);
+		} else {
+			if (options.get("debug") != null) {
+				debug = (boolean) options.get("debug");
+			}
+			eventAdapter.setEnabled(false);
 
-		AbstractCBPDeserialiser deserialiser = getDeserialiser();
-		try {
-			deserialiser.deserialise(options);
-		} catch (Exception e) {
-			e.printStackTrace();
+			AbstractCBPDeserialiser deserialiser = getDeserialiser();
+			try {
+				deserialiser.deserialise(options);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

@@ -4,11 +4,12 @@ Bundle-Name: EMF Change Based Persistence
 Bundle-SymbolicName: org.eclipse.epsilon.cbp; singleton:=true
 Bundle-Version: 0.1.0
 Require-Bundle: org.eclipse.emf.ecore,
- org.junit
+ org.junit,
+ org.eclipse.emf.ecore.xmi
 Export-Package: org.eclipse.epsilon.cbp.event,
  org.eclipse.epsilon.cbp.exceptions,
- org.eclipse.epsilon.cbp.impl,
  org.eclipse.epsilon.cbp.io,
+ org.eclipse.epsilon.cbp.resource,
  org.eclipse.epsilon.cbp.resource.to.events,
  org.eclipse.epsilon.cbp.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

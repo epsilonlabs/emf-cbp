@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.impl;
+package org.eclipse.epsilon.cbp.resource;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,13 +34,22 @@ public class CBPBinaryResourceImpl extends CBPResource {
 
 	@Override
 	public void load(Map<?, ?> options) throws IOException {
-		eventAdapter.setEnabled(false);
+		boolean defaultLoading = false;
+		if (options.get("DEFAULT_LOADING") != null) {
+			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
+		}
+		if (defaultLoading) {
+			super.load(options);
+		}
+		else {
+			eventAdapter.setEnabled(false);
 
-		AbstractCBPDeserialiser deserialiser = getDeserialiser();
-		try {
-			deserialiser.deserialise(options);
-		} catch (Exception e) {
-			e.printStackTrace();
+			AbstractCBPDeserialiser deserialiser = getDeserialiser();
+			try {
+				deserialiser.deserialise(options);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

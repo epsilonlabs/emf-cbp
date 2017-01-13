@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.impl;
+package org.eclipse.epsilon.cbp.resource;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
