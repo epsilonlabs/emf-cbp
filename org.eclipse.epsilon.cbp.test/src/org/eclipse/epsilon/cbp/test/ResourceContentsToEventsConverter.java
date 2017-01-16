@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.resource.to.events;
+package org.eclipse.epsilon.cbp.test;
 
 import java.util.ArrayList;
 import java.util.Collection;

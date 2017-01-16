@@ -80,8 +80,7 @@ public abstract class CBPResource extends ResourceImpl {
 	// get the object id based on obj
 	public int getObjectId(EObject obj) {
 		if (!eObjToIDMap.containsKey(obj)) {
-			System.out.println("ChangeLog: search returned false");
-			System.exit(0);
+			System.err.println("ChangeLog: search returned false");
 		}
 		return eObjToIDMap.get(obj);
 	}
