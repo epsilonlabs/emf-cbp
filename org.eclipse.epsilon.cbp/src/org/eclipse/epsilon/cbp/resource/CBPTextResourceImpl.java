@@ -25,8 +25,8 @@ public class CBPTextResourceImpl extends CBPResource {
 
 	@Override
 	public void save(Map<?, ?> options) throws IOException {
-		if (options.get("debug") != null) {
-			debug = (boolean) options.get("debug");
+		if (options.get("verbose") != null) {
+			verbose = (boolean) options.get("verbose");
 		}
 
 		AbstractCBPSerialiser serialiser = getSerialiser();
@@ -46,8 +46,8 @@ public class CBPTextResourceImpl extends CBPResource {
 		if (defaultLoading) {
 			super.load(options);
 		} else {
-			if (options.get("debug") != null) {
-				debug = (boolean) options.get("debug");
+			if (options.get("verbose") != null) {
+				verbose = (boolean) options.get("verbose");
 			}
 			eventAdapter.setEnabled(false);
 
@@ -63,14 +63,14 @@ public class CBPTextResourceImpl extends CBPResource {
 	@Override
 	public AbstractCBPSerialiser getSerialiser() {
 		CBPTextSerialiser serialiser = new CBPTextSerialiser(this);
-		serialiser.setDebug(debug);
+		serialiser.setDebug(verbose);
 		return serialiser;
 	}
 
 	@Override
 	public AbstractCBPDeserialiser getDeserialiser() {
 		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(this);
-		deserialiser.setDebug(debug);
+		deserialiser.setDebug(verbose);
 		return deserialiser;
 	}
 

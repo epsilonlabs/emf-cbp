@@ -14,7 +14,7 @@ public abstract class CBPResource extends ResourceImpl {
 
 	protected Changelog changelog = new Changelog();
 
-	protected boolean debug = false;
+	protected boolean verbose = false;
 
 	private boolean resume = false;
 

@@ -75,5 +75,4 @@ public class XMItoCBPConverter {
 			System.out.println(iter.next());
 		}
 	}
-	
 }

@@ -45,7 +45,7 @@ public abstract class AbstractCBPDeserialiser {
 
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 
-	protected boolean debug = false;
+	protected boolean verbose = false;
 
 	public abstract void deserialise(Map<?, ?> options) throws Exception;
 
@@ -159,6 +159,6 @@ public abstract class AbstractCBPDeserialiser {
 	}
 
 	public void setDebug(boolean debug) {
-		this.debug = debug;
+		this.verbose = debug;
 	}
 }

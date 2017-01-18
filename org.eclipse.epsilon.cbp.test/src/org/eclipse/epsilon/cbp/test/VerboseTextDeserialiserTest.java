@@ -563,7 +563,7 @@ public class VerboseTextDeserialiserTest {
 		Map<String, Object> options = new HashMap<String, Object>();
 		File f = new File("model/test.txt");
 		options.put("path", f.getAbsolutePath());
-		options.put("debug", true);
+		options.put("verbose", true);
 		return options;
 	}
 

@@ -43,7 +43,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			// System.out.println(line);
 			StringTokenizer st = new StringTokenizer(line);
 
-			if (debug) {
+			if (verbose) {
 				String eventType = null;
 
 				if (st.hasMoreElements())
@@ -172,7 +172,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			String[] stringArray = str.split(" ");
 
 			EObject obj = null;
-			if (debug) {
+			if (verbose) {
 				// create eobject with the first token
 				obj = createEObject(String.valueOf(stringArray[0]));
 			} else {
@@ -223,7 +223,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EAttribute eAttribute = null;
-		if (debug) {
+		if (verbose) {
 			eAttribute = (EAttribute) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 		} else {
@@ -247,7 +247,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EAttribute eAttribute = null;
 
-		if (debug) {
+		if (verbose) {
 			eAttribute = (EAttribute) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 		} else {
@@ -271,7 +271,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EAttribute eAttribute = null;
 
-		if (debug) {
+		if (verbose) {
 			eAttribute = (EAttribute) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 		} else {
@@ -294,7 +294,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
 		EReference eReference = null;
-		if (debug) {
+		if (verbose) {
 			eReference = (EReference) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 		} else {
@@ -320,7 +320,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EReference eReference = null;
 
-		if (debug) {
+		if (verbose) {
 			// get ereference
 			eReference = (EReference) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
@@ -342,7 +342,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 			EObject obj = null;
 
-			if (debug) {
+			if (verbose) {
 				// create obj
 				obj = createEObject(String.valueOf(temp[0]));
 			} else {
@@ -389,7 +389,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EReference eReference = null;
 
-		if (debug) {
+		if (verbose) {
 			// get ereference
 			eReference = (EReference) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
@@ -411,7 +411,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 			EObject obj = null;
 
-			if (debug) {
+			if (verbose) {
 				// create obj
 				obj = createEObject(String.valueOf(temp[0]));
 			} else {
@@ -455,7 +455,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EReference eReference = null;
 
-		if (debug) {
+		if (verbose) {
 			eReference = (EReference) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 		} else {
@@ -504,7 +504,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EReference eReference = null;
 
-		if (debug) {
+		if (verbose) {
 			eReference = (EReference) focusObject.eClass()
 					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
 		} else {
