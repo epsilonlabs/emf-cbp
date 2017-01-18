@@ -51,7 +51,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			return;
 		}
 
-		if (options.get("ePackage") != null) {
+		if (options != null && options.get("ePackage") != null) {
 			ePackageElementsNamesMap = persistenceUtil
 					.generateEPackageElementNamesMap((EPackage) options.get("ePackage"));
 		}

@@ -25,7 +25,7 @@ public class CBPTextResourceImpl extends CBPResource {
 
 	@Override
 	public void save(Map<?, ?> options) throws IOException {
-		if (options.get("verbose") != null) {
+		if (options != null && options.get("verbose") != null) {
 			verbose = (boolean) options.get("verbose");
 		}
 

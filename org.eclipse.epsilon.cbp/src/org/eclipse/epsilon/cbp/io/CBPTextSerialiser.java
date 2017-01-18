@@ -60,7 +60,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		// setup printwriter
 		try {
 			BufferedWriter bw = null;
-			if (options.get("path") != null) {
+			if (options != null && options.get("path") != null) {
 				bw = new BufferedWriter(
 						new OutputStreamWriter(new FileOutputStream((String) options.get("path"), resource.isResume()),
 								persistenceUtil.STRING_ENCODING));
