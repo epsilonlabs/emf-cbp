@@ -80,7 +80,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 		// if we're not in resume mode, serialise initial entry
 		if (!resource.isResume())
-			serialiseHeader(printWriter);
+			try {
+				serialiseHeader(printWriter);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 		for (Event e : eventList) {
 			switch (e.getEventType()) {
@@ -580,7 +585,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	}
 
 	@Override
-	protected void serialiseHeader(Closeable out) {
+	protected void serialiseHeader(Closeable out) throws Exception {
 
 		PrintWriter writer = (PrintWriter) out;
 
@@ -595,16 +600,14 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		} else // throw tantrum
 		{
 			try {
-				System.err.println("CBPTextSerialiser: " + e.getEventType());
-				throw new Exception("Error! first item in events list is not a EPackageRegistrationEvent.");
+				throw new Exception("First item in the events list is not a EPackageRegistrationEvent.");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				// FIXME rethrow?
 			}
 		}
 		if (ePackage == null) {
 			System.err.println("CBPTextSerialiser: " + e.getEventType());
-			// FIXME throw exception here?
+			throw new Exception("Event contains no EPackage");
 		}
 
 		writer.println(getFormatID() + " " + getVersion());

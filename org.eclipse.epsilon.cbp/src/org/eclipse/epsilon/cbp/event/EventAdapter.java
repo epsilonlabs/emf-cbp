@@ -225,14 +225,19 @@ public class EventAdapter extends EContentAdapter {
 		case Notification.REMOVE_MANY: {
 			@SuppressWarnings("unchecked")
 			List<Object> list = (List<Object>) n.getOldValue();
-			if (list.get(0) instanceof EObject) {
-				if (n.getNotifier() instanceof Resource) {
-					changelog.addEvent(new RemoveFromResourceEvent(n));
-				} else if (n.getNotifier() instanceof EObject) {
-					changelog.addEvent(new RemoveFromEReferenceEvent(n));
+			if (list.size() == 0) {
+				
+			}
+			else {
+				if (list.get(0) instanceof EObject) {
+					if (n.getNotifier() instanceof Resource) {
+						changelog.addEvent(new RemoveFromResourceEvent(n));
+					} else if (n.getNotifier() instanceof EObject) {
+						changelog.addEvent(new RemoveFromEReferenceEvent(n));
+					}
+				} else if (n.getFeature() instanceof EAttribute) {
+					changelog.addEvent(new RemoveFromEAttributeEvent(n));
 				}
-			} else if (n.getFeature() instanceof EAttribute) {
-				changelog.addEvent(new RemoveFromEAttributeEvent(n));
 			}
 			break;
 		}
