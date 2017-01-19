@@ -237,8 +237,7 @@ public class EventAdapter extends EContentAdapter {
 			break;
 		}
 		default: {
-			System.out.println("EventAdapter: Unhandled notification!" + n.toString());
-			System.exit(0);
+			System.err.println("EventAdapter: Unhandled notification!" + n.toString());
 			break;
 		}
 		}

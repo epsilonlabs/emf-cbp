@@ -75,7 +75,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			printWriter = new PrintWriter(bw);
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.exit(0);
+			throw e;
 		}
 
 		// if we're not in resume mode, serialise initial entry
@@ -599,12 +599,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 				throw new Exception("Error! first item in events list is not a EPackageRegistrationEvent.");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				System.exit(0);
+				// FIXME rethrow?
 			}
 		}
 		if (ePackage == null) {
-			System.out.println("CBPTextSerialiser: " + e.getEventType());
-			System.exit(0);
+			System.err.println("CBPTextSerialiser: " + e.getEventType());
+			// FIXME throw exception here?
 		}
 
 		writer.println(getFormatID() + " " + getVersion());

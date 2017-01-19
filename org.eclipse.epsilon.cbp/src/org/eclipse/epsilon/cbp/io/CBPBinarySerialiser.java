@@ -123,20 +123,20 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 				System.err.println("CBPTextSerialiser: " + e.getEventType());
 				throw new Exception("Error! first item in events list is not a EPackageRegistrationEvent.");
 			} catch (Exception e1) {
+				// FIXME this should be actually thrown!
 				e1.printStackTrace();
-				System.exit(0);
 			}
 		}
 
 		if (ePackage == null) {
-			System.out.println("CBPTextSerialiser: " + e.getEventType());
-			System.exit(0);
+			System.err.println("CBPTextSerialiser: " + e.getEventType());
 		}
 		try {
 			stream.write(getFormatID().getBytes(persistenceUtil.STRING_ENCODING));
 			writePrimitive(stream, getVersion()); // FORMAT VERSION
 		} catch (IOException e1) {
 			e1.printStackTrace();
+			// FIXME this should be rethrown!
 		}
 	}
 
