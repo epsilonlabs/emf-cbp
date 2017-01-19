@@ -560,6 +560,7 @@ public class TextSerialiserTest {
 		Map<String, Object> options = new HashMap<String, Object>();
 		File f = new File("model/test.txt");
 		options.put("path", f.getAbsolutePath());
+		options.put("verbose", false);
 		return options;
 	}
 
