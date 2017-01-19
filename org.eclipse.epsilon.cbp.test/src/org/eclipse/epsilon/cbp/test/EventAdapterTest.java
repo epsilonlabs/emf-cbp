@@ -106,7 +106,30 @@ public class EventAdapterTest {
 	}
 
 	@Test
-	public void removeFromReferenceTest() {
+	public void removeFromReferenceTest_zero() {
+
+		EventAdapter adapter = new EventAdapter(new Changelog());
+
+		Resource resource = new ResourceImpl();
+
+		resource.eAdapters().add(adapter);
+
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		University university = factory.createUniversity();
+
+		resource.getContents().add(university);
+
+		EClass eClass_University = (EClass) UniversityPackage.eINSTANCE.getEClassifier("University");
+		EReference departments = (EReference) eClass_University.getEStructuralFeature("departments");
+		university.eUnset(departments);
+
+		Changelog changelog = adapter.getChangelog();
+		
+		assertEquals(changelog.getEventsList().size(), 2);
+	}
+	
+	@Test
+	public void removeFromReferenceTest_one() {
 
 		EventAdapter adapter = new EventAdapter(new Changelog());
 
@@ -129,6 +152,34 @@ public class EventAdapterTest {
 		Changelog changelog = adapter.getChangelog();
 
 		assertEquals(changelog.getEventsList().get(3).getEventType(), Event.REMOVE_FROM_EREFERENCE);
+	}
+	
+	@Test
+	public void removeFromReferenceTest_two() {
+
+		EventAdapter adapter = new EventAdapter(new Changelog());
+
+		Resource resource = new ResourceImpl();
+
+		resource.eAdapters().add(adapter);
+
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		University university = factory.createUniversity();
+
+		resource.getContents().add(university);
+
+		Department cs = factory.createDepartment();
+		Department cs2 = factory.createDepartment();
+		university.getDepartments().add(cs);
+		university.getDepartments().add(cs2);
+
+		EClass eClass_University = (EClass) UniversityPackage.eINSTANCE.getEClassifier("University");
+		EReference departments = (EReference) eClass_University.getEStructuralFeature("departments");
+		university.eUnset(departments);
+
+		Changelog changelog = adapter.getChangelog();
+
+		assertEquals(changelog.getEventsList().get(4).getEventType(), Event.REMOVE_FROM_EREFERENCE);
 	}
 
 	@Test
