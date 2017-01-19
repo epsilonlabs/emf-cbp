@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
@@ -32,8 +33,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 	public void deserialise(Map<?, ?> options) throws Exception {
 
+		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
+
 		BufferedReader br = new BufferedReader(
-				new InputStreamReader(new FileInputStream(resource.getURI().path()), persistenceUtil.STRING_ENCODING));
+				new InputStreamReader(new FileInputStream(filePath), persistenceUtil.STRING_ENCODING));
 
 		String line;
 

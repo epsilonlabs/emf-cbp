@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
@@ -55,9 +56,11 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			ePackageElementsNamesMap = persistenceUtil
 					.generateEPackageElementNamesMap((EPackage) options.get("ePackage"));
 		}
+		
+		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
 
 		OutputStream outputStream = new BufferedOutputStream(
-				new FileOutputStream(resource.getURI().path(), resource.isResume()));
+				new FileOutputStream(filePath, resource.isResume()));
 
 		if (!resource.isResume())
 			serialiseHeader(outputStream);

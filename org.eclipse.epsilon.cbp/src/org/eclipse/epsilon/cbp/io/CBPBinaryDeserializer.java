@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
@@ -36,7 +37,9 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 	@Override
 	public void deserialise(Map<?, ?> options) throws Exception {
-		InputStream inputStream = new BufferedInputStream(new FileInputStream(resource.getURI().path()));
+		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
+
+		InputStream inputStream = new BufferedInputStream(new FileInputStream(filePath));
 
 		/* Read File Header */
 		inputStream.skip(15); // skip file header

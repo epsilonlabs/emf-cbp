@@ -21,6 +21,8 @@ public class CBPTextResourceImpl extends CBPResource {
 		eventAdapter = new EventAdapter(changelog);
 
 		this.eAdapters().add(eventAdapter);
+		
+		verbose = true;
 	}
 
 	@Override
@@ -28,7 +30,7 @@ public class CBPTextResourceImpl extends CBPResource {
 		if (options != null && options.get("verbose") != null) {
 			verbose = (boolean) options.get("verbose");
 		}
-
+		
 		AbstractCBPSerialiser serialiser = getSerialiser();
 		try {
 			serialiser.serialise(options);
