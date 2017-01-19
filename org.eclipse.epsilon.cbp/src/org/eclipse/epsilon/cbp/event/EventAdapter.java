@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -25,6 +26,8 @@ public class EventAdapter extends EContentAdapter {
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 	
 	protected EPackage currentEPackage = null;
+	
+	private HashSet<EObject> processedEObjects = new HashSet<EObject>();
 
 	// constructor
 	public EventAdapter(Changelog aChangelog) {
@@ -53,34 +56,22 @@ public class EventAdapter extends EContentAdapter {
 				if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
 					// create add to resource event
 					EObject newValue = (EObject) n.getNewValue();
+					
+					//if EPackage is not registered before, add event
 					EPackage ePackage = newValue.eClass().getEPackage();
 					handleEPackage(ePackage);
+					
+					//add AddEObjectsTOResourceEvent
 					changelog.addEvent(new AddEObjectsToResourceEvent(n));
-					for (EStructuralFeature feature : newValue.eClass().getEAllStructuralFeatures()) {
-						if (newValue.eIsSet(feature)) {
-							if (feature instanceof EAttribute) {
-								if (feature.isMany()) {
-									changelog.addEvent(new AddToEAttributeEvent(newValue, (EAttribute) feature,
-											newValue.eGet(feature)));
-								} else {
-									changelog.addEvent(new SetEAttributeEvent(newValue, (EAttribute) feature,
-											newValue.eGet(feature)));
-								}
-							}
-							if (feature instanceof EReference) {
-								if (feature.isMany()) {
-									changelog.addEvent(new AddToEReferenceEvent(newValue, (EReference) feature,
-											newValue.eGet(feature)));
-								} else {
-									changelog.addEvent(new SetEReferenceEvent(newValue, (EReference) feature,
-											newValue.eGet(feature)));
-								}
-							}
-						}
-					}
+					
+					//handle properties recursively
+					handleEObject(newValue);
 				}
 			} else if (n.getNotifier() instanceof EObject) {
 				if (n.getFeature() != null) {
+					//add to processedEObjects
+					processedEObjects.add((EObject) n.getNotifier());
+					
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 					if (feature instanceof EAttribute) {
 						if (feature.isMany()) {
@@ -94,10 +85,20 @@ public class EventAdapter extends EContentAdapter {
 					} else if (n.getFeature() instanceof EReference) {
 						if (feature.isMany()) {
 							// create add to reference event
-							changelog.addEvent(new AddToEReferenceEvent(n));	
+							changelog.addEvent(new AddToEReferenceEvent(n));
+							
+							EObject obj = (EObject) n.getNotifier();
+							EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
+							for(EObject eObject: eList)
+							{
+								handleEObject(eObject);
+							}
 						}
 						else {
 							changelog.addEvent(new SetEReferenceEvent(n));
+							EObject obj = (EObject) n.getNotifier();
+							EObject eObject = (EObject) obj.eGet(feature);
+							handleEObject(eObject);
 						}
 					}
 				}
@@ -110,41 +111,37 @@ public class EventAdapter extends EContentAdapter {
 		}
 
 		case Notification.UNSET: {
-			System.err.println("this is called");
+			if (n.getNotifier() instanceof EObject) {
+				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
+				if (feature != null) {
+					if (feature instanceof EAttribute) {
+						changelog.addEvent(new RemoveFromEAttributeEvent(n));
+					}
+					else if (feature instanceof EReference) {
+						changelog.addEvent(new RemoveFromEReferenceEvent(n));
+					}
+				}
+			}
+			break;
 		}
 
 		// if event is SET
 		case Notification.SET: {
+			
 			if (n.getNotifier() instanceof Resource) {
 				if (n.getNewValue() != null) {
 					if (n.getNewValue() instanceof EObject) {
 						EObject newValue = (EObject) n.getNewValue();
+						
+						//if EPackage is not registered before, add event
 						EPackage ePackage = newValue.eClass().getEPackage();
 						handleEPackage(ePackage);
+						
+						//create addEObjectsToResourceEvent
 						changelog.addEvent(new AddEObjectsToResourceEvent(n));
 
-						for (EStructuralFeature feature : newValue.eClass().getEAllStructuralFeatures()) {
-							if (newValue.eIsSet(feature)) {
-								if (feature instanceof EAttribute) {
-									if (feature.isMany()) {
-										changelog.addEvent(new AddToEAttributeEvent(newValue, (EAttribute) feature,
-												newValue.eGet(feature)));
-									} else {
-										changelog.addEvent(new SetEAttributeEvent(newValue, (EAttribute) feature,
-												newValue.eGet(feature)));
-									}
-								}
-								if (feature instanceof EReference) {
-									if (feature.isMany()) {
-										changelog.addEvent(new AddToEReferenceEvent(newValue, (EReference) feature,
-												newValue.eGet(feature)));
-									} else {
-										changelog.addEvent(new SetEReferenceEvent(newValue, (EReference) feature,
-												newValue.eGet(feature)));
-									}
-								}
-							}
-						}
+						//handle properties recursively
+						handleEObject(newValue);
 					}
 				}
 				else {
@@ -152,6 +149,8 @@ public class EventAdapter extends EContentAdapter {
 				}
 			}
 			else if (n.getNotifier() instanceof EObject) {
+				processedEObjects.add((EObject) n.getNotifier());
+
 				if (n.getNewValue() != null) {
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 					if (feature != null) {
@@ -167,10 +166,20 @@ public class EventAdapter extends EContentAdapter {
 						}
 						else if (feature instanceof EReference) {
 							if (feature.isMany()) {
-								changelog.addEvent(new AddToEReferenceEvent(n));	
+								changelog.addEvent(new AddToEReferenceEvent(n));
+								EObject obj = (EObject) n.getNotifier();
+								EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
+								for(EObject eObject: eList)
+								{
+									handleEObject(eObject);
+								}
+
 							}
 							else {
 								changelog.addEvent(new SetEReferenceEvent(n));
+								EObject obj = (EObject) n.getNotifier();
+								EObject eObject = (EObject) obj.eGet(feature);
+								handleEObject(eObject);
 							}
 						}
 					}
@@ -192,6 +201,8 @@ public class EventAdapter extends EContentAdapter {
 
 		// if event is add many
 		case Notification.ADD_MANY: {
+			processedEObjects.add((EObject) n.getNotifier());
+
 			@SuppressWarnings("unchecked")
 			List<Object> list = (List<Object>) n.getNewValue();
 			if (list.get(0) instanceof EObject) {
@@ -201,9 +212,14 @@ public class EventAdapter extends EContentAdapter {
 					EPackage ePackage = obj.eClass().getEPackage();
 					handleEPackage(ePackage);
 					changelog.addEvent(new AddEObjectsToResourceEvent(n));
-
 				} else if (n.getNotifier() instanceof EObject) {
 					changelog.addEvent(new AddToEReferenceEvent(n));
+				}
+				for(Object eObject: list)
+				{
+					if (eObject instanceof EObject) {
+						handleEObject((EObject) eObject);
+					}
 				}
 			} else if (n.getFeature() instanceof EAttribute) {
 				changelog.addEvent(new AddToEAttributeEvent(n));
@@ -336,6 +352,47 @@ public class EventAdapter extends EContentAdapter {
 					ePackages.add(ePackage);
 					currentEPackage = ePackage;
 					changelog.addEvent(new EPackageRegistrationEvent(Event.REGISTER_EPACKAGE, ePackage));
+				}
+			}
+		}
+	}
+	
+	public void handleEObject(EObject obj)
+	{
+		processedEObjects.add(obj);
+		for (EStructuralFeature feature : obj.eClass().getEAllStructuralFeatures()) {
+			if (obj.eIsSet(feature)) {
+				if (feature instanceof EAttribute) {
+					if (feature.isMany()) {
+						changelog.addEvent(new AddToEAttributeEvent(obj, (EAttribute) feature,
+								obj.eGet(feature)));
+					} else {
+						changelog.addEvent(new SetEAttributeEvent(obj, (EAttribute) feature,
+								obj.eGet(feature)));
+					}
+				}
+				if (feature instanceof EReference) {
+					if (feature.isMany()) {
+						changelog.addEvent(new AddToEReferenceEvent(obj, (EReference) feature,
+								obj.eGet(feature)));
+						@SuppressWarnings("unchecked")
+						EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
+						for(EObject eObject: eList)
+						{
+							if (!processedEObjects.contains(eObject)) {
+								handleEObject(eObject);
+								processedEObjects.add(eObject);
+							}
+						}
+					} else {
+						changelog.addEvent(new SetEReferenceEvent(obj, (EReference) feature,
+								obj.eGet(feature)));
+						EObject eObject = (EObject) obj.eGet(feature);
+						if (!processedEObjects.contains(eObject)) {
+							handleEObject(eObject);
+							processedEObjects.add(eObject);
+						}
+					}
 				}
 			}
 		}
