@@ -121,7 +121,7 @@ public class TextSerialiserTest {
 		ArrayList<String> lines = getLines();
 
 		assertEquals(lines.get(3), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 "
-				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY,1234");
+				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
 	/*
@@ -275,7 +275,7 @@ public class TextSerialiserTest {
 		assertEquals(lines.get(3),
 				SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("departments")) + " "
-						+ getID(department1.eClass()) + " 1," + getID(department1.eClass()) + " 2");
+						+ getID(department1.eClass()) + " 1");
 	}
 
 	/*
@@ -382,7 +382,7 @@ public class TextSerialiserTest {
 		ArrayList<String> lines = getLines();
 
 		assertEquals(lines.get(5), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
-				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY,111");
+				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
 	/*
