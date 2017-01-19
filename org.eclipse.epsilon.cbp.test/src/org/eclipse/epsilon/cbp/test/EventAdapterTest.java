@@ -36,7 +36,6 @@ public class EventAdapterTest {
 		resource.getContents().add(university);
 
 		Changelog changelog = adapter.getChangelog();
-		changelog.printLog();
 
 		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.ADD_EOBJ_TO_RESOURCE);
 	}
