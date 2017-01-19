@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
@@ -65,8 +66,9 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 						new OutputStreamWriter(new FileOutputStream((String) options.get("path"), resource.isResume()),
 								persistenceUtil.STRING_ENCODING));
 			} else {
+				final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
 				bw = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream(resource.getURI().path(), resource.isResume()),
+						new OutputStreamWriter(new FileOutputStream(filePath, resource.isResume()),
 								persistenceUtil.STRING_ENCODING));
 			}
 
