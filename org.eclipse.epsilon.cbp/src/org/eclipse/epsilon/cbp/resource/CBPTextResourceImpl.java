@@ -51,11 +51,13 @@ public class CBPTextResourceImpl extends CBPResource {
 			if (options.get("verbose") != null) {
 				verbose = (boolean) options.get("verbose");
 			}
-			eventAdapter.setEnabled(false);
 
+			// We do not want changes during loading to be logged
+			eventAdapter.setEnabled(false);
 			AbstractCBPDeserialiser deserialiser = getDeserialiser();
 			try {
 				deserialiser.deserialise(options);
+				eventAdapter.setEnabled(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

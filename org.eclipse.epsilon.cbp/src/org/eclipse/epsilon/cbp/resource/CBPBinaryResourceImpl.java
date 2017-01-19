@@ -42,11 +42,12 @@ public class CBPBinaryResourceImpl extends CBPResource {
 			super.load(options);
 		}
 		else {
+			// We do not want changes during loading to be logged
 			eventAdapter.setEnabled(false);
-
 			AbstractCBPDeserialiser deserialiser = getDeserialiser();
 			try {
 				deserialiser.deserialise(options);
+				eventAdapter.setEnabled(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
