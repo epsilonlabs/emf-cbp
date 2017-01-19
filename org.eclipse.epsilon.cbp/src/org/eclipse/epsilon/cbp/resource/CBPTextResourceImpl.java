@@ -78,6 +78,12 @@ public class CBPTextResourceImpl extends CBPResource {
 		deserialiser.setDebug(verbose);
 		return deserialiser;
 	}
+	
+	public AbstractCBPDeserialiser getDeserialiser(InputStream inputStream) {
+		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(this, inputStream);
+		deserialiser.setDebug(verbose);
+		return deserialiser;
+	}
 
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
@@ -94,8 +100,7 @@ public class CBPTextResourceImpl extends CBPResource {
 
 			// We do not want changes during loading to be logged
 			eventAdapter.setEnabled(false);
-			CBPTextDeserialiser deserialiser = (CBPTextDeserialiser) getDeserialiser();
-			deserialiser.setInputStream(inputStream);
+			CBPTextDeserialiser deserialiser = (CBPTextDeserialiser) getDeserialiser(inputStream);
 			
 			try {
 				deserialiser.deserialise(options);

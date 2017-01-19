@@ -33,11 +33,16 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		this.resource = resource;
 		contents = resource.getContents();
 	}
-
-	public void setInputStream(InputStream inputStream) {
-		this.inputStream = inputStream;
-	}
 	
+	public CBPTextDeserialiser(CBPResource resource, InputStream inputStream) {
+
+		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
+
+		this.resource = resource;
+		contents = resource.getContents();
+	}
+
 	public void deserialise(Map<?, ?> options) throws Exception {
 
 		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
