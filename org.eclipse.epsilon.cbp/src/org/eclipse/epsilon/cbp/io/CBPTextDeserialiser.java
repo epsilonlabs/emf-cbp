@@ -23,8 +23,6 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
-	protected InputStream inputStream = null;
-	
 	public CBPTextDeserialiser(CBPResource resource) {
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
@@ -34,16 +32,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		contents = resource.getContents();
 	}
 	
-	public CBPTextDeserialiser(CBPResource resource, InputStream inputStream) {
-
-		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-
-		this.resource = resource;
-		contents = resource.getContents();
-	}
-
-	public void deserialise(Map<?, ?> options) throws Exception {
+	public void deserialise(Map<?, ?> options, InputStream inputStream) throws Exception {
 
 		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
 

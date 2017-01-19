@@ -57,7 +57,7 @@ public class CBPTextResourceImpl extends CBPResource {
 			eventAdapter.setEnabled(false);
 			AbstractCBPDeserialiser deserialiser = getDeserialiser();
 			try {
-				deserialiser.deserialise(options);
+				deserialiser.deserialise(options, null);
 				eventAdapter.setEnabled(true);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -79,12 +79,6 @@ public class CBPTextResourceImpl extends CBPResource {
 		return deserialiser;
 	}
 	
-	public AbstractCBPDeserialiser getDeserialiser(InputStream inputStream) {
-		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(this, inputStream);
-		deserialiser.setDebug(verbose);
-		return deserialiser;
-	}
-
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
 		boolean defaultLoading = false;
@@ -100,10 +94,10 @@ public class CBPTextResourceImpl extends CBPResource {
 
 			// We do not want changes during loading to be logged
 			eventAdapter.setEnabled(false);
-			CBPTextDeserialiser deserialiser = (CBPTextDeserialiser) getDeserialiser(inputStream);
+			CBPTextDeserialiser deserialiser = (CBPTextDeserialiser) getDeserialiser();
 			
 			try {
-				deserialiser.deserialise(options);
+				deserialiser.deserialise(options, inputStream);
 				eventAdapter.setEnabled(true);
 			} catch (Exception e) {
 				e.printStackTrace();

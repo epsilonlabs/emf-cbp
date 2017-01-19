@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.cbp.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -47,7 +48,7 @@ public abstract class AbstractCBPDeserialiser {
 
 	protected boolean verbose = false;
 
-	public abstract void deserialise(Map<?, ?> options) throws Exception;
+	public abstract void deserialise(Map<?, ?> options, InputStream inputStream) throws Exception;
 
 	public Resource getResource() {
 		return resource;

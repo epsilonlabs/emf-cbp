@@ -36,10 +36,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	}
 
 	@Override
-	public void deserialise(Map<?, ?> options) throws Exception {
+	public void deserialise(Map<?, ?> options, InputStream inputStream) throws Exception {
 		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
 
-		InputStream inputStream = new BufferedInputStream(new FileInputStream(filePath));
+		if (inputStream == null) {
+			inputStream = new BufferedInputStream(new FileInputStream(filePath));	
+		}
 
 		/* Read File Header */
 		inputStream.skip(15); // skip file header

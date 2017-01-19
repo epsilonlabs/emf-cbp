@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.cbp.resource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
@@ -46,7 +47,7 @@ public class CBPBinaryResourceImpl extends CBPResource {
 			eventAdapter.setEnabled(false);
 			AbstractCBPDeserialiser deserialiser = getDeserialiser();
 			try {
-				deserialiser.deserialise(options);
+				deserialiser.deserialise(options, null);
 				eventAdapter.setEnabled(true);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -64,5 +65,27 @@ public class CBPBinaryResourceImpl extends CBPResource {
 	public AbstractCBPDeserialiser getDeserialiser() {
 		CBPBinaryDeserializer deserializer = new CBPBinaryDeserializer(this);
 		return deserializer;
+	}
+	
+	@Override
+	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+		boolean defaultLoading = false;
+		if (options.get("DEFAULT_LOADING") != null) {
+			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
+		}
+		if (defaultLoading) {
+			super.load(options);
+		}
+		else {
+			// We do not want changes during loading to be logged
+			eventAdapter.setEnabled(false);
+			AbstractCBPDeserialiser deserialiser = getDeserialiser();
+			try {
+				deserialiser.deserialise(options, inputStream);
+				eventAdapter.setEnabled(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
