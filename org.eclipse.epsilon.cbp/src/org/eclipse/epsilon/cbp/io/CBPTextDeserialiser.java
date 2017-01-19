@@ -3,6 +3,7 @@ package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,8 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
+	protected InputStream inputStream = null;
+	
 	public CBPTextDeserialiser(CBPResource resource) {
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
@@ -31,12 +34,23 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		contents = resource.getContents();
 	}
 
+	public void setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+	
 	public void deserialise(Map<?, ?> options) throws Exception {
 
 		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
 
-		BufferedReader br = new BufferedReader(
-				new InputStreamReader(new FileInputStream(filePath), persistenceUtil.STRING_ENCODING));
+		BufferedReader br;
+		if (inputStream == null) {
+			br = new BufferedReader(
+					new InputStreamReader(new FileInputStream(filePath), persistenceUtil.STRING_ENCODING));
+		}
+		else {
+			br =  new BufferedReader(
+					new InputStreamReader(inputStream, persistenceUtil.STRING_ENCODING));
+		}
 
 		String line;
 

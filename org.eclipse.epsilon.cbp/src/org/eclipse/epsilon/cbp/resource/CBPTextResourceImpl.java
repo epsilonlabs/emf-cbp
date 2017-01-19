@@ -2,6 +2,7 @@
 package org.eclipse.epsilon.cbp.resource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
@@ -21,7 +22,7 @@ public class CBPTextResourceImpl extends CBPResource {
 		eventAdapter = new EventAdapter(changelog);
 
 		this.eAdapters().add(eventAdapter);
-		
+
 		verbose = true;
 	}
 
@@ -30,7 +31,7 @@ public class CBPTextResourceImpl extends CBPResource {
 		if (options != null && options.get("verbose") != null) {
 			verbose = (boolean) options.get("verbose");
 		}
-		
+
 		AbstractCBPSerialiser serialiser = getSerialiser();
 		try {
 			serialiser.serialise(options);
@@ -76,6 +77,33 @@ public class CBPTextResourceImpl extends CBPResource {
 		CBPTextDeserialiser deserialiser = new CBPTextDeserialiser(this);
 		deserialiser.setDebug(verbose);
 		return deserialiser;
+	}
+
+	@Override
+	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+		boolean defaultLoading = false;
+		if (options.get("DEFAULT_LOADING") != null) {
+			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
+		}
+		if (defaultLoading) {
+			super.load(options);
+		} else {
+			if (options.get("verbose") != null) {
+				verbose = (boolean) options.get("verbose");
+			}
+
+			// We do not want changes during loading to be logged
+			eventAdapter.setEnabled(false);
+			CBPTextDeserialiser deserialiser = (CBPTextDeserialiser) getDeserialiser();
+			deserialiser.setInputStream(inputStream);
+			
+			try {
+				deserialiser.deserialise(options);
+				eventAdapter.setEnabled(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }
