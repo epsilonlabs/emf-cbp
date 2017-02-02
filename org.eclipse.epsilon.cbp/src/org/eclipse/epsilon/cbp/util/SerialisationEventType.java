@@ -25,6 +25,9 @@ public class SerialisationEventType {
 	// EPackage registration event
 	public static final int REGISTER_EPACKAGE = 14;
 
+	// debugging events
+	public static final int STOP_READING = 15;
+
 	// resource related events
 	public static final String CREATE_AND_ADD_TO_RESOURCE_VERBOSE = "CREATE_AND_ADD_TO_RESOURCE";
 	public static final String ADD_TO_RESOURCE_VERBOSE = "ADD_TO_RESOURCE";
@@ -48,4 +51,6 @@ public class SerialisationEventType {
 	// EPackage registration event
 	public static final String REGISTER_EPACKAGE_VERBOSE = "REGISTER_EPACKAGE";
 
+	// debugging events
+	public static final String STOP_VERBOSE = "STOP_READING";
 }

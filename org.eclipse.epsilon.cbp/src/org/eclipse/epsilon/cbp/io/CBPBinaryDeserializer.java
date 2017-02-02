@@ -47,6 +47,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		inputStream.skip(15); // skip file header
 
 		/* Read binary records */
+		readingLoop:
 		while (inputStream.available() > 0) {
 			switch (readInt(inputStream)) {
 			case SerialisationEventType.REGISTER_EPACKAGE:
@@ -91,6 +92,8 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
 				handleRemoveFromEReference(inputStream);
 				break;
+			case SerialisationEventType.STOP_READING:
+				break readingLoop;
 			default:
 				break;
 			}

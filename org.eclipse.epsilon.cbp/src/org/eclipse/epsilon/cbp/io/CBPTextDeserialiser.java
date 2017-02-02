@@ -50,6 +50,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		br.readLine(); // skip file format info
 
+		readingLoop:
 		while ((line = br.readLine()) != null) {
 			// System.out.println(line);
 			StringTokenizer st = new StringTokenizer(line);
@@ -105,6 +106,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 				case SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE:
 					handleRemoveFromEReference(line);
 					break;
+				case SerialisationEventType.STOP_VERBOSE:
+					break readingLoop;
 				default:
 					break;
 				}
@@ -159,6 +162,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 				case SerialisationEventType.REMOVE_FROM_EREFERENCE:
 					handleRemoveFromEReference(line);
 					break;
+				case SerialisationEventType.STOP_READING:
+					break readingLoop;
 				default:
 					break;
 				}
