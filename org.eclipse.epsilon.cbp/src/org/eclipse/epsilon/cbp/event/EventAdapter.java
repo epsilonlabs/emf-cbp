@@ -357,33 +357,40 @@ public class EventAdapter extends EContentAdapter {
 	}
 
 	public void handleEObject(EObject obj) {
-		processedEObjects.add(obj);
-		for (EStructuralFeature feature : obj.eClass().getEAllStructuralFeatures()) {
-			if (obj.eIsSet(feature)) {
-				if (feature instanceof EAttribute) {
-					if (feature.isMany()) {
-						changelog.addEvent(new AddToEAttributeEvent(obj, (EAttribute) feature, obj.eGet(feature)));
-					} else {
-						changelog.addEvent(new SetEAttributeEvent(obj, (EAttribute) feature, obj.eGet(feature)));
+		if (processedEObjects.contains(obj)) {
+			
+		}
+		else {
+			//add current object to processed objects
+			processedEObjects.add(obj);
+			
+			for (EStructuralFeature feature : obj.eClass().getEAllStructuralFeatures()) {
+				if (obj.eIsSet(feature)) {
+					if (feature instanceof EAttribute) {
+						if (feature.isMany()) {
+							changelog.addEvent(new AddToEAttributeEvent(obj, (EAttribute) feature, obj.eGet(feature)));
+						} else {
+							changelog.addEvent(new SetEAttributeEvent(obj, (EAttribute) feature, obj.eGet(feature)));
+						}
 					}
-				}
-				if (feature instanceof EReference) {
-					if (feature.isMany()) {
-						changelog.addEvent(new AddToEReferenceEvent(obj, (EReference) feature, obj.eGet(feature)));
-						@SuppressWarnings("unchecked")
-						EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
-						for (EObject eObject : eList) {
+					if (feature instanceof EReference) {
+						if (feature.isMany()) {
+							changelog.addEvent(new AddToEReferenceEvent(obj, (EReference) feature, obj.eGet(feature)));
+							@SuppressWarnings("unchecked")
+							EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
+							for (EObject eObject : eList) {
+								if (!processedEObjects.contains(eObject)) {
+									handleEObject(eObject);
+									processedEObjects.add(eObject);
+								}
+							}
+						} else {
+							changelog.addEvent(new SetEReferenceEvent(obj, (EReference) feature, obj.eGet(feature)));
+							EObject eObject = (EObject) obj.eGet(feature);
 							if (!processedEObjects.contains(eObject)) {
 								handleEObject(eObject);
 								processedEObjects.add(eObject);
 							}
-						}
-					} else {
-						changelog.addEvent(new SetEReferenceEvent(obj, (EReference) feature, obj.eGet(feature)));
-						EObject eObject = (EObject) obj.eGet(feature);
-						if (!processedEObjects.contains(eObject)) {
-							handleEObject(eObject);
-							processedEObjects.add(eObject);
 						}
 					}
 				}
