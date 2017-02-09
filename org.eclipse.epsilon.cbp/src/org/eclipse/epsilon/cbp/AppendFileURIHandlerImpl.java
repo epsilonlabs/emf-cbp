@@ -26,7 +26,7 @@ public class AppendFileURIHandlerImpl extends FileURIHandlerImpl {
 	public OutputStream createOutputStream(URI uri, Map<?, ?> options) throws IOException {
 		String filePath = uri.toFileString();
 		final File file = new File(filePath);
-		final boolean append = options.containsKey(OPTION_APPEND) ? Boolean.parseBoolean(options.get(OPTION_APPEND)+"") : false;
+		final boolean append = options.containsKey(OPTION_APPEND) ? Boolean.parseBoolean(options.get(OPTION_APPEND)+"") : true;
 		String parent = file.getParent();
 		if (parent != null) {
 			new File(parent).mkdirs();
