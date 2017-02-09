@@ -22,8 +22,6 @@ import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-import gnu.trove.map.TObjectIntMap;
-
 public abstract class AbstractCBPSerialiser {
 
 	// epacks involved
@@ -36,10 +34,10 @@ public abstract class AbstractCBPSerialiser {
 	protected ModelElementIDMap ePackageElementsNamesMap;
 
 	// common simple type name
-	protected TObjectIntMap<String> commonsimpleTypeNameMap;
+	protected Map<String, Integer> commonsimpleTypeNameMap;
 
 	// tet simple type name
-	protected TObjectIntMap<String> textSimpleTypeNameMap;
+	protected Map<String, Integer> textSimpleTypeNameMap;
 
 	protected CBPResource resource = null;
 

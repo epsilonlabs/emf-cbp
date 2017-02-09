@@ -2,15 +2,14 @@ package org.eclipse.epsilon.cbp.util;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
-
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class PersistenceUtil {
 
@@ -28,9 +27,9 @@ public class PersistenceUtil {
 
 	ModelElementIDMap ePackageElementsNamesMap = null;
 
-	protected TObjectIntMap<String> textSimpleTypesMap = new TObjectIntHashMap<String>(2);
+	protected Map<String, Integer> textSimpleTypesMap = new HashMap<String, Integer>();
 
-	protected TObjectIntMap<String> commonSimpleTypesMap = new TObjectIntHashMap<String>(13);
+	protected Map<String, Integer> commonSimpleTypesMap = new HashMap<String, Integer>();
 
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 
@@ -85,11 +84,11 @@ public class PersistenceUtil {
 		return ePackageElementsNamesMap;
 	}
 
-	public TObjectIntMap<String> getCommonSimpleTypesMap() {
+	public Map<String, Integer> getCommonSimpleTypesMap() {
 		return commonSimpleTypesMap;
 	}
 
-	public TObjectIntMap<String> getTextSimpleTypesMap() {
+	public Map<String, Integer> getTextSimpleTypesMap() {
 		return textSimpleTypesMap;
 	}
 

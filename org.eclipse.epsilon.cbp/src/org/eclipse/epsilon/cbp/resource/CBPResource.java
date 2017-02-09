@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
@@ -23,17 +24,15 @@ import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
 import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
 import org.eclipse.epsilon.cbp.util.Changelog;
 
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-
 public abstract class CBPResource extends ResourceImpl {
 	
 	protected EventAdapter eventAdapter;
 	protected Changelog changelog = new Changelog();
 
 	// eobject to id map
-	protected TObjectIntMap<EObject> eObjToIDMap = new TObjectIntHashMap<EObject>();
-
+	// protected TObjectIntMap<EObject> eObjToIDMap = new TObjectIntHashMap<EObject>();
+	protected HashMap<EObject, Integer> eObjToIDMap = new HashMap<EObject, Integer>();
+	
 	// current id, increases when an object is encountered
 	protected int current_id = 0;
 

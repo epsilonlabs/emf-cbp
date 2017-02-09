@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -18,10 +19,6 @@ import org.eclipse.epsilon.cbp.util.ModelElementIDMap;
 import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 public abstract class AbstractCBPDeserialiser {
 
 	// epackage
@@ -31,13 +28,13 @@ public abstract class AbstractCBPDeserialiser {
 	protected EList<EObject> contents;
 
 	// id to eobject
-	protected TIntObjectMap<EObject> IDToEObjectMap = new TIntObjectHashMap<EObject>();
+	protected Map<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
 
 	// common simple type map (such a bad name)
-	protected TObjectIntMap<String> commonsimpleTypeNameMap;
+	protected Map<String, Integer> commonsimpleTypeNameMap;
 
 	// text simple type name map (again, bad name)
-	protected TObjectIntMap<String> textSimpleTypeNameMap;
+	protected Map<String, Integer> textSimpleTypeNameMap;
 
 	// model-element id map
 	protected ModelElementIDMap ePackageElementsNamesMap;
