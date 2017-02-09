@@ -55,120 +55,63 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			// System.out.println(line);
 			StringTokenizer st = new StringTokenizer(line);
 
-			if (verbose) {
-				String eventType = null;
+			int eventType = -1;
 
-				if (st.hasMoreElements())
-					eventType = String.valueOf(st.nextToken());
+			if (st.hasMoreElements())
+				eventType = Integer.valueOf(st.nextToken());
 
-				// Switches over various event types, calls appropriate handler
-				// method
-				switch (eventType) {
-				case SerialisationEventType.REGISTER_EPACKAGE_VERBOSE:
-					handleRegisterEPackage(line);
-					break;
-				case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE_VERBOSE:
-					handleCreateAndAddToResource(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_RESOURCE_VERBOSE:
-					handleRemoveFromResource(line);
-					break;
-				case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE_VERBOSE:
-					handleSetEAttribute(line);
-					break;
-				case SerialisationEventType.SET_EATTRIBUTE_COMPLEX_VERBOSE:
-					handleSetEAttribute(line);
-					break;
-				case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE_VERBOSE:
-					handleAddToEAttribute(line);
-					break;
-				case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX_VERBOSE:
-					handleAddToEAttribute(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE_VERBOSE:
-					handleRemoveFromEAttribute(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX_VERBOSE:
-					handleRemoveFromEAttribute(line);
-					break;
-				case SerialisationEventType.SET_EREFERENCE_VERBOSE:
-					handleSetEReference(line);
-					break;
-				case SerialisationEventType.CREATE_AND_SET_EREFERENCE_VERBOSE:
-					handleCreateAndSetEReference(line);
-					break;
-				case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE_VERBOSE:
-					handleCreateAndAddToEReference(line);
-					break;
-				case SerialisationEventType.ADD_TO_EREFERENCE_VERBOSE:
-					handleAddToEReference(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_EREFERENCE_VERBOSE:
-					handleRemoveFromEReference(line);
-					break;
-				case SerialisationEventType.STOP_VERBOSE:
-					break readingLoop;
-				default:
-					break;
-				}
-			} else {
-				int eventType = -1;
-
-				if (st.hasMoreElements())
-					eventType = Integer.valueOf(st.nextToken());
-
-				// Switches over various event types, calls appropriate handler
-				// method
-				switch (eventType) {
-				case SerialisationEventType.REGISTER_EPACKAGE:
-					handleRegisterEPackage(line);
-					break;
-				case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
-					handleCreateAndAddToResource(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_RESOURCE:
-					handleRemoveFromResource(line);
-					break;
-				case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
-					handleSetEAttribute(line);
-					break;
-				case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
-					handleSetEAttribute(line);
-					break;
-				case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE:
-					handleAddToEAttribute(line);
-					break;
-				case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX:
-					handleAddToEAttribute(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
-					handleRemoveFromEAttribute(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
-					handleRemoveFromEAttribute(line);
-					break;
-				case SerialisationEventType.SET_EREFERENCE:
-					handleSetEReference(line);
-					break;
-				case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
-					handleCreateAndSetEReference(line);
-					break;
-				case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
-					handleCreateAndAddToEReference(line);
-					break;
-				case SerialisationEventType.ADD_TO_EREFERENCE:
-					handleAddToEReference(line);
-					break;
-				case SerialisationEventType.REMOVE_FROM_EREFERENCE:
-					handleRemoveFromEReference(line);
-					break;
-				case SerialisationEventType.STOP_READING:
-					break readingLoop;
-				default:
-					break;
-				}
+			// Switches over various event types, calls appropriate handler
+			// method
+			switch (eventType) {
+			case SerialisationEventType.REGISTER_EPACKAGE:
+				handleRegisterEPackage(line);
+				break;
+			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
+				handleCreateAndAddToResource(line);
+				break;
+			case SerialisationEventType.REMOVE_FROM_RESOURCE:
+				handleRemoveFromResource(line);
+				break;
+			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
+				handleSetEAttribute(line);
+				break;
+			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
+				handleSetEAttribute(line);
+				break;
+			case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE:
+				handleAddToEAttribute(line);
+				break;
+			case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX:
+				handleAddToEAttribute(line);
+				break;
+			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
+				handleRemoveFromEAttribute(line);
+				break;
+			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
+				handleRemoveFromEAttribute(line);
+				break;
+			case SerialisationEventType.SET_EREFERENCE:
+				handleSetEReference(line);
+				break;
+			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
+				handleCreateAndSetEReference(line);
+				break;
+			case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
+				handleCreateAndAddToEReference(line);
+				break;
+			case SerialisationEventType.ADD_TO_EREFERENCE:
+				handleAddToEReference(line);
+				break;
+			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
+				handleRemoveFromEReference(line);
+				break;
+			case SerialisationEventType.STOP_READING:
+				break readingLoop;
+			default:
+				break;
 			}
 		}
+		
 		br.close();
 		resource.setResume(true);
 	}

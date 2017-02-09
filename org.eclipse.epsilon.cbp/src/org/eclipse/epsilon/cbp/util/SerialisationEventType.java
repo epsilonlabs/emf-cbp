@@ -28,29 +28,6 @@ public class SerialisationEventType {
 	// debugging events
 	public static final int STOP_READING = 15;
 
-	// resource related events
-	public static final String CREATE_AND_ADD_TO_RESOURCE_VERBOSE = "CREATE_AND_ADD_TO_RESOURCE";
-	public static final String ADD_TO_RESOURCE_VERBOSE = "ADD_TO_RESOURCE";
-	public static final String REMOVE_FROM_RESOURCE_VERBOSE = "REMOVE_FROM_RESOURCE";
-
-	// attribute related events
-	public static final String SET_EATTRIBUTE_PRIMITIVE_VERBOSE = "SET_EATTRIBUTE_PRIMITIVE";
-	public static final String SET_EATTRIBUTE_COMPLEX_VERBOSE = "SET_EATTRIBUTE_COMPLEX";
-	public static final String ADD_TO_EATTRIBUTE_PRIMITIVE_VERBOSE = "ADD_TO_EATTRIBUTE_PRIMITIVE";
-	public static final String ADD_TO_EATTRIBUTE_COMPLEX_VERBOSE = "ADD_TO_EATTRIBUTE_COMPLEX";
-	public static final String REMOVE_FROM_EATTRIBUTE_PRIMITIVE_VERBOSE = "REMOVE_FROM_EATTRIBUTE_PRIMITIVE";
-	public static final String REMOVE_FROM_EATTRIBUTE_COMPLEX_VERBOSE = "REMOVE_FROM_EATTRIBUTE_COMPLEX";
-
-	// reference related events
-	public static final String SET_EREFERENCE_VERBOSE = "SET_EREFERENCE";
-	public static final String CREATE_AND_SET_EREFERENCE_VERBOSE = "CREATE_AND_SET_EREFERENCE";
-	public static final String CREATE_AND_ADD_TO_EREFERENCE_VERBOSE = "CREATE_AND_ADD_TO_EREFERENCE";
-	public static final String ADD_TO_EREFERENCE_VERBOSE = "ADD_TO_EREFERENCE";
-	public static final String REMOVE_FROM_EREFERENCE_VERBOSE = "REMOVE_FROM_EREFERENCE";
-
-	// EPackage registration event
-	public static final String REGISTER_EPACKAGE_VERBOSE = "REGISTER_EPACKAGE";
-
 	// debugging events
 	public static final String STOP_VERBOSE = "STOP_READING";
 }
