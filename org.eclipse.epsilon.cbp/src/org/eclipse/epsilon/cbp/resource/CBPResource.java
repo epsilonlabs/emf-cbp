@@ -50,19 +50,10 @@ public abstract class CBPResource extends ResourceImpl {
 
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
-		boolean defaultLoading = false;
-		if (options.get("DEFAULT_LOADING") != null) {
-			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
-		}
-		if (defaultLoading) {
-			super.load(options);
-		}
-		else {
-			// We do not want changes during loading to be logged
-			eventAdapter.setEnabled(false);
-			getDeserialiser().deserialise(inputStream, options);
-			eventAdapter.setEnabled(true);
-		}
+		// We do not want changes during loading to be logged
+		eventAdapter.setEnabled(false);
+		getDeserialiser().deserialise(inputStream, options);
+		eventAdapter.setEnabled(true);
 	}
 	
 	public abstract AbstractCBPSerialiser getSerialiser();
