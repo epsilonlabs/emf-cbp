@@ -4,11 +4,11 @@
    <extension
          point="org.eclipse.emf.ecore.extension_parser">
       <parser
-            class="org.eclipse.epsilon.cbp.resource.CBPTextResourceFactory"
+            class="org.eclipse.epsilon.cbp.resource.CBPResourceFactory"
             type="cbptext">
       </parser>
       <parser
-            class="org.eclipse.epsilon.cbp.resource.CBPBinaryResourceFactory"
+            class="org.eclipse.epsilon.cbp.resource.CBPResourceFactory"
             type="cbpbin">
       </parser>
    </extension>

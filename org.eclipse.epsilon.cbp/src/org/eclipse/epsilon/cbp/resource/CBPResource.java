@@ -30,11 +30,10 @@ public abstract class CBPResource extends ResourceImpl {
 	protected Changelog changelog = new Changelog();
 
 	// eobject to id map
-	// protected TObjectIntMap<EObject> eObjToIDMap = new TObjectIntHashMap<EObject>();
-	protected HashMap<EObject, Integer> eObjToIDMap = new HashMap<EObject, Integer>();
+	protected HashMap<EObject, Integer> idMap = new HashMap<EObject, Integer>();
 	
 	// current id, increases when an object is encountered
-	protected int current_id = 0;
+	protected int currentId = 0;
 
 	public CBPResource(URI uri) {
 		super(uri);
@@ -66,12 +65,12 @@ public abstract class CBPResource extends ResourceImpl {
 	// add object to map, return false if object exists
 	public boolean addObjectToMap(EObject obj) {
 		// if obj is not in the map
-		if (!eObjToIDMap.containsKey(obj)) {
+		if (!idMap.containsKey(obj)) {
 			// put current id
-			eObjToIDMap.put(obj, current_id);
+			idMap.put(obj, currentId);
 
 			// increase current id
-			current_id = current_id + 1;
+			currentId = currentId + 1;
 			return true;
 		}
 		return false;
@@ -80,13 +79,13 @@ public abstract class CBPResource extends ResourceImpl {
 	// add object to map with a specific id
 	public boolean addObjectToMap(EObject obj, int id) {
 		// if obj is not in the map
-		if (!eObjToIDMap.containsKey(obj)) {
+		if (!idMap.containsKey(obj)) {
 			// put id
-			eObjToIDMap.put(obj, id);
+			idMap.put(obj, id);
 
 			// if current id is less than id, set current id
-			if (id >= current_id) {
-				current_id = id + 1;
+			if (id >= currentId) {
+				currentId = id + 1;
 			}
 			return true;
 		}
@@ -95,10 +94,10 @@ public abstract class CBPResource extends ResourceImpl {
 	
 	// get the object id based on obj
 	public int getObjectId(EObject obj) {
-		if (!eObjToIDMap.containsKey(obj)) {
+		if (!idMap.containsKey(obj)) {
 			System.err.println("ChangeLog: search returned false");
 		}
-		return eObjToIDMap.get(obj);
+		return idMap.get(obj);
 	}
 
 	public Changelog getChangelog() {
