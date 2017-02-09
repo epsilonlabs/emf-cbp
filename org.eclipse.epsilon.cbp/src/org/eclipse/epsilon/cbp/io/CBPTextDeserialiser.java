@@ -48,8 +48,6 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		String line;
 
-		br.readLine(); // skip file format info
-
 		readingLoop:
 		while ((line = br.readLine()) != null) {
 			// System.out.println(line);

@@ -44,13 +44,7 @@ public abstract class AbstractCBPSerialiser {
 
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 
-	protected boolean debug = false;
-
 	public abstract void serialise(Map<?, ?> options) throws Exception;
-
-	public abstract String getFormatID();
-
-	public abstract double getVersion();
 
 	public CBPResource getResource() {
 		return resource;
@@ -85,10 +79,6 @@ public abstract class AbstractCBPSerialiser {
 		}
 
 		return SimpleType.COMPLEX_TYPE;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
 	}
 
 }

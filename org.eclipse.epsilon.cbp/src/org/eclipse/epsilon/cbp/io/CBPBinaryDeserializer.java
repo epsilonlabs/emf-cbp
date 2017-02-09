@@ -43,9 +43,6 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			inputStream = new BufferedInputStream(new FileInputStream(filePath));	
 		}
 
-		/* Read File Header */
-		inputStream.skip(15); // skip file header
-
 		/* Read binary records */
 		readingLoop:
 		while (inputStream.available() > 0) {

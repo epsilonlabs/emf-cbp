@@ -35,10 +35,6 @@ import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPTextSerialiser extends AbstractCBPSerialiser {
-	@Override
-	public String getFormatID() {
-		return "CBP_TEXT";
-	}
 
 	public CBPTextSerialiser(CBPResource resource) {
 		this.ePackages = new HashSet<EPackage>();
@@ -121,11 +117,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 		printWriter.close();
 		resource.setResume(true);
-	}
-
-	@Override
-	public double getVersion() {
-		return 1.0;
 	}
 
 	/*
@@ -553,8 +544,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			System.err.println("CBPTextSerialiser: " + e.getEventType());
 			throw new Exception("Event contains no EPackage");
 		}
-
-		writer.println(getFormatID() + " " + getVersion());
 	}
 
 	@Override
@@ -565,17 +554,11 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	}
 
 	public String getID(EClass eClass, EStructuralFeature feature) {
-		if (debug) {
-			return eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName();
-		}
 		return ePackageElementsNamesMap
 				.getID(eClass.getEPackage().getName() + "-" + eClass.getName() + "-" + feature.getName()) + "";
 	}
 
 	public String getID(EClass eClass) {
-		if (debug) {
-			return eClass.getEPackage().getName() + "-" + eClass.getName();
-		}
 		return ePackageElementsNamesMap.getID(eClass.getEPackage().getName() + "-" + eClass.getName()) + "";
 	}
 }

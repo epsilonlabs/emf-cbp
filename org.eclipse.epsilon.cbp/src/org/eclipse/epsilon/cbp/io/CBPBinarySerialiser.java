@@ -101,16 +101,6 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	}
 
 	@Override
-	public String getFormatID() {
-		return "CBP_BIN";
-	}
-
-	@Override
-	public double getVersion() {
-		return 1.0;
-	}
-
-	@Override
 	protected void serialiseHeader(Closeable out) {
 		OutputStream stream = (OutputStream) out;
 
@@ -129,17 +119,6 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 				// FIXME this should be actually thrown!
 				e1.printStackTrace();
 			}
-		}
-
-		if (ePackage == null) {
-			System.err.println("CBPTextSerialiser: " + e.getEventType());
-		}
-		try {
-			stream.write(getFormatID().getBytes(persistenceUtil.STRING_ENCODING));
-			writePrimitive(stream, getVersion()); // FORMAT VERSION
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			// FIXME this should be rethrown!
 		}
 	}
 
