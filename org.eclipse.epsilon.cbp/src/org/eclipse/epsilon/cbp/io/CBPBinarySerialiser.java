@@ -1,9 +1,7 @@
 
 package org.eclipse.epsilon.cbp.io;
 
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -12,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
@@ -52,9 +49,6 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 					.generateEPackageElementNamesMap((EPackage) options.get("ePackage"));
 		}
 
-		if (!resource.isResume())
-			serialiseHeader(outputStream);
-
 		for (Event e : eventList) {
 			switch (e.getEventType()) {
 			case Event.REGISTER_EPACKAGE:
@@ -87,29 +81,6 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			}
 		}
 		outputStream.close();
-		resource.setResume(true);
-	}
-
-	@Override
-	protected void serialiseHeader(Closeable out) {
-		OutputStream stream = (OutputStream) out;
-
-		EPackage ePackage = null;
-
-		Event e = eventList.get(0);
-
-		if (e instanceof EPackageRegistrationEvent) {
-			ePackage = ((EPackageRegistrationEvent) e).getePackage();
-		} else // throw tantrum
-		{
-			try {
-				System.err.println("CBPTextSerialiser: " + e.getEventType());
-				throw new Exception("Error! first item in events list is not a EPackageRegistrationEvent.");
-			} catch (Exception e1) {
-				// FIXME this should be actually thrown!
-				e1.printStackTrace();
-			}
-		}
 	}
 
 	/*

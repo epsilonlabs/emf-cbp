@@ -46,30 +46,8 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	}
 
 	public void serialise(OutputStream outputStream, Map<?, ?> options) throws IOException {
-		if (eventList.isEmpty()) // tbr
-		{
-			System.err.println("CBPTextSerialiser: no events found, returning!");
-			return;
-		}
-
-		Closeable printWriter = null;
-		// setup printwriter
 		
-		BufferedWriter bw = null;
-		bw = new BufferedWriter(new OutputStreamWriter(outputStream));
-		/*
-		if (options != null && options.get("path") != null) {
-			bw = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream((String) options.get("path"), resource.isResume()),
-							persistenceUtil.STRING_ENCODING));
-		} else {
-			final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
-			bw = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream(filePath, resource.isResume()),
-							persistenceUtil.STRING_ENCODING));
-		}*/
-
-		printWriter = new PrintWriter(bw);
+		Closeable printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream)));
 
 		for (Event e : eventList) {
 			switch (e.getEventType()) {
@@ -104,7 +82,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		}
 
 		printWriter.close();
-		resource.setResume(true);
 	}
 
 	/*
@@ -497,7 +474,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE + " " + resource.getObjectId(focusObject) + " "
 				+ (getID(focusObject.eClass(), eReference) + " "));
 		
-
 		String delimiter = "";
 
 		for (EObject obj : removedEObjectsList) {
@@ -505,33 +481,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			delimiter = persistenceUtil.DELIMITER;
 		}
 		writer.println();
-	}
-
-	@Override
-	protected void serialiseHeader(Closeable out) throws Exception {
-
-		PrintWriter writer = (PrintWriter) out;
-
-		// epackage
-		EPackage ePackage = null;
-
-		// get first event
-		Event e = eventList.get(0);
-
-		if (e instanceof EPackageRegistrationEvent) {
-			ePackage = ((EPackageRegistrationEvent) e).getePackage();
-		} else // throw tantrum
-		{
-			try {
-				throw new Exception("First item in the events list is not a EPackageRegistrationEvent.");
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		}
-		if (ePackage == null) {
-			System.err.println("CBPTextSerialiser: " + e.getEventType());
-			throw new Exception("Event contains no EPackage");
-		}
 	}
 
 	@Override

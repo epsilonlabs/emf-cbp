@@ -101,7 +101,6 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		}
 		
 		br.close();
-		resource.setResume(true);
 	}
 
 	/*

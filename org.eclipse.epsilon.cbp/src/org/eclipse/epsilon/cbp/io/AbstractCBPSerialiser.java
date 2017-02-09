@@ -51,8 +51,6 @@ public abstract class AbstractCBPSerialiser {
 		return resource;
 	}
 
-	protected abstract void serialiseHeader(Closeable out) throws Exception;
-
 	protected abstract void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out);
 
 	protected abstract void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException;

@@ -3,7 +3,6 @@ package org.eclipse.epsilon.cbp.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -31,8 +30,6 @@ public abstract class CBPResource extends ResourceImpl {
 	
 	protected EventAdapter eventAdapter;
 	protected Changelog changelog = new Changelog();
-	protected boolean verbose = false;
-	private boolean resume = false;
 
 	// eobject to id map
 	protected TObjectIntMap<EObject> eObjToIDMap = new TObjectIntHashMap<EObject>();
@@ -71,14 +68,6 @@ public abstract class CBPResource extends ResourceImpl {
 	public abstract AbstractCBPSerialiser getSerialiser();
 
 	public abstract AbstractCBPDeserialiser getDeserialiser();
-
-	public boolean isResume() {
-		return resume;
-	}
-
-	public void setResume(boolean resume) {
-		this.resume = resume;
-	}
 
 	public void setChangelog(Changelog changelog) {
 		this.changelog = changelog;
