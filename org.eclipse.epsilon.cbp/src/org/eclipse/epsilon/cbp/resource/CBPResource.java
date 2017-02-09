@@ -1,7 +1,10 @@
 package org.eclipse.epsilon.cbp.resource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -15,6 +18,7 @@ import org.eclipse.emf.ecore.resource.impl.FileURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
+import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
 import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
 import org.eclipse.epsilon.cbp.util.Changelog;
@@ -23,11 +27,10 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 public abstract class CBPResource extends ResourceImpl {
-
+	
+	protected EventAdapter eventAdapter;
 	protected Changelog changelog = new Changelog();
-
 	protected boolean verbose = false;
-
 	private boolean resume = false;
 
 	// eobject to id map
@@ -38,11 +41,64 @@ public abstract class CBPResource extends ResourceImpl {
 
 	public CBPResource(URI uri) {
 		super(uri);
+		eventAdapter = new EventAdapter(changelog);
+		this.eAdapters().add(eventAdapter);
 	}
 
-	public CBPResource() {
+	@Override
+	public void save(Map<?, ?> options) throws IOException {
+		AbstractCBPSerialiser serialiser = getSerialiser();
+		try {
+			serialiser.serialise(options);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
+	@Override
+	public void load(Map<?, ?> options) throws IOException {
+		boolean defaultLoading = false;
+		if (options.get("DEFAULT_LOADING") != null) {
+			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
+		}
+		if (defaultLoading) {
+			super.load(options);
+		}
+		else {
+			// We do not want changes during loading to be logged
+			eventAdapter.setEnabled(false);
+			AbstractCBPDeserialiser deserialiser = getDeserialiser();
+			try {
+				deserialiser.deserialise(options, null);
+				eventAdapter.setEnabled(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+		boolean defaultLoading = false;
+		if (options.get("DEFAULT_LOADING") != null) {
+			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
+		}
+		if (defaultLoading) {
+			super.load(options);
+		}
+		else {
+			// We do not want changes during loading to be logged
+			eventAdapter.setEnabled(false);
+			AbstractCBPDeserialiser deserialiser = getDeserialiser();
+			try {
+				deserialiser.deserialise(options, inputStream);
+				eventAdapter.setEnabled(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public abstract AbstractCBPSerialiser getSerialiser();
 
 	public abstract AbstractCBPDeserialiser getDeserialiser();
