@@ -1,8 +1,20 @@
 package org.eclipse.epsilon.cbp.resource;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.ContentHandler;
+import org.eclipse.emf.ecore.resource.URIConverter;
+import org.eclipse.emf.ecore.resource.URIHandler;
+import org.eclipse.emf.ecore.resource.impl.ArchiveURIHandlerImpl;
+import org.eclipse.emf.ecore.resource.impl.EFSURIHandlerImpl;
+import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
+import org.eclipse.emf.ecore.resource.impl.FileURIHandlerImpl;
+import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
 import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
 import org.eclipse.epsilon.cbp.util.Changelog;
@@ -76,7 +88,7 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		return false;
 	}
-
+	
 	// get the object id based on obj
 	public int getObjectId(EObject obj) {
 		if (!eObjToIDMap.containsKey(obj)) {
@@ -88,5 +100,18 @@ public abstract class CBPResource extends ResourceImpl {
 	public Changelog getChangelog() {
 		return changelog;
 	}
-
+	
+	// Copied from URIHandler.DEFAULT_HANDLERS and ExtensibleURIConverterImpl()
+	@Override
+	protected URIConverter getURIConverter() {
+		return new ExtensibleURIConverterImpl(Arrays.asList(new URIHandler []
+          { 
+            new PlatformResourceURIHandlerImpl(), 
+            new FileURIHandlerImpl(), 
+            new EFSURIHandlerImpl(), 
+            new ArchiveURIHandlerImpl(), 
+            new URIHandlerImpl()
+          }), ContentHandler.Registry.INSTANCE.contentHandlers());
+	}
+	
 }
