@@ -45,22 +45,12 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		this.resource = resource;
 	}
 
-	public void serialise(Map<?, ?> options) throws IOException {
-		if (eventList.isEmpty()) // tbr
-		{
-			System.out.println("CBPTextSerialiser: no events found, returning!");
-			return;
-		}
+	public void serialise(OutputStream outputStream, Map<?, ?> options) throws IOException {
 
 		if (options != null && options.get("ePackage") != null) {
 			ePackageElementsNamesMap = persistenceUtil
 					.generateEPackageElementNamesMap((EPackage) options.get("ePackage"));
 		}
-		
-		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
-
-		OutputStream outputStream = new BufferedOutputStream(
-				new FileOutputStream(filePath, resource.isResume()));
 
 		if (!resource.isResume())
 			serialiseHeader(outputStream);

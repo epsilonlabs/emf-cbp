@@ -3,8 +3,8 @@ package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
@@ -46,7 +45,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		this.resource = resource;
 	}
 
-	public void serialise(Map<?, ?> options) throws IOException {
+	public void serialise(OutputStream outputStream, Map<?, ?> options) throws IOException {
 		if (eventList.isEmpty()) // tbr
 		{
 			System.err.println("CBPTextSerialiser: no events found, returning!");
@@ -55,33 +54,22 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 		Closeable printWriter = null;
 		// setup printwriter
-		try {
-			BufferedWriter bw = null;
-			if (options != null && options.get("path") != null) {
-				bw = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream((String) options.get("path"), resource.isResume()),
-								persistenceUtil.STRING_ENCODING));
-			} else {
-				final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
-				bw = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream(filePath, resource.isResume()),
-								persistenceUtil.STRING_ENCODING));
-			}
+		
+		BufferedWriter bw = null;
+		bw = new BufferedWriter(new OutputStreamWriter(outputStream));
+		/*
+		if (options != null && options.get("path") != null) {
+			bw = new BufferedWriter(
+					new OutputStreamWriter(new FileOutputStream((String) options.get("path"), resource.isResume()),
+							persistenceUtil.STRING_ENCODING));
+		} else {
+			final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
+			bw = new BufferedWriter(
+					new OutputStreamWriter(new FileOutputStream(filePath, resource.isResume()),
+							persistenceUtil.STRING_ENCODING));
+		}*/
 
-			printWriter = new PrintWriter(bw);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
-		}
-
-		// if we're not in resume mode, serialise initial entry
-		if (!resource.isResume())
-			try {
-				serialiseHeader(printWriter);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+		printWriter = new PrintWriter(bw);
 
 		for (Event e : eventList) {
 			switch (e.getEventType()) {

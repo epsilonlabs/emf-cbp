@@ -2,7 +2,7 @@
 package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
@@ -32,19 +31,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		contents = resource.getContents();
 	}
 	
-	public void deserialise(Map<?, ?> options, InputStream inputStream) throws Exception {
-
-		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
-
-		BufferedReader br;
-		if (inputStream == null) {
-			br = new BufferedReader(
-					new InputStreamReader(new FileInputStream(filePath), persistenceUtil.STRING_ENCODING));
-		}
-		else {
-			br =  new BufferedReader(
+	public void deserialise(InputStream inputStream, Map<?, ?> options) throws IOException {
+		
+		BufferedReader br =  new BufferedReader(
 					new InputStreamReader(inputStream, persistenceUtil.STRING_ENCODING));
-		}
 
 		String line;
 

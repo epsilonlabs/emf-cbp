@@ -1,7 +1,5 @@
 package org.eclipse.epsilon.cbp.io;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -10,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
@@ -36,13 +33,8 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	}
 
 	@Override
-	public void deserialise(Map<?, ?> options, InputStream inputStream) throws Exception {
-		final String filePath = CommonPlugin.resolve(resource.getURI()).toFileString();
-
-		if (inputStream == null) {
-			inputStream = new BufferedInputStream(new FileInputStream(filePath));	
-		}
-
+	public void deserialise(InputStream inputStream, Map<?, ?> options) throws IOException {
+		
 		/* Read binary records */
 		readingLoop:
 		while (inputStream.available() > 0) {

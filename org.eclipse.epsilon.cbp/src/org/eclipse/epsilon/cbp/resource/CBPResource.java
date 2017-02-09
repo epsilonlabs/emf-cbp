@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -44,37 +45,10 @@ public abstract class CBPResource extends ResourceImpl {
 		eventAdapter = new EventAdapter(changelog);
 		this.eAdapters().add(eventAdapter);
 	}
-
+	
 	@Override
-	public void save(Map<?, ?> options) throws IOException {
-		AbstractCBPSerialiser serialiser = getSerialiser();
-		try {
-			serialiser.serialise(options);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void load(Map<?, ?> options) throws IOException {
-		boolean defaultLoading = false;
-		if (options.get("DEFAULT_LOADING") != null) {
-			defaultLoading = (boolean) options.get("DEFAULT_LOADING");
-		}
-		if (defaultLoading) {
-			super.load(options);
-		}
-		else {
-			// We do not want changes during loading to be logged
-			eventAdapter.setEnabled(false);
-			AbstractCBPDeserialiser deserialiser = getDeserialiser();
-			try {
-				deserialiser.deserialise(options, null);
-				eventAdapter.setEnabled(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
+		getSerialiser().serialise(outputStream, options);
 	}
 
 	@Override
@@ -89,13 +63,8 @@ public abstract class CBPResource extends ResourceImpl {
 		else {
 			// We do not want changes during loading to be logged
 			eventAdapter.setEnabled(false);
-			AbstractCBPDeserialiser deserialiser = getDeserialiser();
-			try {
-				deserialiser.deserialise(options, inputStream);
-				eventAdapter.setEnabled(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			getDeserialiser().deserialise(inputStream, options);
+			eventAdapter.setEnabled(true);
 		}
 	}
 	

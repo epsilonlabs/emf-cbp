@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.io;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public abstract class AbstractCBPSerialiser {
 
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 
-	public abstract void serialise(Map<?, ?> options) throws Exception;
+	public abstract void serialise(OutputStream out, Map<?, ?> options) throws IOException;
 
 	public CBPResource getResource() {
 		return resource;

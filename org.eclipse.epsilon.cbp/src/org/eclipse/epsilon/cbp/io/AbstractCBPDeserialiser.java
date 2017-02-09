@@ -48,7 +48,7 @@ public abstract class AbstractCBPDeserialiser {
 
 	protected boolean verbose = false;
 
-	public abstract void deserialise(Map<?, ?> options, InputStream inputStream) throws Exception;
+	public abstract void deserialise(InputStream inputStream, Map<?, ?> options) throws IOException;
 
 	public Resource getResource() {
 		return resource;
