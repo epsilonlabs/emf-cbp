@@ -248,7 +248,7 @@ public class EventAdapter extends EContentAdapter {
 			} else {
 				if (n.getNotifier() instanceof Resource) {
 					for (Object obj : list) {
-						changelog.addEvent(new RemoveFromResourceEvent(obj));
+						changelog.addEvent(new RemoveFromResourceEvent((EObject) obj));
 					}
 				} else if (n.getNotifier() instanceof EObject) {
 					EObject focusObject = (EObject) n.getNotifier();

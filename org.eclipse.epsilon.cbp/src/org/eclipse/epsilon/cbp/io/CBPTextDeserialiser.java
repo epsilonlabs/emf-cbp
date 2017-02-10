@@ -118,7 +118,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			resource.addObjectToMap(obj, id);
 
 			// put to IDToEObjectMap
-			IDToEObjectMap.put(id, obj);
+			idToEObjectMap.put(id, obj);
 
 			// add to resource contents
 			resource.getContents().add(obj);
@@ -138,7 +138,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		// for each string, get EBoject and remove from contents
 		for (String str : objValueStringsArray) {
-			resource.getContents().remove(IDToEObjectMap.get(Integer.valueOf(str)));
+			resource.getContents().remove(idToEObjectMap.get(Integer.valueOf(str)));
 		}
 	}
 
@@ -151,7 +151,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		String[] stringArray = line.split(" ");
 
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EAttribute eAttribute = null;
 		if (verbose) {
@@ -174,7 +174,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		String line = (String) entry;
 		String[] stringArray = line.split(" ");
 
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EAttribute eAttribute = null;
 
@@ -198,7 +198,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		String line = (String) entry;
 		String[] stringArray = line.split(" ");
 
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EAttribute eAttribute = null;
 
@@ -223,7 +223,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		String line = (String) entry;
 		String[] stringArray = line.split(" ");
 
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 		EReference eReference = null;
 		if (verbose) {
 			eReference = (EReference) focusObject.eClass()
@@ -247,7 +247,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		String[] stringArray = line.split(" ");
 
 		// create focus object
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EReference eReference = null;
 
@@ -288,7 +288,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			resource.addObjectToMap(obj, id);
 
 			// put to IdToObjectMap
-			IDToEObjectMap.put(id, obj);
+			idToEObjectMap.put(id, obj);
 
 			// add to objectToAddList
 			eObjectToAddList.add(obj);
@@ -316,7 +316,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		String[] stringArray = line.split(" ");
 
 		// create focus object
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EReference eReference = null;
 
@@ -357,7 +357,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			resource.addObjectToMap(obj, id);
 
 			// put to IdToObjectMap
-			IDToEObjectMap.put(id, obj);
+			idToEObjectMap.put(id, obj);
 
 			// add to objectToAddList
 			eObjectToAddList.add(obj);
@@ -382,7 +382,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		String[] stringArray = line.split(" ");
 
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EReference eReference = null;
 
@@ -402,7 +402,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 			int id = Integer.valueOf(str);
 
-			EObject obj = IDToEObjectMap.get(id);
+			EObject obj = idToEObjectMap.get(id);
 
 			if (obj == null) {
 				System.err.println("error when handling addToEReference: obj " + id + " not found");
@@ -431,7 +431,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		String[] stringArray = line.split(" ");
 
-		EObject focusObject = IDToEObjectMap.get(Integer.valueOf(stringArray[1]));
+		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
 		EReference eReference = null;
 
@@ -562,10 +562,10 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 			featureValuesList.clear();
 			for (String str : valuesArray) {
-				featureValuesList.add(IDToEObjectMap.get(Integer.valueOf(str)));
+				featureValuesList.add(idToEObjectMap.get(Integer.valueOf(str)));
 			}
 		} else {
-			focusObject.eSet(eReference, IDToEObjectMap.get(Integer.valueOf(valuesArray[0])));
+			focusObject.eSet(eReference, idToEObjectMap.get(Integer.valueOf(valuesArray[0])));
 		}
 	}
 
@@ -577,7 +577,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
 
 			for (String str : valuesArray) {
-				featureValuesList.remove(IDToEObjectMap.get(Integer.valueOf(str)));
+				featureValuesList.remove(idToEObjectMap.get(Integer.valueOf(str)));
 			}
 		} else {
 			focusObject.eUnset(eReference);

@@ -26,7 +26,7 @@ public abstract class AbstractCBPDeserialiser {
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 
 	// id to eobject
-	protected Map<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
+	protected Map<Integer, EObject> idToEObjectMap = new HashMap<Integer, EObject>();
 
 	// common simple type map (such a bad name)
 	protected Map<String, Integer> commonsimpleTypeNameMap;

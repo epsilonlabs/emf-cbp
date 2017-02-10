@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
@@ -16,6 +15,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
@@ -24,8 +24,6 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	
 	protected DataInputStream in;
-	
-	private final Charset STRING_ENCODING = StandardCharsets.UTF_8;
 
 	public CBPBinaryDeserializer(CBPResource resource) {
 		super(resource);
@@ -40,56 +38,52 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		readingLoop:
 		while (in.available() > 0) {
 			switch (in.readInt()) {
-			case SerialisationEventType.REGISTER_EPACKAGE:
-				handleRegisterEPackage();
-				break;
-			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
-				handleCreateAndAddToResource();
-				break;
-			case SerialisationEventType.REMOVE_FROM_RESOURCE:
-				handleRemoveFromResource();
-				break;
-			case SerialisationEventType.SET_EATTRIBUTE:
-				handleSetEAttribute();
-				break;
-			case SerialisationEventType.ADD_TO_EATTRIBUTE:
-				handleAddToEAttribute();
-				break;
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE:
-				handleRemoveFromEAttribute();
-				break;
-			case SerialisationEventType.SET_EREFERENCE:
-				handleSetEReference();
-				break;
-			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
-				handleCreateAndSetEReference();
-				break;
-			case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
-				handleCreateAndAddToEReference();
-				break;
-			case SerialisationEventType.ADD_TO_EREFERENCE:
-				handleAddToEReference();
-				break;
-			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
-				handleRemoveFromEReference();
-				break;
-			case SerialisationEventType.STOP_READING:
-				break readingLoop;
-			default:
-				break;
-			}
+				case SerialisationEventType.REGISTER_EPACKAGE:
+					handleRegisterEPackage();
+					break;
+				case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
+					handleCreateAndAddToResource();
+					break;
+				case SerialisationEventType.REMOVE_FROM_RESOURCE:
+					handleRemoveFromResource();
+					break;
+				case SerialisationEventType.SET_EATTRIBUTE:
+					handleSetEAttribute();
+					break;
+				case SerialisationEventType.ADD_TO_EATTRIBUTE:
+					handleAddToEAttribute();
+					break;
+				case SerialisationEventType.REMOVE_FROM_EATTRIBUTE:
+					handleRemoveFromEAttribute();
+					break;
+				case SerialisationEventType.SET_EREFERENCE:
+					handleSetEReference();
+					break;
+				case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
+					handleCreateAndSetEReference();
+					break;
+				case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
+					handleCreateAndAddToEReference();
+					break;
+				case SerialisationEventType.ADD_TO_EREFERENCE:
+					handleAddToEReference();
+					break;
+				case SerialisationEventType.REMOVE_FROM_EREFERENCE:
+					handleRemoveFromEReference();
+					break;
+				case SerialisationEventType.STOP_READING:
+					break readingLoop;
+				default:
+					break;
+				}
 		}
 
 		inputStream.close();
 	}
-
+	
 	protected void handleRegisterEPackage() throws IOException {
-
-		// read String size
-		int numBytes = readInt(in);
-
 		// get nsuri
-		String nsuri = readString(in, numBytes);
+		String nsuri = readString();
 
 		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsuri);
 		ePackages.add(ePackage);
@@ -99,48 +93,24 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	protected void handleCreateAndAddToResource() throws IOException {
 
 		// read number of ints
-		int numInts = readInt(in);
-
-		// create buffer for number of ints
-		byte[] buffer = new byte[numInts * PrimitiveTypeLength.INTEGER_SIZE];
-
-		// read buffer
-		in.read(buffer);
-
-		// arr to store num of ints
-		int[] intArray = new int[numInts];
-
-		// index
-		int index = 0;
-
-		// populate int array
-		for (int i = 0; i < numInts; i++) {
-			intArray[i] = byteArrayToInt(Arrays.copyOfRange(buffer, index, index + PrimitiveTypeLength.INTEGER_SIZE));
-			index = index + PrimitiveTypeLength.INTEGER_SIZE;
-		}
-
-		index = 0;
-
-		for (int i = 0; i < (numInts / 2); i++) {
+		int numInts = in.readInt();
+		
+		for (int i=1;i<numInts;i++) {
 			// create object
-			EObject obj = createEObject(ePackageElementsNamesMap.getName(intArray[index]));
+			EObject obj = createEObject(ePackageElementsNamesMap.getName(in.readInt()));
 
 			// get id
-			int id = intArray[index + 1];
-
-			// increase index
-			index = index + 2;
-
+			int id = in.readInt();
+			
 			// add object to map
 			resource.addObjectToMap(obj, id);
 
 			// put obj to map
-			IDToEObjectMap.put(id, obj);
+			idToEObjectMap.put(id, obj);
 
 			// add to content
 			resource.getContents().add(obj);
 		}
-
 	}
 
 	/*
@@ -148,14 +118,11 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	 */
 	protected void handleRemoveFromResource() throws IOException {
 
-		int numInts = readInt(in);
-		byte[] buffer = new byte[numInts * PrimitiveTypeLength.INTEGER_SIZE];
-		in.read(buffer);
-		int index = 0;
+		int numInts = in.readInt();
+		
 		for (int i = 0; i < numInts; i++) {
-			int id = byteArrayToInt(Arrays.copyOfRange(buffer, index, index + 4));
-			resource.getContents().remove(IDToEObjectMap.get(id));
-			index = index + 4;
+			int id = in.readInt();
+			resource.getContents().remove(idToEObjectMap.get(id));
 		}
 	}
 
@@ -165,11 +132,11 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	protected void handleSetEAttribute() throws IOException {
 
 		// get Object
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		// get eattribute
 		EAttribute eAttribute = (EAttribute) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
 		// get eDataType
 		EDataType eDataType = eAttribute.getEAttributeType();
@@ -181,14 +148,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 		if (dataType == SimpleType.COMPLEX_TYPE || dataType == SimpleType.TEXT_SIMPLE_TYPE_ESTRING) {
 
-			int numStrings = readInt(in);
+			int numStrings = in.readInt();
 
 			String[] featureValuesArray = new String[numStrings];
 
 			for (int i = 0; i < numStrings; i++) {
-				int numBytes = readInt(in);
-
-				featureValuesArray[i] = readString(in, numBytes);
+				featureValuesArray[i] = readString();
 			}
 			handleComplexEAttributeValues(focusObject, eAttribute, featureValuesArray, true);
 		} else {
@@ -225,7 +190,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			}
 
 			// read number of primitives
-			int numPrimitives = readInt(in);
+			int numPrimitives = in.readInt();
 
 			Object[] featureValuesArray = new Object[numPrimitives];
 
@@ -256,11 +221,11 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	protected void handleAddToEAttribute() throws IOException {
 
 		// get Object
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		// get eattribute
 		EAttribute eAttribute = (EAttribute) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
 		// get eDataType
 		EDataType eDataType = eAttribute.getEAttributeType();
@@ -272,14 +237,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 		if (dataType == SimpleType.COMPLEX_TYPE || dataType == SimpleType.TEXT_SIMPLE_TYPE_ESTRING) {
 
-			int numStrings = readInt(in);
+			int numStrings = in.readInt();
 
 			String[] featureValuesArray = new String[numStrings];
 
 			for (int i = 0; i < numStrings; i++) {
-				int numBytes = readInt(in);
-
-				featureValuesArray[i] = readString(in, numBytes);
+				featureValuesArray[i] = readString();
 			}
 			handleComplexEAttributeValues(focusObject, eAttribute, featureValuesArray, false);
 		} else {
@@ -316,7 +279,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			}
 
 			// read number of primitives
-			int numPrimitives = readInt(in);
+			int numPrimitives = in.readInt();
 
 			Object[] featureValuesArray = new Object[numPrimitives];
 
@@ -346,11 +309,11 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	 */
 	protected void handleRemoveFromEAttribute() throws IOException {
 		// get Object
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		// get eattribute
 		EAttribute eAttribute = (EAttribute) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
 		// get eDataType
 		EDataType eDataType = eAttribute.getEAttributeType();
@@ -362,14 +325,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 		if (dataType != SimpleType.COMPLEX_TYPE) {
 
-			int numStrings = readInt(in);
+			int numStrings = in.readInt();
 
 			String[] featureValuesArray = new String[numStrings];
 
 			for (int i = 0; i < numStrings; i++) {
-				int numBytes = readInt(in);
-
-				featureValuesArray[i] = readString(in, numBytes);
+				featureValuesArray[i] = readString();
 			}
 			removeComplexEAttributeValues(focusObject, eAttribute, featureValuesArray);
 		} else {
@@ -406,7 +367,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			}
 
 			// read number of primitives
-			int numPrimitives = readInt(in);
+			int numPrimitives = in.readInt();
 
 			Object[] featureValuesArray = new Object[numPrimitives];
 
@@ -436,12 +397,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	 */
 	protected void handleSetEReference() throws IOException {
 
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
-		int numInts = readInt(in);
+		int numInts = in.readInt();
 
 		byte[] buffer = new byte[numInts * 4];
 
@@ -464,12 +425,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	 */
 	protected void handleCreateAndSetEReference() throws IOException {
 
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		EReference ref = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
-		int numInts = readInt(in);
+		int numInts = in.readInt();
 
 		// create a buffer to hold numInts integers
 		byte[] buffer = new byte[numInts * PrimitiveTypeLength.INTEGER_SIZE];
@@ -501,7 +462,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 			resource.addObjectToMap(obj, id);
 
-			IDToEObjectMap.put(id, obj);
+			idToEObjectMap.put(id, obj);
 		}
 
 		// set reference
@@ -510,10 +471,10 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(ref);
 			featureValuesList.clear();
 			for (int i = 1; i < numInts; i = i + 2) {
-				featureValuesList.add(IDToEObjectMap.get(intArray[i]));
+				featureValuesList.add(idToEObjectMap.get(intArray[i]));
 			}
 		} else {
-			focusObject.eSet(ref, IDToEObjectMap.get(intArray[1]));
+			focusObject.eSet(ref, idToEObjectMap.get(intArray[1]));
 		}
 	}
 
@@ -522,12 +483,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	 */
 	protected void handleCreateAndAddToEReference() throws IOException {
 
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		EReference ref = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
-		int numInts = readInt(in);
+		int numInts = in.readInt();
 
 		// create a buffer to hold numInts integers
 		byte[] buffer = new byte[numInts * PrimitiveTypeLength.INTEGER_SIZE];
@@ -559,7 +520,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 			resource.addObjectToMap(obj, id);
 
-			IDToEObjectMap.put(id, obj);
+			idToEObjectMap.put(id, obj);
 		}
 
 		// set reference
@@ -567,10 +528,10 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(ref);
 			for (int i = 1; i < numInts; i = i + 2) {
-				featureValuesList.add(IDToEObjectMap.get(intArray[i]));
+				featureValuesList.add(idToEObjectMap.get(intArray[i]));
 			}
 		} else {
-			focusObject.eSet(ref, IDToEObjectMap.get(intArray[1]));
+			focusObject.eSet(ref, idToEObjectMap.get(intArray[1]));
 		}
 	}
 
@@ -579,12 +540,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	 */
 	protected void handleAddToEReference() throws IOException {
 
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
-		int numInts = readInt(in);
+		int numInts = in.readInt();
 
 		byte[] buffer = new byte[numInts * 4];
 
@@ -607,12 +568,12 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	 */
 	protected void handleRemoveFromEReference() throws IOException {
 
-		EObject focusObject = IDToEObjectMap.get(readInt(in));
+		EObject focusObject = idToEObjectMap.get(in.readInt());
 
 		EReference eReference = (EReference) focusObject.eClass()
-				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(readInt(in))));
+				.getEStructuralFeature(getPropertyName(ePackageElementsNamesMap.getName(in.readInt())));
 
-		int numInts = readInt(in);
+		int numInts = in.readInt();
 
 		byte[] buffer = new byte[numInts * 4];
 
@@ -630,20 +591,13 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		removeFromEReference(focusObject, eReference, intArray);
 	}
 
-	private int readInt(InputStream in) throws IOException {
-		byte[] bytes = new byte[PrimitiveTypeLength.INTEGER_SIZE];
-		in.read(bytes);
-
-		return ByteBuffer.wrap(bytes).getInt();
-	}
-
-	private String readString(InputStream in, int length) throws IOException {
+	protected String readString() throws IOException {
+		int length = in.readInt();
 		byte[] bytes = new byte[length];
 		in.read(bytes);
-
-		return new String(bytes, STRING_ENCODING);
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
-
+	
 	private Object byteArrayToPrimitive(byte[] bytes, int primitiveType) {
 		switch (primitiveType) {
 		case SimpleType.SIMPLE_TYPE_BOOLEAN:
@@ -812,10 +766,10 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
 			featureValuesList.clear();
 			for (int i : eObjectIDArray) {
-				featureValuesList.add(IDToEObjectMap.get(i));
+				featureValuesList.add(idToEObjectMap.get(i));
 			}
 		} else {
-			focusObject.eSet(eReference, IDToEObjectMap.get(eObjectIDArray[0]));
+			focusObject.eSet(eReference, idToEObjectMap.get(eObjectIDArray[0]));
 		}
 	}
 
@@ -824,10 +778,10 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
 			for (int i : eObjectIDArray) {
-				featureValuesList.add(IDToEObjectMap.get(i));
+				featureValuesList.add(idToEObjectMap.get(i));
 			}
 		} else {
-			focusObject.eSet(eReference, IDToEObjectMap.get(eObjectIDArray[0]));
+			focusObject.eSet(eReference, idToEObjectMap.get(eObjectIDArray[0]));
 		}
 	}
 
@@ -836,7 +790,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
 			for (int i : eObjectIDArray) {
-				featureValuesList.remove(IDToEObjectMap.get(i));
+				featureValuesList.remove(idToEObjectMap.get(i));
 			}
 		} else {
 			focusObject.eUnset(eReference);
