@@ -7,22 +7,18 @@ import java.util.List;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
-public abstract class EAttributeEvent extends Event {
-	// the EObject under question
-	private EObject eObject;
-
-	// the attribute related to this event
-	private EAttribute eAttribute;
+public abstract class EAttributeEvent extends EStructuralFeatureEvent {
 
 	// values list
-	private List<Object> values = new ArrayList<Object>();
+	protected List<Object> values = new ArrayList<Object>();
 
 	@SuppressWarnings("unchecked")
 	public EAttributeEvent(EObject eObject, EAttribute eAttribute, Object value) {
 
 		this.eObject = eObject;
-		this.eAttribute = eAttribute;
+		this.eStructuralFeature = eAttribute;
 
 		// if value is collection
 		if (value instanceof Collection) {
@@ -48,7 +44,7 @@ public abstract class EAttributeEvent extends Event {
 		eObject = (EObject) n.getNotifier();
 
 		// set the feature
-		eAttribute = (EAttribute) n.getFeature();
+		eStructuralFeature = (EStructuralFeature) n.getFeature();
 
 		if (value instanceof Collection) {
 			values.addAll((List<Object>) value);
@@ -62,10 +58,11 @@ public abstract class EAttributeEvent extends Event {
 	}
 
 	public EAttribute getEAttribute() {
-		return eAttribute;
+		return (EAttribute) eStructuralFeature;
 	}
 
 	public List<Object> getValues() {
 		return values;
 	}
+	
 }
