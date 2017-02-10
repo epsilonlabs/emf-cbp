@@ -1,7 +1,6 @@
 
 package org.eclipse.epsilon.cbp.io;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -14,20 +13,15 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
-import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
-import org.eclipse.epsilon.cbp.event.Event;
-import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
-import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
@@ -36,54 +30,22 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
+	protected OutputStream out;
+	
 	public CBPBinarySerialiser(CBPResource resource) {
 		super(resource);
 	}
 
-	public void serialise(OutputStream printWriter, Map<?, ?> options) throws IOException {
-
-		if (options != null && options.get("ePackage") != null) {
-			ePackageElementsNamesMap = persistenceUtil
-					.generateEPackageElementNamesMap((EPackage) options.get("ePackage"));
-		}
-
-		for (Event e : eventList) {
-			if (e instanceof RegisterEPackageEvent) {
-				handleEPackageRegistrationEvent((RegisterEPackageEvent) e, printWriter);
-			}
-			else if (e instanceof AddToResourceEvent) {
-				handleAddToResourceEvent((AddToResourceEvent) e, printWriter);
-			}
-			else if (e instanceof SetEAttributeEvent) {
-				handleSetEAttributeEvent((SetEAttributeEvent) e, printWriter);
-			}
-			else if (e instanceof AddToEAttributeEvent) {
-				handleAddToEAttributeEvent((EAttributeEvent) e, printWriter);
-			}
-			else if (e instanceof SetEReferenceEvent) {
-				handleSetEReferenceEvent((SetEReferenceEvent) e, printWriter);
-			}
-			else if (e instanceof RemoveFromEAttributeEvent) {
-				handleRemoveFromAttributeEvent((EAttributeEvent) e, printWriter);
-			}
-			else if (e instanceof AddToEReferenceEvent) {
-				handleAddToEReferenceEvent((AddToEReferenceEvent) e, printWriter);
-			}
-			else if (e instanceof RemoveFromEReferenceEvent) {
-				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent) e, printWriter);
-			}
-			else if (e instanceof RemoveFromResourceEvent) {
-				handleRemoveFromResourceEvent((RemoveFromResourceEvent) e, printWriter);
-			}
-		}
-		printWriter.close();
+	public void serialise(OutputStream outputStream, Map<?, ?> options) throws IOException {
+		out = outputStream;
+		super.serialise(outputStream, options);
+		outputStream.close();
 	}
 
 	/*
 	 * format: 0 size (typeID id)*
 	 */
-	@Override
-	protected void handleAddToResourceEvent(AddToResourceEvent e, Closeable out) throws IOException {
+	protected void handleAddToResourceEvent(AddToResourceEvent e) throws IOException {
 
 		// cast to outputstream
 		OutputStream stream = (OutputStream) out;
@@ -122,8 +84,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	/*
 	 * format: 2 size id*
 	 */
-	@Override
-	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) throws IOException {
+	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e) throws IOException {
 		// cast to outputstream
 		OutputStream stream = (OutputStream) out;
 
@@ -141,8 +102,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 * format: 3/4 obj_ID attribute_id size values
 	 * 
 	 */
-	@Override
-	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
+	protected void handleSetEAttributeEvent(EAttributeEvent e) throws IOException {
 		OutputStream stream = (OutputStream) out;
 
 		EObject focusObject = e.getEObject();
@@ -186,8 +146,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 	}
 
-	@Override
-	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
+	protected void handleAddToEAttributeEvent(EAttributeEvent e) throws IOException {
 		OutputStream stream = (OutputStream) out;
 
 		EObject focusObject = e.getEObject();
@@ -234,8 +193,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 * format:
 	 * 
 	 */
-	@Override
-	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) throws IOException {
+	protected void handleSetEReferenceEvent(SetEReferenceEvent e) throws IOException {
 
 		OutputStream stream = (OutputStream) out;
 
@@ -291,8 +249,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 	}
 
-	@Override
-	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) throws IOException {
+	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e) throws IOException {
 
 		OutputStream stream = (OutputStream) out;
 
@@ -342,8 +299,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	/*
 	 * format: 7/8 objID featureID size value*
 	 */
-	@Override
-	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
+	protected void handleRemoveFromAttributeEvent(EAttributeEvent e) throws IOException {
 		OutputStream stream = (OutputStream) out;
 		// get forcus object
 		EObject focusObject = e.getEObject();
@@ -394,8 +350,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 	}
 
-	@Override
-	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) throws IOException {
+	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e) throws IOException {
 		OutputStream stream = (OutputStream) out;
 		EObject focusObject = e.getEObject();
 		EReference eReference = e.getEReference();
@@ -414,8 +369,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	/*
 	 * format: 14 str
 	 */
-	@Override
-	protected void handleEPackageRegistrationEvent(RegisterEPackageEvent e, Closeable out) {
+	protected void handleEPackageRegistrationEvent(RegisterEPackageEvent e) {
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
 		OutputStream stream = (OutputStream) out;
 		int serialisationType = SerialisationEventType.REGISTER_EPACKAGE;

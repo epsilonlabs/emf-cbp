@@ -2,7 +2,6 @@
 package org.eclipse.epsilon.cbp.io;
 
 import java.io.BufferedWriter;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -19,70 +18,36 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
-import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
-import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPTextSerialiser extends AbstractCBPSerialiser {
-
+	
+	protected PrintWriter out;
+	
 	public CBPTextSerialiser(CBPResource resource) {
 		super(resource);
 	}
 
 	public void serialise(OutputStream outputStream, Map<?, ?> options) throws IOException {
-		
-		Closeable printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream)));
-
-		for (Event e : eventList) {
-			
-			if (e instanceof RegisterEPackageEvent) {
-				handleEPackageRegistrationEvent((RegisterEPackageEvent) e, printWriter);
-			}
-			else if (e instanceof AddToResourceEvent) {
-				handleAddToResourceEvent((AddToResourceEvent) e, printWriter);
-			}
-			else if (e instanceof SetEAttributeEvent) {
-				handleSetEAttributeEvent((SetEAttributeEvent) e, printWriter);
-			}
-			else if (e instanceof AddToEAttributeEvent) {
-				handleAddToEAttributeEvent((AddToEAttributeEvent) e, printWriter);
-			}
-			else if (e instanceof RemoveFromEAttributeEvent) {
-				handleRemoveFromAttributeEvent((RemoveFromEAttributeEvent) e, printWriter);
-			}
-			else if (e instanceof SetEReferenceEvent) {
-				handleSetEReferenceEvent((SetEReferenceEvent) e, printWriter);
-			}
-			else if (e instanceof AddToEReferenceEvent) {
-				handleAddToEReferenceEvent((AddToEReferenceEvent) e, printWriter);
-			}
-			else if (e instanceof RemoveFromEReferenceEvent) {
-				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent) e, printWriter);
-			}
-			else if (e instanceof RemoveFromResourceEvent) {
-				handleRemoveFromResourceEvent((RemoveFromResourceEvent) e, printWriter);
-			}
-		}
-
-		printWriter.close();
+		out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream)));
+		super.serialise(outputStream, options);
+		out.close();
 	}
 
 	/*
 	 * event has the format of: 0 (MetaElementTypeID objectID(, )?)*
 	 */
 	@Override
-	protected void handleAddToResourceEvent(AddToResourceEvent e, Closeable out) {
+	protected void handleAddToResourceEvent(AddToResourceEvent e) {
 		PrintWriter writer = (PrintWriter) out;
 		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
 
@@ -127,7 +92,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * event type: 2 EObjectID*
 	 */
 	@Override
-	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) {
+	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e) {
 
 		PrintWriter writer = (PrintWriter) out;
 		List<EObject> removedEObjectsList = e.getEObjects();
@@ -146,7 +111,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * event format: 3/4 objectID EAttributeID value*
 	 */
 	@Override
-	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) {
+	protected void handleSetEAttributeEvent(EAttributeEvent e) {
 
 		PrintWriter writer = (PrintWriter) out;
 		// get forcus object
@@ -204,7 +169,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * event format: 5/6 objectID EAttributeID value*
 	 */
 	@Override
-	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) {
+	protected void handleAddToEAttributeEvent(EAttributeEvent e) {
 
 		PrintWriter writer = (PrintWriter) out;
 		// get forcus object
@@ -260,7 +225,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * objectID EReferenceID EObjectID
 	 */
 	@Override
-	protected void handleSetEReferenceEvent(SetEReferenceEvent e, Closeable out) {
+	protected void handleSetEReferenceEvent(SetEReferenceEvent e) {
 
 		PrintWriter writer = (PrintWriter) out;
 
@@ -333,7 +298,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * objectID EReferenceID EObjectID*
 	 */
 	@Override
-	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) {
+	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e) {
 
 		PrintWriter writer = (PrintWriter) out;
 		EObject focusObject = e.getEObject();
@@ -396,7 +361,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * event type: 7/8 objectID EAttributeID value*
 	 */
 	@Override
-	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) {
+	protected void handleRemoveFromAttributeEvent(EAttributeEvent e) {
 
 		PrintWriter writer = (PrintWriter) out;
 		// get forcus object
@@ -454,7 +419,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * event type: 13 objectID EReferenceID EObjectID*
 	 */
 	@Override
-	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) {
+	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e) {
 
 		PrintWriter writer = (PrintWriter) out;
 		EObject focusObject = e.getEObject();
@@ -475,7 +440,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	}
 
 	@Override
-	protected void handleEPackageRegistrationEvent(RegisterEPackageEvent e, Closeable out) {
+	protected void handleEPackageRegistrationEvent(RegisterEPackageEvent e) {
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
 		PrintWriter writer = (PrintWriter) out;
 		writer.println(SerialisationEventType.REGISTER_EPACKAGE + " " + e.getePackage().getNsURI());
