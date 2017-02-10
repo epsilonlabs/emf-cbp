@@ -159,7 +159,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		EDataType eDataType = eAttribute.getEAttributeType();
 
 		// get serialisation type flag
-		String serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + "";
+		String serializationType = SerialisationEventType.SET_EATTRIBUTE + "";
 		
 		String newValue;
 		String delimiter = "";
@@ -181,8 +181,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			}
 		} else // all other datatypes
 		{
-			serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX + "";
-
+			
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
@@ -218,7 +217,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		EDataType eDataType = eAttribute.getEAttributeType();
 
 		// get serialisation type flag
-		String serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + "";
+		String serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE + "";
 		String newValue;
 		String delimiter = "";
 
@@ -238,8 +237,6 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			}
 		} else // all other datatypes
 		{
-			serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX + "";
-
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
@@ -412,7 +409,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		EDataType eDataType = eAttribute.getEAttributeType();
 
 		// get serialisation type flag
-		String serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + "";
+		String serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE + "";
 		String newValue;
 		String delimiter = "";
 
@@ -433,7 +430,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		} else // all other datatypes
 		{
 			
-			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX + "";
+			serializationType = SerialisationEventType.REMOVE_FROM_EATTRIBUTE + "";
 			
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));

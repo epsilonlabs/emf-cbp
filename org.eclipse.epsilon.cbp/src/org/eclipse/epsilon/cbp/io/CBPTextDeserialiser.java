@@ -54,22 +54,13 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			case SerialisationEventType.REMOVE_FROM_RESOURCE:
 				handleRemoveFromResource(line);
 				break;
-			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
+			case SerialisationEventType.SET_EATTRIBUTE:
 				handleSetEAttribute(line);
 				break;
-			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
-				handleSetEAttribute(line);
-				break;
-			case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE:
+			case SerialisationEventType.ADD_TO_EATTRIBUTE:
 				handleAddToEAttribute(line);
 				break;
-			case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX:
-				handleAddToEAttribute(line);
-				break;
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
-				handleRemoveFromEAttribute(line);
-				break;
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
+			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE:
 				handleRemoveFromEAttribute(line);
 				break;
 			case SerialisationEventType.SET_EREFERENCE:
@@ -419,14 +410,14 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 			eObjectToAddList.add(obj);
 		}
-
+		
 		if (eReference.isMany()) {
 			@SuppressWarnings("unchecked")
 			EList<EObject> featureValuesList = (EList<EObject>) focusObject.eGet(eReference);
-
 			for (EObject obj : eObjectToAddList) {
 				featureValuesList.add(obj);
 			}
+			
 		} else {
 			System.err.println("add to non-many reference, error, operation not applicable");
 			// this should not happen

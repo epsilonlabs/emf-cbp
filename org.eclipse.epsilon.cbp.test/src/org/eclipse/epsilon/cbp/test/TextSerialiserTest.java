@@ -74,7 +74,7 @@ public class TextSerialiserTest {
 		StringOutputStream output = new StringOutputStream();
 		resource.save(output, getOptions());
 
-		assertEquals(output.getLine(2), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 "
+		assertEquals(output.getLine(2), SerialisationEventType.ADD_TO_EATTRIBUTE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -105,7 +105,7 @@ public class TextSerialiserTest {
 		StringOutputStream output = new StringOutputStream();
 		resource.save(output, getOptions());
 		
-		assertEquals(output.getLine(2), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 "
+		assertEquals(output.getLine(2), SerialisationEventType.ADD_TO_EATTRIBUTE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -133,7 +133,7 @@ public class TextSerialiserTest {
 		resource.save(output, getOptions());
 
 		assertEquals(output.getLine(2),
-				SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + " 0 "
+				SerialisationEventType.SET_EATTRIBUTE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("name"))
 						+ " University of York");
 	}
@@ -165,7 +165,7 @@ public class TextSerialiserTest {
 		StringOutputStream output = new StringOutputStream();
 		resource.save(output, getOptions());
 		
-		assertEquals(output.getLine(3), SerialisationEventType.SET_EATTRIBUTE_COMPLEX + " 1 "
+		assertEquals(output.getLine(3), SerialisationEventType.SET_EATTRIBUTE + " 1 "
 				+ getID(chancelor.eClass(), chancelor.eClass().getEStructuralFeature("staffMemberType")) + " Other");
 	}
 
@@ -299,7 +299,7 @@ public class TextSerialiserTest {
 		StringOutputStream output = new StringOutputStream();
 		resource.save(output, getOptions());
 
-		assertEquals(output.getLine(3), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
+		assertEquals(output.getLine(3), SerialisationEventType.REMOVE_FROM_EATTRIBUTE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -329,7 +329,7 @@ public class TextSerialiserTest {
 		StringOutputStream output = new StringOutputStream();
 		resource.save(output, getOptions());
 		
-		assertEquals(output.getLine(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
+		assertEquals(output.getLine(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -359,7 +359,7 @@ public class TextSerialiserTest {
 		resource.save(output, getOptions());
 
 		assertEquals(output.getLine(3),
-				SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
+				SerialisationEventType.REMOVE_FROM_EATTRIBUTE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("name"))
 						+ " University of York");
 	}

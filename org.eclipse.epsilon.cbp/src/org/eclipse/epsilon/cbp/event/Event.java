@@ -14,7 +14,6 @@ public abstract class Event {
 		return eObjects;
 	}
 	
-	/*
 	public void replay(CBPResource resource){};
-	*/
+	
 }

@@ -43,22 +43,13 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			case SerialisationEventType.REMOVE_FROM_RESOURCE:
 				handleRemoveFromResource(inputStream);
 				break;
-			case SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE:
+			case SerialisationEventType.SET_EATTRIBUTE:
 				handleSetEAttribute(inputStream);
 				break;
-			case SerialisationEventType.SET_EATTRIBUTE_COMPLEX:
-				handleSetEAttribute(inputStream);
-				break;
-			case SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE:
+			case SerialisationEventType.ADD_TO_EATTRIBUTE:
 				handleAddToEAttribute(inputStream);
 				break;
-			case SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX:
-				handleAddToEAttribute(inputStream);
-				break;
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE:
-				handleRemoveFromEAttribute(inputStream);
-				break;
-			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE_COMPLEX:
+			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE:
 				handleRemoveFromEAttribute(inputStream);
 				break;
 			case SerialisationEventType.SET_EREFERENCE:

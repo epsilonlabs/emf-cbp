@@ -7,7 +7,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EObject;
 
 public abstract class ResourceEvent extends Event {
-
+	
 	@SuppressWarnings("unchecked")
 	public ResourceEvent(Object value) {
 		if (value instanceof Collection) {
