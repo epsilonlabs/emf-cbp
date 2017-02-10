@@ -10,7 +10,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
@@ -55,7 +55,7 @@ public class ResourceContentsToEventsConverter {
 				eObjectsCounter.add(obj);
 
 				// create event to add to resource
-				AddEObjectsToResourceEvent e = new AddEObjectsToResourceEvent(obj);
+				AddToResourceEvent e = new AddToResourceEvent(obj);
 				changelog.addEvent(e);
 
 				// handle all attributes
@@ -167,7 +167,7 @@ public class ResourceContentsToEventsConverter {
 			if (eObjectsCounter.contains(obj)) {
 
 			} else {
-				AddEObjectsToResourceEvent addEObjectsToResourceEvent = new AddEObjectsToResourceEvent(obj);
+				AddToResourceEvent addEObjectsToResourceEvent = new AddToResourceEvent(obj);
 				changelog.addEvent(addEObjectsToResourceEvent);
 				eObjectsCounter.add(obj);
 			}
@@ -193,7 +193,7 @@ public class ResourceContentsToEventsConverter {
 
 		for (EObject obj : eObjectList) {
 			if (!eObjectsCounter.contains(obj)) {
-				AddEObjectsToResourceEvent addEObjectsToResourceEvent = new AddEObjectsToResourceEvent(obj);
+				AddToResourceEvent addEObjectsToResourceEvent = new AddToResourceEvent(obj);
 				changelog.addEvent(addEObjectsToResourceEvent);
 				eObjectsCounter.add(obj);
 			}

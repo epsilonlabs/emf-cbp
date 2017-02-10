@@ -9,22 +9,22 @@ import org.eclipse.emf.ecore.EReference;
 
 public abstract class EReferenceEvent extends Event {
 	// object under question
-	private EObject focusObject;
+	private EObject eObject;
 
 	// EReference related to this event
 	private EReference eReference;
 
 	@SuppressWarnings("unchecked")
-	public EReferenceEvent(EObject focusObject, EReference eReference, Object value) {
-		this.focusObject = focusObject;
+	public EReferenceEvent(EObject eObject, EReference eReference, Object value) {
+		this.eObject = eObject;
 
 		this.eReference = eReference;
 
 		// if value is a collection
 		if (value instanceof Collection) {
-			eObjectList.addAll((Collection<? extends EObject>) value);
+			eObjects.addAll((Collection<? extends EObject>) value);
 		} else {
-			eObjectList.add((EObject) value);
+			eObjects.add((EObject) value);
 		}
 	}
 
@@ -32,7 +32,7 @@ public abstract class EReferenceEvent extends Event {
 	public EReferenceEvent(Notification n) {
 		
 		// get notifier
-		this.focusObject = (EObject) n.getNotifier();
+		this.eObject = (EObject) n.getNotifier();
 
 		// get feature
 		this.eReference = (EReference) n.getFeature();
@@ -41,24 +41,24 @@ public abstract class EReferenceEvent extends Event {
 		if (this instanceof AddToEReferenceEvent || this instanceof SetEReferenceEvent) {
 			// if new value is collection
 			if (n.getNewValue() instanceof Collection) {
-				eObjectList.addAll((List<EObject>) n.getNewValue());
+				eObjects.addAll((List<EObject>) n.getNewValue());
 			} else {
-				eObjectList.add((EObject) n.getNewValue());
+				eObjects.add((EObject) n.getNewValue());
 			}
 		}
 		// if event is not add
 		else {
 			// if old value is collection
 			if (n.getOldValue() instanceof Collection) {
-				eObjectList.addAll((List<EObject>) n.getOldValue());
+				eObjects.addAll((List<EObject>) n.getOldValue());
 			} else {
-				eObjectList.add((EObject) n.getOldValue());
+				eObjects.add((EObject) n.getOldValue());
 			}
 		}
 	}
 
-	public EObject getFocusObject() {
-		return focusObject;
+	public EObject getEObject() {
+		return eObject;
 	}
 
 	public EReference getEReference() {

@@ -7,9 +7,9 @@ import org.eclipse.emf.ecore.EObject;
 
 public abstract class Event {
 	
-	protected List<EObject> eObjectList = new ArrayList<EObject>();
+	protected List<EObject> eObjects = new ArrayList<EObject>();
 
-	public List<EObject> getEObjectList() {
-		return eObjectList;
+	public List<EObject> getEObjects() {
+		return eObjects;
 	}
 }

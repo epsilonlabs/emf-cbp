@@ -9,10 +9,10 @@ import java.util.Set;
 
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.EPackageRegistrationEvent;
+import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
@@ -49,9 +49,9 @@ public abstract class AbstractCBPSerialiser {
 		return resource;
 	}
 
-	protected abstract void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out);
+	protected abstract void handleEPackageRegistrationEvent(RegisterEPackageEvent e, Closeable out);
 
-	protected abstract void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException;
+	protected abstract void handleAddToResourceEvent(AddToResourceEvent e, Closeable out) throws IOException;
 
 	protected abstract void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) throws IOException;
 

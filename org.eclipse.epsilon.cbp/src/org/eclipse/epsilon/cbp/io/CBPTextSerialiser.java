@@ -21,11 +21,11 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.EPackageRegistrationEvent;
+import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
@@ -54,11 +54,11 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 		for (Event e : eventList) {
 			
-			if (e instanceof EPackageRegistrationEvent) {
-				handleEPackageRegistrationEvent((EPackageRegistrationEvent) e, printWriter);
+			if (e instanceof RegisterEPackageEvent) {
+				handleEPackageRegistrationEvent((RegisterEPackageEvent) e, printWriter);
 			}
-			else if (e instanceof AddEObjectsToResourceEvent) {
-				handleAddToResourceEvent((AddEObjectsToResourceEvent) e, printWriter);
+			else if (e instanceof AddToResourceEvent) {
+				handleAddToResourceEvent((AddToResourceEvent) e, printWriter);
 			}
 			else if (e instanceof SetEAttributeEvent) {
 				handleSetEAttributeEvent((SetEAttributeEvent) e, printWriter);
@@ -90,11 +90,11 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	 * event has the format of: 0 (MetaElementTypeID objectID(, )?)*
 	 */
 	@Override
-	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) {
+	protected void handleAddToResourceEvent(AddToResourceEvent e, Closeable out) {
 		PrintWriter writer = (PrintWriter) out;
 		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
 
-		for (EObject obj : e.getEObjectList()) {
+		for (EObject obj : e.getEObjects()) {
 			// if obj is not added already
 			if (resource.addObjectToMap(obj)) {
 				// add type to object-to-create-list
@@ -138,7 +138,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		List<EObject> removedEObjectsList = e.getEObjectList();
+		List<EObject> removedEObjectsList = e.getEObjects();
 		writer.print(SerialisationEventType.REMOVE_FROM_RESOURCE + " ");
 
 		String delimiter = "";
@@ -158,7 +158,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 		PrintWriter writer = (PrintWriter) out;
 		// get forcus object
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get attr
 		EAttribute eAttribute = e.getEAttribute();
@@ -176,7 +176,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				if (obj != null) {
 					newValue = String.valueOf(obj);
 					newValue = newValue.replace(persistenceUtil.DELIMITER,
@@ -194,7 +194,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				newValue = (EcoreUtil.convertToString(eDataType, obj));
 
 				if (newValue != null) {
@@ -217,7 +217,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 		PrintWriter writer = (PrintWriter) out;
 		// get forcus object
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get attr
 		EAttribute eAttribute = e.getEAttribute();
@@ -234,7 +234,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				if (obj != null) {
 					newValue = String.valueOf(obj);
 					newValue = newValue.replace(persistenceUtil.DELIMITER,
@@ -251,7 +251,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				newValue = (EcoreUtil.convertToString(eDataType, obj));
 
 				if (newValue != null) {
@@ -276,13 +276,13 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		PrintWriter writer = (PrintWriter) out;
 
 		boolean created = false;
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 		EReference eReference = e.getEReference();
 
 		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
 		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
 
-		for (EObject obj : e.getEObjectList()) {
+		for (EObject obj : e.getEObjects()) {
 			// if obj is not added already
 			if (resource.addObjectToMap(obj)) {
 				// add type to object-to-create-list
@@ -347,12 +347,12 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	protected void handleAddToEReferenceEvent(AddToEReferenceEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 		EReference eReference = e.getEReference();
 		ArrayList<String> eObjectsToAddList = new ArrayList<String>();
 		ArrayList<String> eObjectsToCreateList = new ArrayList<String>();
 
-		for (EObject obj : e.getEObjectList()) {
+		for (EObject obj : e.getEObjects()) {
 			// if obj is not added already
 			if (resource.addObjectToMap(obj)) {
 				// add type to object-to-create-list
@@ -411,7 +411,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 		PrintWriter writer = (PrintWriter) out;
 		// get forcus object
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get attr
 		EAttribute eAttribute = e.getEAttribute();
@@ -428,7 +428,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				if (obj != null) {
 					newValue = String.valueOf(obj);
 					newValue = newValue.replace(persistenceUtil.DELIMITER,
@@ -446,7 +446,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 			writer.print((serializationType + " " + resource.getObjectId(focusObject) + " "
 					+ getID(focusObject.eClass(), eAttribute) + " "));
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				newValue = (EcoreUtil.convertToString(eDataType, obj));
 
 				if (newValue != null) {
@@ -468,9 +468,9 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) {
 
 		PrintWriter writer = (PrintWriter) out;
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 		EReference eReference = e.getEReference();
-		List<EObject> removedEObjectsList = e.getEObjectList();
+		List<EObject> removedEObjectsList = e.getEObjects();
 
 		
 		writer.print(SerialisationEventType.REMOVE_FROM_EREFERENCE + " " + resource.getObjectId(focusObject) + " "
@@ -486,7 +486,7 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 	}
 
 	@Override
-	protected void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out) {
+	protected void handleEPackageRegistrationEvent(RegisterEPackageEvent e, Closeable out) {
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
 		PrintWriter writer = (PrintWriter) out;
 		writer.println(SerialisationEventType.REGISTER_EPACKAGE + " " + e.getePackage().getNsURI());

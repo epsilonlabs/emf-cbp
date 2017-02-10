@@ -10,25 +10,25 @@ import org.eclipse.emf.ecore.EObject;
 
 public abstract class EAttributeEvent extends Event {
 	// the EObject under question
-	private EObject focusObject;
+	private EObject eObject;
 
 	// the attribute related to this event
 	private EAttribute eAttribute;
 
 	// values list
-	private List<Object> eAttributeValuesList = new ArrayList<Object>();
+	private List<Object> values = new ArrayList<Object>();
 
 	@SuppressWarnings("unchecked")
-	public EAttributeEvent(EObject focusObject, EAttribute eAttribute, Object value) {
+	public EAttributeEvent(EObject eObject, EAttribute eAttribute, Object value) {
 
-		this.focusObject = focusObject;
+		this.eObject = eObject;
 		this.eAttribute = eAttribute;
 
 		// if value is collection
 		if (value instanceof Collection) {
-			eAttributeValuesList.addAll((List<Object>) value);
+			values.addAll((List<Object>) value);
 		} else {
-			eAttributeValuesList.add(value);
+			values.add(value);
 		}
 	}
 
@@ -45,27 +45,27 @@ public abstract class EAttributeEvent extends Event {
 		}
 
 		// set notifier as the EObject under question
-		focusObject = (EObject) n.getNotifier();
+		eObject = (EObject) n.getNotifier();
 
 		// set the feature
 		eAttribute = (EAttribute) n.getFeature();
 
 		if (value instanceof Collection) {
-			eAttributeValuesList.addAll((List<Object>) value);
+			values.addAll((List<Object>) value);
 		} else {
-			eAttributeValuesList.add(value);
+			values.add(value);
 		}
 	}
 
-	public EObject getFocusObject() {
-		return focusObject;
+	public EObject getEObject() {
+		return eObject;
 	}
 
 	public EAttribute getEAttribute() {
 		return eAttribute;
 	}
 
-	public List<Object> getEAttributeValuesList() {
-		return eAttributeValuesList;
+	public List<Object> getValues() {
+		return values;
 	}
 }

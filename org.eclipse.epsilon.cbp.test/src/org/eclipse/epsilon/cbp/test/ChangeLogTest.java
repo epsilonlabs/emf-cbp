@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
@@ -31,7 +31,7 @@ public class ChangeLogTest {
 
 		Changelog changelog = getChangelog();
 
-		assertEquals(changelog.allOfType(AddEObjectsToResourceEvent.class).size(), 7);
+		assertEquals(changelog.allOfType(AddToResourceEvent.class).size(), 7);
 	}
 
 	@Test

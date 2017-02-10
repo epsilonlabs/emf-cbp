@@ -7,7 +7,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Event;
@@ -46,7 +46,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 		
-		assertTrue(changelog.getEventsList().get(1) instanceof AddEObjectsToResourceEvent);
+		assertTrue(changelog.getEventsList().get(1) instanceof AddToResourceEvent);
 	}
 
 	@Test

@@ -62,7 +62,7 @@ public class EventAdapter extends EContentAdapter {
 					handleEPackage(ePackage);
 
 					// add AddEObjectsTOResourceEvent
-					changelog.addEvent(new AddEObjectsToResourceEvent(n));
+					changelog.addEvent(new AddToResourceEvent(n));
 
 					// handle properties recursively
 					handleEObject(newValue);
@@ -135,7 +135,7 @@ public class EventAdapter extends EContentAdapter {
 						handleEPackage(ePackage);
 
 						// create addEObjectsToResourceEvent
-						changelog.addEvent(new AddEObjectsToResourceEvent(n));
+						changelog.addEvent(new AddToResourceEvent(n));
 
 						// handle properties recursively
 						handleEObject(newValue);
@@ -198,7 +198,7 @@ public class EventAdapter extends EContentAdapter {
 				for (EObject obj : list) {
 					EPackage ePackage = obj.eClass().getEPackage();
 					handleEPackage(ePackage);
-					changelog.addEvent(new AddEObjectsToResourceEvent(obj));
+					changelog.addEvent(new AddToResourceEvent(obj));
 					handleEObject(obj);
 				}
 			} else if (n.getNotifier() instanceof EObject) {
@@ -350,7 +350,7 @@ public class EventAdapter extends EContentAdapter {
 		if (currentEPackage == null) {
 			currentEPackage = ePackage;
 			ePackages.add(ePackage);
-			changelog.addEvent(new EPackageRegistrationEvent(ePackage));
+			changelog.addEvent(new RegisterEPackageEvent(ePackage));
 		} else {
 			if (!ePackage.equals(currentEPackage)) {
 				if (ePackages.contains(ePackage)) {
@@ -358,7 +358,7 @@ public class EventAdapter extends EContentAdapter {
 				} else {
 					ePackages.add(ePackage);
 					currentEPackage = ePackage;
-					changelog.addEvent(new EPackageRegistrationEvent(ePackage));
+					changelog.addEvent(new RegisterEPackageEvent(ePackage));
 				}
 			}
 		}

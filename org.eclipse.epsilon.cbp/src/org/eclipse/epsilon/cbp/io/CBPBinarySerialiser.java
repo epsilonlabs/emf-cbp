@@ -18,11 +18,11 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.EPackageRegistrationEvent;
+import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
@@ -53,11 +53,11 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 
 		for (Event e : eventList) {
-			if (e instanceof EPackageRegistrationEvent) {
-				handleEPackageRegistrationEvent((EPackageRegistrationEvent) e, printWriter);
+			if (e instanceof RegisterEPackageEvent) {
+				handleEPackageRegistrationEvent((RegisterEPackageEvent) e, printWriter);
 			}
-			else if (e instanceof AddEObjectsToResourceEvent) {
-				handleAddToResourceEvent((AddEObjectsToResourceEvent) e, printWriter);
+			else if (e instanceof AddToResourceEvent) {
+				handleAddToResourceEvent((AddToResourceEvent) e, printWriter);
 			}
 			else if (e instanceof SetEAttributeEvent) {
 				handleSetEAttributeEvent((SetEAttributeEvent) e, printWriter);
@@ -88,13 +88,13 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 * format: 0 size (typeID id)*
 	 */
 	@Override
-	protected void handleAddToResourceEvent(AddEObjectsToResourceEvent e, Closeable out) throws IOException {
+	protected void handleAddToResourceEvent(AddToResourceEvent e, Closeable out) throws IOException {
 
 		// cast to outputstream
 		OutputStream stream = (OutputStream) out;
 
 		// prepare eobject list
-		List<EObject> eObjectsList = e.getEObjectList();
+		List<EObject> eObjectsList = e.getEObjects();
 
 		// prepare eobjectToCreateList
 		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
@@ -132,7 +132,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		// cast to outputstream
 		OutputStream stream = (OutputStream) out;
 
-		List<EObject> removedEObjectsList = e.getEObjectList();
+		List<EObject> removedEObjectsList = e.getEObjects();
 
 		writePrimitive(stream, SerialisationEventType.REMOVE_FROM_RESOURCE);
 		writePrimitive(stream, removedEObjectsList.size());
@@ -150,7 +150,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	protected void handleSetEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
 		OutputStream stream = (OutputStream) out;
 
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get attr
 		EAttribute eAttribute = e.getEAttribute();
@@ -188,7 +188,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			}
 		} else {
 			int serializationType = SerialisationEventType.SET_EATTRIBUTE_COMPLEX;
-			writeComplexEAttributes(focusObject, eAttribute, e.getEAttributeValuesList(), serializationType, stream);
+			writeComplexEAttributes(focusObject, eAttribute, e.getValues(), serializationType, stream);
 		}
 	}
 
@@ -196,7 +196,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	protected void handleAddToEAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
 		OutputStream stream = (OutputStream) out;
 
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get attr
 		EAttribute eAttribute = e.getEAttribute();
@@ -233,7 +233,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			}
 		} else {
 			int serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_COMPLEX;
-			writeComplexEAttributes(focusObject, eAttribute, e.getEAttributeValuesList(), serializationType, stream);
+			writeComplexEAttributes(focusObject, eAttribute, e.getValues(), serializationType, stream);
 		}
 	}
 
@@ -247,13 +247,13 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		OutputStream stream = (OutputStream) out;
 
 		boolean created = false;
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 		EReference eReference = e.getEReference();
 
 		ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
 		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
 
-		for (EObject obj : e.getEObjectList()) {
+		for (EObject obj : e.getEObjects()) {
 			// if obj is not added already
 			if (resource.addObjectToMap(obj)) {
 				// add type to object-to-create-list
@@ -303,13 +303,13 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
 		OutputStream stream = (OutputStream) out;
 
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 		EReference eReference = e.getEReference();
 
 		ArrayList<Integer> eObjectsToAddList = new ArrayList<Integer>();
 		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
 
-		for (EObject obj : e.getEObjectList()) {
+		for (EObject obj : e.getEObjects()) {
 			// if obj is not added already
 			if (resource.addObjectToMap(obj)) {
 				// add type to object-to-create-list
@@ -353,7 +353,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	protected void handleRemoveFromAttributeEvent(EAttributeEvent e, Closeable out) throws IOException {
 		OutputStream stream = (OutputStream) out;
 		// get forcus object
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get attr
 		EAttribute eAttribute = e.getEAttribute();
@@ -366,14 +366,14 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			writePrimitive(stream, resource.getObjectId(focusObject));
 			writePrimitive(stream, getID(focusObject.eClass(), eAttribute));
 			int size = 0;
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				if (obj != null) {
 					size++;
 				}
 			}
 			writePrimitive(stream, size);
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				if (obj != null) {
 					writeString(stream, String.valueOf(obj));
 				}
@@ -383,14 +383,14 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 			writePrimitive(stream, resource.getObjectId(focusObject));
 			writePrimitive(stream, getID(focusObject.eClass(), eAttribute));
 			int size = 0;
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				if (obj != null) {
 					size++;
 				}
 			}
 			writePrimitive(stream, size);
 
-			for (Object obj : e.getEAttributeValuesList()) {
+			for (Object obj : e.getValues()) {
 				if (obj != null) {
 					String newValue = (EcoreUtil.convertToString(eDataType, obj));
 					if (newValue != null) {
@@ -404,9 +404,9 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	@Override
 	protected void handleRemoveFromEReferenceEvent(RemoveFromEReferenceEvent e, Closeable out) throws IOException {
 		OutputStream stream = (OutputStream) out;
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 		EReference eReference = e.getEReference();
-		List<EObject> removedEObjectsList = e.getEObjectList();
+		List<EObject> removedEObjectsList = e.getEObjects();
 
 		writePrimitive(stream, SerialisationEventType.REMOVE_FROM_EREFERENCE);
 		writePrimitive(stream, resource.getObjectId(focusObject));
@@ -422,7 +422,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 * format: 14 str
 	 */
 	@Override
-	protected void handleEPackageRegistrationEvent(EPackageRegistrationEvent e, Closeable out) {
+	protected void handleEPackageRegistrationEvent(RegisterEPackageEvent e, Closeable out) {
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(e.getePackage());
 		OutputStream stream = (OutputStream) out;
 		int serialisationType = SerialisationEventType.REGISTER_EPACKAGE;
@@ -440,13 +440,13 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 */
 	private void setPrimitiveEAttributes(EAttributeEvent e, OutputStream out, int primitiveType) throws IOException {
 		// get forcus object
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get eattribute
 		EAttribute eAttribute = e.getEAttribute();
 
 		// get lists
-		List<Object> eAttributeValuesList = e.getEAttributeValuesList();
+		List<Object> eAttributeValuesList = e.getValues();
 
 		// serialisation type
 		int serializationType = SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE;
@@ -479,13 +479,13 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 */
 	private void addPrimitiveEAttributes(EAttributeEvent e, OutputStream out, int primitiveType) throws IOException {
 		// get forcus object
-		EObject focusObject = e.getFocusObject();
+		EObject focusObject = e.getEObject();
 
 		// get eattribute
 		EAttribute eAttribute = e.getEAttribute();
 
 		// get lists
-		List<Object> eAttributeValuesList = e.getEAttributeValuesList();
+		List<Object> eAttributeValuesList = e.getValues();
 
 		// serialisation type
 		int serializationType = SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE;
