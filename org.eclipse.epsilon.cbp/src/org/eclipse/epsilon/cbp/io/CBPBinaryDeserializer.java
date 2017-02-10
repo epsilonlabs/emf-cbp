@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.cbp.io;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -21,6 +22,9 @@ import org.eclipse.epsilon.cbp.util.SerialisationEventType;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
+	
+	protected DataInputStream in;
+	
 	private final Charset STRING_ENCODING = StandardCharsets.UTF_8;
 
 	public CBPBinaryDeserializer(CBPResource resource) {
@@ -30,42 +34,44 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	@Override
 	public void deserialise(InputStream inputStream, Map<?, ?> options) throws IOException {
 		
+		in = new DataInputStream(inputStream);
+		
 		/* Read binary records */
 		readingLoop:
-		while (inputStream.available() > 0) {
-			switch (readInt(inputStream)) {
+		while (in.available() > 0) {
+			switch (in.readInt()) {
 			case SerialisationEventType.REGISTER_EPACKAGE:
-				handleRegisterEPackage(inputStream);
+				handleRegisterEPackage();
 				break;
 			case SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE:
-				handleCreateAndAddToResource(inputStream);
+				handleCreateAndAddToResource();
 				break;
 			case SerialisationEventType.REMOVE_FROM_RESOURCE:
-				handleRemoveFromResource(inputStream);
+				handleRemoveFromResource();
 				break;
 			case SerialisationEventType.SET_EATTRIBUTE:
-				handleSetEAttribute(inputStream);
+				handleSetEAttribute();
 				break;
 			case SerialisationEventType.ADD_TO_EATTRIBUTE:
-				handleAddToEAttribute(inputStream);
+				handleAddToEAttribute();
 				break;
 			case SerialisationEventType.REMOVE_FROM_EATTRIBUTE:
-				handleRemoveFromEAttribute(inputStream);
+				handleRemoveFromEAttribute();
 				break;
 			case SerialisationEventType.SET_EREFERENCE:
-				handleSetEReference(inputStream);
+				handleSetEReference();
 				break;
 			case SerialisationEventType.CREATE_AND_SET_EREFERENCE:
-				handleCreateAndSetEReference(inputStream);
+				handleCreateAndSetEReference();
 				break;
 			case SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE:
-				handleCreateAndAddToEReference(inputStream);
+				handleCreateAndAddToEReference();
 				break;
 			case SerialisationEventType.ADD_TO_EREFERENCE:
-				handleAddToEReference(inputStream);
+				handleAddToEReference();
 				break;
 			case SerialisationEventType.REMOVE_FROM_EREFERENCE:
-				handleRemoveFromEReference(inputStream);
+				handleRemoveFromEReference();
 				break;
 			case SerialisationEventType.STOP_READING:
 				break readingLoop;
@@ -77,10 +83,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		inputStream.close();
 	}
 
-	@Override
-	protected void handleRegisterEPackage(Object entry) throws IOException {
-
-		InputStream in = (InputStream) entry;
+	protected void handleRegisterEPackage() throws IOException {
 
 		// read String size
 		int numBytes = readInt(in);
@@ -93,10 +96,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		ePackageElementsNamesMap = persistenceUtil.generateEPackageElementNamesMap(ePackage);
 	}
 
-	@Override
-	protected void handleCreateAndAddToResource(Object entry) throws IOException {
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleCreateAndAddToResource() throws IOException {
 
 		// read number of ints
 		int numInts = readInt(in);
@@ -146,10 +146,8 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 2 size id*
 	 */
-	@Override
-	protected void handleRemoveFromResource(Object entry) throws IOException {
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleRemoveFromResource() throws IOException {
+
 		int numInts = readInt(in);
 		byte[] buffer = new byte[numInts * PrimitiveTypeLength.INTEGER_SIZE];
 		in.read(buffer);
@@ -164,10 +162,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 3/4 obj_ID attribute_id size values
 	 */
-	@Override
-	protected void handleSetEAttribute(Object entry) throws IOException {
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleSetEAttribute() throws IOException {
 
 		// get Object
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
@@ -258,10 +253,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 3/4 obj_ID attribute_id size values
 	 */
-	@Override
-	protected void handleAddToEAttribute(Object entry) throws IOException {
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleAddToEAttribute() throws IOException {
 
 		// get Object
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
@@ -352,11 +344,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 7/8 objID featureID size value*
 	 */
-	@Override
-	protected void handleRemoveFromEAttribute(Object entry) throws IOException {
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
-
+	protected void handleRemoveFromEAttribute() throws IOException {
 		// get Object
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 
@@ -446,11 +434,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 9 objectID referenceID size objectIDs*
 	 */
-	@Override
-	protected void handleSetEReference(Object entry) throws IOException {
-
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleSetEReference() throws IOException {
 
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 
@@ -478,10 +462,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 10 objectID featureIDe size values
 	 */
-	@Override
-	protected void handleCreateAndSetEReference(Object entry) throws IOException {
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleCreateAndSetEReference() throws IOException {
 
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 
@@ -539,10 +520,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 11 objectID featureIDe size values
 	 */
-	@Override
-	protected void handleCreateAndAddToEReference(Object entry) throws IOException {
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleCreateAndAddToEReference() throws IOException {
 
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 
@@ -599,11 +577,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 12 objectID featureIDe size values
 	 */
-	@Override
-	protected void handleAddToEReference(Object entry) throws IOException {
-
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleAddToEReference() throws IOException {
 
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 
@@ -631,11 +605,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	/*
 	 * format: 12 objectID featureIDe size values
 	 */
-	@Override
-	protected void handleRemoveFromEReference(Object entry) throws IOException {
-
-		// cast entry to input stream
-		InputStream in = (InputStream) entry;
+	protected void handleRemoveFromEReference() throws IOException {
 
 		EObject focusObject = IDToEObjectMap.get(readInt(in));
 

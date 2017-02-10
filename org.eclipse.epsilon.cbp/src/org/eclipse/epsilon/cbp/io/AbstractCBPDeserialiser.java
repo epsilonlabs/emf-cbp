@@ -55,29 +55,7 @@ public abstract class AbstractCBPDeserialiser {
 	public Resource getResource() {
 		return resource;
 	}
-
-	protected abstract void handleRegisterEPackage(Object entry) throws IOException;
-
-	protected abstract void handleCreateAndAddToResource(Object entry) throws IOException;
-
-	protected abstract void handleRemoveFromResource(Object entry) throws IOException;
-
-	protected abstract void handleSetEAttribute(Object entry) throws IOException;
-
-	protected abstract void handleAddToEAttribute(Object entry) throws IOException;
-
-	protected abstract void handleRemoveFromEAttribute(Object entry) throws IOException;
-
-	protected abstract void handleSetEReference(Object entry) throws IOException;
-
-	protected abstract void handleCreateAndSetEReference(Object entry) throws IOException;
-
-	protected abstract void handleCreateAndAddToEReference(Object entry) throws IOException;
-
-	protected abstract void handleAddToEReference(Object entry) throws IOException;
-
-	protected abstract void handleRemoveFromEReference(Object entry) throws IOException;
-
+		
 	protected int getTypeID(EDataType type) {
 		if (commonsimpleTypeNameMap.containsKey(type.getName())) {
 			return commonsimpleTypeNameMap.get(type.getName());

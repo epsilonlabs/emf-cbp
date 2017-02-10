@@ -447,7 +447,6 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		removeEReferenceValues(focusObject, eReference, featureValueStringsArray);
 	}
 
-	@Override
 	protected void handleRegisterEPackage(Object entry) {
 		String line = (String) entry;
 		int index = line.indexOf(" ");
