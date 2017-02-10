@@ -95,7 +95,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		// read number of ints
 		int numInts = in.readInt();
 		
-		for (int i=1;i<numInts;i++) {
+		for (int i=0;i<numInts;i++) {
 			// create object
 			EObject obj = createEObject(ePackageElementsNamesMap.getName(in.readInt()));
 

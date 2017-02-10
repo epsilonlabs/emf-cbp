@@ -46,35 +46,12 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 * format: 0 size (typeID id)*
 	 */
 	protected void handleAddToResourceEvent(AddToResourceEvent e) throws IOException {
-
-		// prepare eobject list
-		List<EObject> eObjectsList = e.getEObjects();
-
-		// prepare eobjectToCreateList
-		ArrayList<Integer> eObjectsToCreateList = new ArrayList<Integer>();
-
-		// for each object
-		for (EObject obj : eObjectsList) {
-			// if new
-			if (resource.addObjectToMap(obj)) {
-				// add add type id
-				eObjectsToCreateList.add(getID(obj.eClass()));
-
-				// add object id
-				eObjectsToCreateList.add(resource.getObjectId(obj));
-			} else {
-				// this should not happen
-				System.err.println("handleAddToResourceEven: redundant creation");
-			}
-		}
-		if (!eObjectsToCreateList.isEmpty()) // CREATE_AND_ADD_TO_RESOURCE
-		{
-			out.writeInt(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE);
-			out.writeInt(eObjectsToCreateList.size());
-
-			for (Iterator<Integer> it = eObjectsToCreateList.iterator(); it.hasNext();) {
-				out.writeInt(it.next());
-			}
+		out.writeInt(SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE);
+		out.writeInt(e.getEObjects().size());
+		for (EObject eObject : e.getEObjects()) {
+			resource.addObjectToMap(eObject);
+			out.writeInt(getID(eObject.eClass()));
+			out.writeInt(resource.getObjectId(eObject));
 		}
 	}
 
@@ -83,12 +60,10 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 	 */
 	protected void handleRemoveFromResourceEvent(RemoveFromResourceEvent e) throws IOException {
 
-		List<EObject> removedEObjectsList = e.getEObjects();
-
 		out.writeInt(SerialisationEventType.REMOVE_FROM_RESOURCE);
-		out.writeInt(removedEObjectsList.size());
+		out.writeInt(e.getEObjects().size());
 
-		for (EObject obj : removedEObjectsList) {
+		for (EObject obj : e.getEObjects()) {
 			out.writeInt(resource.getObjectId(obj));
 		}
 	}
