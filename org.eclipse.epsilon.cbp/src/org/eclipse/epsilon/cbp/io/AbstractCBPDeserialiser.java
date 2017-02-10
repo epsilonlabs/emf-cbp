@@ -43,6 +43,13 @@ public abstract class AbstractCBPDeserialiser {
 
 	protected boolean verbose = false;
 
+	public AbstractCBPDeserialiser(CBPResource resource) {
+
+		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
+		this.resource = resource;
+	}
+	
 	public abstract void deserialise(InputStream inputStream, Map<?, ?> options) throws IOException;
 
 	public Resource getResource() {

@@ -24,10 +24,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 	private final Charset STRING_ENCODING = StandardCharsets.UTF_8;
 
 	public CBPBinaryDeserializer(CBPResource resource) {
-
-		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-		this.resource = resource;
+		super(resource);
 	}
 
 	@Override

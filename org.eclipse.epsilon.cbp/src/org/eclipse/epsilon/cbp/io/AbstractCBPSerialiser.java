@@ -23,10 +23,7 @@ import org.eclipse.epsilon.cbp.util.PersistenceUtil;
 import org.eclipse.epsilon.cbp.util.SimpleType;
 
 public abstract class AbstractCBPSerialiser {
-
-	// epacks involved
-	protected Set<EPackage> ePackages;
-
+	
 	// event list
 	protected List<Event> eventList;
 
@@ -42,7 +39,16 @@ public abstract class AbstractCBPSerialiser {
 	protected CBPResource resource = null;
 
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
+	
+	public AbstractCBPSerialiser(CBPResource resource) {
+		this.eventList = resource.getChangelog().getEventsList();
 
+		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
+		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
+
+		this.resource = resource;
+	}
+	
 	public abstract void serialise(OutputStream out, Map<?, ?> options) throws IOException;
 
 	public CBPResource getResource() {

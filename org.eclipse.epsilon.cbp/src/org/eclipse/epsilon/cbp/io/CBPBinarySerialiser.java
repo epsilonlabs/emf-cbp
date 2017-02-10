@@ -37,12 +37,7 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 
 	public CBPBinarySerialiser(CBPResource resource) {
-		this.eventList = resource.getChangelog().getEventsList();
-
-		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-
-		this.resource = resource;
+		super(resource);
 	}
 
 	public void serialise(OutputStream printWriter, Map<?, ?> options) throws IOException {

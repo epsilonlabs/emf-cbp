@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,16 +16,15 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
-import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.Event;
+import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
@@ -39,13 +37,7 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 public class CBPTextSerialiser extends AbstractCBPSerialiser {
 
 	public CBPTextSerialiser(CBPResource resource) {
-		this.ePackages = new HashSet<EPackage>();
-		this.eventList = resource.getChangelog().getEventsList();
-
-		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-
-		this.resource = resource;
+		super(resource);
 	}
 
 	public void serialise(OutputStream outputStream, Map<?, ?> options) throws IOException {

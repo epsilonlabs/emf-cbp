@@ -23,10 +23,7 @@ import org.eclipse.epsilon.cbp.util.SimpleType;
 public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 	public CBPTextDeserialiser(CBPResource resource) {
-
-		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
-		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-		this.resource = resource;
+		super(resource);
 	}
 	
 	public void deserialise(InputStream inputStream, Map<?, ?> options) throws IOException {
