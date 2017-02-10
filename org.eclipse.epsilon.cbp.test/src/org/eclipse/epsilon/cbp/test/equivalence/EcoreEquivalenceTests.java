@@ -7,13 +7,18 @@ import org.junit.Test;
 public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	
 	@Test
+	public void eOpposites() throws Exception {
+		run("var r1 = new EReference; var r2 = new EReference; r1.eOpposite = r2;");
+	}
+	
+	@Test
 	public void createAndDelete() throws Exception {
-		run ("var c : new EClass; delete c;");
+		run("var c : new EClass; delete c;");
 	}
 	
 	@Test
 	public void createAndDeleteNested() throws Exception {
-		run ("var c : new EClass; var a : new EAttribute; c.eStructuralFeatures.add(a); delete c;");
+		run("var c : new EClass; var a : new EAttribute; c.eStructuralFeatures.add(a); delete c;");
 	}
 	
 	@Test
@@ -28,7 +33,7 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	
 	@Test
 	public void testSuperclass() throws Exception {
-		run("var c : new EClass; var s : new EClass; c.eSuperTypes.add(s);");
+		run("var c : new EClass; var s : new EClass; c.eSuperTypes.add(s);", true);
 	}
 	
 	@Override

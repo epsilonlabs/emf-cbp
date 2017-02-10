@@ -48,7 +48,8 @@ public class Changelog {
 		}
 		return result;
 	}
-
+	
+	/*
 	public void printLog() {
 		for (Event e : eventList) {
 			if (e instanceof EAttributeEvent) {
@@ -59,5 +60,5 @@ public class Changelog {
 						.println(e.getEventType() + " " + e.getClass().getSimpleName() + e.getEObjectList().toString());
 			}
 		}
-	}
+	}*/
 }

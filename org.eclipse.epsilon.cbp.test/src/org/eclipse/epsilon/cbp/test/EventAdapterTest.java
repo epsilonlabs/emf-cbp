@@ -1,15 +1,24 @@
 package org.eclipse.epsilon.cbp.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.eol.execute.operations.simple.assertions.AssertOperation;
 import org.junit.Test;
 
 import university.Department;
@@ -36,8 +45,8 @@ public class EventAdapterTest {
 		resource.getContents().add(university);
 
 		Changelog changelog = adapter.getChangelog();
-
-		assertEquals(changelog.getEventsList().get(1).getEventType(), Event.ADD_EOBJ_TO_RESOURCE);
+		
+		assertTrue(changelog.getEventsList().get(1) instanceof AddEObjectsToResourceEvent);
 	}
 
 	@Test
@@ -59,7 +68,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.ADD_TO_EREFERENCE);
+		assertTrue(changelog.getEventsList().get(2) instanceof AddToEReferenceEvent);
 	}
 
 	@Test
@@ -80,7 +89,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.ADD_TO_EATTRIBUTE);
+		assertTrue(changelog.getEventsList().get(2) instanceof AddToEAttributeEvent);
 	}
 
 	@Test
@@ -101,7 +110,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.REMOVE_EOBJ_FROM_RESOURCE);
+		assertTrue(changelog.getEventsList().get(2) instanceof RemoveFromResourceEvent);
 	}
 
 	@Test
@@ -150,7 +159,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(3).getEventType(), Event.REMOVE_FROM_EREFERENCE);
+		assertTrue(changelog.getEventsList().get(3) instanceof RemoveFromEReferenceEvent);
 	}
 	
 	@Test
@@ -178,7 +187,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(4).getEventType(), Event.REMOVE_FROM_EREFERENCE);
+		assertTrue(changelog.getEventsList().get(4) instanceof RemoveFromEReferenceEvent);
 	}
 
 	@Test
@@ -203,7 +212,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(3).getEventType(), Event.REMOVE_FROM_EATTRIBUTE);
+		assertTrue(changelog.getEventsList().get(3) instanceof RemoveFromEAttributeEvent);
 	}
 
 	@Test
@@ -224,7 +233,7 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.SET_EATTRIBUTE);
+		assertTrue(changelog.getEventsList().get(2) instanceof SetEAttributeEvent);
 	}
 
 	@Test
@@ -247,6 +256,6 @@ public class EventAdapterTest {
 
 		Changelog changelog = adapter.getChangelog();
 
-		assertEquals(changelog.getEventsList().get(2).getEventType(), Event.SET_EREFERENCE);
+		assertTrue(changelog.getEventsList().get(2) instanceof SetEReferenceEvent);
 	}
 }

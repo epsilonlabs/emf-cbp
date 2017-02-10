@@ -10,10 +10,8 @@ public abstract class ResourceEvent extends Event
 {
 
     @SuppressWarnings("unchecked")
-	public ResourceEvent(int eventType, Object value)
+	public ResourceEvent(Object value)
     {
-        super(eventType);
-        
         if(value instanceof Collection)
         {
         	eObjectList.addAll((List<EObject>) value);
@@ -25,12 +23,12 @@ public abstract class ResourceEvent extends Event
     }
     
     @SuppressWarnings("unchecked")
-	public ResourceEvent(int eventType, Notification n)
+	public ResourceEvent(Notification n)
     {
-    	super(eventType);
+ 
     	
     	//if event is add to resource
-    	if(eventType == Event.ADD_EOBJ_TO_RESOURCE)
+    	if(this instanceof AddEObjectsToResourceEvent)
     	{
     		if(n.getNewValue() instanceof Collection)
     		{
@@ -41,7 +39,7 @@ public abstract class ResourceEvent extends Event
     			eObjectList.add((EObject) n.getNewValue());
     		}
     	}
-    	else if (eventType == Event.REMOVE_EOBJ_FROM_RESOURCE) 
+    	else if (this instanceof RemoveFromResourceEvent) 
     	{
     		if(n.getOldValue() instanceof Collection)
     		{

@@ -15,10 +15,10 @@ import org.eclipse.emf.ecore.resource.URIHandler;
 import org.eclipse.emf.ecore.resource.impl.ArchiveURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.EFSURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
-import org.eclipse.emf.ecore.resource.impl.FileURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
+import org.eclipse.epsilon.cbp.AppendFileURIHandlerImpl;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
 import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
@@ -28,7 +28,7 @@ public abstract class CBPResource extends ResourceImpl {
 	
 	protected EventAdapter eventAdapter;
 	protected Changelog changelog = new Changelog();
-
+	
 	// eobject to id map
 	protected HashMap<EObject, Integer> idMap = new HashMap<EObject, Integer>();
 	
@@ -110,7 +110,7 @@ public abstract class CBPResource extends ResourceImpl {
 		return new ExtensibleURIConverterImpl(Arrays.asList(new URIHandler []
           { 
             new PlatformResourceURIHandlerImpl(), 
-            new FileURIHandlerImpl(), 
+            new AppendFileURIHandlerImpl(), 
             new EFSURIHandlerImpl(), 
             new ArchiveURIHandlerImpl(), 
             new URIHandlerImpl()

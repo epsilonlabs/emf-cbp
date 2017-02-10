@@ -19,12 +19,15 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EPackageRegistrationEvent;
 import org.eclipse.epsilon.cbp.event.Event;
+import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.util.PrimitiveTypeLength;
@@ -42,7 +45,7 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		this.resource = resource;
 	}
 
-	public void serialise(OutputStream outputStream, Map<?, ?> options) throws IOException {
+	public void serialise(OutputStream printWriter, Map<?, ?> options) throws IOException {
 
 		if (options != null && options.get("ePackage") != null) {
 			ePackageElementsNamesMap = persistenceUtil
@@ -50,37 +53,35 @@ public class CBPBinarySerialiser extends AbstractCBPSerialiser {
 		}
 
 		for (Event e : eventList) {
-			switch (e.getEventType()) {
-			case Event.REGISTER_EPACKAGE:
-				handleEPackageRegistrationEvent((EPackageRegistrationEvent) e, outputStream);
-				break;
-			case Event.ADD_EOBJ_TO_RESOURCE:
-				handleAddToResourceEvent((AddEObjectsToResourceEvent) e, outputStream);
-				break;
-			case Event.SET_EATTRIBUTE:
-				handleSetEAttributeEvent((EAttributeEvent) e, outputStream);
-				break;
-			case Event.ADD_TO_EATTRIBUTE:
-				handleAddToEAttributeEvent((EAttributeEvent) e, outputStream);
-				break;
-			case Event.SET_EREFERENCE:
-				handleSetEReferenceEvent((SetEReferenceEvent) e, outputStream);
-				break;
-			case Event.ADD_TO_EREFERENCE:
-				handleAddToEReferenceEvent((AddToEReferenceEvent) e, outputStream);
-				break;
-			case Event.REMOVE_FROM_EATTRIBUTE:
-				handleRemoveFromAttributeEvent((EAttributeEvent) e, outputStream);
-				break;
-			case Event.REMOVE_FROM_EREFERENCE:
-				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent) e, outputStream);
-				break;
-			case Event.REMOVE_EOBJ_FROM_RESOURCE:
-				handleRemoveFromResourceEvent((RemoveFromResourceEvent) e, outputStream);
-				break;
+			if (e instanceof EPackageRegistrationEvent) {
+				handleEPackageRegistrationEvent((EPackageRegistrationEvent) e, printWriter);
+			}
+			else if (e instanceof AddEObjectsToResourceEvent) {
+				handleAddToResourceEvent((AddEObjectsToResourceEvent) e, printWriter);
+			}
+			else if (e instanceof SetEAttributeEvent) {
+				handleSetEAttributeEvent((SetEAttributeEvent) e, printWriter);
+			}
+			else if (e instanceof AddToEAttributeEvent) {
+				handleAddToEAttributeEvent((EAttributeEvent) e, printWriter);
+			}
+			else if (e instanceof SetEReferenceEvent) {
+				handleSetEReferenceEvent((SetEReferenceEvent) e, printWriter);
+			}
+			else if (e instanceof RemoveFromEAttributeEvent) {
+				handleRemoveFromAttributeEvent((EAttributeEvent) e, printWriter);
+			}
+			else if (e instanceof AddToEReferenceEvent) {
+				handleAddToEReferenceEvent((AddToEReferenceEvent) e, printWriter);
+			}
+			else if (e instanceof RemoveFromEReferenceEvent) {
+				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent) e, printWriter);
+			}
+			else if (e instanceof RemoveFromResourceEvent) {
+				handleRemoveFromResourceEvent((RemoveFromResourceEvent) e, printWriter);
 			}
 		}
-		outputStream.close();
+		printWriter.close();
 	}
 
 	/*

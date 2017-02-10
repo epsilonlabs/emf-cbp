@@ -23,7 +23,7 @@ public class ResourceContentsToEventsConverterTest {
 
 		ResourceContentsToEventsConverter converter = generateConverter();
 		converter.convert();
-		converter.getChangelog().printLog();
+		//converter.getChangelog().printLog();
 
 		assertEquals(true, true);
 	}

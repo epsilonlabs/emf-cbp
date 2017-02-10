@@ -31,7 +31,7 @@ public class TextSerialiserTest {
 	 * event has the format of: 0 [(MetaElementTypeID objectID)* ,*]
 	 */
 	@Test
-	public void testAddToResourceEvent() {
+	public void testAddToResourceEvent() throws Exception{
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -44,15 +44,10 @@ public class TextSerialiserTest {
 
 		// add university
 		resource.getContents().add(university);
-
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		ArrayList<String> lines = getLines();
-		assertEquals(lines.get(1),
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
+		
+		assertEquals(output.getLine(1),
 				SerialisationEventType.CREATE_AND_ADD_TO_RESOURCE + " " + getID(university.eClass()) + " 0");
 	}
 
@@ -60,7 +55,7 @@ public class TextSerialiserTest {
 	 * event format: 6 objectID EAttributeID [value*]
 	 */
 	@Test
-	public void testAddToEAttributeEvent() {
+	public void testAddToEAttributeEvent() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -76,15 +71,10 @@ public class TextSerialiserTest {
 
 		university.getCodes().add("UoY");
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
 
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(2), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 "
+		assertEquals(output.getLine(2), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -92,7 +82,7 @@ public class TextSerialiserTest {
 	 * event format: 6 objectID EAttributeID [value*]
 	 */
 	@Test
-	public void testAddToEAttributeEventMultiple() {
+	public void testAddToEAttributeEventMultiple() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -112,15 +102,10 @@ public class TextSerialiserTest {
 
 		university.getCodes().addAll(codes);
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(2), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 "
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
+		
+		assertEquals(output.getLine(2), SerialisationEventType.ADD_TO_EATTRIBUTE_PRIMITIVE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -128,7 +113,7 @@ public class TextSerialiserTest {
 	 * event format: 3 objectID EAttributeID [value*]
 	 */
 	@Test
-	public void testSetEAttributeEvent() {
+	public void testSetEAttributeEvent() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -144,15 +129,10 @@ public class TextSerialiserTest {
 
 		university.setName("University of York");
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
 
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(2),
+		assertEquals(output.getLine(2),
 				SerialisationEventType.SET_EATTRIBUTE_PRIMITIVE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("name"))
 						+ " University of York");
@@ -162,7 +142,7 @@ public class TextSerialiserTest {
 	 * event format: 3 objectID EAttributeID [value*]
 	 */
 	@Test
-	public void testSetEAttributeEvent_complex() {
+	public void testSetEAttributeEvent_complex() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -182,15 +162,10 @@ public class TextSerialiserTest {
 
 		chancelor.setStaffMemberType(StaffMemberType.OTHER);
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(3), SerialisationEventType.SET_EATTRIBUTE_COMPLEX + " 1 "
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
+		
+		assertEquals(output.getLine(3), SerialisationEventType.SET_EATTRIBUTE_COMPLEX + " 1 "
 				+ getID(chancelor.eClass(), chancelor.eClass().getEStructuralFeature("staffMemberType")) + " Other");
 	}
 
@@ -199,7 +174,7 @@ public class TextSerialiserTest {
 	 * objectID EReferenceID [EObjectID*]
 	 */
 	@Test
-	public void testAddToEReferenceEvent() {
+	public void testAddToEReferenceEvent() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -217,15 +192,10 @@ public class TextSerialiserTest {
 
 		university.getDepartments().add(department);
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
 
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(2),
+		assertEquals(output.getLine(2),
 				SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("departments")) + " "
 						+ getID(department.eClass()) + " 1");
@@ -236,7 +206,7 @@ public class TextSerialiserTest {
 	 * objectID EReferenceID [EObjectID*]
 	 */
 	@Test
-	public void testAddToEReferenceEventMultiple() {
+	public void testAddToEReferenceEventMultiple() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -261,18 +231,11 @@ public class TextSerialiserTest {
 
 		university.getDepartments().addAll(departments);
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
 
-		ArrayList<String> lines = getLines();
-		for (String l : lines) {
-			System.out.println(l);
-		}
-
-		assertEquals(lines.get(2),
+		assertEquals(output.getLine(2),
 				SerialisationEventType.CREATE_AND_ADD_TO_EREFERENCE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("departments")) + " "
 						+ getID(department1.eClass()) + " 1");
@@ -283,7 +246,7 @@ public class TextSerialiserTest {
 	 * objectID EReferenceID [EObjectID]
 	 */
 	@Test
-	public void testSetEReferenceEvent() {
+	public void testSetEReferenceEvent() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -301,15 +264,10 @@ public class TextSerialiserTest {
 
 		university.setChancelor(member1);
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(2),
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
+		
+		assertEquals(output.getLine(2),
 				SerialisationEventType.CREATE_AND_SET_EREFERENCE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("chancelor")) + " "
 						+ getID(member1.eClass()) + " 1");
@@ -319,7 +277,7 @@ public class TextSerialiserTest {
 	 * event type: 7/8 objectID EAttributeID [value*]
 	 */
 	@Test
-	public void testRemoveFromEAttributeEvent_one() {
+	public void testRemoveFromEAttributeEvent_one() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -338,15 +296,10 @@ public class TextSerialiserTest {
 		university.getCodes().clear();
 		// university.getCodes().remove("UoY");
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
 
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(3), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
+		assertEquals(output.getLine(3), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -354,7 +307,7 @@ public class TextSerialiserTest {
 	 * event type: 7/8 objectID EAttributeID [value*]
 	 */
 	@Test
-	public void testRemoveFromEAttributeEvent_two() {
+	public void testRemoveFromEAttributeEvent_two() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -373,15 +326,10 @@ public class TextSerialiserTest {
 
 		university.getCodes().clear();
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
+		
+		assertEquals(output.getLine(4), SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("codes")) + " UoY");
 	}
 
@@ -389,7 +337,7 @@ public class TextSerialiserTest {
 	 * event type: 7/8 objectID EAttributeID [value*]
 	 */
 	@Test
-	public void testRemoveFromEAttributeEvent_three() {
+	public void testRemoveFromEAttributeEvent_three() throws Exception {
 
 		// create resource
 		CBPResource resource = new CBPTextResourceImpl(URI.createURI(new File("model/test.txt").getAbsolutePath()));
@@ -406,17 +354,11 @@ public class TextSerialiserTest {
 		university.setName("University of York");
 
 		university.setName(null);
-		// university.eUnset(university.eClass().getEStructuralFeature("name"));
 
-		try {
-			resource.save(getOptions());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, getOptions());
 
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(3),
+		assertEquals(output.getLine(3),
 				SerialisationEventType.REMOVE_FROM_EATTRIBUTE_PRIMITIVE + " 0 "
 						+ getID(university.eClass(), university.eClass().getEStructuralFeature("name"))
 						+ " University of York");
@@ -445,16 +387,15 @@ public class TextSerialiserTest {
 		university.getDepartments().add(department);
 
 		university.getDepartments().clear();
-
+		
+		StringOutputStream output = new StringOutputStream();
 		try {
-			resource.save(getOptions());
+			resource.save(output, getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(3), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 "
+		assertEquals(output.getLine(3), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("departments")) + " 1");
 	}
 
@@ -481,16 +422,15 @@ public class TextSerialiserTest {
 		university.setChancelor(chancelor);
 
 		university.setChancelor(null);
-
+		StringOutputStream output = new StringOutputStream();
+		
 		try {
-			resource.save(getOptions());
+			resource.save(output, getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		ArrayList<String> lines = getLines();
-
-		assertEquals(lines.get(3), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 "
+		assertEquals(output.getLine(3), SerialisationEventType.REMOVE_FROM_EREFERENCE + " 0 "
 				+ getID(university.eClass(), university.eClass().getEStructuralFeature("chancelor")) + " 1");
 	}
 
@@ -513,37 +453,14 @@ public class TextSerialiserTest {
 		resource.getContents().add(university);
 
 		resource.getContents().remove(university);
-
+		StringOutputStream output = new StringOutputStream();
 		try {
-			resource.save(getOptions());
+			resource.save(output,getOptions());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		ArrayList<String> lines = getLines();
-		// for(String l: lines)
-		// {
-		// System.out.println(l);
-		// }
-		assertEquals(lines.get(2), SerialisationEventType.REMOVE_FROM_RESOURCE + " 0");
-	}
-
-	public ArrayList<String> getLines() {
-		String path = (String) getOptions().get("path");
-
-		ArrayList<String> lines = new ArrayList<String>();
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(new File(path)));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				lines.add(line);
-			}
-			reader.close();
-			return lines;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		assertEquals(output.getLine(2), SerialisationEventType.REMOVE_FROM_RESOURCE + " 0");
 	}
 
 	public int getID(EClass eClass, EStructuralFeature feature) {
@@ -558,8 +475,6 @@ public class TextSerialiserTest {
 
 	public Map<String, Object> getOptions() {
 		Map<String, Object> options = new HashMap<String, Object>();
-		File f = new File("model/test.txt");
-		options.put("path", f.getAbsolutePath());
 		options.put("verbose", false);
 		return options;
 	}

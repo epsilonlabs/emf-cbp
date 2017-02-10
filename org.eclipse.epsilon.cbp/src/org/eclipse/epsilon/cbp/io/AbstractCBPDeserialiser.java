@@ -25,8 +25,6 @@ public abstract class AbstractCBPDeserialiser {
 
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 
-	protected EList<EObject> contents;
-
 	// id to eobject
 	protected Map<Integer, EObject> IDToEObjectMap = new HashMap<Integer, EObject>();
 

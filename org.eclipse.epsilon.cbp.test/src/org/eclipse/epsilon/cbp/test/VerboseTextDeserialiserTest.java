@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.cbp.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,7 +103,7 @@ public class VerboseTextDeserialiserTest {
 	}
 
 	@Test
-	public void testCreateAndAddToResource() {
+	public void testCreateAndAddToResource() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -121,19 +121,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testRemoveFromResource() {
+	public void testRemoveFromResource() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -153,19 +149,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
 
-		assertEquals(compare(resource1, resource2), true);
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testSetAttributePrimitive() {
+	public void testSetAttributePrimitive() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -185,19 +177,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testSetAttributeComplex() {
+	public void testSetAttributeComplex() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -221,19 +209,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testAddToEAttributePrimitive() {
+	public void testAddToEAttributePrimitive() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -253,19 +237,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
 
-		assertEquals(compare(resource1, resource2), true);
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testRemoveFromEAttributePrimitive() {
+	public void testRemoveFromEAttributePrimitive() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -287,19 +267,16 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	// need discussion
 	@Test
-	public void testRemoveFromEAttributeComplex() {
+	public void testRemoveFromEAttributeComplex() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -325,18 +302,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
 
-		assertEquals(compare(resource1, resource2), true);
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testSetEReference() {
+	public void testSetEReference() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -368,18 +342,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testCreateAndSetEReference() {
+	public void testCreateAndSetEReference() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -411,18 +382,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testAddToEReference() {
+	public void testAddToEReference() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -458,18 +426,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testRemoveFromEReference_one() {
+	public void testRemoveFromEReference_one() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -493,18 +458,15 @@ public class VerboseTextDeserialiserTest {
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	@Test
-	public void testRemoveFromEReference_two() {
+	public void testRemoveFromEReference_two() throws Exception {
 
 		// create resource
 		CBPResource resource1 = new CBPTextResourceImpl(
@@ -525,19 +487,16 @@ public class VerboseTextDeserialiserTest {
 
 		university.setChancelor(null);
 
-		resource1.getChangelog().printLog();
+		//resource1.getChangelog().printLog();
 
 		CBPResource resource2 = new CBPTextResourceImpl(
 				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
 
-		try {
-			resource1.save(getOptions());
-			resource2.load(getOptions());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		assertEquals(compare(resource1, resource2), true);
+		StringOutputStream output = new StringOutputStream();
+		resource1.save(output, getOptions());
+		resource2.load(output.getInputStream(), getOptions());
+		
+		assertTrue(compare(resource1, resource2));		
 	}
 
 	public boolean compare(Resource r1, Resource r2) {
@@ -559,7 +518,7 @@ public class VerboseTextDeserialiserTest {
 		return cmp.getDifferences().isEmpty() ? true : false;
 	}
 
-	public Map<String, Object> getOptions() {
+	public Map<String, Object> getOptions() throws Exception {
 		Map<String, Object> options = new HashMap<String, Object>();
 		File f = new File("model/test.txt");
 		options.put("path", f.getAbsolutePath());

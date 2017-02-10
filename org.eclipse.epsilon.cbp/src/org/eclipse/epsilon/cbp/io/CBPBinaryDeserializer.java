@@ -27,9 +27,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-
 		this.resource = resource;
-		contents = resource.getContents();
 	}
 
 	@Override
@@ -152,7 +150,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 			IDToEObjectMap.put(id, obj);
 
 			// add to content
-			contents.add(obj);
+			resource.getContents().add(obj);
 		}
 
 	}
@@ -170,7 +168,7 @@ public class CBPBinaryDeserializer extends AbstractCBPDeserialiser {
 		int index = 0;
 		for (int i = 0; i < numInts; i++) {
 			int id = byteArrayToInt(Arrays.copyOfRange(buffer, index, index + 4));
-			contents.remove(IDToEObjectMap.get(id));
+			resource.getContents().remove(IDToEObjectMap.get(id));
 			index = index + 4;
 		}
 	}

@@ -22,12 +22,15 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddEObjectsToResourceEvent;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EPackageRegistrationEvent;
 import org.eclipse.epsilon.cbp.event.Event;
+import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.util.SerialisationEventType;
@@ -50,34 +53,33 @@ public class CBPTextSerialiser extends AbstractCBPSerialiser {
 		Closeable printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream)));
 
 		for (Event e : eventList) {
-			switch (e.getEventType()) {
-			case Event.REGISTER_EPACKAGE:
+			
+			if (e instanceof EPackageRegistrationEvent) {
 				handleEPackageRegistrationEvent((EPackageRegistrationEvent) e, printWriter);
-				break;
-			case Event.ADD_EOBJ_TO_RESOURCE:
+			}
+			else if (e instanceof AddEObjectsToResourceEvent) {
 				handleAddToResourceEvent((AddEObjectsToResourceEvent) e, printWriter);
-				break;
-			case Event.SET_EATTRIBUTE:
-				handleSetEAttributeEvent((EAttributeEvent) e, printWriter);
-				break;
-			case Event.ADD_TO_EATTRIBUTE:
-				handleAddToEAttributeEvent((EAttributeEvent) e, printWriter);
-				break;
-			case Event.SET_EREFERENCE:
+			}
+			else if (e instanceof SetEAttributeEvent) {
+				handleSetEAttributeEvent((SetEAttributeEvent) e, printWriter);
+			}
+			else if (e instanceof AddToEAttributeEvent) {
+				handleAddToEAttributeEvent((AddToEAttributeEvent) e, printWriter);
+			}
+			else if (e instanceof RemoveFromEAttributeEvent) {
+				handleRemoveFromAttributeEvent((RemoveFromEAttributeEvent) e, printWriter);
+			}
+			else if (e instanceof SetEReferenceEvent) {
 				handleSetEReferenceEvent((SetEReferenceEvent) e, printWriter);
-				break;
-			case Event.ADD_TO_EREFERENCE:
+			}
+			else if (e instanceof AddToEReferenceEvent) {
 				handleAddToEReferenceEvent((AddToEReferenceEvent) e, printWriter);
-				break;
-			case Event.REMOVE_FROM_EATTRIBUTE:
-				handleRemoveFromAttributeEvent((EAttributeEvent) e, printWriter);
-				break;
-			case Event.REMOVE_FROM_EREFERENCE:
+			}
+			else if (e instanceof RemoveFromEReferenceEvent) {
 				handleRemoveFromEReferenceEvent((RemoveFromEReferenceEvent) e, printWriter);
-				break;
-			case Event.REMOVE_EOBJ_FROM_RESOURCE:
+			}
+			else if (e instanceof RemoveFromResourceEvent) {
 				handleRemoveFromResourceEvent((RemoveFromResourceEvent) e, printWriter);
-				break;
 			}
 		}
 

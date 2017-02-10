@@ -3,18 +3,16 @@ package org.eclipse.epsilon.cbp.test.equivalence;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResourceFactory;
+import org.eclipse.epsilon.cbp.test.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
 
@@ -22,7 +20,7 @@ public abstract class XmiResourceEquivalenceTests {
 	
 	public abstract EPackage getEPackage();
 	
-	public void run(String eol, String extension) throws Exception {
+	public void run(String eol, String extension, boolean debug) throws Exception {
 		// Run the code against an XMI model
 		EolModule module = new EolModule();
 		module.parse(eol);
@@ -36,6 +34,7 @@ public abstract class XmiResourceEquivalenceTests {
 		
 		StringOutputStream xmiSos = new StringOutputStream();
 		xmiResource.save(xmiSos, null);
+		// inspect(xmiResource);
 		
 		// Run the code against a change-based resource
 		module = new EolModule();
@@ -48,42 +47,58 @@ public abstract class XmiResourceEquivalenceTests {
 		model = new InMemoryEmfModel("M", cbpResource, getEPackage());
 		module.getContext().getModelRepository().addModel(model);
 		module.execute();
+		// inspect(cbpResource);
 		
 		StringOutputStream cbpSos = new StringOutputStream();
 		cbpResource.save(cbpSos, null);
+		
+		// System.out.println(cbpSos.toString());
 		
 		// Create a new change-based resource and load what was saved before
 		cbpResourceSet = new ResourceSetImpl();
 		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new CBPResourceFactory());
 		cbpResource = cbpResourceSet.createResource(URI.createURI("foo." + extension));
 		cbpResource.load(new ByteArrayInputStream(cbpSos.toString().getBytes()), null);
+		// inspect(cbpResource);
 		
-		XMIResourceImpl copyXmiResource = new XMIResourceImpl();
-		copyXmiResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
+		xmiResourceSet = new ResourceSetImpl();
+		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
+		XMIResourceImpl copyXmiResource = (XMIResourceImpl) xmiResourceSet.createResource(URI.createURI("foo.xmi"));
+		copyXmiResource.getContents().addAll(cbpResource.getContents());
+		// inspect(copyXmiResource);
+		
 		StringOutputStream copyXmiResourceSos = new StringOutputStream();
 		copyXmiResource.doSave(copyXmiResourceSos, null);
+		
+		if (debug) {
+			System.out.println("XMIResourceImpl");
+			System.out.println(xmiSos.toString());
+			System.out.println();
+			System.out.println("CBPResource");
+			System.out.println(copyXmiResourceSos.toString());
+		}
 		
 		assertEquals(xmiSos.toString(), copyXmiResourceSos.toString());
 	}
 	
-	public void run(String eol) throws Exception {
-		run(eol, "cbptext");
-		run(eol, "cbpbin");
+	protected void inspect(Resource resource) throws Exception {
+		EolModule module = new EolModule();
+		module.parse("var c = EClass.all.first(); c.eSuperTypes.size().println();");
+		InMemoryEmfModel model = new InMemoryEmfModel("M", resource, getEPackage());
+		model.load();
+		module.getContext().getModelRepository().addModel(model);
+		module.execute();
 	}
 	
-	class StringOutputStream extends OutputStream {
-
-		StringBuffer buffer = new StringBuffer();
-
-		@Override
-		public void write(int chr) throws IOException {
-			buffer.append((char) chr);
-		}
-
-		@Override
-		public String toString() {
-			return buffer.toString();
-		}
+	protected void run(String eol) throws Exception {
+		run(eol, false);
 	}
+	
+	protected void run(String eol, boolean debug) throws Exception {
+		run(eol, "cbptext", debug);
+		//run(eol, "cbpbin", debug);
+	}
+	
+	
 	
 }

@@ -26,15 +26,12 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();
-
 		this.resource = resource;
-		contents = resource.getContents();
 	}
 	
 	public void deserialise(InputStream inputStream, Map<?, ?> options) throws IOException {
 		
-		BufferedReader br =  new BufferedReader(
-					new InputStreamReader(inputStream, persistenceUtil.STRING_ENCODING));
+		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, persistenceUtil.STRING_ENCODING));
 
 		String line;
 
@@ -136,7 +133,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			IDToEObjectMap.put(id, obj);
 
 			// add to resource contents
-			contents.add(obj);
+			resource.getContents().add(obj);
 		}
 	}
 
@@ -153,7 +150,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		// for each string, get EBoject and remove from contents
 		for (String str : objValueStringsArray) {
-			contents.remove(IDToEObjectMap.get(Integer.valueOf(str)));
+			resource.getContents().remove(IDToEObjectMap.get(Integer.valueOf(str)));
 		}
 	}
 

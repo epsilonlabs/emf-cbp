@@ -36,7 +36,7 @@ public class EventAdapter extends EContentAdapter {
 	}
 
 	public void showLog() {
-		changelog.printLog();
+		//changelog.printLog();
 	}
 
 	@Override
@@ -350,7 +350,7 @@ public class EventAdapter extends EContentAdapter {
 		if (currentEPackage == null) {
 			currentEPackage = ePackage;
 			ePackages.add(ePackage);
-			changelog.addEvent(new EPackageRegistrationEvent(Event.REGISTER_EPACKAGE, ePackage));
+			changelog.addEvent(new EPackageRegistrationEvent(ePackage));
 		} else {
 			if (!ePackage.equals(currentEPackage)) {
 				if (ePackages.contains(ePackage)) {
@@ -358,7 +358,7 @@ public class EventAdapter extends EContentAdapter {
 				} else {
 					ePackages.add(ePackage);
 					currentEPackage = ePackage;
-					changelog.addEvent(new EPackageRegistrationEvent(Event.REGISTER_EPACKAGE, ePackage));
+					changelog.addEvent(new EPackageRegistrationEvent(ePackage));
 				}
 			}
 		}

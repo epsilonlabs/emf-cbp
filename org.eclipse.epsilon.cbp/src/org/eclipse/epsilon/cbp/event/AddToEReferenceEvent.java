@@ -4,17 +4,12 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 
-public class AddToEReferenceEvent extends EReferenceEvent
-{
-	public AddToEReferenceEvent(EObject focusObject, EReference eReference, Object newValue)
-    {
-        super(Event.ADD_TO_EREFERENCE, focusObject,eReference,newValue);
-    }
-	
-    public AddToEReferenceEvent(Notification n)
-    {
-        super(Event.ADD_TO_EREFERENCE,n);
-    } 
+public class AddToEReferenceEvent extends EReferenceEvent {
+	public AddToEReferenceEvent(EObject focusObject, EReference eReference, Object newValue) {
+		super(focusObject, eReference, newValue);
+	}
+
+	public AddToEReferenceEvent(Notification n) {
+		super(n);
+	}
 }
-
-
