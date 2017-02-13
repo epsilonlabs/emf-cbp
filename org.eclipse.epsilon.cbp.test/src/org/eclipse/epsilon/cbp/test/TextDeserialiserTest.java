@@ -11,7 +11,7 @@ public class TextDeserialiserTest extends AbstractDeserialiserTest{
 	@Override
 	protected Resource getResource() {
 		return new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+				URI.createFileURI(new File("model/test.cbptext").getAbsolutePath()));
 	}
 	
 }
