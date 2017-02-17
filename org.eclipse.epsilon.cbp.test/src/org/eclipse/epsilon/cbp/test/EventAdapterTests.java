@@ -2,6 +2,8 @@ package org.eclipse.epsilon.cbp.test;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
@@ -49,6 +51,26 @@ public class EventAdapterTests {
 		assertTrue(changelog.getEventsList().get(1) instanceof AddToResourceEvent);
 	}
 
+	/*
+	@Test
+	public void addManyToResourceTest() {
+		EventAdapter adapter = new EventAdapter(new Changelog());
+
+		Resource resource = new ResourceImpl();
+
+		resource.eAdapters().add(adapter);
+
+		UniversityFactory factory = UniversityFactory.eINSTANCE;
+		University u1 = factory.createUniversity();
+		University u2 = factory.createUniversity();
+		
+		resource.getContents().addAll(Arrays.asList(u1, u2));
+
+		Changelog changelog = adapter.getChangelog();
+		
+		assertEquals(2, changelog.getEventsList().size());		
+	}*/
+	
 	@Test
 	public void addToReferenceTest() {
 

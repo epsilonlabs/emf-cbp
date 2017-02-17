@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.cbp.event;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class EventAdapter extends EContentAdapter {
 	protected final Changelog changelog;
 
 	// flag adapter_enabled
-	private boolean adapter_enabled = true;
+	private boolean enabled = true;
 
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 
@@ -44,7 +45,7 @@ public class EventAdapter extends EContentAdapter {
 		super.notifyChanged(n);
 
 		// if n is touch and no adapter enabled, return
-		if (n.isTouch() || !adapter_enabled) {
+		if (n.isTouch() || !enabled) {
 			return;
 		}
 
@@ -57,9 +58,7 @@ public class EventAdapter extends EContentAdapter {
 					// create add to resource event
 					EObject newValue = (EObject) n.getNewValue();
 
-					// if EPackage is not registered before, add event
-					EPackage ePackage = newValue.eClass().getEPackage();
-					handleEPackage(ePackage);
+					handleEPackageOf(newValue);
 
 					// add AddEObjectsTOResourceEvent
 					changelog.addEvent(new AddToResourceEvent(n));
@@ -70,39 +69,17 @@ public class EventAdapter extends EContentAdapter {
 			} else if (n.getNotifier() instanceof EObject) {
 				if (n.getFeature() != null) {
 					// add to processedEObjects
-					processedEObjects.add((EObject) n.getNotifier());
+					// processedEObjects.add((EObject) n.getNotifier());
 
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 					if (feature.isChangeable() && !feature.isDerived()) {
 						if (feature instanceof EAttribute) {
-							if (feature.isMany()) {
-								// create add to attribute event
-								changelog.addEvent(new AddToEAttributeEvent(n));
-							} else {
-								changelog.addEvent(new SetEAttributeEvent(n));
-							}
-
+							changelog.addEvent(new AddToEAttributeEvent(n));
 						} else if (n.getFeature() instanceof EReference) {
-							if (feature.isMany()) {
-								// create add to reference event
-								changelog.addEvent(new AddToEReferenceEvent(n));
-
-								EObject obj = (EObject) n.getNotifier();
-								EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
-								for (EObject eObject : eList) {
-									handleEObject(eObject);
-								}
-							} else {
-								changelog.addEvent(new SetEReferenceEvent(n));
-								EObject obj = (EObject) n.getNotifier();
-								EObject eObject = (EObject) obj.eGet(feature);
-								handleEObject(eObject);
-							}
+							changelog.addEvent(new AddToEReferenceEvent(n));
+							handleEObject((EObject) n.getNewValue());
 						}
 					}
-				} else {
-					// should not happen in here
-					System.err.println("EventAdapter: remove action in ADD");
 				}
 			}
 			break;
@@ -129,15 +106,8 @@ public class EventAdapter extends EContentAdapter {
 				if (n.getNewValue() != null) {
 					if (n.getNewValue() instanceof EObject) {
 						EObject newValue = (EObject) n.getNewValue();
-
-						// if EPackage is not registered before, add event
-						EPackage ePackage = newValue.eClass().getEPackage();
-						handleEPackage(ePackage);
-
-						// create addEObjectsToResourceEvent
+						handleEPackageOf(newValue);
 						changelog.addEvent(new AddToResourceEvent(n));
-
-						// handle properties recursively
 						handleEObject(newValue);
 					}
 				} else {
@@ -148,42 +118,20 @@ public class EventAdapter extends EContentAdapter {
 
 				if (n.getNewValue() != null) {
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
-					if (feature != null) {
-						if (feature.isChangeable() && !feature.isDerived()) {
-							if (feature instanceof EAttribute) {
-								if (feature.isMany()) {
-									// this should not happen, in theory
-									changelog.addEvent(new AddToEAttributeEvent(n));
-								} else {
-									changelog.addEvent(new SetEAttributeEvent(n));
-								}
-
-							} else if (feature instanceof EReference) {
-								if (feature.isMany()) {
-									changelog.addEvent(new AddToEReferenceEvent(n));
-									EObject obj = (EObject) n.getNotifier();
-									EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
-									for (EObject eObject : eList) {
-										handleEObject(eObject);
-									}
-
-								} else {
-									changelog.addEvent(new SetEReferenceEvent(n));
-									EObject obj = (EObject) n.getNotifier();
-									EObject eObject = (EObject) obj.eGet(feature);
-									handleEObject(eObject);
-								}
-							}
+					if (feature != null && feature.isChangeable() && !feature.isDerived()) {
+						if (feature instanceof EAttribute) {
+							changelog.addEvent(new SetEAttributeEvent(n));
+						} else if (feature instanceof EReference) {
+							changelog.addEvent(new SetEReferenceEvent(n));
+							handleEObject((EObject) n.getNewValue());
 						}
 					}
 				} else {
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
-					if (feature != null) {
-						if (feature instanceof EAttribute) {
-							changelog.addEvent(new RemoveFromEAttributeEvent(n));
-						} else if (feature instanceof EReference) {
-							changelog.addEvent(new RemoveFromEReferenceEvent(n));
-						}
+					if (feature instanceof EAttribute) {
+						changelog.addEvent(new RemoveFromEAttributeEvent(n));
+					} else if (feature instanceof EReference) {
+						changelog.addEvent(new RemoveFromEReferenceEvent(n));
 					}
 				}
 			}
@@ -192,36 +140,31 @@ public class EventAdapter extends EContentAdapter {
 
 		// if event is add many
 		case Notification.ADD_MANY: {
-			processedEObjects.add((EObject) n.getNotifier());
 			if (n.getNotifier() instanceof Resource) {
-				EList<EObject> list = (EList<EObject>) n.getNewValue();
-				for (EObject obj : list) {
-					EPackage ePackage = obj.eClass().getEPackage();
-					handleEPackage(ePackage);
+				for (EObject obj : (Collection<EObject>) n.getNewValue()) {
+					handleEPackageOf(obj);
 					changelog.addEvent(new AddToResourceEvent(obj));
 					handleEObject(obj);
 				}
 			} else if (n.getNotifier() instanceof EObject) {
 				EObject focusObject = (EObject) n.getNotifier();
-				if (n.getFeature() != null) {
-					if (n.getFeature() instanceof EAttribute) {
-						EAttribute attribute = (EAttribute) n.getFeature();
-						if (attribute.isChangeable() && !attribute.isDerived()) {
-							List<Object> list = (List<Object>) n.getNewValue();
-							for (Object obj : list) {
-								changelog.addEvent(new AddToEAttributeEvent(focusObject, attribute, obj));
-							}
+				processedEObjects.add(focusObject);
+				if (n.getFeature() instanceof EAttribute) {
+					EAttribute attribute = (EAttribute) n.getFeature();
+					if (attribute.isChangeable() && !attribute.isDerived()) {
+						List<Object> list = (List<Object>) n.getNewValue();
+						for (Object obj : list) {
+							changelog.addEvent(new AddToEAttributeEvent(focusObject, attribute, obj));
 						}
-					} else if (n.getFeature() instanceof EReference) {
-						EReference eReference = (EReference) n.getFeature();
-						if (eReference.isChangeable() && !eReference.isDerived()) {
-							List<EObject> list = (List<EObject>) n.getNewValue();
-							for (EObject obj : list) {
-								EPackage ePackage = obj.eClass().getEPackage();
-								handleEPackage(ePackage);
-								changelog.addEvent(new AddToEReferenceEvent(focusObject, eReference, obj));
-								handleEObject(obj);
-							}
+					}
+				} else if (n.getFeature() instanceof EReference) {
+					EReference eReference = (EReference) n.getFeature();
+					if (eReference.isChangeable() && !eReference.isDerived()) {
+						List<EObject> list = (List<EObject>) n.getNewValue();
+						for (EObject obj : list) {
+							handleEPackageOf(obj);
+							changelog.addEvent(new AddToEReferenceEvent(focusObject, eReference, obj));
+							handleEObject(obj);
 						}
 					}
 				}
@@ -275,7 +218,7 @@ public class EventAdapter extends EContentAdapter {
 	}
 
 	public void setEnabled(boolean bool) {
-		adapter_enabled = bool;
+		enabled = bool;
 	}
 
 	/*
@@ -346,7 +289,8 @@ public class EventAdapter extends EContentAdapter {
 		return changelog;
 	}
 
-	public void handleEPackage(EPackage ePackage) {
+	public void handleEPackageOf(EObject eObject) {
+		EPackage ePackage = eObject.eClass().getEPackage();
 		if (currentEPackage == null) {
 			currentEPackage = ePackage;
 			ePackages.add(ePackage);
@@ -365,10 +309,7 @@ public class EventAdapter extends EContentAdapter {
 	}
 
 	public void handleEObject(EObject obj) {
-		if (processedEObjects.contains(obj)) {
-			
-		}
-		else {
+		if (!processedEObjects.contains(obj)) {
 			//add current object to processed objects
 			processedEObjects.add(obj);
 			
