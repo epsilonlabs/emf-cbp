@@ -14,6 +14,9 @@ public class CBPResourceFactory extends ResourceFactoryImpl {
 		else if (uri.toString().endsWith(".cbptext")) {
 			return new CBPTextResourceImpl(uri);
 		}
+		else if (uri.toString().endsWith(".cbpxml")) {
+			return new CBPXMLResourceImpl(uri);
+		}
 		else throw new RuntimeException("Unknown extension. Could not create resource for URI " + uri);
 	}
 	
