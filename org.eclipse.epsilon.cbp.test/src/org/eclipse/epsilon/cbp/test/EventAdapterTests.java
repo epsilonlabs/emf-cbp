@@ -28,7 +28,7 @@ import university.University;
 import university.UniversityFactory;
 import university.UniversityPackage;
 
-public class EventAdapterTest {
+public class EventAdapterTests {
 
 	@Test
 	public void addToResourceTest() {

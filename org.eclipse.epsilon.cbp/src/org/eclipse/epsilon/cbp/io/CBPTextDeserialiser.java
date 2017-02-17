@@ -102,14 +102,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 			String[] stringArray = str.split(" ");
 
-			EObject obj = null;
-			if (verbose) {
-				// create eobject with the first token
-				obj = createEObject(String.valueOf(stringArray[0]));
-			} else {
-				// create eobject with the first token
-				obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[0])));
-			}
+			EObject obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[0])));
 
 			// get the object ID with the second token
 			int id = Integer.valueOf(stringArray[1]);
@@ -153,14 +146,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EAttribute eAttribute = null;
-		if (verbose) {
-			eAttribute = (EAttribute) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			eAttribute = (EAttribute) focusObject.eClass().getEStructuralFeature(
-					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
+		EAttribute eAttribute = (EAttribute) focusObject.eClass().getEStructuralFeature(
+				getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
 
 		String[] featureValuesArray = tokeniseString(getSubString(line, 3));
 
@@ -176,15 +163,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EAttribute eAttribute = null;
-
-		if (verbose) {
-			eAttribute = (EAttribute) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			eAttribute = (EAttribute) focusObject.eClass().getEStructuralFeature(
-					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
+		EAttribute eAttribute = (EAttribute) focusObject.eClass().getEStructuralFeature(
+				getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
 
 		String[] featureValuesArray = tokeniseString(getSubString(line, 3));
 
@@ -200,15 +180,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EAttribute eAttribute = null;
-
-		if (verbose) {
-			eAttribute = (EAttribute) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			eAttribute = (EAttribute) focusObject.eClass().getEStructuralFeature(
+		EAttribute eAttribute = (EAttribute) focusObject.eClass().getEStructuralFeature(
 					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
 
 		String[] featureValuesArray = tokeniseString(getSubString(line, 3));
 
@@ -224,15 +197,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		String[] stringArray = line.split(" ");
 
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
-		EReference eReference = null;
-		if (verbose) {
-			eReference = (EReference) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			eReference = (EReference) focusObject.eClass().getEStructuralFeature(
+		EReference eReference = (EReference) focusObject.eClass().getEStructuralFeature(
 					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
-
+		
 		String[] featureValueStringsArray = tokeniseString(getSubString(line, 3));
 
 		setEReferenceValues(focusObject, eReference, featureValueStringsArray);
@@ -249,18 +216,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		// create focus object
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EReference eReference = null;
-
-		if (verbose) {
-			// get ereference
-			eReference = (EReference) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			// get ereference
-			eReference = (EReference) focusObject.eClass().getEStructuralFeature(
+		EReference eReference = (EReference) focusObject.eClass().getEStructuralFeature(
 					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
-
+		
 		// get values
 		String[] refValueStringsArray = tokeniseString(getSubString(line, 3));
 
@@ -271,15 +229,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			// split string
 			String[] temp = str.split(" ");
 
-			EObject obj = null;
-
-			if (verbose) {
-				// create obj
-				obj = createEObject(String.valueOf(temp[0]));
-			} else {
-				// create obj
-				obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));
-			}
+			EObject obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));
 
 			// get id
 			int id = Integer.valueOf(temp[1]);
@@ -318,18 +268,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 		// create focus object
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EReference eReference = null;
-
-		if (verbose) {
-			// get ereference
-			eReference = (EReference) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			// get ereference
-			eReference = (EReference) focusObject.eClass().getEStructuralFeature(
+		EReference eReference = (EReference) focusObject.eClass().getEStructuralFeature(
 					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
-
+		
 		// get values
 		String[] refValueStringsArray = tokeniseString(getSubString(line, 3));
 
@@ -340,15 +281,7 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 			// split string
 			String[] temp = str.split(" ");
 
-			EObject obj = null;
-
-			if (verbose) {
-				// create obj
-				obj = createEObject(String.valueOf(temp[0]));
-			} else {
-				// create obj
-				obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));
-			}
+			EObject obj = createEObject(ePackageElementsNamesMap.getName(Integer.valueOf(temp[0])));
 
 			// get id
 			int id = Integer.valueOf(temp[1]);
@@ -384,15 +317,8 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EReference eReference = null;
-
-		if (verbose) {
-			eReference = (EReference) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			eReference = (EReference) focusObject.eClass().getEStructuralFeature(
+		EReference eReference = (EReference) focusObject.eClass().getEStructuralFeature(
 					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
 
 		String[] refValueStringsArray = tokeniseString(getSubString(line, 3));
 
@@ -433,15 +359,9 @@ public class CBPTextDeserialiser extends AbstractCBPDeserialiser {
 
 		EObject focusObject = idToEObjectMap.get(Integer.valueOf(stringArray[1]));
 
-		EReference eReference = null;
-
-		if (verbose) {
-			eReference = (EReference) focusObject.eClass()
-					.getEStructuralFeature(getPropertyName(String.valueOf(stringArray[2])));
-		} else {
-			eReference = (EReference) focusObject.eClass().getEStructuralFeature(
+		EReference eReference = (EReference) focusObject.eClass().getEStructuralFeature(
 					getPropertyName(ePackageElementsNamesMap.getName(Integer.valueOf(stringArray[2]))));
-		}
+		
 		String[] featureValueStringsArray = tokeniseString(getSubString(line, 3));
 
 		removeEReferenceValues(focusObject, eReference, featureValueStringsArray);

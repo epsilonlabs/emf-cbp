@@ -6,8 +6,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ ChangeLogTest.class, EventAdapterTest.class, ResourceContentsToEventsConverterTest.class,
-		TextSerialiserTest.class, TextDeserialiserTest.class, VerboseTextDeserialiserTest.class, BinaryDeserialiserTest.class,
+@SuiteClasses({ ChangeLogTests.class, EventAdapterTests.class, ResourceContentsToEventsConverterTests.class,
+		CBPTextResourceTests.class, CBPBinaryResourceTests.class,
 		EcoreEquivalenceTests.class})
 public class AllTests {
 

@@ -16,7 +16,7 @@ import university.Student;
 import university.University;
 import university.UniversityFactory;
 
-public class ResourceContentsToEventsConverterTest {
+public class ResourceContentsToEventsConverterTests {
 
 	@Test
 	public void test() {

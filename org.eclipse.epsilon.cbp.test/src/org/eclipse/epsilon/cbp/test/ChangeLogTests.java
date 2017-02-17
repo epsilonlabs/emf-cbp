@@ -24,7 +24,7 @@ import university.Student;
 import university.University;
 import university.UniversityFactory;
 
-public class ChangeLogTest {
+public class ChangeLogTests {
 
 	@Test
 	public void countAddEObjectsToResourceEventTest() {

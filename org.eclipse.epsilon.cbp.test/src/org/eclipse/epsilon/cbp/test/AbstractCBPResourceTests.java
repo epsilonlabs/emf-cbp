@@ -1,15 +1,13 @@
 package org.eclipse.epsilon.cbp.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.emf.compare.DifferenceSource;
@@ -32,7 +30,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-import org.eclipse.epsilon.cbp.resource.CBPTextResourceImpl;
 import org.junit.Test;
 
 import university.Department;
@@ -42,11 +39,11 @@ import university.Student;
 import university.University;
 import university.UniversityFactory;
 
-public class VerboseTextDeserialiserTest {
-	private boolean ignoreWhitespace = false, ignoreUnorderedMoves = true;
-	private Set<String> ignoreAttributes = Collections.emptySet();
+public abstract class AbstractCBPResourceTests {
+	protected boolean ignoreWhitespace = false, ignoreUnorderedMoves = true;
+	protected Set<String> ignoreAttributes = Collections.emptySet();
 
-	private final class OptionBasedDiffBuilder extends DiffBuilder {
+	protected final class OptionBasedDiffBuilder extends DiffBuilder {
 		@Override
 		public void attributeChange(Match match, EAttribute attribute, Object value, DifferenceKind kind,
 				DifferenceSource source) {
@@ -101,39 +98,38 @@ public class VerboseTextDeserialiserTest {
 			}
 		}
 	}
-
+	
+	protected abstract Resource getResource();
+	
 	@Test
 	public void testCreateAndAddToResource() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
 
 		// --create university
 		University university = factory.createUniversity();
-
+		
 		// add university
 		resource1.getContents().add(university);
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testRemoveFromResource() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -146,22 +142,20 @@ public class VerboseTextDeserialiserTest {
 
 		resource1.getContents().remove(university);
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
 
-		assertTrue(compare(resource1, resource2));		
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testSetAttributePrimitive() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -174,22 +168,20 @@ public class VerboseTextDeserialiserTest {
 
 		university.setName("University of York");
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testSetAttributeComplex() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -206,22 +198,20 @@ public class VerboseTextDeserialiserTest {
 
 		chancelor.setStaffMemberType(StaffMemberType.OTHER);
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testAddToEAttributePrimitive() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -234,22 +224,20 @@ public class VerboseTextDeserialiserTest {
 
 		university.getCodes().add("UOY");
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
 
-		assertTrue(compare(resource1, resource2));		
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testRemoveFromEAttributePrimitive() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -264,14 +252,13 @@ public class VerboseTextDeserialiserTest {
 
 		university.getCodes().clear();
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	// need discussion
@@ -279,8 +266,7 @@ public class VerboseTextDeserialiserTest {
 	public void testRemoveFromEAttributeComplex() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -299,22 +285,20 @@ public class VerboseTextDeserialiserTest {
 
 		chancelor.setStaffMemberType(null);
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
 
-		assertTrue(compare(resource1, resource2));		
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testSetEReference() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -339,22 +323,20 @@ public class VerboseTextDeserialiserTest {
 
 		stu1.setTutor(lecturer1);
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testCreateAndSetEReference() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -379,22 +361,20 @@ public class VerboseTextDeserialiserTest {
 
 		stu1.setTutor(lecturer1);
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testAddToEReference() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -423,22 +403,20 @@ public class VerboseTextDeserialiserTest {
 
 		lecturer1.getTaughtModules().add(mode);
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testRemoveFromEReference_one() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -455,22 +433,20 @@ public class VerboseTextDeserialiserTest {
 
 		university.getDepartments().clear();
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	@Test
 	public void testRemoveFromEReference_two() throws Exception {
 
 		// create resource
-		CBPResource resource1 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource1 = (CBPResource) getResource();
 
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
@@ -489,14 +465,13 @@ public class VerboseTextDeserialiserTest {
 
 		//resource1.getChangelog().printLog();
 
-		CBPResource resource2 = new CBPTextResourceImpl(
-				URI.createFileURI(new File("model/test.txt").getAbsolutePath()));
+		CBPResource resource2 = (CBPResource) getResource();
 
 		StringOutputStream output = new StringOutputStream();
 		resource1.save(output, getOptions());
 		resource2.load(output.getInputStream(), getOptions());
-		
-		assertTrue(compare(resource1, resource2));		
+
+		assertTrue(compare(resource1, resource2));
 	}
 
 	public boolean compare(Resource r1, Resource r2) {
@@ -520,9 +495,8 @@ public class VerboseTextDeserialiserTest {
 
 	public Map<String, Object> getOptions() throws Exception {
 		Map<String, Object> options = new HashMap<String, Object>();
-		File f = new File("model/test.txt");
+		File f = new File("model/test.cbpbin");
 		options.put("path", f.getAbsolutePath());
-		options.put("verbose", true);
 		return options;
 	}
 

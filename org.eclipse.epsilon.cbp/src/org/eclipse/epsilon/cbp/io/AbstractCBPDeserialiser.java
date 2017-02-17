@@ -41,8 +41,6 @@ public abstract class AbstractCBPDeserialiser {
 
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 
-	protected boolean verbose = false;
-
 	public AbstractCBPDeserialiser(CBPResource resource) {
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
@@ -138,8 +136,5 @@ public abstract class AbstractCBPDeserialiser {
 		}
 		return str;
 	}
-
-	public void setDebug(boolean debug) {
-		this.verbose = debug;
-	}
+	
 }
