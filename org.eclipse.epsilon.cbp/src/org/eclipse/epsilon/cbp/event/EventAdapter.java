@@ -20,14 +20,8 @@ import org.eclipse.emf.ecore.util.EContentsEList;
 public class EventAdapter extends EContentAdapter {
 	
 	protected List<Event> events = new ArrayList<Event>();
-
-	// flag adapter_enabled
 	private boolean enabled = true;
-
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
-
-	protected EPackage currentEPackage = null;
-
 	private HashSet<EObject> processedEObjects = new HashSet<EObject>();
 
 	// constructor
@@ -43,14 +37,10 @@ public class EventAdapter extends EContentAdapter {
 	public void notifyChanged(Notification n) {
 		super.notifyChanged(n);
 
-		// if n is touch and no adapter enabled, return
-		if (n.isTouch() || !enabled) {
-			return;
-		}
+		if (n.isTouch() || !enabled) { return; }
 
-		// switch by event type
 		switch (n.getEventType()) {
-		// if event is ADD
+		
 		case Notification.ADD: {
 			if (n.getNotifier() instanceof Resource) {
 				if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
@@ -98,7 +88,6 @@ public class EventAdapter extends EContentAdapter {
 			break;
 		}
 
-		// if event is SET
 		case Notification.SET: {
 
 			if (n.getNotifier() instanceof Resource) {
@@ -137,7 +126,6 @@ public class EventAdapter extends EContentAdapter {
 			break;
 		}
 
-		// if event is add many
 		case Notification.ADD_MANY: {
 			if (n.getNotifier() instanceof Resource) {
 				for (EObject obj : (Collection<EObject>) n.getNewValue()) {
@@ -219,27 +207,7 @@ public class EventAdapter extends EContentAdapter {
 	public void setEnabled(boolean bool) {
 		enabled = bool;
 	}
-
-	/*
-	 * The following code (which allows subclass EContentAdapter to receive
-	 * notifications across non containment references was copied (almost, see
-	 * setTarget) verbatim from :
-	 * http://wiki.eclipse.org/EMF/Recipes#Recipe:_Subclass_EContentAdapter
-	 * _to_receive_notifications_across_non-containment_references
-	 */
-
-	/**
-	 * By default, all cross document references are followed. Usually this is
-	 * not a great idea so this class can be subclassed to customize.
-	 * 
-	 * @param feature
-	 *            a cross document reference
-	 * @return whether the adapter should follow it
-	 */
-	protected boolean shouldAdapt(EStructuralFeature feature) {
-		return true;
-	}
-
+	
 	@Override
 	protected void setTarget(EObject target) {
 		if (target.eAdapters().contains(this)) // fixes stack overflow on
@@ -250,10 +218,7 @@ public class EventAdapter extends EContentAdapter {
 		for (EContentsEList.FeatureIterator<EObject> featureIterator = (EContentsEList.FeatureIterator<EObject>) target
 				.eCrossReferences().iterator(); featureIterator.hasNext();) {
 			Notifier notifier = featureIterator.next();
-			EStructuralFeature feature = featureIterator.feature();
-			if (shouldAdapt(feature)) {
-				addAdapter(notifier);
-			}
+			addAdapter(notifier);
 		}
 	}
 
@@ -263,10 +228,7 @@ public class EventAdapter extends EContentAdapter {
 		for (EContentsEList.FeatureIterator<EObject> featureIterator = (EContentsEList.FeatureIterator<EObject>) target
 				.eCrossReferences().iterator(); featureIterator.hasNext();) {
 			Notifier notifier = featureIterator.next();
-			EStructuralFeature feature = featureIterator.feature();
-			if (shouldAdapt(feature)) {
-				removeAdapter(notifier);
-			}
+			removeAdapter(notifier);
 		}
 	}
 
@@ -277,34 +239,18 @@ public class EventAdapter extends EContentAdapter {
 			Object feature = notification.getFeature();
 			if (feature instanceof EReference) {
 				EReference eReference = (EReference) feature;
-				if (!eReference.isContainment() && shouldAdapt(eReference)) {
+				if (!eReference.isContainment()) {
 					handleContainment(notification);
 				}
 			}
 		}
 	}
 	
-	/*
-	public Changelog getChangelog() {
-		return changelog;
-	}*/
-
 	public void handleEPackageOf(EObject eObject) {
 		EPackage ePackage = eObject.eClass().getEPackage();
-		if (currentEPackage == null) {
-			currentEPackage = ePackage;
+		if (!ePackages.contains(ePackage)) {
 			ePackages.add(ePackage);
 			events.add(new RegisterEPackageEvent(ePackage));
-		} else {
-			if (!ePackage.equals(currentEPackage)) {
-				if (ePackages.contains(ePackage)) {
-					currentEPackage = ePackage;
-				} else {
-					ePackages.add(ePackage);
-					currentEPackage = ePackage;
-					events.add(new RegisterEPackageEvent(ePackage));
-				}
-			}
 		}
 	}
 
