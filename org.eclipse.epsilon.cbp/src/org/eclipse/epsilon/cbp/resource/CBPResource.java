@@ -29,8 +29,9 @@ public abstract class CBPResource extends ResourceImpl {
 	
 	protected EventAdapter eventAdapter;
 	
+	// TODO: Replace with an ordered eObjectIds + currentId with an ordered set
 	// eobject to id map
-	protected HashMap<EObject, Integer> idMap = new HashMap<EObject, Integer>();
+	protected HashMap<EObject, Integer> eObjectIds = new HashMap<EObject, Integer>();
 	
 	// current id, increases when an object is encountered
 	protected int currentId = 0;
@@ -57,13 +58,13 @@ public abstract class CBPResource extends ResourceImpl {
 	public abstract AbstractCBPSerialiser getSerialiser();
 
 	public abstract AbstractCBPDeserialiser getDeserialiser();
-
+	
 	// add object to map, return false if object exists
 	public boolean addObjectToMap(EObject obj) {
 		// if obj is not in the map
-		if (!idMap.containsKey(obj)) {
+		if (!eObjectIds.containsKey(obj)) {
 			// put current id
-			idMap.put(obj, currentId);
+			eObjectIds.put(obj, currentId);
 
 			// increase current id
 			currentId = currentId + 1;
@@ -75,9 +76,9 @@ public abstract class CBPResource extends ResourceImpl {
 	// add object to map with a specific id
 	public boolean addObjectToMap(EObject obj, int id) {
 		// if obj is not in the map
-		if (!idMap.containsKey(obj)) {
+		if (!eObjectIds.containsKey(obj)) {
 			// put id
-			idMap.put(obj, id);
+			eObjectIds.put(obj, id);
 
 			// if current id is less than id, set current id
 			if (id >= currentId) {
@@ -90,10 +91,7 @@ public abstract class CBPResource extends ResourceImpl {
 	
 	// get the object id based on obj
 	public int getObjectId(EObject obj) {
-		if (!idMap.containsKey(obj)) {
-			System.err.println("ChangeLog: search returned false");
-		}
-		return idMap.get(obj);
+		return eObjectIds.get(obj);
 	}
 	
 	// Copied from URIHandler.DEFAULT_HANDLERS and ExtensibleURIConverterImpl()

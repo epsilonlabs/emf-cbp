@@ -46,20 +46,12 @@ public class EventAdapter extends EContentAdapter {
 				if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
 					// create add to resource event
 					EObject newValue = (EObject) n.getNewValue();
-
 					handleEPackageOf(newValue);
-					
-					// add AddEObjectsTOResourceEvent
 					events.add(new AddToResourceEvent(n));
-
-					// handle properties recursively
 					handleEObject(newValue);
 				}
 			} else if (n.getNotifier() instanceof EObject) {
 				if (n.getFeature() != null) {
-					// add to processedEObjects
-					// processedEObjects.add((EObject) n.getNotifier());
-
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 					if (feature.isChangeable() && !feature.isDerived()) {
 						if (feature instanceof EAttribute) {
@@ -74,6 +66,7 @@ public class EventAdapter extends EContentAdapter {
 			break;
 		}
 
+		//TODO: Create UnsetEAttributeEvent and UnsetEReferenceEvent
 		case Notification.UNSET: {
 			if (n.getNotifier() instanceof EObject) {
 				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
@@ -139,10 +132,10 @@ public class EventAdapter extends EContentAdapter {
 				if (n.getFeature() instanceof EAttribute) {
 					EAttribute attribute = (EAttribute) n.getFeature();
 					if (attribute.isChangeable() && !attribute.isDerived()) {
-						List<Object> list = (List<Object>) n.getNewValue();
-						for (Object obj : list) {
-							events.add(new AddToEAttributeEvent(focusObject, attribute, obj));
-						}
+						//List<Object> list = (List<Object>) n.getNewValue();
+						//for (Object obj : list) {
+							events.add(new AddToEAttributeEvent(focusObject, attribute, (List<Object>) n.getNewValue()));
+						//}
 					}
 				} else if (n.getFeature() instanceof EReference) {
 					EReference eReference = (EReference) n.getFeature();
@@ -150,7 +143,9 @@ public class EventAdapter extends EContentAdapter {
 						List<EObject> list = (List<EObject>) n.getNewValue();
 						for (EObject obj : list) {
 							handleEPackageOf(obj);
-							events.add(new AddToEReferenceEvent(focusObject, eReference, obj));
+						}
+						events.add(new AddToEReferenceEvent(focusObject, eReference, list));
+						for (EObject obj : list) {
 							handleEObject(obj);
 						}
 					}
@@ -172,26 +167,18 @@ public class EventAdapter extends EContentAdapter {
 		}
 		case Notification.REMOVE_MANY: {
 			@SuppressWarnings("unchecked")
-			List<Object> list = (List<Object>) n.getOldValue();
-			if (list.size() == 0) {
-
-			} else {
+			List<Object> removed = (List<Object>) n.getOldValue();
+			if (removed.size() > 0) {
 				if (n.getNotifier() instanceof Resource) {
-					for (Object obj : list) {
-						events.add(new RemoveFromResourceEvent((EObject) obj));
-					}
+					events.add(new RemoveFromResourceEvent(removed));
 				} else if (n.getNotifier() instanceof EObject) {
 					EObject focusObject = (EObject) n.getNotifier();
 					if (n.getFeature() instanceof EAttribute) {
 						EAttribute eAttribute = (EAttribute) n.getFeature();
-						for (Object obj : list) {
-							events.add(new RemoveFromEAttributeEvent(focusObject, eAttribute, obj));
-						}
+						events.add(new RemoveFromEAttributeEvent(focusObject, eAttribute, removed));
 					} else if (n.getFeature() instanceof EReference) {
 						EReference eReference = (EReference) n.getFeature();
-						for (Object obj : list) {
-							events.add(new RemoveFromEReferenceEvent(focusObject, obj, eReference));
-						}
+						events.add(new RemoveFromEReferenceEvent(focusObject, eReference, removed));
 					}
 				}
 			}

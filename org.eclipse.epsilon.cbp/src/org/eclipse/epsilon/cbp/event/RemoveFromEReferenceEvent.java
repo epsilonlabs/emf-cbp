@@ -6,7 +6,7 @@ import org.eclipse.emf.ecore.EReference;
 
 public class RemoveFromEReferenceEvent extends EReferenceEvent {
 	/* EObject added to another EObject via some EReference */
-	public RemoveFromEReferenceEvent(EObject focusObject, Object oldValue, EReference eReference) {
+	public RemoveFromEReferenceEvent(EObject focusObject, EReference eReference, Object oldValue) {
 		super(focusObject, eReference, oldValue);
 	}
 
