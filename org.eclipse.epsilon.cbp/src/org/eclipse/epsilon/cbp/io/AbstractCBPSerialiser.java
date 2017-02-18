@@ -44,7 +44,7 @@ public abstract class AbstractCBPSerialiser {
 	protected PersistenceUtil persistenceUtil = PersistenceUtil.getInstance();
 	
 	public AbstractCBPSerialiser(CBPResource resource) {
-		this.eventList = resource.getChangelog().getEventsList();
+		this.eventList = resource.getEvents();
 
 		this.commonsimpleTypeNameMap = persistenceUtil.getCommonSimpleTypesMap();
 		this.textSimpleTypeNameMap = persistenceUtil.getTextSimpleTypesMap();

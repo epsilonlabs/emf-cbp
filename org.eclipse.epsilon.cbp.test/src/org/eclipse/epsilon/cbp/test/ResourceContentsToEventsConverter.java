@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -10,41 +11,30 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
-import org.eclipse.epsilon.cbp.util.Changelog;
 
 public class ResourceContentsToEventsConverter {
-	// change log
-	Changelog changelog;
-
-	// resource under question
-	Resource resource;
-
+	
+	List<Event> events;
 	HashSet<EObject> eObjectsCounter = new HashSet<EObject>();
 
-	public ResourceContentsToEventsConverter(Changelog changelog, Resource resource) {
-		this.changelog = changelog;
-		this.resource = resource;
-	}
-
-	public Changelog getChangelog() {
-		return changelog;
-	}
-
-	public void convert() {
+	public ResourceContentsToEventsConverter() {}
+	
+	public List<Event> convert(Resource resource) {
+		
 		// if resource is empty, do nothing
 		Iterator<EObject> iterator = resource.getAllContents();
 		if (!iterator.hasNext()) {
-			return;
+			return Collections.emptyList();
 		}
 
-		// clear change log first
-		changelog.clear();
-
+		events = new ArrayList<Event>();
+		
 		// for all EObjects
 		while (iterator.hasNext()) {
 
@@ -56,7 +46,7 @@ public class ResourceContentsToEventsConverter {
 
 				// create event to add to resource
 				AddToResourceEvent e = new AddToResourceEvent(obj);
-				changelog.addEvent(e);
+				events.add(e);
 
 				// handle all attributes
 				handleAttributes(obj);
@@ -71,6 +61,9 @@ public class ResourceContentsToEventsConverter {
 				handleReferences(obj);
 			}
 		}
+		
+		return events;
+		
 	}
 
 	public void handleAttributes(EObject obj) {
@@ -81,10 +74,10 @@ public class ResourceContentsToEventsConverter {
 				if (attr.isMany()) {
 					// create add to attribute event
 					AddToEAttributeEvent e = new AddToEAttributeEvent(obj, attr, obj.eGet(attr));
-					changelog.addEvent(e);
+					events.add(e);
 				} else {
 					SetEAttributeEvent e = new SetEAttributeEvent(obj, attr, obj.eGet(attr));
-					changelog.addEvent(e);
+					events.add(e);
 				}
 
 			}
@@ -126,7 +119,7 @@ public class ResourceContentsToEventsConverter {
 		}
 
 		AddToEReferenceEvent e = new AddToEReferenceEvent(focusObject, eRef, value);
-		changelog.addEvent(e);
+		events.add(e);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -145,7 +138,7 @@ public class ResourceContentsToEventsConverter {
 		}
 
 		SetEReferenceEvent e = new SetEReferenceEvent(focusObject, eRef, value);
-		changelog.addEvent(e);
+		events.add(e);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -168,12 +161,12 @@ public class ResourceContentsToEventsConverter {
 
 			} else {
 				AddToResourceEvent addEObjectsToResourceEvent = new AddToResourceEvent(obj);
-				changelog.addEvent(addEObjectsToResourceEvent);
+				events.add(addEObjectsToResourceEvent);
 				eObjectsCounter.add(obj);
 			}
 		}
 		AddToEReferenceEvent e = new AddToEReferenceEvent(focusObject, eRef, value);
-		changelog.addEvent(e);
+		events.add(e);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -194,12 +187,12 @@ public class ResourceContentsToEventsConverter {
 		for (EObject obj : eObjectList) {
 			if (!eObjectsCounter.contains(obj)) {
 				AddToResourceEvent addEObjectsToResourceEvent = new AddToResourceEvent(obj);
-				changelog.addEvent(addEObjectsToResourceEvent);
+				events.add(addEObjectsToResourceEvent);
 				eObjectsCounter.add(obj);
 			}
 		}
 		SetEReferenceEvent e = new SetEReferenceEvent(focusObject, eRef, value);
-		changelog.addEvent(e);
+		events.add(e);
 	}
 
 }

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
@@ -19,15 +20,14 @@ import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 import org.eclipse.epsilon.cbp.AppendFileURIHandlerImpl;
+import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.io.AbstractCBPDeserialiser;
 import org.eclipse.epsilon.cbp.io.AbstractCBPSerialiser;
-import org.eclipse.epsilon.cbp.util.Changelog;
 
 public abstract class CBPResource extends ResourceImpl {
 	
 	protected EventAdapter eventAdapter;
-	protected Changelog changelog = new Changelog();
 	
 	// eobject to id map
 	protected HashMap<EObject, Integer> idMap = new HashMap<EObject, Integer>();
@@ -37,7 +37,7 @@ public abstract class CBPResource extends ResourceImpl {
 
 	public CBPResource(URI uri) {
 		super(uri);
-		eventAdapter = new EventAdapter(changelog);
+		eventAdapter = new EventAdapter();
 		this.eAdapters().add(eventAdapter);
 	}
 	
@@ -57,10 +57,6 @@ public abstract class CBPResource extends ResourceImpl {
 	public abstract AbstractCBPSerialiser getSerialiser();
 
 	public abstract AbstractCBPDeserialiser getDeserialiser();
-
-	public void setChangelog(Changelog changelog) {
-		this.changelog = changelog;
-	}
 
 	// add object to map, return false if object exists
 	public boolean addObjectToMap(EObject obj) {
@@ -99,10 +95,6 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		return idMap.get(obj);
 	}
-
-	public Changelog getChangelog() {
-		return changelog;
-	}
 	
 	// Copied from URIHandler.DEFAULT_HANDLERS and ExtensibleURIConverterImpl()
 	@Override
@@ -115,6 +107,10 @@ public abstract class CBPResource extends ResourceImpl {
             new ArchiveURIHandlerImpl(), 
             new URIHandlerImpl()
           }), ContentHandler.Registry.INSTANCE.contentHandlers());
+	}
+	
+	public List<Event> getEvents() {
+		return eventAdapter.getEvents();
 	}
 	
 }

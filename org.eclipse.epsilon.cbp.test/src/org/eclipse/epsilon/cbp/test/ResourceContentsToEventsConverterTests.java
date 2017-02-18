@@ -2,10 +2,20 @@ package org.eclipse.epsilon.cbp.test;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.epsilon.cbp.event.EventAdapter;
-import org.eclipse.epsilon.cbp.util.Changelog;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.Event;
+import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.junit.Test;
 
 import university.Department;
@@ -17,36 +27,76 @@ import university.University;
 import university.UniversityFactory;
 
 public class ResourceContentsToEventsConverterTests {
-
+	
 	@Test
-	public void test() {
+	public void countAddEObjectsToResourceEventTest() {
 
-		ResourceContentsToEventsConverter converter = generateConverter();
-		converter.convert();
-		//converter.getChangelog().printLog();
+		List<Event> events = getChangelog();
 
-		assertEquals(true, true);
+		assertEquals(getAllOfType(events, AddToResourceEvent.class).size(), 7);
 	}
 
-	public ResourceContentsToEventsConverter generateConverter() {
+	@Test
+	public void countSetEAttributeEventTest() {
 
-		// create adapter
-		EventAdapter adapter = new EventAdapter(new Changelog());
+		List<Event> events = getChangelog();
+		assertEquals(getAllOfType(events, SetEAttributeEvent.class).size(), 10);
+	}
+
+	@Test
+	public void countAddToEAttributeEventTest() {
+
+		List<Event> events = getChangelog();
+
+		assertEquals(getAllOfType(events, AddToEAttributeEvent.class).size(), 1);
+	}
+
+	@Test
+	public void countSetEReferenceEventTest() {
+
+		List<Event> events = getChangelog();
+
+		assertEquals(getAllOfType(events, SetEReferenceEvent.class).size(), 2);
+	}
+
+	@Test
+	public void countAddToEReferenceEventTest() {
+
+		List<Event> events = getChangelog();
+
+		assertEquals(getAllOfType(events, AddToEReferenceEvent.class).size(), 8);
+	}
+
+	@Test
+	public void countRemoveFromResourceTest() {
+		// in the change log there should be 0 remove events
+		List<Event> events = getChangelog();
+		assertEquals(getAllOfType(events, RemoveFromResourceEvent.class).size(), 0);
+	}
+
+	@Test
+	public void countRemoveFromEAttributeTest() {
+		// in the change log there should be 0 remove events
+		List<Event> events = getChangelog();
+		assertEquals(getAllOfType(events, RemoveFromEAttributeEvent.class).size(), 0);
+	}
+
+	@Test
+	public void countRemoveFromEReferenceTest() {
+		// in the change log there should be 0 remove events
+		List<Event> events = getChangelog();
+		assertEquals(getAllOfType(events, RemoveFromEReferenceEvent.class).size(), 0);
+	}
+
+	public List<Event> getChangelog() {
 
 		// create resource
 		Resource resource = new ResourceImpl();
 
-		// create converter
-		ResourceContentsToEventsConverter converter = new ResourceContentsToEventsConverter(adapter.getChangelog(),
-				resource);
-
-		// add adapter to resource
-		resource.eAdapters().add(adapter);
-
 		// create factory
 		UniversityFactory factory = UniversityFactory.eINSTANCE;
 
-		// --create univewrsity
+		// --create university
 		University university = factory.createUniversity();
 
 		// add university
@@ -100,6 +150,20 @@ public class ResourceContentsToEventsConverterTests {
 		// add to department
 		cs.getModules().add(mode);
 
-		return converter;
+		// create converter
+		ResourceContentsToEventsConverter converter = new ResourceContentsToEventsConverter();
+
+		return converter.convert(resource);
 	}
+	
+	protected List<Event> getAllOfType(List<Event> events, Class<?> clazz) {
+		List<Event> result = new ArrayList<Event>();
+		for (Event event : events) {
+			if (event.getClass() == clazz) {
+				result.add(event);
+			}
+		}
+		return result;
+	}
+	
 }

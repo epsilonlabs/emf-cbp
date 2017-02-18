@@ -31,15 +31,6 @@ import org.w3c.dom.Element;
 
 public class CBPXMLSerialiser extends AbstractCBPSerialiser {
 	
-	public static void main(String[] args) throws Exception {
-		
-		CBPXMLResourceImpl resource = new CBPXMLResourceImpl(URI.createURI("foo"));
-		EClass c1 = EcoreFactory.eINSTANCE.createEClass();
-		EClass c2 = EcoreFactory.eINSTANCE.createEClass();
-		resource.getContents().add(c1);
-		//resource.getContents().addAll(Arrays.asList(c1, c2));
-		resource.save(System.out, null);
-	}
 	
 	
 	public CBPXMLSerialiser(CBPResource resource) {
