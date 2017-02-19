@@ -11,6 +11,11 @@ public class BlogEquivalenceTests extends XmiResourceEquivalenceTests {
 		run("var p : new Post; p.ratings.add(1); p.ratings.add(2);", true);
 	}
 	
+	@Test
+	public void removeRatings() throws Exception {
+		run("var p : new Post; p.ratings.add(1); p.ratings.add(2); p.ratings.remove(1);", true);		
+	}
+	
 	@Override
 	public EPackage getEPackage() {
 		return BlogPackage.eINSTANCE;

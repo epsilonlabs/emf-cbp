@@ -34,6 +34,7 @@ import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
@@ -147,6 +148,14 @@ public class CBPXMLResourceImpl extends CBPResource {
 				e.appendChild(o);
 			}
 		}
+		else if (event instanceof RemoveFromEAttributeEvent) {
+			e = document.createElement("remove-from-eattribute");
+			for (Object object : ((EAttributeEvent) event).getValues()) {
+				Element o = document.createElement("value");
+				o.setAttribute("literal", object + "");
+				e.appendChild(o);
+			}
+		}
 		else {
 			throw new RuntimeException("Unexpected event:" + event);
 		}
@@ -211,6 +220,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		else if ("unset-eattribute".equals(name)) event = new UnsetEAttributeEvent();
 		else if ("unset-ereference".equals(name)) event = new UnsetEReferenceEvent();
 		else if ("add-to-eattribute".equals(name)) event = new AddToEAttributeEvent();
+		else if ("remove-from-eattribute".equals(name)) event = new RemoveFromEAttributeEvent();
 		
 		if (event instanceof EStructuralFeatureEvent<?>) {
 			EObject target = eObjects.get(Integer.parseInt(e.getAttribute("target")));
