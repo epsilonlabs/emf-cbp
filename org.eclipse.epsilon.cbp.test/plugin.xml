@@ -14,4 +14,12 @@
             genModel="model/university.genmodel"/>
    </extension>
 
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated blog -->
+      <package
+            uri="blog"
+            class="org.eclipse.epsilon.cbp.test.blog.BlogPackage"
+            genModel="model/blog.genmodel"/>
+   </extension>
+
 </plugin>
