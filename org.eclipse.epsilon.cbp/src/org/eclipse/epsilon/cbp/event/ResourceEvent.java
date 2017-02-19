@@ -1,23 +1,14 @@
 package org.eclipse.epsilon.cbp.event;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.epsilon.cbp.resource.CBPResource;
 
-public abstract class ResourceEvent extends Event {
+public abstract class ResourceEvent extends Event<EObject> implements EObjectValuesEvent {
 	
-	@SuppressWarnings("unchecked")
-	public ResourceEvent(Object value) {
-		if (value instanceof Collection) {
-			eObjects.addAll((List<EObject>) value);
-		} else {
-			eObjects.add((EObject) value);
-		}
+	protected CBPResource resource;
+	
+	public void setResource(CBPResource resource) {
+		this.resource = resource;
 	}
 	
-	public ResourceEvent(Notification n) {
-		
-	}
 }

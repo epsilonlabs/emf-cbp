@@ -11,8 +11,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
+import org.eclipse.epsilon.cbp.io.StringOutputStream;
 import org.eclipse.epsilon.cbp.resource.CBPResourceFactory;
-import org.eclipse.epsilon.cbp.test.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
 
@@ -76,6 +76,8 @@ public abstract class XmiResourceEquivalenceTests {
 			System.out.println();
 			System.out.println("CBPResource");
 			System.out.println(copyXmiResourceSos.toString());
+			System.out.println("---");
+			System.out.println(cbpSos.toString());
 		}
 		
 		assertEquals(xmiSos.toString(), copyXmiResourceSos.toString());
@@ -95,7 +97,8 @@ public abstract class XmiResourceEquivalenceTests {
 	}
 	
 	protected void run(String eol, boolean debug) throws Exception {
-		run(eol, "cbptext", debug);
+		run(eol, "cbpxml", debug);
+		//run(eol, "cbptext", debug);
 		//run(eol, "cbpbin", debug);
 	}
 	

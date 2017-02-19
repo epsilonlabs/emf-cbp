@@ -1,8 +1,10 @@
 package org.eclipse.epsilon.cbp.event;
 
+import javax.lang.model.type.NullType;
+
 import org.eclipse.emf.ecore.EPackage;
 
-public class RegisterEPackageEvent extends Event {
+public class RegisterEPackageEvent extends Event<NullType> {
 
 	protected EPackage ePackage;
 
@@ -10,7 +12,7 @@ public class RegisterEPackageEvent extends Event {
 		this.ePackage = ePackage;
 	}
 
-	public EPackage getePackage() {
+	public EPackage getEPackage() {
 		return ePackage;
 	}
 

@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.test;
+package org.eclipse.epsilon.cbp.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

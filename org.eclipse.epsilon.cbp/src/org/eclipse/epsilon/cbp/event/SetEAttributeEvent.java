@@ -1,17 +1,10 @@
 package org.eclipse.epsilon.cbp.event;
 
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EObject;
-
 public class SetEAttributeEvent extends EAttributeEvent {
-
-	public SetEAttributeEvent(EObject focusObject, EAttribute eAttribute, Object newValue) {
-		super(focusObject, eAttribute, newValue);
+	
+	@Override
+	public void replay() {
+		target.eSet(eStructuralFeature, getValue());
 	}
-
-	public SetEAttributeEvent(Notification n) {
-		this((EObject) n.getNotifier(), (EAttribute) n.getFeature(), n.getNewValue());
-	}
-
+	
 }

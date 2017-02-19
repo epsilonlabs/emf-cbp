@@ -23,7 +23,7 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	
 	@Test
 	public void testEClassAndEReference() throws Exception {
-		run("var c : new EClass; var r : new EReference; r.name = 'ref'; c.name = 'c'; r.eType = c;");
+		run("var c : new EClass; var r : new EReference; r.eType = c;");
 	}
 	
 	@Test
@@ -33,7 +33,12 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	
 	@Test
 	public void testSuperclass() throws Exception {
-		run("var c : new EClass; var s : new EClass; c.eSuperTypes.add(s);", true);
+		run("var c : new EClass; var s : new EClass; c.eSuperTypes.add(s);");
+	}
+	
+	@Test
+	public void testUnsetEType() throws Exception {
+		run("var c : new EClass; var a: new EReference; a.eType=c; a.eUnset(a.eClass().getEStructuralFeature('eType'));", true);
 	}
 	
 	@Override

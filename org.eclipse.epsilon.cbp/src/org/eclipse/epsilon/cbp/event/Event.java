@@ -1,19 +1,40 @@
 package org.eclipse.epsilon.cbp.event;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.epsilon.cbp.resource.CBPResource;
-
-public abstract class Event {
+public abstract class Event<T> {
 	
-	protected List<EObject> eObjects = new ArrayList<EObject>();
+	protected Collection<T> values = new ArrayList<T>();
 
-	public List<EObject> getEObjects() {
-		return eObjects;
+	public Collection<T> getValues() {
+		return values;
 	}
 	
-	public void replay(CBPResource resource){};
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void setValues(Object t) {
+		if (t instanceof Collection<?>) {
+			values.addAll((Collection) t);
+		}
+		else {
+			values.add((T) t);
+		}
+	}
+	
+	public void setValue(T value) {
+		values.add(value);
+	}
+	
+	public T getValue() {
+		assert values.size() < 2;
+		if (values.isEmpty()) {
+			return null;
+		}
+		else {
+			return values.iterator().next();
+		}
+	}
+	
+	public void replay() {};
 	
 }
