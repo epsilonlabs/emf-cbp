@@ -6,6 +6,7 @@ import org.eclipse.emf.ecore.EObject;
 
 public class AddToEReferenceEvent extends EReferenceEvent {
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void replay() {
 		((Collection<EObject>) target.eGet(getEReference())).addAll(getValues());

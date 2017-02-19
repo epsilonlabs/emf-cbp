@@ -35,6 +35,6 @@ public abstract class Event<T> {
 		}
 	}
 	
-	public void replay() {};
+	public abstract void replay();
 	
 }

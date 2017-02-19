@@ -15,5 +15,9 @@ public class RegisterEPackageEvent extends Event<NullType> {
 	public EPackage getEPackage() {
 		return ePackage;
 	}
-
+	
+	@Override
+	public void replay() {
+		
+	}
 }

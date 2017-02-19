@@ -22,23 +22,33 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	}
 	
 	@Test
-	public void testEClassAndEReference() throws Exception {
+	public void setEType() throws Exception {
 		run("var c : new EClass; var r : new EReference; r.eType = c;");
 	}
 	
 	@Test
-	public void testEPackageAndEClass() throws Exception {
+	public void addToEClassifiers() throws Exception {
 		run("var c : new EClass; var p: new EPackage; p.eClassifiers.add(c);");
 	}
 	
 	@Test
-	public void testSuperclass() throws Exception {
+	public void addToESuperTypes() throws Exception {
 		run("var c : new EClass; var s : new EClass; c.eSuperTypes.add(s);");
 	}
 	
 	@Test
-	public void testUnsetEType() throws Exception {
-		run("var c : new EClass; var a: new EReference; a.eType=c; a.eUnset(a.eClass().getEStructuralFeature('eType'));", true);
+	public void unsetEType() throws Exception {
+		run("var c : new EClass; var a: new EReference; a.eType=c; a.eUnset(a.eClass().getEStructuralFeature('eType'));");
+	}
+	
+	@Test
+	public void unsetESuperTypes() throws Exception {
+		run("var c1 : new EClass; var c2: new EClass; c1.eSuperTypes.add(c2); c1.eUnset(c1.eClass().getEStructuralFeature('eSuperTypes'));", true);
+	}
+	
+	@Test
+	public void nullifyEType() throws Exception {
+		run("var c : new EClass; var a: new EReference; a.eType=c; a.eType = null;");
 	}
 	
 	@Override
