@@ -189,7 +189,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		else if ("remove-from-eattribute".equals(name)) event = new RemoveFromEAttributeEvent();
 		
 		if (event instanceof EStructuralFeatureEvent<?>) {
-			EObject target = eObjects.get(Integer.parseInt(e.getAttribute("target")));
+			EObject target = getEObject(e.getAttribute("target"));
 			EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(e.getAttribute("name"));
 			((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
 			((EStructuralFeatureEvent<?>) event).setTarget(target);

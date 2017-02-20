@@ -19,6 +19,7 @@ import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
 
+// TODO: Replace oObjects EList with a BiMap
 public abstract class CBPResource extends ResourceImpl {
 	
 	protected EventAdapter eventAdapter;
