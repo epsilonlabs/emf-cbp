@@ -42,13 +42,12 @@ import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
-import org.eclipse.epsilon.cbp.io.StringOutputStream;
+import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class CBPXMLResourceImpl extends CBPResource {
-
 	
 	public static void main(String[] args) throws Exception {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
@@ -56,30 +55,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 		
 		EAnnotation a = EcoreFactory.eINSTANCE.createEAnnotation();
 		a.getDetails().put("foo", "bar");
-		
-		//EClass c1 = EcoreFactory.eINSTANCE.createEClass();
-		//EClass c2 = EcoreFactory.eINSTANCE.createEClass();
-		//resource.getContents().add(c1);
-		//c1.setName("C1");
-		//resource.getContents().add(c2);
-		//resource.getContents().remove(c1);
-		//resource.getContents().add(c1);
-		
-		//EAttribute a1 = EcoreFactory.eINSTANCE.createEAttribute();
-		//resource.getContents().add(a1);
-		//c1.getEStructuralFeatures().add(a1);
-		//c1.getESuperTypes().add(c2);
-		//a1.setName("a1");
-		//a1.setEType(c1);
-		//System.out.println(((EClass)resource.getContents().get(0)).getESuperTypes());
-		//resource.getContents().addAll(Arrays.asList(c1, c2));
 		StringOutputStream sos = new StringOutputStream();
 		resource.save(sos, null);
 		//System.out.println(sos.toString());
 		
 		resource = new CBPXMLResourceImpl(URI.createURI("foo"));
 		resource.load(sos.getInputStream(), null);
-		//System.out.println(((EClass)resource.getContents().get(0)).getESuperTypes());
 		//resource.save(System.out, null);
 	}
 	

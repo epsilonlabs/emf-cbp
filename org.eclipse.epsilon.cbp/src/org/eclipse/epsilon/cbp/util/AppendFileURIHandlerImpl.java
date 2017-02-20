@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp;
+package org.eclipse.epsilon.cbp.util;
 
 import java.io.File;
 import java.io.FileOutputStream;

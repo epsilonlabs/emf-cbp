@@ -15,9 +15,9 @@ import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
-import org.eclipse.epsilon.cbp.AppendFileURIHandlerImpl;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
 
 public abstract class CBPResource extends ResourceImpl {
 	

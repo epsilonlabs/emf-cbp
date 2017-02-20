@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="org/eclipse/epsilon/cbp/io/CBPBinaryDeserializer.java|org/eclipse/epsilon/cbp/io/CBPBinarySerialiser.java|org/eclipse/epsilon/cbp/io/CBPTextDeserialiser.java|org/eclipse/epsilon/cbp/io/CBPTextSerialiser.java|org/eclipse/epsilon/cbp/resource/CBPBinaryResourceImpl.java|org/eclipse/epsilon/cbp/resource/CBPTextResourceImpl.java" kind="src" path="src"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>

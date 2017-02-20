@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.emf.ecore,
  com.google.guava
 Export-Package: org.eclipse.epsilon.cbp.event,
  org.eclipse.epsilon.cbp.exceptions,
- org.eclipse.epsilon.cbp.io,
  org.eclipse.epsilon.cbp.resource,
  org.eclipse.epsilon.cbp.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
