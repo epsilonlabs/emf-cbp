@@ -38,7 +38,12 @@ public class EventAdapter extends EContentAdapter {
 		
 		if (n.isTouch() || !enabled) { return; }
 		super.notifyChanged(n);
-
+		
+		if (n.getFeature() != null) {
+			EStructuralFeature feature = (EStructuralFeature) n.getFeature();
+			if (!feature.isChangeable() || feature.isDerived()) return;
+		}
+		
 		Event<?> event = null;
 		
 		switch (n.getEventType()) {
@@ -51,14 +56,11 @@ public class EventAdapter extends EContentAdapter {
 			} else if (n.getNotifier() instanceof EObject) {
 				if (n.getFeature() != null) {
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
-					if (feature.isChangeable() && !feature.isDerived()) {
-						if (feature instanceof EAttribute) {
-							event = new AddToEAttributeEvent();
-						} else if (n.getFeature() instanceof EReference) {
-							event = new AddToEReferenceEvent();
-						}
+					if (feature instanceof EAttribute) {
+						event = new AddToEAttributeEvent();
+					} else if (n.getFeature() instanceof EReference) {
+						event = new AddToEReferenceEvent();
 					}
-					
 				}
 			}
 			event.setValues(n.getNewValue());
@@ -81,14 +83,12 @@ public class EventAdapter extends EContentAdapter {
 			if (n.getNotifier() instanceof EObject) {
 				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 				if (n.getNewValue() != null) {
-					if (feature != null && feature.isChangeable() && !feature.isDerived()) {
-						if (feature instanceof EAttribute) {
-							event = new SetEAttributeEvent();
-						} else if (feature instanceof EReference) {
-							event = new SetEReferenceEvent();
-						}
-						event.setValues(n.getNewValue());
+					if (feature instanceof EAttribute) {
+						event = new SetEAttributeEvent();
+					} else if (feature instanceof EReference) {
+						event = new SetEReferenceEvent();
 					}
+					event.setValues(n.getNewValue());
 				} else {
 					if (feature instanceof EAttribute) {
 						event = new UnsetEAttributeEvent();
@@ -107,15 +107,9 @@ public class EventAdapter extends EContentAdapter {
 				event = new AddToResourceEvent();
 			} else if (n.getNotifier() instanceof EObject) {
 				if (n.getFeature() instanceof EAttribute) {
-					EAttribute attribute = (EAttribute) n.getFeature();
-					if (attribute.isChangeable() && !attribute.isDerived()) {
-						event = new AddToEAttributeEvent();
-					}
+					event = new AddToEAttributeEvent();
 				} else if (n.getFeature() instanceof EReference) {
-					EReference eReference = (EReference) n.getFeature();
-					if (eReference.isChangeable() && !eReference.isDerived()) {
-						event = new AddToEReferenceEvent();
-					}
+					event = new AddToEReferenceEvent();
 				}
 				event.setValues(values);
 			}
@@ -155,6 +149,12 @@ public class EventAdapter extends EContentAdapter {
 		}
 		}
 		
+		// Features which are not meant to be serialised are defined as "unset"
+		if (event instanceof SetEReferenceEvent || event instanceof AddToEReferenceEvent) {
+			EStructuralFeature feature = (EStructuralFeature) n.getFeature();
+			if (!((EObject) n.getNotifier()).eIsSet(feature)) return;
+		}
+		
 		if (event instanceof EObjectValuesEvent) {
 			if (((EObjectValuesEvent) event).getValues().isEmpty()) return;
 			for (EObject obj : ((EObjectValuesEvent) event).getValues()) {
@@ -172,7 +172,6 @@ public class EventAdapter extends EContentAdapter {
 			event.setPosition(n.getPosition());
 			events.add(event);
 		}
-		
 	}
 
 	public void setEnabled(boolean bool) {
@@ -227,7 +226,7 @@ public class EventAdapter extends EContentAdapter {
 	
 	public void handleEObject(EObject obj) {
 		if (!resource.owns(obj)) {
-			events.add(new CreateEObjectEvent(obj.eClass()/*, resource, resource.adopt(obj)*/));
+			events.add(new CreateEObjectEvent(obj.eClass(), resource, resource.adopt(obj)));
 			resource.adopt(obj);
 		}
 	}

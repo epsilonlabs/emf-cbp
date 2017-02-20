@@ -6,10 +6,14 @@ import org.junit.Test;
 
 public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	
+	@Test
+	public void autoCreatedGenericType() throws Exception {
+		run("var c1 : new EClass; var c2 : new EClass; c1.eSuperTypes.add(c2); var c3 : new EClass; c1.eSuperTypes.add(c3);");
+	}
 	
 	@Test
 	public void annotation() throws Exception {
-		run("var a : new EAnnotation; var e : new EStringToStringMapEntry; a.details.add(e); e.key = 'foo'; e.value = 'bar';", true);
+		run("var a : new EAnnotation; var e : new EStringToStringMapEntry; a.details.add(e); e.key = 'foo'; e.value = 'bar';");
 	}
 	
 	@Test
@@ -29,7 +33,7 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	
 	@Test
 	public void moveEClassifiers() throws Exception {
-		debug("var p1 = new EPackage; var p2 = new EPackage; p1.name = 'p1'; p2.name = 'p2'; var c : new EClass; p1.eClassifiers.add(c); p2.eClassifiers.add(c);");
+		run("var p1 = new EPackage; var p2 = new EPackage; p1.name = 'p1'; p2.name = 'p2'; var c : new EClass; p1.eClassifiers.add(c); p2.eClassifiers.add(c);");
 	}
 	
 	@Test

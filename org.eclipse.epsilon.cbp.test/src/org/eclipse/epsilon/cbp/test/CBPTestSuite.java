@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ BlogEquivalenceTests.class, EcoreEquivalenceTests.class})
+@SuiteClasses({ BlogEquivalenceTests.class, EcoreEquivalenceTests.class, EcoreAppendTests.class})
 public class CBPTestSuite {
 
 }

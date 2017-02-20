@@ -53,8 +53,14 @@ public class CBPXMLResourceImpl extends CBPResource {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
 		CBPXMLResourceImpl resource = new CBPXMLResourceImpl(URI.createURI("foo"));
 		
-		EAnnotation a = EcoreFactory.eINSTANCE.createEAnnotation();
-		resource.getContents().add(a);
+		EClass c1 = EcoreFactory.eINSTANCE.createEClass();
+		EClass c2 = EcoreFactory.eINSTANCE.createEClass();
+		resource.getContents().add(c1);
+		resource.getContents().add(c2);
+		c1.getESuperTypes().add(c2);
+		EClass c3 = EcoreFactory.eINSTANCE.createEClass();
+		resource.getContents().add(c3);
+		c2.getESuperTypes().add(c3);
 		
 		StringOutputStream sos = new StringOutputStream();
 		resource.save(sos, null);
@@ -152,7 +158,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
-		//eventAdapter.setEnabled(false);
+		eventAdapter.setEnabled(false);
 		eObjectToIdMap.clear();
 		getEvents().clear();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -170,7 +176,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		catch (Exception ex) {
 			throw new IOException(ex);
 		}
-		//eventAdapter.setEnabled(true);
+		eventAdapter.setEnabled(true);
 	}
 	
 	protected void doLoad(Element e) {
@@ -229,7 +235,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 		
 		event.replay();
 		getEvents().add(event);
-		
 	}
 	
 	protected Object getLiteralValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {

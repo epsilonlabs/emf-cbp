@@ -13,7 +13,7 @@ public class BlogEquivalenceTests extends XmiResourceEquivalenceTests {
 	
 	@Test
 	public void addRatingAtIndex() throws Exception {
-		debug("var p : new Post; p.ratings.add(1); p.ratings.add(0, 2);");
+		run("var p : new Post; p.ratings.add(1); p.ratings.add(0, 2);");
 	}
 	
 	@Test
