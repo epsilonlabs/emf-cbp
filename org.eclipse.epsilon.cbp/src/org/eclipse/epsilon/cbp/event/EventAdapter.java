@@ -8,6 +8,7 @@ import java.util.List;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -36,8 +37,10 @@ public class EventAdapter extends EContentAdapter {
 	@Override
 	public void notifyChanged(Notification n) {
 		
-		if (n.isTouch() || !enabled) { return; }
 		super.notifyChanged(n);
+		
+		if (n.isTouch() || !enabled) { return; }
+		
 		
 		if (n.getFeature() != null) {
 			EStructuralFeature feature = (EStructuralFeature) n.getFeature();
@@ -177,6 +180,7 @@ public class EventAdapter extends EContentAdapter {
 	public void setEnabled(boolean bool) {
 		enabled = bool;
 	}
+	
 	
 	@Override
 	protected void setTarget(EObject target) {

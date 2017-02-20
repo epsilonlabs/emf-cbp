@@ -79,6 +79,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 	@Override
 	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
+		
 		try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
