@@ -30,9 +30,7 @@ public class CreateEObjectEvent extends Event<EObject> implements EObjectValuesE
 	
 	@Override
 	public void replay() {
-		EObject eObject = eClass.getEPackage().getEFactoryInstance().create(eClass);
-		resource.getEObjects().add(eObject);
-		//resource.getContents().add(eObject);
+		resource.getEObjects().add(eClass.getEPackage().getEFactoryInstance().create(eClass));
 	}
 	
 }

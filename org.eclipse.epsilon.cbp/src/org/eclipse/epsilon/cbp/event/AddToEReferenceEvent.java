@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.cbp.event;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 
@@ -9,7 +9,7 @@ public class AddToEReferenceEvent extends EReferenceEvent {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void replay() {
-		((Collection<EObject>) target.eGet(getEReference())).addAll(getValues());
+		((List<EObject>) target.eGet(getEStructuralFeature())).addAll(position, getValues());
 	}
 	
 }

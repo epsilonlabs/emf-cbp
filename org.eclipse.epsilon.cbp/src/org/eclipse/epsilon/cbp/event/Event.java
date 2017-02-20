@@ -6,7 +6,8 @@ import java.util.Collection;
 public abstract class Event<T> {
 	
 	protected Collection<T> values = new ArrayList<T>();
-
+	protected int position = -1;
+	
 	public Collection<T> getValues() {
 		return values;
 	}
@@ -33,6 +34,14 @@ public abstract class Event<T> {
 		else {
 			return values.iterator().next();
 		}
+	}
+	
+	public int getPosition() {
+		return position;
+	}
+	
+	public void setPosition(int position) {
+		this.position = position;
 	}
 	
 	public abstract void replay();

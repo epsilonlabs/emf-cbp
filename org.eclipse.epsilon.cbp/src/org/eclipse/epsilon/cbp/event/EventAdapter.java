@@ -35,7 +35,7 @@ public class EventAdapter extends EContentAdapter {
 	
 	@Override
 	public void notifyChanged(Notification n) {
-
+		
 		if (n.isTouch() || !enabled) { return; }
 		super.notifyChanged(n);
 
@@ -167,7 +167,10 @@ public class EventAdapter extends EContentAdapter {
 			((EStructuralFeatureEvent<?>) event).setTarget(n.getNotifier());			
 		}
 		
-		if (event != null) events.add(event);
+		if (event != null) {
+			event.setPosition(n.getPosition());
+			events.add(event);
+		}
 		
 	}
 

@@ -17,7 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -53,20 +53,24 @@ public class CBPXMLResourceImpl extends CBPResource {
 	public static void main(String[] args) throws Exception {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
 		CBPXMLResourceImpl resource = new CBPXMLResourceImpl(URI.createURI("foo"));
-		EClass c1 = EcoreFactory.eINSTANCE.createEClass();
+		
+		EAnnotation a = EcoreFactory.eINSTANCE.createEAnnotation();
+		a.getDetails().put("foo", "bar");
+		
+		//EClass c1 = EcoreFactory.eINSTANCE.createEClass();
 		//EClass c2 = EcoreFactory.eINSTANCE.createEClass();
-		resource.getContents().add(c1);
+		//resource.getContents().add(c1);
 		//c1.setName("C1");
 		//resource.getContents().add(c2);
 		//resource.getContents().remove(c1);
 		//resource.getContents().add(c1);
 		
-		EAttribute a1 = EcoreFactory.eINSTANCE.createEAttribute();
-		resource.getContents().add(a1);
+		//EAttribute a1 = EcoreFactory.eINSTANCE.createEAttribute();
+		//resource.getContents().add(a1);
 		//c1.getEStructuralFeatures().add(a1);
 		//c1.getESuperTypes().add(c2);
 		//a1.setName("a1");
-		a1.setEType(c1);
+		//a1.setEType(c1);
 		//System.out.println(((EClass)resource.getContents().get(0)).getESuperTypes());
 		//resource.getContents().addAll(Arrays.asList(c1, c2));
 		StringOutputStream sos = new StringOutputStream();
@@ -85,95 +89,78 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 	@Override
 	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
-		latestObjectId = 0;
-		for (Event<?> event : eventAdapter.getEvents()) {
-			try { doSave(event, out); }
-			catch (Exception ex) { ex.printStackTrace(); }
-		}
-	}
-	
-	protected int latestObjectId = 0;
-	
-	protected void doSave(Event<?> event, OutputStream out) throws Exception {
-		
-		Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		Element e = null;
-		
-		if (event instanceof RegisterEPackageEvent) {
-			RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
-			e = document.createElement("register");
-			e.setAttribute("epackage", r.getEPackage().getNsURI());
-		}
-		else if (event instanceof AddToResourceEvent || event instanceof RemoveFromResourceEvent || event instanceof AddToEReferenceEvent || event instanceof RemoveFromEReferenceEvent) {
-			if (event instanceof AddToResourceEvent) e = document.createElement("add-to-resource");
-			else if (event instanceof RemoveFromResourceEvent) e = document.createElement("remove-from-resource");
-			else if (event instanceof AddToEReferenceEvent) e = document.createElement("add-to-ereference");
-			else if (event instanceof RemoveFromEReferenceEvent) e = document.createElement("remove-from-ereference");
+		try {
+			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			
-			for (EObject eObject : ((EObjectValuesEvent) event).getValues()) {
-				Element o = document.createElement("value");
-				o.setAttribute("eobject", getURIFragment(eObject));
-				e.appendChild(o);
+			for (Event<?> event : eventAdapter.getEvents()) {
+				Document document = documentBuilder.newDocument();
+				Element e = null;
+				
+				if (event instanceof RegisterEPackageEvent) {
+					RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
+					e = document.createElement("register");
+					e.setAttribute("epackage", r.getEPackage().getNsURI());
+				}
+				else if (event instanceof CreateEObjectEvent) {
+					e = document.createElement("create");
+					e.setAttribute("epackage", ((CreateEObjectEvent) event).getEClass().getEPackage().getNsURI());
+					e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
+				}
+				else if (event instanceof AddToResourceEvent) e = document.createElement("add-to-resource");
+				else if (event instanceof RemoveFromResourceEvent) e = document.createElement("remove-from-resource");
+				else if (event instanceof AddToEReferenceEvent) e = document.createElement("add-to-ereference");
+				else if (event instanceof RemoveFromEReferenceEvent) e = document.createElement("remove-from-ereference");
+				else if (event instanceof SetEAttributeEvent) e = document.createElement("set-eattribute");
+				else if (event instanceof SetEReferenceEvent) e = document.createElement("set-ereference");
+				else if (event instanceof UnsetEReferenceEvent) e = document.createElement("unset-ereference");
+				else if (event instanceof UnsetEAttributeEvent) e = document.createElement("unset-eattribute");	
+				else if (event instanceof AddToEAttributeEvent) e = document.createElement("add-to-eattribute");
+				else if (event instanceof RemoveFromEAttributeEvent) e = document.createElement("remove-from-eattribute");
+				
+				else {
+					throw new RuntimeException("Unexpected event:" + event);
+				}
+				
+				if (event instanceof EStructuralFeatureEvent<?>) {
+					e.setAttribute("name", ((EStructuralFeatureEvent<?>) event).getEStructuralFeature().getName());
+					e.setAttribute("target", getURIFragment(((EStructuralFeatureEvent<?>) event).getTarget()));
+				}
+				
+				if (event instanceof EStructuralFeatureEvent<?> || event instanceof ResourceEvent) {
+					if (event.getPosition() != -1) {
+						e.setAttribute("position", event.getPosition() + "");
+					}
+				}
+				
+				if (event instanceof EObjectValuesEvent) {
+					for (EObject eObject : ((EObjectValuesEvent) event).getValues()) {
+						Element o = document.createElement("value");
+						o.setAttribute("eobject", getURIFragment(eObject));
+						e.appendChild(o);
+					}
+				}
+				else if (event instanceof EAttributeEvent) {
+					for (Object object : ((EAttributeEvent) event).getValues()) {
+						Element o = document.createElement("value");
+						o.setAttribute("literal", object + "");
+						e.appendChild(o);
+					}
+				}
+				
+				if (e != null) document.appendChild(e);
+				
+				DOMSource source = new DOMSource(document);
+				StreamResult result = new StreamResult(out);
+				transformer.transform(source, result);
+				out.write(System.getProperty("line.separator").getBytes());
 			}
 		}
-		else if (event instanceof CreateEObjectEvent) {
-			e = document.createElement("create");
-			e.setAttribute("epackage", ((CreateEObjectEvent) event).getEClass().getEPackage().getNsURI());
-			e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
-			e.setAttribute("id", latestObjectId++ + "");
+		catch (Exception ex) {
+			throw new IOException(ex);
 		}
-		else if (event instanceof SetEAttributeEvent) {
-			e = document.createElement("set-eattribute");
-			Element o = document.createElement("value");
-			o.setAttribute("literal", ((SetEAttributeEvent) event).getValue() + "");
-			e.appendChild(o);
-		}
-		else if (event instanceof SetEReferenceEvent) {
-			e = document.createElement("set-ereference");
-			Element o = document.createElement("value");
-			o.setAttribute("eobject", getURIFragment((EObject)((SetEReferenceEvent) event).getValue()));
-			e.appendChild(o);
-		}
-		else if (event instanceof UnsetEReferenceEvent) {
-			e = document.createElement("unset-ereference");;
-		}
-		else if (event instanceof UnsetEAttributeEvent) {
-			e = document.createElement("unset-eattribute");	
-		}
-		else if (event instanceof AddToEAttributeEvent) {
-			e = document.createElement("add-to-eattribute");
-			for (Object object : ((EAttributeEvent) event).getValues()) {
-				Element o = document.createElement("value");
-				o.setAttribute("literal", object + "");
-				e.appendChild(o);
-			}
-		}
-		else if (event instanceof RemoveFromEAttributeEvent) {
-			e = document.createElement("remove-from-eattribute");
-			for (Object object : ((EAttributeEvent) event).getValues()) {
-				Element o = document.createElement("value");
-				o.setAttribute("literal", object + "");
-				e.appendChild(o);
-			}
-		}
-		else {
-			throw new RuntimeException("Unexpected event:" + event);
-		}
-		
-		if (event instanceof EStructuralFeatureEvent<?>) {
-			e.setAttribute("name", ((EStructuralFeatureEvent<?>) event).getEStructuralFeature().getName());
-			e.setAttribute("target", getURIFragment(((EStructuralFeatureEvent<?>) event).getTarget()));
-		}
-		
-		if (e != null) document.appendChild(e);
-		
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		DOMSource source = new DOMSource(document);
-		StreamResult result = new StreamResult(out);
-		transformer.transform(source, result);
-		out.write(System.getProperty("line.separator").getBytes());
 	}
 	
 	@Override
@@ -191,7 +178,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			}
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();;
+			throw new IOException(ex);
 		}
 		//eventAdapter.setEnabled(true);
 	}
@@ -230,6 +217,10 @@ public class CBPXMLResourceImpl extends CBPResource {
 		}
 		else if (event instanceof ResourceEvent) {
 			((ResourceEvent) event).setResource(this);
+		}
+		
+		if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent || event instanceof ResourceEvent) {
+			event.setPosition(Integer.parseInt(e.getAttribute("position")));
 		}
 		
 		if (event instanceof EObjectValuesEvent) {
