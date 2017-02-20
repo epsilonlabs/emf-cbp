@@ -11,6 +11,11 @@ public class EcoreAppendTests extends AppendTests {
 		run("var c1 = new EClass;", "var c2 = new EClass;");
 	}
 	
+	@Test
+	public void testCreatesAndDelete() throws Exception {
+		run("var c1 = new EClass;", "delete EClass.all;", "var c2 = new EClass;");
+	}
+	
 	@Override
 	public EPackage getEPackage() {
 		return EcorePackage.eINSTANCE;

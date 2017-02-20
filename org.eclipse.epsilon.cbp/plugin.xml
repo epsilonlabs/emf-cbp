@@ -5,11 +5,7 @@
          point="org.eclipse.emf.ecore.extension_parser">
       <parser
             class="org.eclipse.epsilon.cbp.resource.CBPResourceFactory"
-            type="cbptext">
-      </parser>
-      <parser
-            class="org.eclipse.epsilon.cbp.resource.CBPResourceFactory"
-            type="cbpbin">
+            type="cbpxml">
       </parser>
    </extension>
 

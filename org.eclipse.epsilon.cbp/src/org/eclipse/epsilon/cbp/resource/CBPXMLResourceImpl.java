@@ -64,6 +64,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 		//resource.save(System.out, null);
 	}
 	
+	protected int persistedEvents = 0;
+	
 	public CBPXMLResourceImpl(URI uri) {
 		super(uri);
 	}
@@ -76,7 +78,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			
-			for (Event<?> event : getEvents()) {
+			// Ignore the first #eventsAfterMostRecentLoad events
+			for (Event<?> event : getEvents().subList(persistedEvents, getEvents().size())) {
+				
 				Document document = documentBuilder.newDocument();
 				Element e = null;
 				
@@ -136,6 +140,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				transformer.transform(source, result);
 				out.write(System.getProperty("line.separator").getBytes());
 			}
+			persistedEvents = getEvents().size();
 		}
 		catch (Exception ex) {
 			throw new IOException(ex);
@@ -155,6 +160,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 					Document document = documentBuilder.parse(new ByteArrayInputStream(line.getBytes()));
 					doLoad(document.getDocumentElement());
 			}
+			persistedEvents = getEvents().size();
 		}
 		catch (Exception ex) {
 			throw new IOException(ex);

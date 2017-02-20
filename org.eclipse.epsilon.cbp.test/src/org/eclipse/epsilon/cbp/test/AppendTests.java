@@ -12,26 +12,43 @@ import static org.junit.Assert.assertEquals;
 public abstract class AppendTests {
 	
 	public void run(String... sessions) throws Exception {
-		runImpl("cbpxml", sessions);
+		runImpl("cbpxml", false, sessions);
 	}
 	
-	public void runImpl(String extension, String... sessions) throws Exception {
+	public void debug(String... sessions) throws Exception {
+		runImpl("cbpxml", true, sessions);
+	}
+	
+	public void runImpl(String extension, boolean debug, String... sessions) throws Exception {
 		
-		StringOutputStream multiSessionSos = new StringOutputStream();
+		StringOutputStream multiSessionSosWithoutReload = new StringOutputStream();
 		
+		CBPResource resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
+		resource.load(multiSessionSosWithoutReload.getInputStream(), null);
 		for (String eol : sessions) {
-			CBPResource resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
-			resource.load(multiSessionSos.getInputStream(), null);
 			EolModule module = new EolModule();
 			module.parse(eol);
 			InMemoryEmfModel model = new InMemoryEmfModel("M", resource, getEPackage());
 			module.getContext().getModelRepository().addModel(model);
 			module.execute();
-			resource.save(multiSessionSos, null);
+			resource.save(multiSessionSosWithoutReload, null);
+		}
+		
+		StringOutputStream multiSessionSosWithReload = new StringOutputStream();
+		
+		for (String eol : sessions) {
+			resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
+			resource.load(multiSessionSosWithReload.getInputStream(), null);
+			EolModule module = new EolModule();
+			module.parse(eol);
+			InMemoryEmfModel model = new InMemoryEmfModel("M", resource, getEPackage());
+			module.getContext().getModelRepository().addModel(model);
+			module.execute();
+			resource.save(multiSessionSosWithReload, null);
 		}
 		
 		StringOutputStream singleSessionSos = new StringOutputStream();
-		CBPResource resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
+		resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
 		for (String eol : sessions) {
 			EolModule module = new EolModule();
 			module.parse(eol);
@@ -41,7 +58,17 @@ public abstract class AppendTests {
 		}
 		resource.save(singleSessionSos, null);
 		
-		assertEquals(singleSessionSos.toString(), multiSessionSos.toString());
+		if (debug) {
+			System.out.println("Multi-session with reload");
+			System.out.println(multiSessionSosWithReload.toString());
+			System.out.println("Multi-session without reload");
+			System.out.println(multiSessionSosWithoutReload.toString());
+			System.out.println("Single-session");
+			System.out.println(singleSessionSos.toString());
+		}
+		
+		assertEquals(singleSessionSos.toString(), multiSessionSosWithReload.toString());
+		assertEquals(multiSessionSosWithReload.toString(), multiSessionSosWithoutReload.toString());
 		
 	}
 	

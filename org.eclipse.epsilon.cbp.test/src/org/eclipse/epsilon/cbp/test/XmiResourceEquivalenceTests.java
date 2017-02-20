@@ -96,6 +96,10 @@ public abstract class XmiResourceEquivalenceTests {
 		run(eol, false);
 	}
 	
+	protected void debug(String eol) throws Exception {
+		run(eol, true);
+	}
+	
 	protected void run(String eol, boolean debug) throws Exception {
 		run(eol, "cbpxml", debug);
 		//run(eol, "cbptext", debug);
