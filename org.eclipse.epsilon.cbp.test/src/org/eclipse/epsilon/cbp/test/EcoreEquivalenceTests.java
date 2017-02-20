@@ -6,15 +6,20 @@ import org.junit.Test;
 
 public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	
-	/*
+	
 	@Test
 	public void annotation() throws Exception {
-		run("var a : new EAnnotation; a.details.put('foo', 'bar');", true);
-	}*/
+		run("var a : new EAnnotation; var e : new EStringToStringMapEntry; a.details.add(e); e.key = 'foo'; e.value = 'bar';", true);
+	}
 	
 	@Test
 	public void eOpposites() throws Exception {
 		run("var r1 = new EReference; var r2 = new EReference; r1.eOpposite = r2; r2.eOpposite = r1;");
+	}
+	
+	@Test
+	public void create() throws Exception {
+		run("var c : new EClass;");
 	}
 	
 	@Test

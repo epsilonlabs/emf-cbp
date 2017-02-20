@@ -8,11 +8,13 @@ public class CreateEObjectEvent extends Event<EObject> implements EObjectValuesE
 	
 	protected EClass eClass;
 	protected CBPResource resource;
+	protected String id;
 	
-	public CreateEObjectEvent(EClass eClass, CBPResource resource) {
+	public CreateEObjectEvent(EClass eClass, CBPResource resource, String id) {
 		super();
 		this.eClass = eClass;
 		this.resource = resource;
+		this.id = id;
 	}
 	
 	public CreateEObjectEvent(EClass eClass) {
@@ -24,13 +26,13 @@ public class CreateEObjectEvent extends Event<EObject> implements EObjectValuesE
 		return eClass;
 	}
 	
-	public void setResource(CBPResource resource) {
-		this.resource = resource;
+	public String getId() {
+		return id;
 	}
 	
 	@Override
 	public void replay() {
-		resource.assignId(eClass.getEPackage().getEFactoryInstance().create(eClass));
+		resource.adopt(eClass.getEPackage().getEFactoryInstance().create(eClass)/*, id*/);
 	}
 	
 }

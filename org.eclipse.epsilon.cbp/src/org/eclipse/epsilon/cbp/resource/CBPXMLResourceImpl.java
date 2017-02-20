@@ -54,10 +54,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 		CBPXMLResourceImpl resource = new CBPXMLResourceImpl(URI.createURI("foo"));
 		
 		EAnnotation a = EcoreFactory.eINSTANCE.createEAnnotation();
-		a.getDetails().put("foo", "bar");
+		resource.getContents().add(a);
+		
 		StringOutputStream sos = new StringOutputStream();
 		resource.save(sos, null);
-		//System.out.println(sos.toString());
+		System.out.println(sos.toString());
 		
 		resource = new CBPXMLResourceImpl(URI.createURI("foo"));
 		resource.load(sos.getInputStream(), null);
@@ -93,6 +94,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 					e = document.createElement("create");
 					e.setAttribute("epackage", ((CreateEObjectEvent) event).getEClass().getEPackage().getNsURI());
 					e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
+					e.setAttribute("id", ((CreateEObjectEvent) event).getId());
 				}
 				else if (event instanceof AddToResourceEvent) e = document.createElement("add-to-resource");
 				else if (event instanceof RemoveFromResourceEvent) e = document.createElement("remove-from-resource");
@@ -135,6 +137,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				
 				if (e != null) document.appendChild(e);
 				
+				
 				DOMSource source = new DOMSource(document);
 				StreamResult result = new StreamResult(out);
 				transformer.transform(source, result);
@@ -156,9 +159,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 		String line = null;
 		try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			while ((line = reader.readLine()) != null) {				
+			while ((line = reader.readLine()) != null) {
+				if (line.trim().length() > 0) {
 					Document document = documentBuilder.parse(new ByteArrayInputStream(line.getBytes()));
 					doLoad(document.getDocumentElement());
+				}
 			}
 			persistedEvents = getEvents().size();
 		}
@@ -181,7 +186,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		else if ("create".equals(name)) {
 			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
 			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
-			event = new CreateEObjectEvent(eClass, this);
+			event = new CreateEObjectEvent(eClass, this, e.getAttribute("id"));
 		}	
 		else if ("add-to-resource".equals(name)) event = new AddToResourceEvent();
 		else if ("remove-from-resource".equals(name)) event = new RemoveFromResourceEvent();

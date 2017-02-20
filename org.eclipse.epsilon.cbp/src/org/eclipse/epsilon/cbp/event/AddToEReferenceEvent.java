@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 
-public class AddToEReferenceEvent extends EReferenceEvent {
+public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValuesEvent {
 	
 	@SuppressWarnings("unchecked")
 	@Override

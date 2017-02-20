@@ -14,67 +14,66 @@ import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.EventAdapter;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
+import org.eclipse.epsilon.cbp.util.AppendingURIHandler;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-// TODO: Replace oObjects EList with a BiMap
 public abstract class CBPResource extends ResourceImpl {
-	
+
 	protected EventAdapter eventAdapter;
-	//protected UniqueEList<EObject> eObjects;
 	protected BiMap<EObject, String> eObjectToIdMap;
-	
+
 	public CBPResource(URI uri) {
 		super(uri);
 		eventAdapter = new EventAdapter(this);
 		this.eAdapters().add(eventAdapter);
-		//this.eObjects = new UniqueEList<EObject>();
 		this.eObjectToIdMap = HashBiMap.create();
 	}
-	
-	// Copied from URIHandler.DEFAULT_HANDLERS and ExtensibleURIConverterImpl()
+
+	// Adapted from URIHandler.DEFAULT_HANDLERS and ExtensibleURIConverterImpl()
 	@Override
 	protected URIConverter getURIConverter() {
-		return new ExtensibleURIConverterImpl(Arrays.asList(new URIHandler []
-          { 
-            new PlatformResourceURIHandlerImpl(), 
-            new AppendFileURIHandlerImpl(), 
-            new EFSURIHandlerImpl(), 
-            new ArchiveURIHandlerImpl(), 
-            new URIHandlerImpl()
-          }), ContentHandler.Registry.INSTANCE.contentHandlers());
+		return new ExtensibleURIConverterImpl(Arrays.asList(new URIHandler[] { 
+				new AppendFileURIHandlerImpl(),
+				new AppendingURIHandler(new PlatformResourceURIHandlerImpl()),
+				new AppendingURIHandler(new EFSURIHandlerImpl()), 
+				new AppendingURIHandler(new ArchiveURIHandlerImpl()),
+				new AppendingURIHandler(new URIHandlerImpl()) }), 
+				ContentHandler.Registry.INSTANCE.contentHandlers());
 	}
-	
+
 	public List<Event<?>> getEvents() {
 		return eventAdapter.getEvents();
 	}
-	
-	//public UniqueEList<EObject> getEObjects() {
-	//	return eObjects;
-	//}
-	
+
 	@Override
 	public String getURIFragment(EObject eObject) {
-		//return eObjects.indexOf(eObject) + "";
 		return eObjectToIdMap.get(eObject);
 	}
-	
+
 	@Override
 	public EObject getEObject(String uriFragment) {
-		//return eObjects.get(Integer.parseInt(uriFragment));
 		return eObjectToIdMap.inverse().get(uriFragment);
 	}
-	
-	public void assignId(EObject eObject) {
-		eObjectToIdMap.put(eObject, eObjectToIdMap.size() + "");
+
+	public String adopt(EObject eObject) {
+		String id = eObjectToIdMap.size() + ""/*EcoreUtil.generateUUID()*/;
+		adopt(eObject, id);
+		return id;
 	}
 	
-	public boolean knows(EObject eObject) {
+	public void adopt(EObject eObject, String id) {
+		if (!eObjectToIdMap.containsKey(eObject))
+			eObjectToIdMap.put(eObject, id);
+	}
+
+	public boolean owns(EObject eObject) {
 		return eObjectToIdMap.containsKey(eObject);
 	}
-	
+
 }

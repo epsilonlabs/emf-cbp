@@ -156,6 +156,7 @@ public class EventAdapter extends EContentAdapter {
 		}
 		
 		if (event instanceof EObjectValuesEvent) {
+			if (((EObjectValuesEvent) event).getValues().isEmpty()) return;
 			for (EObject obj : ((EObjectValuesEvent) event).getValues()) {
 				handleEPackageOf(obj);
 				handleEObject(obj);
@@ -225,9 +226,9 @@ public class EventAdapter extends EContentAdapter {
 	}
 	
 	public void handleEObject(EObject obj) {
-		if (!resource.knows(obj)) {
-			events.add(new CreateEObjectEvent(obj.eClass()));
-			resource.assignId(obj);
+		if (!resource.owns(obj)) {
+			events.add(new CreateEObjectEvent(obj.eClass()/*, resource, resource.adopt(obj)*/));
+			resource.adopt(obj);
 		}
 	}
 }
