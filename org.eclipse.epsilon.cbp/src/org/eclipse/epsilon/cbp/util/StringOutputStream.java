@@ -27,4 +27,8 @@ public class StringOutputStream extends OutputStream {
 		return new ByteArrayInputStream(toString().getBytes());
 	}
 	
+	public void reset() {
+		buffer.setLength(0);
+	}
+	
 }
