@@ -205,7 +205,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		if (event instanceof EObjectValuesEvent) {
 			NodeList values = e.getElementsByTagName("value");
 			for (int i=0;i<values.getLength();i++) {
-				((EObjectValuesEvent) event).getValues().add((EObject) getEObjectValue((Element) values.item(i)));
+				((EObjectValuesEvent) event).getValues().add(getEObject(((Element) values.item(i)).getAttribute("eobject")));
 			}
 		}
 		else if (event instanceof EAttributeEvent) {
@@ -222,11 +222,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 	}
 	
 	protected Object getLiteralValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {
-		return ((EDataType) eStructuralFeature.getEType()).getEPackage().getEFactoryInstance().createFromString((EDataType) eStructuralFeature.getEType(), e.getAttribute("literal"));
-	}
-	
-	protected Object getEObjectValue(Element e) {
-		return eObjects.get(Integer.parseInt(e.getAttribute("eobject")));
+		EDataType eDataType = ((EDataType) eStructuralFeature.getEType());
+		return eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType, e.getAttribute("literal"));
 	}
 	
 }

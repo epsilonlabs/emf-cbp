@@ -57,4 +57,9 @@ public abstract class CBPResource extends ResourceImpl {
 		return eObjects.indexOf(eObject) + "";
 	}
 	
+	@Override
+	public EObject getEObject(String uriFragment) {
+		return eObjects.get(Integer.parseInt(uriFragment));
+	}
+	
 }
