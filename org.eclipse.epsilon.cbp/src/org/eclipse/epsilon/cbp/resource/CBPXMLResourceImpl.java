@@ -205,14 +205,14 @@ public class CBPXMLResourceImpl extends CBPResource {
 		if (event instanceof EObjectValuesEvent) {
 			NodeList values = e.getElementsByTagName("value");
 			for (int i=0;i<values.getLength();i++) {
-				((EObjectValuesEvent) event).getValues().add((EObject) getValue(null, null, (Element) values.item(i)));
+				((EObjectValuesEvent) event).getValues().add((EObject) getEObjectValue((Element) values.item(i)));
 			}
 		}
 		else if (event instanceof EAttributeEvent) {
 			EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
 			NodeList values = e.getElementsByTagName("value");
 			for (int i=0;i<values.getLength();i++) {
-				eAttributeEvent.getValues().add(getValue(eAttributeEvent.getTarget(), eAttributeEvent.getEStructuralFeature(), (Element) values.item(i)));
+				eAttributeEvent.getValues().add(getLiteralValue(eAttributeEvent.getTarget(), eAttributeEvent.getEStructuralFeature(), (Element) values.item(i)));
 			}
 		}
 		
@@ -221,15 +221,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 		
 	}
 	
-	protected Object getValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {
-		Object value = null;
-		if (e.hasAttribute("literal")) {
-			value = ((EDataType) eStructuralFeature.getEType()).getEPackage().getEFactoryInstance().createFromString((EDataType) eStructuralFeature.getEType(), e.getAttribute("literal"));
-		}
-		else {
-			value = eObjects.get(Integer.parseInt(e.getAttribute("eobject")));
-		}
-		return value;
+	protected Object getLiteralValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {
+		return ((EDataType) eStructuralFeature.getEType()).getEPackage().getEFactoryInstance().createFromString((EDataType) eStructuralFeature.getEType(), e.getAttribute("literal"));
+	}
+	
+	protected Object getEObjectValue(Element e) {
+		return eObjects.get(Integer.parseInt(e.getAttribute("eobject")));
 	}
 	
 }
