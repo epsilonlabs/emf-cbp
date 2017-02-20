@@ -23,6 +23,11 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	}
 	
 	@Test
+	public void moveEClassifiers() throws Exception {
+		run("var p1 = new EPackage; var p2 = new EPackage; p1.name = 'p1'; p2.name = 'p2'; var c : new EClass; p1.eClassifiers.add(c); p2.eClassifiers.add(c);", true);
+	}
+	
+	@Test
 	public void createAndDeleteNested() throws Exception {
 		run("var c : new EClass; var a : new EAttribute; c.eStructuralFeatures.add(a); delete c;");
 	}

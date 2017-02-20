@@ -76,7 +76,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			
-			for (Event<?> event : eventAdapter.getEvents()) {
+			for (Event<?> event : getEvents()) {
 				Document document = documentBuilder.newDocument();
 				Element e = null;
 				
@@ -110,10 +110,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 					e.setAttribute("target", getURIFragment(((EStructuralFeatureEvent<?>) event).getTarget()));
 				}
 				
-				if (event instanceof EStructuralFeatureEvent<?> || event instanceof ResourceEvent) {
-					if (event.getPosition() != -1) {
-						e.setAttribute("position", event.getPosition() + "");
-					}
+				if (event instanceof AddToEReferenceEvent || event instanceof AddToEAttributeEvent || event instanceof AddToResourceEvent) {
+					e.setAttribute("position", event.getPosition() + "");
 				}
 				
 				if (event instanceof EObjectValuesEvent) {
@@ -200,7 +198,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			((ResourceEvent) event).setResource(this);
 		}
 		
-		if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent || event instanceof ResourceEvent) {
+		if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent || event instanceof AddToResourceEvent) {
 			event.setPosition(Integer.parseInt(e.getAttribute("position")));
 		}
 		
