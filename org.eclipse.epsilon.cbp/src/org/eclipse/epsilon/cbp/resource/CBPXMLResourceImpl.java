@@ -145,7 +145,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
 		//eventAdapter.setEnabled(false);
-		getEObjects().clear();
+		eObjectToIdMap.clear();
 		getEvents().clear();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
@@ -170,7 +170,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		
 		if ("register".equals(name)) {
 			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
-			event = new RegisterEPackageEvent(ePackage);
+			event = new RegisterEPackageEvent(ePackage, eventAdapter);
 		}
 		else if ("create".equals(name)) {
 			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
@@ -217,7 +217,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		}
 		
 		event.replay();
-		//getEvents().add(event);
+		getEvents().add(event);
 		
 	}
 	

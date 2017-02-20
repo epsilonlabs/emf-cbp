@@ -7,9 +7,11 @@ import org.eclipse.emf.ecore.EPackage;
 public class RegisterEPackageEvent extends Event<NullType> {
 
 	protected EPackage ePackage;
-
-	public RegisterEPackageEvent(EPackage ePackage) {
+	protected EventAdapter eventAdapter;
+	
+	public RegisterEPackageEvent(EPackage ePackage, EventAdapter eventAdapter) {
 		this.ePackage = ePackage;
+		this.eventAdapter = eventAdapter;
 	}
 
 	public EPackage getEPackage() {
@@ -18,6 +20,6 @@ public class RegisterEPackageEvent extends Event<NullType> {
 	
 	@Override
 	public void replay() {
-		
+		eventAdapter.ePackages.add(ePackage);
 	}
 }

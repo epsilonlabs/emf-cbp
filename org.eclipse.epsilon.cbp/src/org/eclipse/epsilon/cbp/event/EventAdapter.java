@@ -220,51 +220,14 @@ public class EventAdapter extends EContentAdapter {
 		EPackage ePackage = eObject.eClass().getEPackage();
 		if (!ePackages.contains(ePackage)) {
 			ePackages.add(ePackage);
-			events.add(new RegisterEPackageEvent(ePackage));
+			events.add(new RegisterEPackageEvent(ePackage, this));
 		}
 	}
-
+	
 	public void handleEObject(EObject obj) {
-		
-		if (!resource.getEObjects().contains(obj)) {
+		if (!resource.knows(obj)) {
 			events.add(new CreateEObjectEvent(obj.eClass()));
-			resource.getEObjects().add(obj);
+			resource.assignId(obj);
 		}
- 		
-		/*
-		if (!processedEObjects.contains(obj)) {
-			//add current object to processed objects
-			processedEObjects.add(obj);
-			
-			// resource.addObjectToMap(obj);
-			
-			for (EStructuralFeature feature : obj.eClass().getEAllStructuralFeatures()) {
-				if (feature.isChangeable() && !feature.isDerived()) {
-					if (obj.eIsSet(feature)) {
-						if (feature instanceof EAttribute) {
-							if (feature.isMany()) {
-								events.add(new AddToEAttributeEvent(obj, (EAttribute) feature, obj.eGet(feature)));
-							} else {
-								events.add(new SetEAttributeEvent(obj, (EAttribute) feature, obj.eGet(feature)));
-							}
-						}
-						if (feature instanceof EReference) {
-							if (feature.isMany()) {
-								events.add(new AddToEReferenceEvent(obj, (EReference) feature, obj.eGet(feature)));
-								@SuppressWarnings("unchecked")
-								EList<EObject> eList = (EList<EObject>) obj.eGet(feature);
-								for (EObject eObject : eList) {
-									handleEObject(eObject);
-								}
-							} else {
-								events.add(new SetEReferenceEvent(obj, (EReference) feature, obj.eGet(feature)));
-								EObject eObject = (EObject) obj.eGet(feature);
-								handleEObject(eObject);
-							}
-						}
-					}
-				}
-			}
-		}*/
 	}
 }
