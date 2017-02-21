@@ -4,17 +4,23 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
-public class CreateEObjectEvent extends Event<EObject> implements EObjectValuesEvent {
+public class CreateEObjectEvent extends ChangeEvent<EObject> implements EObjectValuesEvent {
 	
 	protected EClass eClass;
 	protected CBPResource resource;
 	protected String id;
 	
+	public CreateEObjectEvent(EClass eClass, String id) {
+		super();
+		this.eClass = eClass;
+		this.id = id;
+	}
+
 	public CreateEObjectEvent(EClass eClass, CBPResource resource, String id) {
 		super();
 		this.eClass = eClass;
-		this.resource = resource;
 		this.id = id;
+		this.resource = resource;
 	}
 	
 	public CreateEObjectEvent(EClass eClass) {
@@ -32,7 +38,7 @@ public class CreateEObjectEvent extends Event<EObject> implements EObjectValuesE
 	
 	@Override
 	public void replay() {
-		resource.adopt(eClass.getEPackage().getEFactoryInstance().create(eClass)/*, id*/);
+		resource.register(eClass.getEPackage().getEFactoryInstance().create(eClass)/*, id*/);
 	}
 	
 }

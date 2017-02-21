@@ -3,7 +3,7 @@ package org.eclipse.epsilon.cbp.event;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-public abstract class EStructuralFeatureEvent<T> extends Event<T> {
+public abstract class EStructuralFeatureEvent<T> extends ChangeEvent<T> {
 	
 	protected EStructuralFeature eStructuralFeature;
 	protected EObject target = null;

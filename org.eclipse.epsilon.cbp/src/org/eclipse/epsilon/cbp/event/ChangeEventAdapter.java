@@ -18,20 +18,20 @@ import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
-public class EventAdapter extends EContentAdapter {
+public class ChangeEventAdapter extends EContentAdapter {
 	
-	protected List<Event<?>> events = new ArrayList<Event<?>>();
+	protected List<ChangeEvent<?>> changeEvents = new ArrayList<ChangeEvent<?>>();
 	protected boolean enabled = true;
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 	protected HashSet<EObject> processedEObjects = new HashSet<EObject>();
 	protected CBPResource resource = null;
 	
-	public EventAdapter(CBPResource resource) {
+	public ChangeEventAdapter(CBPResource resource) {
 		this.resource = resource;
 	}
 	
-	public List<Event<?>> getEvents() {
-		return events;
+	public List<ChangeEvent<?>> getChangeEvents() {
+		return changeEvents;
 	}
 	
 	@Override
@@ -47,7 +47,7 @@ public class EventAdapter extends EContentAdapter {
 			if (!feature.isChangeable() || feature.isDerived()) return;
 		}
 		
-		Event<?> event = null;
+		ChangeEvent<?> event = null;
 		
 		switch (n.getEventType()) {
 		
@@ -173,7 +173,7 @@ public class EventAdapter extends EContentAdapter {
 		
 		if (event != null) {
 			event.setPosition(n.getPosition());
-			events.add(event);
+			changeEvents.add(event);
 		}
 	}
 
@@ -224,14 +224,14 @@ public class EventAdapter extends EContentAdapter {
 		EPackage ePackage = eObject.eClass().getEPackage();
 		if (!ePackages.contains(ePackage)) {
 			ePackages.add(ePackage);
-			events.add(new RegisterEPackageEvent(ePackage, this));
+			changeEvents.add(new RegisterEPackageEvent(ePackage, this));
 		}
 	}
 	
 	public void handleEObject(EObject obj) {
-		if (!resource.owns(obj)) {
-			events.add(new CreateEObjectEvent(obj.eClass(), resource, resource.adopt(obj)));
-			resource.adopt(obj);
+		if (!resource.isRegistered(obj)) {
+			changeEvents.add(new CreateEObjectEvent(obj.eClass(), resource.register(obj)));
+			//resource.register(obj);
 		}
 	}
 }

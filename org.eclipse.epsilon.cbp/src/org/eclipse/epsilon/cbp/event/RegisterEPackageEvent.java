@@ -4,12 +4,12 @@ import javax.lang.model.type.NullType;
 
 import org.eclipse.emf.ecore.EPackage;
 
-public class RegisterEPackageEvent extends Event<NullType> {
+public class RegisterEPackageEvent extends ChangeEvent<NullType> {
 
 	protected EPackage ePackage;
-	protected EventAdapter eventAdapter;
+	protected ChangeEventAdapter eventAdapter;
 	
-	public RegisterEPackageEvent(EPackage ePackage, EventAdapter eventAdapter) {
+	public RegisterEPackageEvent(EPackage ePackage, ChangeEventAdapter eventAdapter) {
 		this.ePackage = ePackage;
 		this.eventAdapter = eventAdapter;
 	}

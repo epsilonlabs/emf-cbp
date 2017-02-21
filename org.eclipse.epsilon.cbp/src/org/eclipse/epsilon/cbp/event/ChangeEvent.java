@@ -3,7 +3,7 @@ package org.eclipse.epsilon.cbp.event;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class Event<T> {
+public abstract class ChangeEvent<T> {
 	
 	protected Collection<T> values = new ArrayList<T>();
 	protected int position = -1;

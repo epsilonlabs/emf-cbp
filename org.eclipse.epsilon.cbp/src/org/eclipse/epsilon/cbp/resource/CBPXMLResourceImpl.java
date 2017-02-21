@@ -17,7 +17,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -28,11 +27,11 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
-import org.eclipse.epsilon.cbp.event.Event;
 import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
@@ -51,7 +50,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	
 	public static void main(String[] args) throws Exception {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
-		CBPXMLResourceImpl resource = new CBPXMLResourceImpl(URI.createURI("foo"));
+		CBPXMLResourceImpl resource = new CBPXMLResourceImpl();
 		
 		EClass c1 = EcoreFactory.eINSTANCE.createEClass();
 		EClass c2 = EcoreFactory.eINSTANCE.createEClass();
@@ -66,12 +65,16 @@ public class CBPXMLResourceImpl extends CBPResource {
 		resource.save(sos, null);
 		System.out.println(sos.toString());
 		
-		resource = new CBPXMLResourceImpl(URI.createURI("foo"));
+		resource = new CBPXMLResourceImpl();
 		resource.load(sos.getInputStream(), null);
 		//resource.save(System.out, null);
 	}
 	
 	protected int persistedEvents = 0;
+	
+	public CBPXMLResourceImpl() {
+		super();
+	}
 	
 	public CBPXMLResourceImpl(URI uri) {
 		super(uri);
@@ -87,7 +90,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			
 			// Ignore the first #eventsAfterMostRecentLoad events
-			for (Event<?> event : getEvents().subList(persistedEvents, getEvents().size())) {
+			for (ChangeEvent<?> event : getChangeEvents().subList(persistedEvents, getChangeEvents().size())) {
 				
 				Document document = documentBuilder.newDocument();
 				Element e = null;
@@ -150,7 +153,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				transformer.transform(source, result);
 				out.write(System.getProperty("line.separator").getBytes());
 			}
-			persistedEvents = getEvents().size();
+			persistedEvents = getChangeEvents().size();
 		}
 		catch (Exception ex) {
 			throw new IOException(ex);
@@ -159,9 +162,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 	
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
-		eventAdapter.setEnabled(false);
+		changeEventAdapter.setEnabled(false);
 		eObjectToIdMap.clear();
-		getEvents().clear();
+		getChangeEvents().clear();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
 		try {
@@ -172,23 +175,23 @@ public class CBPXMLResourceImpl extends CBPResource {
 					doLoad(document.getDocumentElement());
 				}
 			}
-			persistedEvents = getEvents().size();
+			persistedEvents = getChangeEvents().size();
 		}
 		catch (Exception ex) {
 			throw new IOException(ex);
 		}
-		eventAdapter.setEnabled(true);
+		changeEventAdapter.setEnabled(true);
 	}
 	
 	protected void doLoad(Element e) {
 		
 		String name = e.getNodeName();
 		
-		Event<?> event = null;
+		ChangeEvent<?> event = null;
 		
 		if ("register".equals(name)) {
 			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
-			event = new RegisterEPackageEvent(ePackage, eventAdapter);
+			event = new RegisterEPackageEvent(ePackage, changeEventAdapter);
 		}
 		else if ("create".equals(name)) {
 			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
@@ -235,7 +238,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		}
 		
 		event.replay();
-		getEvents().add(event);
+		getChangeEvents().add(event);
 	}
 	
 	protected Object getLiteralValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {

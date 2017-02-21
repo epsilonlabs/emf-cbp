@@ -14,8 +14,8 @@ import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
-import org.eclipse.epsilon.cbp.event.Event;
-import org.eclipse.epsilon.cbp.event.EventAdapter;
+import org.eclipse.epsilon.cbp.event.ChangeEvent;
+import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
 import org.eclipse.epsilon.cbp.util.AppendingURIHandler;
 
@@ -24,14 +24,19 @@ import com.google.common.collect.HashBiMap;
 
 public abstract class CBPResource extends ResourceImpl {
 
-	protected EventAdapter eventAdapter;
+	protected ChangeEventAdapter changeEventAdapter;
 	protected BiMap<EObject, String> eObjectToIdMap;
+	
+	public CBPResource() {
+		super();
+		changeEventAdapter = new ChangeEventAdapter(this);
+		this.eAdapters().add(changeEventAdapter);
+		this.eObjectToIdMap = HashBiMap.create();
+	}
 
 	public CBPResource(URI uri) {
-		super(uri);
-		eventAdapter = new EventAdapter(this);
-		this.eAdapters().add(eventAdapter);
-		this.eObjectToIdMap = HashBiMap.create();
+		this();
+		this.uri = uri;
 	}
 
 	// Adapted from URIHandler.DEFAULT_HANDLERS and ExtensibleURIConverterImpl()
@@ -46,8 +51,8 @@ public abstract class CBPResource extends ResourceImpl {
 				ContentHandler.Registry.INSTANCE.contentHandlers());
 	}
 
-	public List<Event<?>> getEvents() {
-		return eventAdapter.getEvents();
+	public List<ChangeEvent<?>> getChangeEvents() {
+		return changeEventAdapter.getChangeEvents();
 	}
 
 	@Override
@@ -60,8 +65,8 @@ public abstract class CBPResource extends ResourceImpl {
 		return eObjectToIdMap.inverse().get(uriFragment);
 	}
 
-	public String adopt(EObject eObject) {
-		String id = eObjectToIdMap.size() + ""/*EcoreUtil.generateUUID()*/;
+	public String register(EObject eObject) {
+		String id = eObjectToIdMap.size() + "";
 		adopt(eObject, id);
 		return id;
 	}
@@ -71,7 +76,7 @@ public abstract class CBPResource extends ResourceImpl {
 			eObjectToIdMap.put(eObject, id);
 	}
 
-	public boolean owns(EObject eObject) {
+	public boolean isRegistered(EObject eObject) {
 		return eObjectToIdMap.containsKey(eObject);
 	}
 
