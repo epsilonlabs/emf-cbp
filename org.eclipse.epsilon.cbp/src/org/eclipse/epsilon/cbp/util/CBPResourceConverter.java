@@ -14,14 +14,14 @@ public class CBPResourceConverter {
 	public static void main(String[] args) throws Exception {
 		XMIResourceImpl resource = new XMIResourceImpl(URI.createFileURI("/Users/dkolovos/git/org.eclipse.epsilon/tests/org.eclipse.epsilon.etl.engine.test.acceptance/src/org/eclipse/epsilon/etl/engine/test/acceptance/oo2db/models/DB.ecore"));
 		CBPResourceConverter converter = new CBPResourceConverter();
-		converter.convert(resource, null);
+		CBPResource cbpResource = new CBPXMLResourceImpl();
+		converter.convert(resource, cbpResource, null);
+		cbpResource.save(System.out, null);
 	}
 	
-	public CBPResource convert(Resource resource, Map<?, ?> options) throws IOException {
-		CBPResource cbpResource = new CBPXMLResourceImpl();
-		resource.eAdapters().add(cbpResource.eAdapters().iterator().next());
-		resource.load(options);
-		return cbpResource;
+	public void convert(Resource source, CBPResource target, Map<?, ?> options) throws IOException {
+		source.eAdapters().add(target.eAdapters().iterator().next());
+		source.load(options);
 	}
 	
 }
