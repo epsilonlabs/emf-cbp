@@ -186,29 +186,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 	protected void doLoad(Element e) {
 		
 		String name = e.getNodeName();
-		
-		ChangeEvent<?> event = null;
-		
-		if ("register".equals(name)) {
-			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
-			event = new RegisterEPackageEvent(ePackage, changeEventAdapter);
-		}
-		else if ("create".equals(name)) {
-			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
-			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
-			event = new CreateEObjectEvent(eClass, this, e.getAttribute("id"));
-		}	
-		else if ("add-to-resource".equals(name)) event = new AddToResourceEvent();
-		else if ("remove-from-resource".equals(name)) event = new RemoveFromResourceEvent();
-		else if ("add-to-ereference".equals(name)) event = new AddToEReferenceEvent();
-		else if ("remove-from-ereference".equals(name)) event = new RemoveFromEReferenceEvent();
-		else if ("set-eattribute".equals(name)) event = new SetEAttributeEvent();
-		else if ("set-ereference".equals(name)) event = new SetEReferenceEvent();
-		else if ("unset-eattribute".equals(name)) event = new UnsetEAttributeEvent();
-		else if ("unset-ereference".equals(name)) event = new UnsetEReferenceEvent();
-		else if ("add-to-eattribute".equals(name)) event = new AddToEAttributeEvent();
-		else if ("remove-from-eattribute".equals(name)) event = new RemoveFromEAttributeEvent();
-		
+
+		ChangeEvent<?> event = buildEvent(e, name);
+
 		if (event instanceof EStructuralFeatureEvent<?>) {
 			EObject target = getEObject(e.getAttribute("target"));
 			EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(e.getAttribute("name"));
@@ -240,7 +220,43 @@ public class CBPXMLResourceImpl extends CBPResource {
 		event.replay();
 		getChangeEvents().add(event);
 	}
-	
+
+	protected ChangeEvent<?> buildEvent(Element e, String name) {
+		switch (name) {
+		case "register": {
+			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
+			return new RegisterEPackageEvent(ePackage, changeEventAdapter);
+		}
+		case "create": {
+			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
+			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
+			return new CreateEObjectEvent(eClass, this, e.getAttribute("id"));
+		}
+		case "add-to-resource":
+			return new AddToResourceEvent();
+		case "remove-from-resource":
+			return new RemoveFromResourceEvent();
+		case "add-to-ereference":
+			return new AddToEReferenceEvent();
+		case "remove-from-ereference":
+			return new RemoveFromEReferenceEvent();
+		case "set-eattribute":
+			return new SetEAttributeEvent();
+		case "set-ereference":
+			return new SetEReferenceEvent();
+		case "unset-eattribute":
+			return new UnsetEAttributeEvent();
+		case "unset-ereference":
+			return new UnsetEReferenceEvent();
+		case "add-to-eattribute":
+			return new AddToEAttributeEvent();
+		case "remove-from-eattribute":
+			return new RemoveFromEAttributeEvent();
+		}
+
+		return null;
+	}
+
 	protected Object getLiteralValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {
 		EDataType eDataType = ((EDataType) eStructuralFeature.getEType());
 		return eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType, e.getAttribute("literal"));
