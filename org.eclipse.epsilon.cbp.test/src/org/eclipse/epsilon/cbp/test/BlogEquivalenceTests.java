@@ -20,6 +20,11 @@ public class BlogEquivalenceTests extends XmiResourceEquivalenceTests {
 	public void addRatingsAtIndex() throws Exception {
 		run("var p : new Post; p.ratings.add(1); p.ratings.addAll(0, Sequence{2, 3});");
 	}
+
+	@Test
+	public void moveRatings() throws Exception {
+		run("var p : new Post; p.ratings.add(1); p.ratings.add(2); p.ratings.move(0,1);");
+	}
 	
 	@Test
 	public void setPostType() throws Exception {

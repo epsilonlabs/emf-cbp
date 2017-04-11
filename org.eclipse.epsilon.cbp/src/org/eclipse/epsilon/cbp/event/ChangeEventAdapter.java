@@ -131,7 +131,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			event.setValues(n.getOldValue());
 			break;
 		}
-		
+
 		case Notification.REMOVE_MANY: {
 			if (n.getNotifier() instanceof Resource) {
 				event = new RemoveFromResourceEvent();
@@ -145,6 +145,26 @@ public class ChangeEventAdapter extends EContentAdapter {
 			event.setValues(n.getOldValue());
 			break;
 		}
+
+		case Notification.MOVE: {
+			if (n.getNotifier() instanceof EObject) {
+				FromPositionEvent fromEv = null;
+				if (n.getFeature() instanceof EAttribute) {
+					MoveWithinEAttributeEvent moveEvent = new MoveWithinEAttributeEvent();
+					fromEv = moveEvent;
+					event = moveEvent;
+				} else if (n.getFeature() instanceof EReference) {
+					MoveWithinEReferenceEvent moveEvent = new MoveWithinEReferenceEvent();
+					fromEv = moveEvent;
+					event = moveEvent;
+				}
+				if (fromEv != null) {
+					fromEv.setFromPosition(((Number)n.getOldValue()).intValue());
+				}
+			}
+			break;
+		}
+		
 		default: {
 			System.err.println("EventAdapter: Unhandled notification!" + n.toString());
 			break;

@@ -24,7 +24,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -33,6 +32,9 @@ import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
+import org.eclipse.epsilon.cbp.event.FromPositionEvent;
+import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.MoveWithinEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
@@ -95,7 +97,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				
 				Document document = documentBuilder.newDocument();
 				Element e = null;
-				
+
 				if (event instanceof RegisterEPackageEvent) {
 					RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
 					e = document.createElement("register");
@@ -117,6 +119,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 				else if (event instanceof UnsetEAttributeEvent) e = document.createElement("unset-eattribute");	
 				else if (event instanceof AddToEAttributeEvent) e = document.createElement("add-to-eattribute");
 				else if (event instanceof RemoveFromEAttributeEvent) e = document.createElement("remove-from-eattribute");
+				else if (event instanceof MoveWithinEReferenceEvent) e = document.createElement("move-in-ereference");
+				else if (event instanceof MoveWithinEAttributeEvent) e = document.createElement("move-in-eattribute");
 				
 				else {
 					throw new RuntimeException("Unexpected event:" + event);
@@ -129,6 +133,10 @@ public class CBPXMLResourceImpl extends CBPResource {
 				
 				if (event instanceof AddToEReferenceEvent || event instanceof AddToEAttributeEvent || event instanceof AddToResourceEvent) {
 					e.setAttribute("position", event.getPosition() + "");
+				}
+				if (event instanceof FromPositionEvent) {
+					e.setAttribute("from", ((FromPositionEvent)event).getFromPosition() + "");
+					e.setAttribute("to", event.getPosition() + "");
 				}
 				
 				if (event instanceof EObjectValuesEvent) {
@@ -203,7 +211,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 		if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent || event instanceof AddToResourceEvent) {
 			event.setPosition(Integer.parseInt(e.getAttribute("position")));
 		}
-		
+		if (event instanceof FromPositionEvent) {
+			event.setPosition(Integer.parseInt(e.getAttribute("to")));
+			((FromPositionEvent)event).setFromPosition(Integer.parseInt(e.getAttribute("from")));
+		}
+
 		if (event instanceof EObjectValuesEvent) {
 			EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
 			NodeList values = e.getElementsByTagName("value");
@@ -265,6 +277,10 @@ public class CBPXMLResourceImpl extends CBPResource {
 			return new AddToEAttributeEvent();
 		case "remove-from-eattribute":
 			return new RemoveFromEAttributeEvent();
+		case "move-in-eattribute":
+			return new MoveWithinEAttributeEvent();
+		case "move-in-ereference":
+			return new MoveWithinEReferenceEvent();
 		}
 
 		return null;
