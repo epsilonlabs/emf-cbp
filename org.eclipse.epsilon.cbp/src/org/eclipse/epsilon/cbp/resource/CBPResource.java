@@ -14,6 +14,7 @@ import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
@@ -57,7 +58,11 @@ public abstract class CBPResource extends ResourceImpl {
 
 	@Override
 	public String getURIFragment(EObject eObject) {
-		return eObjectToIdMap.get(eObject);
+		String uriFragment = eObjectToIdMap.get(eObject);
+		if (uriFragment == null) {
+			uriFragment = EcoreUtil.getURI(eObject).toString();
+		}
+		return uriFragment;
 	}
 
 	@Override

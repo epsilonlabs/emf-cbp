@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -114,8 +113,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 				} else if (n.getFeature() instanceof EReference) {
 					event = new AddToEReferenceEvent();
 				}
-				event.setValues(values);
 			}
+			event.setValues(values);
 			break;
 		}
 		
@@ -176,7 +175,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			changeEvents.add(event);
 		}
 	}
-
+	
 	public void setEnabled(boolean bool) {
 		enabled = bool;
 	}
@@ -228,9 +227,70 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void handleEObject(EObject obj) {
 		if (!resource.isRegistered(obj)) {
 			changeEvents.add(new CreateEObjectEvent(obj.eClass(), resource.register(obj)));
+
+			// Include prior attribute values into the resource
+			for (EAttribute eAttr : obj.eClass().getEAllAttributes()) {
+				if (eAttr.isChangeable() && obj.eIsSet(eAttr)) {
+					if (eAttr.isMany()) {
+						Collection<?> values = (Collection<?>) obj.eGet(eAttr);
+						int i = 0;
+						for (Object value : values) {
+							AddToEAttributeEvent e = new AddToEAttributeEvent();
+							e.setEStructuralFeature(eAttr);
+							e.setValue(value);
+							e.setTarget(obj);
+							e.setPosition(i++);
+							changeEvents.add(e);
+						}
+					} else {
+						Object value = obj.eGet(eAttr);
+
+						SetEAttributeEvent e = new SetEAttributeEvent();
+						e.setEStructuralFeature(eAttr);
+						e.setValue(value);
+						e.setTarget(obj);
+						changeEvents.add(e);
+					}
+				}
+			}
+
+			// Include prior reference values into the resource
+			for (EReference eRef : obj.eClass().getEAllReferences()) {
+				if (eRef.isChangeable() && obj.eIsSet(eRef)) {
+					if (eRef.isMany()) {
+						Collection<EObject> values = (Collection<EObject>) obj.eGet(eRef);
+						int i = 0;
+						for (EObject value : values) {
+							if (value.eResource() == obj.eResource()) {
+								handleEObject(value);
+							}
+
+							AddToEReferenceEvent e = new AddToEReferenceEvent();
+							e.setEStructuralFeature(eRef);
+							e.setValue(value);
+							e.setTarget(obj);
+							e.setPosition(i++);
+							changeEvents.add(e);
+						}
+					} else {
+						EObject value = (EObject) obj.eGet(eRef);
+						if (value.eResource() == obj.eResource()) {
+							handleEObject(value);
+						}
+
+						SetEReferenceEvent e = new SetEReferenceEvent();
+						e.setEStructuralFeature(eRef);
+						e.setValue(value);
+						e.setTarget(obj);
+						changeEvents.add(e);
+					}
+				}
+			}
+
 			//resource.register(obj);
 		}
 	}

@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -204,9 +205,21 @@ public class CBPXMLResourceImpl extends CBPResource {
 		}
 		
 		if (event instanceof EObjectValuesEvent) {
+			EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
 			NodeList values = e.getElementsByTagName("value");
-			for (int i=0;i<values.getLength();i++) {
-				((EObjectValuesEvent) event).getValues().add(getEObject(((Element) values.item(i)).getAttribute("eobject")));
+			for (int i=0; i < values.getLength(); i++) {
+				final String sEObject = ((Element) values.item(i)).getAttribute("eobject");
+				EObject eob = getEObject(sEObject);
+				if (eob == null) {
+					URI uri = URI.createURI(sEObject);
+
+					String nsURI = uri.trimFragment().toString();
+					EPackage pkg = (EPackage) getResourceSet().getPackageRegistry().get(nsURI);
+					if (pkg != null) {
+						eob = pkg.eResource().getEObject(uri.fragment());
+					}
+				}
+				valuesEvent.getValues().add(eob);
 			}
 		}
 		else if (event instanceof EAttributeEvent) {
