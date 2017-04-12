@@ -3,6 +3,7 @@ package org.eclipse.epsilon.cbp.util;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
@@ -20,7 +21,8 @@ public class CBPResourceConverter {
 	}
 	
 	public void convert(Resource source, CBPResource target, Map<?, ?> options) throws IOException {
-		source.eAdapters().add(target.eAdapters().iterator().next());
+		final Adapter adapter = target.eAdapters().iterator().next();
+		source.eAdapters().add(adapter);
 		source.load(options);
 	}
 	

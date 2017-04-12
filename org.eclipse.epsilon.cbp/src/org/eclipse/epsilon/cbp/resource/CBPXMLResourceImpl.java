@@ -191,7 +191,13 @@ public class CBPXMLResourceImpl extends CBPResource {
 		}
 		changeEventAdapter.setEnabled(true);
 	}
-	
+
+	@Override
+	protected void doUnload() {
+		changeEventAdapter.setEnabled(false);
+		super.doUnload();
+	}
+
 	protected void doLoad(Element e) {
 		
 		String name = e.getNodeName();

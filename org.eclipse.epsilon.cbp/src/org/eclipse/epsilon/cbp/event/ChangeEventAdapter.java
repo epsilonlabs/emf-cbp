@@ -232,15 +232,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 	@Override
 	protected void selfAdapt(Notification notification) {
 		super.selfAdapt(notification);
-		if (notification.getNotifier() instanceof EObject) {
-			Object feature = notification.getFeature();
-			if (feature instanceof EReference) {
-				EReference eReference = (EReference) feature;
-				if (!eReference.isContainment()) {
-					handleContainment(notification);
-				}
-			}
-		}
+		// TODO ask Dimitris about this code: why remove the adapter from the EOperation when you remove an EParameter inside it?
+		// With this code commented, we go 2 commits further into replaying changes, and tests are still green.
+//		if (notification.getNotifier() instanceof EObject) {
+//			Object feature = notification.getFeature();
+//			if (feature instanceof EReference) {
+//				EReference eReference = (EReference) feature;
+//				if (!eReference.isContainment()) {
+//					handleContainment(notification);
+//				}
+//			}
+//		}
 	}
 	
 	public void handleEPackageOf(EObject eObject) {
