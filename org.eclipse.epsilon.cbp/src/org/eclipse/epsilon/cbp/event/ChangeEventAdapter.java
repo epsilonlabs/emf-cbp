@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -14,7 +13,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
-import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
 public class ChangeEventAdapter extends EContentAdapter {
@@ -203,48 +201,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	public void setEnabled(boolean bool) {
 		enabled = bool;
 	}
-	
-	
-	@Override
-	protected void setTarget(EObject target) {
-		if (target.eAdapters().contains(this)) // fixes stack overflow on
-												// opposite ref
-			return;
 
-		super.setTarget(target);
-		for (EContentsEList.FeatureIterator<EObject> featureIterator = (EContentsEList.FeatureIterator<EObject>) target
-				.eCrossReferences().iterator(); featureIterator.hasNext();) {
-			Notifier notifier = featureIterator.next();
-			addAdapter(notifier);
-		}
-	}
-
-	@Override
-	protected void unsetTarget(EObject target) {
-		super.unsetTarget(target);
-		for (EContentsEList.FeatureIterator<EObject> featureIterator = (EContentsEList.FeatureIterator<EObject>) target
-				.eCrossReferences().iterator(); featureIterator.hasNext();) {
-			Notifier notifier = featureIterator.next();
-			removeAdapter(notifier);
-		}
-	}
-
-	@Override
-	protected void selfAdapt(Notification notification) {
-		super.selfAdapt(notification);
-		// TODO ask Dimitris about this code: why remove the adapter from the EOperation when you remove an EParameter inside it?
-		// With this code commented, we go 2 commits further into replaying changes, and tests are still green.
-//		if (notification.getNotifier() instanceof EObject) {
-//			Object feature = notification.getFeature();
-//			if (feature instanceof EReference) {
-//				EReference eReference = (EReference) feature;
-//				if (!eReference.isContainment()) {
-//					handleContainment(notification);
-//				}
-//			}
-//		}
-	}
-	
 	public void handleEPackageOf(EObject eObject) {
 		EPackage ePackage = eObject.eClass().getEPackage();
 		if (!ePackages.contains(ePackage)) {
