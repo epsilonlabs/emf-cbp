@@ -85,7 +85,12 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	public void nullifyEType() throws Exception {
 		run("var c : new EClass; var a: new EReference; a.eType=c; a.eType = null;");
 	}
-	
+
+	@Test
+	public void setETypeExternal() throws Exception {
+		run("var ea = new EAttribute; ea.name = 'Test'; ea.eType = ea.eClass.ePackage.eContents.selectOne(ed:EDataType|ed.name='EString');");
+	}
+
 	@Override
 	public EPackage getEPackage() {
 		return EcorePackage.eINSTANCE;

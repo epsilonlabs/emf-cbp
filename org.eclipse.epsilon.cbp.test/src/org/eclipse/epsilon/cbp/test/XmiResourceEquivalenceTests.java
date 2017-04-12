@@ -56,9 +56,11 @@ public abstract class XmiResourceEquivalenceTests {
 		
 		// Create a new change-based resource and load what was saved before
 		cbpResourceSet = new ResourceSetImpl();
+		cbpResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
 		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new CBPResourceFactory());
 		cbpResource = cbpResourceSet.createResource(URI.createURI("foo." + extension));
-		cbpResource.load(new ByteArrayInputStream(cbpSos.toString().getBytes()), null);
+		final String sCBP = cbpSos.toString();
+		cbpResource.load(new ByteArrayInputStream(sCBP.getBytes()), null);
 		// inspect(cbpResource);
 		
 		xmiResourceSet = new ResourceSetImpl();
@@ -77,7 +79,7 @@ public abstract class XmiResourceEquivalenceTests {
 			System.out.println("CBPResource");
 			System.out.println(copyXmiResourceSos.toString());
 			System.out.println("---");
-			System.out.println(cbpSos.toString());
+			System.out.println(sCBP);
 		}
 		
 		assertEquals(xmiSos.toString(), copyXmiResourceSos.toString());
