@@ -91,6 +91,11 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 		run("var ea = new EAttribute; ea.name = 'Test'; ea.eType = ea.eClass.ePackage.eContents.selectOne(ed:EDataType|ed.name='EString');");
 	}
 
+	@Test
+	public void testCreatesEAnnotations() throws Exception {
+		run("var c1 = new EClass; var a1 = new EAnnotation; a1.source = 'X'; EClass.all.first.eAnnotations.add(a1); var a2 = new EAnnotation; a2.source = 'Y'; EClass.all.first.eAnnotations.add(0, a2);");
+	}
+
 	@Override
 	public EPackage getEPackage() {
 		return EcorePackage.eINSTANCE;

@@ -86,9 +86,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 					if (feature instanceof EAttribute) {
 						event = new SetEAttributeEvent();
 					} else if (feature instanceof EReference) {
-						event = new SetEReferenceEvent();
+						EReference opposite = ((EReference)feature).getEOpposite();
+						if (opposite == null || !opposite.isMany() || !opposite.isChangeable()) {
+							// In arrangements with 1:N pairs of opposite references,
+							// ignore the "1" side as it contains less information.
+							event = new SetEReferenceEvent();
+						}
 					}
-					event.setValues(n.getNewValue());
+
+					if (event != null) {
+						event.setValues(n.getNewValue());
+					}
 				} else {
 					if (feature instanceof EAttribute) {
 						event = new UnsetEAttributeEvent();
@@ -244,6 +252,12 @@ public class ChangeEventAdapter extends EContentAdapter {
 			// Include prior reference values into the resource
 			for (EReference eRef : obj.eClass().getEAllReferences()) {
 				if (eRef.isChangeable() && obj.eIsSet(eRef)) {
+					if (eRef.getEOpposite() != null && eRef.getEOpposite().isMany() && eRef.getEOpposite().isChangeable()) {
+						// If this is the "1" side of an 1:N pair of references, ignore it:
+						// the "N" side has more information.
+						continue;
+					}
+
 					if (eRef.isMany()) {
 						Collection<EObject> values = (Collection<EObject>) obj.eGet(eRef);
 						int i = 0;
