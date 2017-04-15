@@ -16,7 +16,8 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-import org.eclipse.epsilon.cbp.resource.CBPResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
 import org.eclipse.epsilon.cbp.util.CBPResourceConverter;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.junit.Test;
@@ -27,18 +28,28 @@ import org.junit.Test;
 public class CBPResourceConverterTests {
 
 	@Test
-	public void convertEcoreTest() throws Exception {
-		ResourceSet rs = createResourceSet();
-		File fOriginal = new File("model/blog.ecore");
-		Resource rOriginal = rs.createResource(URI.createFileURI(fOriginal.getAbsolutePath()));
-
-		assertConvertedIsEqualTo(rOriginal, Collections.singletonMap(XMLResource.OPTION_ENCODING, "UTF-8"));
+	public void convertEcoreToXML() throws Exception {
+		convertTest("model/blog.ecore", "target.cbpxml");
 	}
 
-	protected void assertConvertedIsEqualTo(Resource rOriginal, Map<String, String> options) throws IOException {
+	@Test
+	public void convertEcoreToThrift() throws Exception {
+		convertTest("model/blog.ecore", "target.cbpthrift");
+	}
+
+	protected void convertTest(final String sourceFilename, final String targetFilename) throws IOException {
+		ResourceSet rs = createResourceSet();
+		File fOriginal = new File(sourceFilename);
+		Resource rOriginal = rs.createResource(URI.createFileURI(fOriginal.getAbsolutePath()));
+		assertConvertedIsEqualTo(targetFilename, rOriginal,
+				Collections.singletonMap(XMLResource.OPTION_ENCODING, "UTF-8"));
+	}
+
+	protected void assertConvertedIsEqualTo(String targetFilename, Resource rOriginal, Map<String, String> options)
+			throws IOException {
 		ResourceSet rs = createResourceSet();
 
-		File fTarget = new File("target.cbpxml");
+		File fTarget = new File(targetFilename);
 		if (fTarget.exists()) {
 			fTarget.delete();
 		}
@@ -65,7 +76,8 @@ public class CBPResourceConverterTests {
 		rs.setPackageRegistry(EPackage.Registry.INSTANCE);
 
 		final Map<String, Object> extensionToFactoryMap = rs.getResourceFactoryRegistry().getExtensionToFactoryMap();
-		extensionToFactoryMap.put("cbpxml", new CBPResourceFactory());
+		extensionToFactoryMap.put("cbpthrift", new CBPThriftResourceFactory());
+		extensionToFactoryMap.put("cbpxml", new CBPXMLResourceFactory());
 		extensionToFactoryMap.put("*", new XMIResourceFactoryImpl());
 		return rs;
 	}

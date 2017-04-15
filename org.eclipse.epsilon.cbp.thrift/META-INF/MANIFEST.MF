@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Epsilon CBP Thrift serialisation
+Bundle-SymbolicName: org.eclipse.epsilon.cbp.thrift;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.apache.commons.codec;bundle-version="1.6.0",
+ org.apache.commons.lang3;bundle-version="3.1.0",
+ org.apache.commons.logging;bundle-version="1.1.1",
+ org.slf4j.api;bundle-version="1.7.2",
+ org.slf4j.log4j12_1.7.2;bundle-version="1.7.2";resolution:=optional,
+ org.apache.log4j;resolution:=optional,
+ org.eclipse.epsilon.cbp,
+ org.eclipse.emf.ecore,
+ com.google.guava
+Bundle-ClassPath: lib/jars/libthrift-0.9.1.jar,
+ .
+Export-Package: org.eclipse.epsilon.cbp.thrift

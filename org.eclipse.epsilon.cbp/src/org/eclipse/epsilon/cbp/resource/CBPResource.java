@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.ContentHandler;
 import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.URIHandler;
@@ -83,6 +84,26 @@ public abstract class CBPResource extends ResourceImpl {
 
 	public boolean isRegistered(EObject eObject) {
 		return eObjectToIdMap.containsKey(eObject);
+	}
+
+	@Override
+	protected void doUnload() {
+		changeEventAdapter.setEnabled(false);
+		super.doUnload();
+	}
+
+	protected EObject resolveXRef(final String sEObjectURI) {
+		EObject eob = getEObject(sEObjectURI);
+		if (eob == null) {
+			URI uri = URI.createURI(sEObjectURI);
+
+			String nsURI = uri.trimFragment().toString();
+			EPackage pkg = (EPackage) getResourceSet().getPackageRegistry().get(nsURI);
+			if (pkg != null) {
+				eob = pkg.eResource().getEObject(uri.fragment());
+			}
+		}
+		return eob;
 	}
 
 }

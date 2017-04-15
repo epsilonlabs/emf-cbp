@@ -4,7 +4,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
-public class CreateEObjectEvent extends ChangeEvent<EObject> implements EObjectValuesEvent {
+public class CreateEObjectEvent extends ChangeEvent<EObject> {
 	
 	protected EClass eClass;
 	protected CBPResource resource;

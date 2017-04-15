@@ -6,7 +6,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-import org.eclipse.epsilon.cbp.resource.CBPResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
@@ -26,7 +26,7 @@ public abstract class PerformanceTests {
 		final StringOutputStream cbpSos = new StringOutputStream();
 		
 		for (String eol : sessions) {
-			final CBPResource resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
+			final CBPResource resource = (CBPResource) new CBPXMLResourceFactory().createResource(URI.createURI("foo." + extension));
 			if (!cbpSos.toString().isEmpty()) {
 				benchmark(new RunnableWithIOException() {
 					@Override

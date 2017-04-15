@@ -4,7 +4,6 @@ Bundle-Name: EMF Change Based Persistence
 Bundle-SymbolicName: org.eclipse.epsilon.cbp;singleton:=true
 Bundle-Version: 0.1.0
 Require-Bundle: org.eclipse.emf.ecore,
- org.junit,
  org.eclipse.emf.ecore.xmi,
  com.google.guava
 Export-Package: org.eclipse.epsilon.cbp.event,

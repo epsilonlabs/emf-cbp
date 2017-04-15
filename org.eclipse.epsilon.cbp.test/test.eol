@@ -1,0 +1,5 @@
+var ea = new EAttribute;
+ea.name = 'Test';
+
+ea.eType = ea.eClass.ePackage.eContents
+  .selectOne(ed:EDataType|ed.name='EString');

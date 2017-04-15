@@ -11,7 +11,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
-import org.eclipse.epsilon.cbp.resource.CBPResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
@@ -25,8 +26,7 @@ public abstract class XmiResourceEquivalenceTests {
 		EolModule module = new EolModule();
 		module.parse(eol);
 		
-		ResourceSet xmiResourceSet = new ResourceSetImpl();
-		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
+		ResourceSet xmiResourceSet = createResourceSet();
 		Resource xmiResource = xmiResourceSet.createResource(URI.createURI("foo.xmi"));
 		InMemoryEmfModel model = new InMemoryEmfModel("M", xmiResource, getEPackage());
 		module.getContext().getModelRepository().addModel(model);
@@ -40,8 +40,7 @@ public abstract class XmiResourceEquivalenceTests {
 		module = new EolModule();
 		module.parse(eol);
 		
-		ResourceSetImpl cbpResourceSet = new ResourceSetImpl();
-		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new CBPResourceFactory());
+		ResourceSet cbpResourceSet = createResourceSet();
 		Resource cbpResource = cbpResourceSet.createResource(URI.createURI("foo." + extension));
 		
 		model = new InMemoryEmfModel("M", cbpResource, getEPackage());
@@ -55,15 +54,15 @@ public abstract class XmiResourceEquivalenceTests {
 		// System.out.println(cbpSos.toString());
 		
 		// Create a new change-based resource and load what was saved before
-		cbpResourceSet = new ResourceSetImpl();
+		cbpResourceSet = createResourceSet();
 		cbpResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
-		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new CBPResourceFactory());
+		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new CBPXMLResourceFactory());
 		cbpResource = cbpResourceSet.createResource(URI.createURI("foo." + extension));
 		final String sCBP = cbpSos.toString();
 		cbpResource.load(new ByteArrayInputStream(sCBP.getBytes()), null);
 		// inspect(cbpResource);
 		
-		xmiResourceSet = new ResourceSetImpl();
+		xmiResourceSet = createResourceSet();
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
 		XMIResourceImpl copyXmiResource = (XMIResourceImpl) xmiResourceSet.createResource(URI.createURI("foo.xmi"));
 		copyXmiResource.getContents().addAll(cbpResource.getContents());
@@ -83,6 +82,14 @@ public abstract class XmiResourceEquivalenceTests {
 		}
 		
 		assertEquals(xmiSos.toString(), copyXmiResourceSos.toString());
+	}
+
+	protected ResourceSet createResourceSet() {
+		ResourceSet xmiResourceSet = new ResourceSetImpl();
+		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpxml", new CBPXMLResourceFactory());
+		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpthrift", new CBPThriftResourceFactory());
+		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
+		return xmiResourceSet;
 	}
 	
 	protected void inspect(Resource resource) throws Exception {
@@ -104,8 +111,7 @@ public abstract class XmiResourceEquivalenceTests {
 	
 	protected void run(String eol, boolean debug) throws Exception {
 		run(eol, "cbpxml", debug);
-		//run(eol, "cbptext", debug);
-		//run(eol, "cbpbin", debug);
+		//run(eol, "cbpthrift", debug);
 	}
 	
 	

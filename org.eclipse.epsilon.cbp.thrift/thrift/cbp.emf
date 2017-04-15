@@ -1,0 +1,78 @@
+@thrift(javans="org.eclipse.epsilon.cbp.resource.thrift.structs")
+@namespace(uri="cbp", prefix="")
+package cbp;
+
+@doc(d="All the event types available for CBP.")
+@thrift(union="true")
+class TChangeEvent {
+	val TCreateEObjectEvent createEObject;
+	val TAddToEAttributeEvent addToEAttribute;
+	val TSetEAttributeEvent setEAttribute;
+	val TMoveWithinEAttributeEvent moveWithinEAttribute;
+	val TRemoveFromEAttributeEvent removeFromEAttribute;
+	val TUnsetEAttributeEvent unsetEAttribute;
+
+    val TAddToEReferenceEvent addToEReference;
+    val TMoveWithinEReferenceEvent moveWithinEReference;
+    val TRemoveFromEReferenceEvent removeFromEReference;
+    val TSetEReferenceEvent setEReference;
+    val TUnsetEReferenceEvent unsetEReference;
+
+    val TRegisterEPackageEvent registerEPackage;
+    val TAddToResourceEvent addToResource;
+    val TRemoveFromResourceEvent removeFromResource;
+}
+
+class TCreateEObjectEvent {
+	val String ePackage;
+	val String eClass;
+	val long ~id;
+}
+
+@doc(exclude="true")
+abstract class MoveEvent {
+	val int fromPosition;
+	val int  toPosition;
+}
+
+@doc(exclude="true")
+abstract class EStructuralFeatureEvent {
+	val String name;
+	val long target;
+}
+
+@doc(exclude="true")
+abstract class LiteralValueEvent {
+    /* Could use something more efficient here */
+	val String[*] values;
+	val int position;
+}
+
+@doc(exclude="true")
+abstract class EObjectValueEvent {
+	val long[*] ids;
+	val String[*] xrefs;
+	val int position;
+}
+
+class TAddToEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent {}
+class TMoveWithinEAttributeEvent extends EStructuralFeatureEvent, MoveEvent {}
+class TRemoveFromEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent {}
+class TSetEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent {}
+class TUnsetEAttributeEvent extends EStructuralFeatureEvent {}
+
+class TAddToEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent {}
+class TMoveWithinEReferenceEvent extends EStructuralFeatureEvent, MoveEvent {}
+class TRemoveFromEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent {}
+class TSetEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent {}
+class TUnsetEReferenceEvent extends EStructuralFeatureEvent {}
+
+class TRegisterEPackageEvent {
+	val String ePackage;
+}
+
+@doc(exclude="true")
+abstract class ResourceEvent extends EObjectValueEvent {}
+
+class TAddToResourceEvent extends ResourceEvent {}
+class TRemoveFromResourceEvent extends ResourceEvent {}

@@ -1,29 +1,34 @@
 package org.eclipse.epsilon.cbp.test;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-import org.eclipse.epsilon.cbp.resource.CBPResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
-import static org.junit.Assert.assertEquals;
 
 public abstract class AppendTests {
 	
 	public void run(String... sessions) throws Exception {
-		runImpl("cbpxml", false, sessions);
+		runImpl("cbpxml", false, new CBPXMLResourceFactory(), sessions);
+		//runImpl("cbpthrift", false, new CBPThriftResourceFactory(), sessions);
 	}
 	
 	public void debug(String... sessions) throws Exception {
-		runImpl("cbpxml", true, sessions);
+		runImpl("cbpxml", true, new CBPXMLResourceFactory(), sessions);
+		//runImpl("cbpthrift", true, new CBPThriftResourceFactory(), sessions);
 	}
 	
-	public void runImpl(String extension, boolean debug, String... sessions) throws Exception {
+	public void runImpl(String extension, boolean debug, Resource.Factory factory, String... sessions) throws Exception {
 		
 		StringOutputStream multiSessionSosWithoutReload = new StringOutputStream();
 		
-		CBPResource resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
+		CBPResource resource = (CBPResource) factory.createResource(URI.createURI("foo." + extension));
 		resource.load(multiSessionSosWithoutReload.getInputStream(), null);
 		for (String eol : sessions) {
 			EolModule module = new EolModule();
@@ -37,7 +42,7 @@ public abstract class AppendTests {
 		StringOutputStream multiSessionSosWithReload = new StringOutputStream();
 		
 		for (String eol : sessions) {
-			resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
+			resource = (CBPResource) factory.createResource(URI.createURI("foo." + extension));
 			resource.load(multiSessionSosWithReload.getInputStream(), null);
 			EolModule module = new EolModule();
 			module.parse(eol);
@@ -48,7 +53,7 @@ public abstract class AppendTests {
 		}
 		
 		StringOutputStream singleSessionSos = new StringOutputStream();
-		resource = (CBPResource) new CBPResourceFactory().createResource(URI.createURI("foo." + extension));
+		resource = (CBPResource) factory.createResource(URI.createURI("foo." + extension));
 		for (String eol : sessions) {
 			EolModule module = new EolModule();
 			module.parse(eol);

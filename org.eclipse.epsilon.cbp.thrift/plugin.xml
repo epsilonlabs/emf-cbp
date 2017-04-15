@@ -4,8 +4,8 @@
    <extension
          point="org.eclipse.emf.ecore.extension_parser">
       <parser
-            class="org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory"
-            type="cbpxml">
+            class="org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory"
+            type="cbpthrift">
       </parser>
    </extension>
 

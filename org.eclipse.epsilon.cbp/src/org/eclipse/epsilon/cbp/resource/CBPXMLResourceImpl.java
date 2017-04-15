@@ -53,7 +53,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	
 	public static void main(String[] args) throws Exception {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
-		CBPXMLResourceImpl resource = new CBPXMLResourceImpl();
+		CBPResource resource = new CBPXMLResourceImpl();
 		
 		EClass c1 = EcoreFactory.eINSTANCE.createEClass();
 		EClass c2 = EcoreFactory.eINSTANCE.createEClass();
@@ -174,6 +174,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		changeEventAdapter.setEnabled(false);
 		eObjectToIdMap.clear();
 		getChangeEvents().clear();
+
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
 		try {
@@ -189,13 +190,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 		catch (Exception ex) {
 			throw new IOException(ex);
 		}
-		changeEventAdapter.setEnabled(true);
-	}
 
-	@Override
-	protected void doUnload() {
-		changeEventAdapter.setEnabled(false);
-		super.doUnload();
+		changeEventAdapter.setEnabled(true);
 	}
 
 	protected void doLoad(Element e) {
@@ -227,16 +223,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			NodeList values = e.getElementsByTagName("value");
 			for (int i=0; i < values.getLength(); i++) {
 				final String sEObject = ((Element) values.item(i)).getAttribute("eobject");
-				EObject eob = getEObject(sEObject);
-				if (eob == null) {
-					URI uri = URI.createURI(sEObject);
-
-					String nsURI = uri.trimFragment().toString();
-					EPackage pkg = (EPackage) getResourceSet().getPackageRegistry().get(nsURI);
-					if (pkg != null) {
-						eob = pkg.eResource().getEObject(uri.fragment());
-					}
-				}
+				EObject eob = resolveXRef(sEObject);
 				valuesEvent.getValues().add(eob);
 			}
 		}
