@@ -6,5 +6,10 @@ public class SetEAttributeEvent extends EAttributeEvent {
 	public void replay() {
 		target.eSet(eStructuralFeature, getValue());
 	}
+
+	@Override
+	public <U> U accept(IChangeEventVisitor<U> visitor) {
+		return visitor.visit(this);
+	}
 	
 }

@@ -9,4 +9,10 @@ public class AddToEAttributeEvent extends EAttributeEvent {
 	public void replay() {
 		((List<Object>) target.eGet(getEStructuralFeature())).addAll(position, getValues());
 	}
+
+	@Override
+	public <U> U accept(IChangeEventVisitor<U> visitor) {
+		return visitor.visit(this);
+	}
+
 }

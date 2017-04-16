@@ -40,5 +40,10 @@ public class CreateEObjectEvent extends ChangeEvent<EObject> {
 	public void replay() {
 		resource.register(eClass.getEPackage().getEFactoryInstance().create(eClass)/*, id*/);
 	}
+
+	@Override
+	public <U> U accept(IChangeEventVisitor<U> visitor) {
+		return visitor.visit(this);
+	}
 	
 }

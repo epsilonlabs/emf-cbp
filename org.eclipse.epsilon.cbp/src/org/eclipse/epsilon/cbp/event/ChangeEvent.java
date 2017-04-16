@@ -43,7 +43,9 @@ public abstract class ChangeEvent<T> {
 	public void setPosition(int position) {
 		this.position = position;
 	}
-	
+
+	// TODO move into a visitor?
 	public abstract void replay();
-	
+
+	public abstract <U> U accept(IChangeEventVisitor<U> visitor);
 }

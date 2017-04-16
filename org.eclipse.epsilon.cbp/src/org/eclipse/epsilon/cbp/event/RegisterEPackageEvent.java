@@ -22,4 +22,9 @@ public class RegisterEPackageEvent extends ChangeEvent<NullType> {
 	public void replay() {
 		eventAdapter.ePackages.add(ePackage);
 	}
+
+	@Override
+	public <U> U accept(IChangeEventVisitor<U> visitor) {
+		return visitor.visit(this);
+	}
 }

@@ -11,4 +11,9 @@ public class RemoveFromEReferenceEvent extends EReferenceEvent implements EObjec
 	public void replay() {
 		((Collection<EObject>) target.eGet(getEStructuralFeature())).removeAll(getValues());
 	}
+
+	@Override
+	public <U> U accept(IChangeEventVisitor<U> visitor) {
+		return visitor.visit(this);
+	}
 }

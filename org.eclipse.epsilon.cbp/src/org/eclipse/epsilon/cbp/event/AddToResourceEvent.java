@@ -6,5 +6,10 @@ public class AddToResourceEvent extends ResourceEvent {
 	public void replay() {
 		resource.getContents().addAll(getValues());
 	}
+
+	@Override
+	public <U> U accept(IChangeEventVisitor<U> visitor) {
+		return visitor.visit(this);
+	}
 	
 }
