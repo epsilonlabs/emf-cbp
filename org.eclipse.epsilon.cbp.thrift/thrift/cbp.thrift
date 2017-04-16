@@ -1,25 +1,16 @@
 namespace java org.eclipse.epsilon.cbp.resource.thrift.structs
 
 
+union EObjectReference {
+	 /*  */ 1: optional i64 id,
+	 /*  */ 2: optional string xref,
+}
+
 struct TAddToEAttributeEvent {
 	 /*  */ 1: required string name,
 	 /*  */ 2: required i64 target,
 	 /*  */ 3: required list<string> values,
 	 /*  */ 4: required i32 position,
-}
-
-struct TAddToEReferenceEvent {
-	 /*  */ 1: required string name,
-	 /*  */ 2: required i64 target,
-	 /*  */ 3: required list<i64> ids,
-	 /*  */ 4: required list<string> xrefs,
-	 /*  */ 5: required i32 position,
-}
-
-struct TAddToResourceEvent {
-	 /*  */ 1: required list<i64> ids,
-	 /*  */ 2: required list<string> xrefs,
-	 /*  */ 3: required i32 position,
 }
 
 struct TCreateEObjectEvent {
@@ -53,33 +44,10 @@ struct TRemoveFromEAttributeEvent {
 	 /*  */ 4: required i32 position,
 }
 
-struct TRemoveFromEReferenceEvent {
-	 /*  */ 1: required string name,
-	 /*  */ 2: required i64 target,
-	 /*  */ 3: required list<i64> ids,
-	 /*  */ 4: required list<string> xrefs,
-	 /*  */ 5: required i32 position,
-}
-
-struct TRemoveFromResourceEvent {
-	 /*  */ 1: required list<i64> ids,
-	 /*  */ 2: required list<string> xrefs,
-	 /*  */ 3: required i32 position,
-}
-
 struct TSetEAttributeEvent {
 	 /*  */ 1: required string name,
 	 /*  */ 2: required i64 target,
 	 /*  */ 3: required list<string> values,
-	 /*  */ 4: required i32 position,
-}
-
-struct TSetEReferenceEvent {
-	 /*  */ 1: required string name,
-	 /*  */ 2: required i64 target,
-	 /*  */ 3: required list<i64> ids,
-	 /*  */ 4: required list<string> xrefs,
-	 /*  */ 5: required i32 position,
 }
 
 struct TUnsetEAttributeEvent {
@@ -90,6 +58,36 @@ struct TUnsetEAttributeEvent {
 struct TUnsetEReferenceEvent {
 	 /*  */ 1: required string name,
 	 /*  */ 2: required i64 target,
+}
+
+struct TAddToEReferenceEvent {
+	 /*  */ 1: required string name,
+	 /*  */ 2: required i64 target,
+	 /*  */ 3: required list<EObjectReference> values,
+	 /*  */ 4: required i32 position,
+}
+
+struct TAddToResourceEvent {
+	 /*  */ 1: required list<EObjectReference> values,
+	 /*  */ 2: required i32 position,
+}
+
+struct TRemoveFromEReferenceEvent {
+	 /*  */ 1: required string name,
+	 /*  */ 2: required i64 target,
+	 /*  */ 3: required list<EObjectReference> values,
+	 /*  */ 4: required i32 position,
+}
+
+struct TRemoveFromResourceEvent {
+	 /*  */ 1: required list<EObjectReference> values,
+	 /*  */ 2: required i32 position,
+}
+
+struct TSetEReferenceEvent {
+	 /*  */ 1: required string name,
+	 /*  */ 2: required i64 target,
+	 /*  */ 3: required list<EObjectReference> values,
 }
 
 union TChangeEvent {

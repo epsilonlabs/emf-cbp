@@ -38,7 +38,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
   private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField TARGET_FIELD_DESC = new org.apache.thrift.protocol.TField("target", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("values", org.apache.thrift.protocol.TType.LIST, (short)3);
-  private static final org.apache.thrift.protocol.TField POSITION_FIELD_DESC = new org.apache.thrift.protocol.TField("position", org.apache.thrift.protocol.TType.I32, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,14 +48,12 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
   public String name; // required
   public long target; // required
   public List<String> values; // required
-  public int position; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     NAME((short)1, "name"),
     TARGET((short)2, "target"),
-    VALUES((short)3, "values"),
-    POSITION((short)4, "position");
+    VALUES((short)3, "values");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -77,8 +74,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
           return TARGET;
         case 3: // VALUES
           return VALUES;
-        case 4: // POSITION
-          return POSITION;
         default:
           return null;
       }
@@ -120,7 +115,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
 
   // isset id assignments
   private static final int __TARGET_ISSET_ID = 0;
-  private static final int __POSITION_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
@@ -132,8 +126,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
     tmpMap.put(_Fields.VALUES, new org.apache.thrift.meta_data.FieldMetaData("values", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
-    tmpMap.put(_Fields.POSITION, new org.apache.thrift.meta_data.FieldMetaData("position", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSetEAttributeEvent.class, metaDataMap);
   }
@@ -144,16 +136,13 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
   public TSetEAttributeEvent(
     String name,
     long target,
-    List<String> values,
-    int position)
+    List<String> values)
   {
     this();
     this.name = name;
     this.target = target;
     setTargetIsSet(true);
     this.values = values;
-    this.position = position;
-    setPositionIsSet(true);
   }
 
   /**
@@ -169,7 +158,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       List<String> __this__values = new ArrayList<String>(other.values);
       this.values = __this__values;
     }
-    this.position = other.position;
   }
 
   public TSetEAttributeEvent deepCopy() {
@@ -182,8 +170,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
     setTargetIsSet(false);
     this.target = 0;
     this.values = null;
-    setPositionIsSet(false);
-    this.position = 0;
   }
 
   public String getName() {
@@ -272,29 +258,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
     }
   }
 
-  public int getPosition() {
-    return this.position;
-  }
-
-  public TSetEAttributeEvent setPosition(int position) {
-    this.position = position;
-    setPositionIsSet(true);
-    return this;
-  }
-
-  public void unsetPosition() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __POSITION_ISSET_ID);
-  }
-
-  /** Returns true if field position is set (has been assigned a value) and false otherwise */
-  public boolean isSetPosition() {
-    return EncodingUtils.testBit(__isset_bitfield, __POSITION_ISSET_ID);
-  }
-
-  public void setPositionIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __POSITION_ISSET_ID, value);
-  }
-
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case NAME:
@@ -321,14 +284,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       }
       break;
 
-    case POSITION:
-      if (value == null) {
-        unsetPosition();
-      } else {
-        setPosition((Integer)value);
-      }
-      break;
-
     }
   }
 
@@ -342,9 +297,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
 
     case VALUES:
       return getValues();
-
-    case POSITION:
-      return Integer.valueOf(getPosition());
 
     }
     throw new IllegalStateException();
@@ -363,8 +315,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       return isSetTarget();
     case VALUES:
       return isSetValues();
-    case POSITION:
-      return isSetPosition();
     }
     throw new IllegalStateException();
   }
@@ -406,15 +356,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       if (!(this_present_values && that_present_values))
         return false;
       if (!this.values.equals(that.values))
-        return false;
-    }
-
-    boolean this_present_position = true;
-    boolean that_present_position = true;
-    if (this_present_position || that_present_position) {
-      if (!(this_present_position && that_present_position))
-        return false;
-      if (this.position != that.position)
         return false;
     }
 
@@ -464,16 +405,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetPosition()).compareTo(other.isSetPosition());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetPosition()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.position, other.position);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     return 0;
   }
 
@@ -513,10 +444,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       sb.append(this.values);
     }
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("position:");
-    sb.append(this.position);
-    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -530,7 +457,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
     if (values == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'values' was not present! Struct: " + toString());
     }
-    // alas, we cannot check 'position' because it's a primitive and you chose the non-beans generator.
     // check for sub-struct validity
   }
 
@@ -589,25 +515,17 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
           case 3: // VALUES
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list80 = iprot.readListBegin();
-                struct.values = new ArrayList<String>(_list80.size);
-                for (int _i81 = 0; _i81 < _list80.size; ++_i81)
+                org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
+                struct.values = new ArrayList<String>(_list16.size);
+                for (int _i17 = 0; _i17 < _list16.size; ++_i17)
                 {
-                  String _elem82;
-                  _elem82 = iprot.readString();
-                  struct.values.add(_elem82);
+                  String _elem18;
+                  _elem18 = iprot.readString();
+                  struct.values.add(_elem18);
                 }
                 iprot.readListEnd();
               }
               struct.setValuesIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // POSITION
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.position = iprot.readI32();
-              struct.setPositionIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -622,9 +540,6 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       // check for required fields of primitive type, which can't be checked in the validate method
       if (!struct.isSetTarget()) {
         throw new org.apache.thrift.protocol.TProtocolException("Required field 'target' was not found in serialized data! Struct: " + toString());
-      }
-      if (!struct.isSetPosition()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'position' was not found in serialized data! Struct: " + toString());
       }
       struct.validate();
     }
@@ -645,17 +560,14 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
         oprot.writeFieldBegin(VALUES_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.values.size()));
-          for (String _iter83 : struct.values)
+          for (String _iter19 : struct.values)
           {
-            oprot.writeString(_iter83);
+            oprot.writeString(_iter19);
           }
           oprot.writeListEnd();
         }
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(POSITION_FIELD_DESC);
-      oprot.writeI32(struct.position);
-      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -677,12 +589,11 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       oprot.writeI64(struct.target);
       {
         oprot.writeI32(struct.values.size());
-        for (String _iter84 : struct.values)
+        for (String _iter20 : struct.values)
         {
-          oprot.writeString(_iter84);
+          oprot.writeString(_iter20);
         }
       }
-      oprot.writeI32(struct.position);
     }
 
     @Override
@@ -693,18 +604,16 @@ public class TSetEAttributeEvent implements org.apache.thrift.TBase<TSetEAttribu
       struct.target = iprot.readI64();
       struct.setTargetIsSet(true);
       {
-        org.apache.thrift.protocol.TList _list85 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-        struct.values = new ArrayList<String>(_list85.size);
-        for (int _i86 = 0; _i86 < _list85.size; ++_i86)
+        org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+        struct.values = new ArrayList<String>(_list21.size);
+        for (int _i22 = 0; _i22 < _list21.size; ++_i22)
         {
-          String _elem87;
-          _elem87 = iprot.readString();
-          struct.values.add(_elem87);
+          String _elem23;
+          _elem23 = iprot.readString();
+          struct.values.add(_elem23);
         }
       }
       struct.setValuesIsSet(true);
-      struct.position = iprot.readI32();
-      struct.setPositionIsSet(true);
     }
   }
 

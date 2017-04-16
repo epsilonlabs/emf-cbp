@@ -1,11 +1,29 @@
 package org.eclipse.epsilon.cbp.test;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(Parameterized.class)
 public class BlogEquivalenceTests extends XmiResourceEquivalenceTests {
-	
+
+	@Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {     
+                 { "cbpxml" }, { "cbpthrift" }  
+           });
+    }
+
+	public BlogEquivalenceTests(String extension) {
+		super(extension);
+	}
+
 	@Test
 	public void addRatings() throws Exception {
 		run("var p : new Post; p.ratings.add(1); p.ratings.add(2);");

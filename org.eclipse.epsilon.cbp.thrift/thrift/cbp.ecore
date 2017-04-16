@@ -72,6 +72,11 @@
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="values" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PositionAwareEvent" abstract="true">
+    <eAnnotations source="doc">
+      <details key="exclude" value="true"/>
+    </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         containment="true"/>
   </eClassifiers>
@@ -79,21 +84,26 @@
     <eAnnotations source="doc">
       <details key="exclude" value="true"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="values" upperBound="-1"
+        eType="#//EObjectReference" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EObjectReference">
+    <eAnnotations source="thrift">
+      <details key="union" value="true"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="xrefs" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="xref" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="TAddToEAttributeEvent" eSuperTypes="#//EStructuralFeatureEvent #//LiteralValueEvent"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TAddToEAttributeEvent" eSuperTypes="#//EStructuralFeatureEvent #//LiteralValueEvent #//PositionAwareEvent"/>
   <eClassifiers xsi:type="ecore:EClass" name="TMoveWithinEAttributeEvent" eSuperTypes="#//EStructuralFeatureEvent #//MoveEvent"/>
-  <eClassifiers xsi:type="ecore:EClass" name="TRemoveFromEAttributeEvent" eSuperTypes="#//EStructuralFeatureEvent #//LiteralValueEvent"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TRemoveFromEAttributeEvent" eSuperTypes="#//EStructuralFeatureEvent #//LiteralValueEvent #//PositionAwareEvent"/>
   <eClassifiers xsi:type="ecore:EClass" name="TSetEAttributeEvent" eSuperTypes="#//EStructuralFeatureEvent #//LiteralValueEvent"/>
   <eClassifiers xsi:type="ecore:EClass" name="TUnsetEAttributeEvent" eSuperTypes="#//EStructuralFeatureEvent"/>
-  <eClassifiers xsi:type="ecore:EClass" name="TAddToEReferenceEvent" eSuperTypes="#//EStructuralFeatureEvent #//EObjectValueEvent"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TAddToEReferenceEvent" eSuperTypes="#//EStructuralFeatureEvent #//EObjectValueEvent #//PositionAwareEvent"/>
   <eClassifiers xsi:type="ecore:EClass" name="TMoveWithinEReferenceEvent" eSuperTypes="#//EStructuralFeatureEvent #//MoveEvent"/>
-  <eClassifiers xsi:type="ecore:EClass" name="TRemoveFromEReferenceEvent" eSuperTypes="#//EStructuralFeatureEvent #//EObjectValueEvent"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TRemoveFromEReferenceEvent" eSuperTypes="#//EStructuralFeatureEvent #//EObjectValueEvent #//PositionAwareEvent"/>
   <eClassifiers xsi:type="ecore:EClass" name="TSetEReferenceEvent" eSuperTypes="#//EStructuralFeatureEvent #//EObjectValueEvent"/>
   <eClassifiers xsi:type="ecore:EClass" name="TUnsetEReferenceEvent" eSuperTypes="#//EStructuralFeatureEvent"/>
   <eClassifiers xsi:type="ecore:EClass" name="TRegisterEPackageEvent">
@@ -105,6 +115,6 @@
       <details key="exclude" value="true"/>
     </eAnnotations>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="TAddToResourceEvent" eSuperTypes="#//ResourceEvent"/>
-  <eClassifiers xsi:type="ecore:EClass" name="TRemoveFromResourceEvent" eSuperTypes="#//ResourceEvent"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TAddToResourceEvent" eSuperTypes="#//ResourceEvent #//PositionAwareEvent"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TRemoveFromResourceEvent" eSuperTypes="#//ResourceEvent #//PositionAwareEvent"/>
 </ecore:EPackage>

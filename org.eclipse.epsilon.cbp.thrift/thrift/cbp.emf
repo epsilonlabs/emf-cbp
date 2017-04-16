@@ -45,25 +45,33 @@ abstract class EStructuralFeatureEvent {
 abstract class LiteralValueEvent {
     /* Could use something more efficient here */
 	val String[*] values;
+}
+
+@doc(exclude="true")
+abstract class PositionAwareEvent {
 	val int position;
 }
 
 @doc(exclude="true")
 abstract class EObjectValueEvent {
-	val long[*] ids;
-	val String[*] xrefs;
-	val int position;
+	val EObjectReference[*] values;
 }
 
-class TAddToEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent {}
+@thrift(union="true")
+class EObjectReference {
+	val long ~id;
+	val String xref;
+}
+
+class TAddToEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent, PositionAwareEvent {}
 class TMoveWithinEAttributeEvent extends EStructuralFeatureEvent, MoveEvent {}
-class TRemoveFromEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent {}
+class TRemoveFromEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent, PositionAwareEvent {}
 class TSetEAttributeEvent extends EStructuralFeatureEvent, LiteralValueEvent {}
 class TUnsetEAttributeEvent extends EStructuralFeatureEvent {}
 
-class TAddToEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent {}
+class TAddToEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent, PositionAwareEvent {}
 class TMoveWithinEReferenceEvent extends EStructuralFeatureEvent, MoveEvent {}
-class TRemoveFromEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent {}
+class TRemoveFromEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent, PositionAwareEvent {}
 class TSetEReferenceEvent extends EStructuralFeatureEvent, EObjectValueEvent {}
 class TUnsetEReferenceEvent extends EStructuralFeatureEvent {}
 
@@ -74,5 +82,5 @@ class TRegisterEPackageEvent {
 @doc(exclude="true")
 abstract class ResourceEvent extends EObjectValueEvent {}
 
-class TAddToResourceEvent extends ResourceEvent {}
-class TRemoveFromResourceEvent extends ResourceEvent {}
+class TAddToResourceEvent extends ResourceEvent, PositionAwareEvent {}
+class TRemoveFromResourceEvent extends ResourceEvent, PositionAwareEvent {}

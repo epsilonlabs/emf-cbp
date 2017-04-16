@@ -1,11 +1,29 @@
 package org.eclipse.epsilon.cbp.test;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(Parameterized.class)
 public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
-	
+
+	@Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {     
+                 { "cbpxml" }, { "cbpthrift" }  
+           });
+    }
+
+	public EcoreEquivalenceTests(String extension) {
+		super(extension);
+	}
+
 	@Test
 	public void autoCreatedGenericType() throws Exception {
 		run("var c1 : new EClass; var c2 : new EClass; c1.eSuperTypes.add(c2); var c3 : new EClass; c1.eSuperTypes.add(c3);");

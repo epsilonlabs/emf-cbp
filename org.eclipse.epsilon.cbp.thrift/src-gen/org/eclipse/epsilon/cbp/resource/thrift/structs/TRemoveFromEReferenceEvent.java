@@ -37,9 +37,8 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
 
   private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField TARGET_FIELD_DESC = new org.apache.thrift.protocol.TField("target", org.apache.thrift.protocol.TType.I64, (short)2);
-  private static final org.apache.thrift.protocol.TField IDS_FIELD_DESC = new org.apache.thrift.protocol.TField("ids", org.apache.thrift.protocol.TType.LIST, (short)3);
-  private static final org.apache.thrift.protocol.TField XREFS_FIELD_DESC = new org.apache.thrift.protocol.TField("xrefs", org.apache.thrift.protocol.TType.LIST, (short)4);
-  private static final org.apache.thrift.protocol.TField POSITION_FIELD_DESC = new org.apache.thrift.protocol.TField("position", org.apache.thrift.protocol.TType.I32, (short)5);
+  private static final org.apache.thrift.protocol.TField VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("values", org.apache.thrift.protocol.TType.LIST, (short)3);
+  private static final org.apache.thrift.protocol.TField POSITION_FIELD_DESC = new org.apache.thrift.protocol.TField("position", org.apache.thrift.protocol.TType.I32, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,17 +48,15 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
 
   public String name; // required
   public long target; // required
-  public List<Long> ids; // required
-  public List<String> xrefs; // required
+  public List<EObjectReference> values; // required
   public int position; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     NAME((short)1, "name"),
     TARGET((short)2, "target"),
-    IDS((short)3, "ids"),
-    XREFS((short)4, "xrefs"),
-    POSITION((short)5, "position");
+    VALUES((short)3, "values"),
+    POSITION((short)4, "position");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -78,11 +75,9 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
           return NAME;
         case 2: // TARGET
           return TARGET;
-        case 3: // IDS
-          return IDS;
-        case 4: // XREFS
-          return XREFS;
-        case 5: // POSITION
+        case 3: // VALUES
+          return VALUES;
+        case 4: // POSITION
           return POSITION;
         default:
           return null;
@@ -134,12 +129,9 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.TARGET, new org.apache.thrift.meta_data.FieldMetaData("target", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.IDS, new org.apache.thrift.meta_data.FieldMetaData("ids", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.VALUES, new org.apache.thrift.meta_data.FieldMetaData("values", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64))));
-    tmpMap.put(_Fields.XREFS, new org.apache.thrift.meta_data.FieldMetaData("xrefs", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, EObjectReference.class))));
     tmpMap.put(_Fields.POSITION, new org.apache.thrift.meta_data.FieldMetaData("position", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -152,16 +144,14 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
   public TRemoveFromEReferenceEvent(
     String name,
     long target,
-    List<Long> ids,
-    List<String> xrefs,
+    List<EObjectReference> values,
     int position)
   {
     this();
     this.name = name;
     this.target = target;
     setTargetIsSet(true);
-    this.ids = ids;
-    this.xrefs = xrefs;
+    this.values = values;
     this.position = position;
     setPositionIsSet(true);
   }
@@ -175,13 +165,12 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
       this.name = other.name;
     }
     this.target = other.target;
-    if (other.isSetIds()) {
-      List<Long> __this__ids = new ArrayList<Long>(other.ids);
-      this.ids = __this__ids;
-    }
-    if (other.isSetXrefs()) {
-      List<String> __this__xrefs = new ArrayList<String>(other.xrefs);
-      this.xrefs = __this__xrefs;
+    if (other.isSetValues()) {
+      List<EObjectReference> __this__values = new ArrayList<EObjectReference>(other.values.size());
+      for (EObjectReference other_element : other.values) {
+        __this__values.add(new EObjectReference(other_element));
+      }
+      this.values = __this__values;
     }
     this.position = other.position;
   }
@@ -195,8 +184,7 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
     this.name = null;
     setTargetIsSet(false);
     this.target = 0;
-    this.ids = null;
-    this.xrefs = null;
+    this.values = null;
     setPositionIsSet(false);
     this.position = 0;
   }
@@ -248,81 +236,42 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TARGET_ISSET_ID, value);
   }
 
-  public int getIdsSize() {
-    return (this.ids == null) ? 0 : this.ids.size();
+  public int getValuesSize() {
+    return (this.values == null) ? 0 : this.values.size();
   }
 
-  public java.util.Iterator<Long> getIdsIterator() {
-    return (this.ids == null) ? null : this.ids.iterator();
+  public java.util.Iterator<EObjectReference> getValuesIterator() {
+    return (this.values == null) ? null : this.values.iterator();
   }
 
-  public void addToIds(long elem) {
-    if (this.ids == null) {
-      this.ids = new ArrayList<Long>();
+  public void addToValues(EObjectReference elem) {
+    if (this.values == null) {
+      this.values = new ArrayList<EObjectReference>();
     }
-    this.ids.add(elem);
+    this.values.add(elem);
   }
 
-  public List<Long> getIds() {
-    return this.ids;
+  public List<EObjectReference> getValues() {
+    return this.values;
   }
 
-  public TRemoveFromEReferenceEvent setIds(List<Long> ids) {
-    this.ids = ids;
+  public TRemoveFromEReferenceEvent setValues(List<EObjectReference> values) {
+    this.values = values;
     return this;
   }
 
-  public void unsetIds() {
-    this.ids = null;
+  public void unsetValues() {
+    this.values = null;
   }
 
-  /** Returns true if field ids is set (has been assigned a value) and false otherwise */
-  public boolean isSetIds() {
-    return this.ids != null;
+  /** Returns true if field values is set (has been assigned a value) and false otherwise */
+  public boolean isSetValues() {
+    return this.values != null;
   }
 
-  public void setIdsIsSet(boolean value) {
+  public void setValuesIsSet(boolean value) {
     if (!value) {
-      this.ids = null;
-    }
-  }
-
-  public int getXrefsSize() {
-    return (this.xrefs == null) ? 0 : this.xrefs.size();
-  }
-
-  public java.util.Iterator<String> getXrefsIterator() {
-    return (this.xrefs == null) ? null : this.xrefs.iterator();
-  }
-
-  public void addToXrefs(String elem) {
-    if (this.xrefs == null) {
-      this.xrefs = new ArrayList<String>();
-    }
-    this.xrefs.add(elem);
-  }
-
-  public List<String> getXrefs() {
-    return this.xrefs;
-  }
-
-  public TRemoveFromEReferenceEvent setXrefs(List<String> xrefs) {
-    this.xrefs = xrefs;
-    return this;
-  }
-
-  public void unsetXrefs() {
-    this.xrefs = null;
-  }
-
-  /** Returns true if field xrefs is set (has been assigned a value) and false otherwise */
-  public boolean isSetXrefs() {
-    return this.xrefs != null;
-  }
-
-  public void setXrefsIsSet(boolean value) {
-    if (!value) {
-      this.xrefs = null;
+      this.values = null;
     }
   }
 
@@ -367,19 +316,11 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
       }
       break;
 
-    case IDS:
+    case VALUES:
       if (value == null) {
-        unsetIds();
+        unsetValues();
       } else {
-        setIds((List<Long>)value);
-      }
-      break;
-
-    case XREFS:
-      if (value == null) {
-        unsetXrefs();
-      } else {
-        setXrefs((List<String>)value);
+        setValues((List<EObjectReference>)value);
       }
       break;
 
@@ -402,11 +343,8 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
     case TARGET:
       return Long.valueOf(getTarget());
 
-    case IDS:
-      return getIds();
-
-    case XREFS:
-      return getXrefs();
+    case VALUES:
+      return getValues();
 
     case POSITION:
       return Integer.valueOf(getPosition());
@@ -426,10 +364,8 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
       return isSetName();
     case TARGET:
       return isSetTarget();
-    case IDS:
-      return isSetIds();
-    case XREFS:
-      return isSetXrefs();
+    case VALUES:
+      return isSetValues();
     case POSITION:
       return isSetPosition();
     }
@@ -467,21 +403,12 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
         return false;
     }
 
-    boolean this_present_ids = true && this.isSetIds();
-    boolean that_present_ids = true && that.isSetIds();
-    if (this_present_ids || that_present_ids) {
-      if (!(this_present_ids && that_present_ids))
+    boolean this_present_values = true && this.isSetValues();
+    boolean that_present_values = true && that.isSetValues();
+    if (this_present_values || that_present_values) {
+      if (!(this_present_values && that_present_values))
         return false;
-      if (!this.ids.equals(that.ids))
-        return false;
-    }
-
-    boolean this_present_xrefs = true && this.isSetXrefs();
-    boolean that_present_xrefs = true && that.isSetXrefs();
-    if (this_present_xrefs || that_present_xrefs) {
-      if (!(this_present_xrefs && that_present_xrefs))
-        return false;
-      if (!this.xrefs.equals(that.xrefs))
+      if (!this.values.equals(that.values))
         return false;
     }
 
@@ -530,22 +457,12 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetIds()).compareTo(other.isSetIds());
+    lastComparison = Boolean.valueOf(isSetValues()).compareTo(other.isSetValues());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetIds()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ids, other.ids);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetXrefs()).compareTo(other.isSetXrefs());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetXrefs()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.xrefs, other.xrefs);
+    if (isSetValues()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.values, other.values);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -592,19 +509,11 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
     sb.append(this.target);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("ids:");
-    if (this.ids == null) {
+    sb.append("values:");
+    if (this.values == null) {
       sb.append("null");
     } else {
-      sb.append(this.ids);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("xrefs:");
-    if (this.xrefs == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.xrefs);
+      sb.append(this.values);
     }
     first = false;
     if (!first) sb.append(", ");
@@ -621,11 +530,8 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'name' was not present! Struct: " + toString());
     }
     // alas, we cannot check 'target' because it's a primitive and you chose the non-beans generator.
-    if (ids == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'ids' was not present! Struct: " + toString());
-    }
-    if (xrefs == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'xrefs' was not present! Struct: " + toString());
+    if (values == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'values' was not present! Struct: " + toString());
     }
     // alas, we cannot check 'position' because it's a primitive and you chose the non-beans generator.
     // check for sub-struct validity
@@ -683,43 +589,26 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // IDS
+          case 3: // VALUES
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();
-                struct.ids = new ArrayList<Long>(_list48.size);
-                for (int _i49 = 0; _i49 < _list48.size; ++_i49)
+                org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
+                struct.values = new ArrayList<EObjectReference>(_list40.size);
+                for (int _i41 = 0; _i41 < _list40.size; ++_i41)
                 {
-                  long _elem50;
-                  _elem50 = iprot.readI64();
-                  struct.ids.add(_elem50);
+                  EObjectReference _elem42;
+                  _elem42 = new EObjectReference();
+                  _elem42.read(iprot);
+                  struct.values.add(_elem42);
                 }
                 iprot.readListEnd();
               }
-              struct.setIdsIsSet(true);
+              struct.setValuesIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // XREFS
-            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-              {
-                org.apache.thrift.protocol.TList _list51 = iprot.readListBegin();
-                struct.xrefs = new ArrayList<String>(_list51.size);
-                for (int _i52 = 0; _i52 < _list51.size; ++_i52)
-                {
-                  String _elem53;
-                  _elem53 = iprot.readString();
-                  struct.xrefs.add(_elem53);
-                }
-                iprot.readListEnd();
-              }
-              struct.setXrefsIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 5: // POSITION
+          case 4: // POSITION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.position = iprot.readI32();
               struct.setPositionIsSet(true);
@@ -756,25 +645,13 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
       oprot.writeFieldBegin(TARGET_FIELD_DESC);
       oprot.writeI64(struct.target);
       oprot.writeFieldEnd();
-      if (struct.ids != null) {
-        oprot.writeFieldBegin(IDS_FIELD_DESC);
+      if (struct.values != null) {
+        oprot.writeFieldBegin(VALUES_FIELD_DESC);
         {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, struct.ids.size()));
-          for (long _iter54 : struct.ids)
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.values.size()));
+          for (EObjectReference _iter43 : struct.values)
           {
-            oprot.writeI64(_iter54);
-          }
-          oprot.writeListEnd();
-        }
-        oprot.writeFieldEnd();
-      }
-      if (struct.xrefs != null) {
-        oprot.writeFieldBegin(XREFS_FIELD_DESC);
-        {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.xrefs.size()));
-          for (String _iter55 : struct.xrefs)
-          {
-            oprot.writeString(_iter55);
+            _iter43.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -803,17 +680,10 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
       oprot.writeString(struct.name);
       oprot.writeI64(struct.target);
       {
-        oprot.writeI32(struct.ids.size());
-        for (long _iter56 : struct.ids)
+        oprot.writeI32(struct.values.size());
+        for (EObjectReference _iter44 : struct.values)
         {
-          oprot.writeI64(_iter56);
-        }
-      }
-      {
-        oprot.writeI32(struct.xrefs.size());
-        for (String _iter57 : struct.xrefs)
-        {
-          oprot.writeString(_iter57);
+          _iter44.write(oprot);
         }
       }
       oprot.writeI32(struct.position);
@@ -827,27 +697,17 @@ public class TRemoveFromEReferenceEvent implements org.apache.thrift.TBase<TRemo
       struct.target = iprot.readI64();
       struct.setTargetIsSet(true);
       {
-        org.apache.thrift.protocol.TList _list58 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, iprot.readI32());
-        struct.ids = new ArrayList<Long>(_list58.size);
-        for (int _i59 = 0; _i59 < _list58.size; ++_i59)
+        org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+        struct.values = new ArrayList<EObjectReference>(_list45.size);
+        for (int _i46 = 0; _i46 < _list45.size; ++_i46)
         {
-          long _elem60;
-          _elem60 = iprot.readI64();
-          struct.ids.add(_elem60);
+          EObjectReference _elem47;
+          _elem47 = new EObjectReference();
+          _elem47.read(iprot);
+          struct.values.add(_elem47);
         }
       }
-      struct.setIdsIsSet(true);
-      {
-        org.apache.thrift.protocol.TList _list61 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-        struct.xrefs = new ArrayList<String>(_list61.size);
-        for (int _i62 = 0; _i62 < _list61.size; ++_i62)
-        {
-          String _elem63;
-          _elem63 = iprot.readString();
-          struct.xrefs.add(_elem63);
-        }
-      }
-      struct.setXrefsIsSet(true);
+      struct.setValuesIsSet(true);
       struct.position = iprot.readI32();
       struct.setPositionIsSet(true);
     }

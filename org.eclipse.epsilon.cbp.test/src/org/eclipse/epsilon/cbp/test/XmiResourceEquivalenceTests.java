@@ -18,7 +18,13 @@ import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
 
 public abstract class XmiResourceEquivalenceTests {
-	
+
+	private final String extension;
+
+	public XmiResourceEquivalenceTests(String extension) {
+		this.extension = extension;
+	}
+
 	public abstract EPackage getEPackage();
 	
 	public void run(String eol, String extension, boolean debug) throws Exception {
@@ -110,10 +116,7 @@ public abstract class XmiResourceEquivalenceTests {
 	}
 	
 	protected void run(String eol, boolean debug) throws Exception {
-		run(eol, "cbpxml", debug);
-		//run(eol, "cbpthrift", debug);
+		run(eol, extension, debug);
 	}
-	
-	
 	
 }

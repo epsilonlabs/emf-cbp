@@ -589,13 +589,13 @@ public class TRemoveFromEAttributeEvent implements org.apache.thrift.TBase<TRemo
           case 3: // VALUES
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
-                struct.values = new ArrayList<String>(_list40.size);
-                for (int _i41 = 0; _i41 < _list40.size; ++_i41)
+                org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
+                struct.values = new ArrayList<String>(_list8.size);
+                for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                 {
-                  String _elem42;
-                  _elem42 = iprot.readString();
-                  struct.values.add(_elem42);
+                  String _elem10;
+                  _elem10 = iprot.readString();
+                  struct.values.add(_elem10);
                 }
                 iprot.readListEnd();
               }
@@ -645,9 +645,9 @@ public class TRemoveFromEAttributeEvent implements org.apache.thrift.TBase<TRemo
         oprot.writeFieldBegin(VALUES_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.values.size()));
-          for (String _iter43 : struct.values)
+          for (String _iter11 : struct.values)
           {
-            oprot.writeString(_iter43);
+            oprot.writeString(_iter11);
           }
           oprot.writeListEnd();
         }
@@ -677,9 +677,9 @@ public class TRemoveFromEAttributeEvent implements org.apache.thrift.TBase<TRemo
       oprot.writeI64(struct.target);
       {
         oprot.writeI32(struct.values.size());
-        for (String _iter44 : struct.values)
+        for (String _iter12 : struct.values)
         {
-          oprot.writeString(_iter44);
+          oprot.writeString(_iter12);
         }
       }
       oprot.writeI32(struct.position);
@@ -693,13 +693,13 @@ public class TRemoveFromEAttributeEvent implements org.apache.thrift.TBase<TRemo
       struct.target = iprot.readI64();
       struct.setTargetIsSet(true);
       {
-        org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-        struct.values = new ArrayList<String>(_list45.size);
-        for (int _i46 = 0; _i46 < _list45.size; ++_i46)
+        org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+        struct.values = new ArrayList<String>(_list13.size);
+        for (int _i14 = 0; _i14 < _list13.size; ++_i14)
         {
-          String _elem47;
-          _elem47 = iprot.readString();
-          struct.values.add(_elem47);
+          String _elem15;
+          _elem15 = iprot.readString();
+          struct.values.add(_elem15);
         }
       }
       struct.setValuesIsSet(true);

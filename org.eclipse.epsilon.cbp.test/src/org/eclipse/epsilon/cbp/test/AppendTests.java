@@ -5,26 +5,32 @@ import static org.junit.Assert.assertEquals;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.Resource.Factory;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
-import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
 
 public abstract class AppendTests {
-	
+
+	private final String extension;
+	private final Factory factory;
+
+	public AppendTests(String extension, Resource.Factory factory) {
+		this.extension = extension;
+		this.factory = factory;
+	}
+
 	public void run(String... sessions) throws Exception {
-		runImpl("cbpxml", false, new CBPXMLResourceFactory(), sessions);
-		//runImpl("cbpthrift", false, new CBPThriftResourceFactory(), sessions);
+		runImpl(extension, false, sessions);
 	}
 	
 	public void debug(String... sessions) throws Exception {
-		runImpl("cbpxml", true, new CBPXMLResourceFactory(), sessions);
-		//runImpl("cbpthrift", true, new CBPThriftResourceFactory(), sessions);
+		runImpl(extension, true, sessions);
 	}
 	
-	public void runImpl(String extension, boolean debug, Resource.Factory factory, String... sessions) throws Exception {
+	public void runImpl(String extension, boolean debug, String... sessions) throws Exception {
 		
 		StringOutputStream multiSessionSosWithoutReload = new StringOutputStream();
 		
