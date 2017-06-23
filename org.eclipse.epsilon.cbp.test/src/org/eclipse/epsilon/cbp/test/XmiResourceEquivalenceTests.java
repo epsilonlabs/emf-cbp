@@ -3,12 +3,15 @@ package org.eclipse.epsilon.cbp.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
@@ -16,6 +19,7 @@ import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
+import org.eclipse.epsilon.eol.models.IModel;
 
 public abstract class XmiResourceEquivalenceTests {
 
@@ -36,6 +40,7 @@ public abstract class XmiResourceEquivalenceTests {
 		Resource xmiResource = xmiResourceSet.createResource(URI.createURI("foo.xmi"));
 		InMemoryEmfModel model = new InMemoryEmfModel("M", xmiResource, getEPackage());
 		module.getContext().getModelRepository().addModel(model);
+		module.getContext().getModelRepository().getModels().addAll(getExtraModels());
 		module.execute();
 		
 		StringOutputStream xmiSos = new StringOutputStream();
@@ -51,6 +56,7 @@ public abstract class XmiResourceEquivalenceTests {
 		
 		model = new InMemoryEmfModel("M", cbpResource, getEPackage());
 		module.getContext().getModelRepository().addModel(model);
+		module.getContext().getModelRepository().getModels().addAll(getExtraModels());
 		module.execute();
 		// inspect(cbpResource);
 		
@@ -71,7 +77,7 @@ public abstract class XmiResourceEquivalenceTests {
 		xmiResourceSet = createResourceSet();
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
 		XMIResourceImpl copyXmiResource = (XMIResourceImpl) xmiResourceSet.createResource(URI.createURI("foo.xmi"));
-		copyXmiResource.getContents().addAll(cbpResource.getContents());
+		copyXmiResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
 		// inspect(copyXmiResource);
 		
 		StringOutputStream copyXmiResourceSos = new StringOutputStream();
@@ -117,6 +123,10 @@ public abstract class XmiResourceEquivalenceTests {
 	
 	protected void run(String eol, boolean debug) throws Exception {
 		run(eol, extension, debug);
+	}
+	
+	protected Collection<IModel> getExtraModels() {
+		return Collections.emptyList();
 	}
 	
 }

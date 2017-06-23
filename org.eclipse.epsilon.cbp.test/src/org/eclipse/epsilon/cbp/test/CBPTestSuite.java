@@ -5,12 +5,15 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
+
 @SuiteClasses({
 	BlogEquivalenceTests.class,
 	EcoreEquivalenceTests.class,
 	EcoreAppendTests.class,
-	CBPResourceConverterTests.class
+	CBPResourceConverterTests.class,
+	EcoreCrossReferenceTests.class
 })
+
 public class CBPTestSuite {
 
 }
