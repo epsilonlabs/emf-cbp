@@ -17,7 +17,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
-import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
+//import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
 import org.eclipse.epsilon.cbp.util.CBPResourceConverter;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class CBPResourceConverterTests {
 		rs.setPackageRegistry(EPackage.Registry.INSTANCE);
 
 		final Map<String, Object> extensionToFactoryMap = rs.getResourceFactoryRegistry().getExtensionToFactoryMap();
-		extensionToFactoryMap.put("cbpthrift", new CBPThriftResourceFactory());
+		//extensionToFactoryMap.put("cbpthrift", new CBPThriftResourceFactory());
 		extensionToFactoryMap.put("cbpxml", new CBPXMLResourceFactory());
 		extensionToFactoryMap.put("*", new XMIResourceFactoryImpl());
 		return rs;

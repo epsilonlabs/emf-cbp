@@ -27,7 +27,7 @@ public abstract class ChangeEvent<T> {
 	}
 	
 	public T getValue() {
-		assert values.size() < 2;
+		//assert values.size() < 2;
 		if (values.isEmpty()) {
 			return null;
 		}

@@ -221,7 +221,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	@SuppressWarnings("unchecked")
 	public void handleEObject(EObject obj) {
 		if (!resource.isRegistered(obj)) {
-			changeEvents.add(new CreateEObjectEvent(obj.eClass(), resource.register(obj)));
+			changeEvents.add(new CreateEObjectEvent(obj, resource.register(obj)));
 
 			// Include prior attribute values into the resource
 			for (EAttribute eAttr : obj.eClass().getEAllAttributes()) {

@@ -1,0 +1,8 @@
+@namespace(uri="employee", prefix="")
+package employee;
+
+class Employee {
+	attr String name;
+	val Employee[*] manages;
+}
+

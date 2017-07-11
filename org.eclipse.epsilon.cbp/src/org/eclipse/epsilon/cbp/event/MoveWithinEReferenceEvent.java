@@ -2,7 +2,7 @@ package org.eclipse.epsilon.cbp.event;
 
 import org.eclipse.emf.common.util.EList;
 
-public class MoveWithinEReferenceEvent extends EStructuralFeatureEvent<Object> implements FromPositionEvent {
+public class MoveWithinEReferenceEvent extends EReferenceEvent implements FromPositionEvent {
 
 	private int fromPosition;
 

@@ -1,0 +1,104 @@
+simple();
+
+//deleteVsRemove();
+
+
+operation simple(){
+	var blog1 = new Blog;
+	var post1 = new Post;
+	
+	blog1.posts.add(post1);
+	delete post1;
+}
+
+operation deleteVsRemove(){
+	
+	var blog1 = new Blog;
+	
+	var post1 = new Post;
+	post1.title = "First Post!";
+	
+	var post2 = new Post;
+	post2.title = "Second Post!";
+	blog1.posts.add(post2);
+	
+	"Before deletion=====".println();
+	for (object in M.allContents()){
+		object.println();
+	}
+	"m owns post1 = ".print() + M.owns(post1).println();
+	"m owns post2 = ".print() + M.owns(post2).println();
+	"After post1 deletion from Resource=====".println();
+	delete post1;
+	for (object in M.allContents()){
+		object.println();
+	}
+	"m owns post1 = ".print() + M.owns(post1).println();
+	"m owns post1 = ".print() + M.allContents().exists(p | p == post1).println();
+	"m owns post1 = ".print() + Post.all().exists(p | p == post1).println();
+	
+	"After post2 deletion from Collection=====".println();
+	blog1.posts.remove(post2);
+	for (object in M.allContents()){
+		object.println();
+	}
+	"m owns post2 = ".print() + M.owns(post2).println();
+	"m owns post2 = ".print() + M.allContents().exists(p | p == post2).println();
+	"m owns post2 = ".print() + Post.all().exists(p | p == post2).println();
+	
+	"".println();
+}
+
+/*var comment1 = new Comment;
+comment1.text = "A";
+post1.comments.add(comment1);
+var comment2 = new Comment;
+comment2.text = "B";
+post1.comments.add(comment2);
+
+var post2 = new Post;
+post2.title = "Second Post!";
+
+blog1.posts.add(post1);
+blog1.posts.add(post2);
+post2.comments.add(comment1);/*
+
+
+
+/*
+var post1 = new Post;
+post1.title = "First Post";
+
+var comment1 = new Comment;
+comment1.text = "Good!";
+post1.comments.add(comment1);
+
+var comment2 = new Comment;
+comment2.text ="Decent!";
+post1.comments.add(comment2);
+blog.posts.add(post1);
+
+var post2 = new Post;
+post2.title = "Second Post";
+blog.posts.add(post2);
+
+comment1.text = "Not that good!";
+
+blog.posts.move(0,1);
+post1.comments.move(1,0);
+
+post1.comments.remove(comment1);
+post2.comments.add(comment1);
+
+var author1 = new Author;
+post1.author := author1;
+post1.author := null;
+post2.author := author1;
+
+post2.ratings.addAll(Sequence{1,2,3});
+post2.ratings.addAll(Sequence{4,5});
+post2.ratings.remove(5);
+post2.ratings.move(0,2);
+post2.ratings.clear();
+
+blog.posts.remove(post1);*/

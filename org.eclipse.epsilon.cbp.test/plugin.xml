@@ -18,8 +18,24 @@
       <!-- @generated blog -->
       <package
             uri="blog"
-            class="org.eclipse.epsilon.cbp.test.blog.BlogPackage"
-            genModel="model/blog.genmodel"/>
+            class="blog.BlogPackage"
+            genModel="src/org/eclipse/epsilon/cbp/util/blog.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated employee -->
+      <package
+            uri="employee"
+            class="org.eclipse.epsilon.cbp.test.employee.EmployeePackage"
+            genModel="model/employee.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated organisation -->
+      <package
+            uri="organisation"
+            class="org.eclipse.epsilon.cbp.test.organisation.OrganisationPackage"
+            genModel="model/organisation.genmodel"/>
    </extension>
 
 </plugin>

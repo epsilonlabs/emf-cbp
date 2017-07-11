@@ -9,6 +9,15 @@ public class CreateEObjectEvent extends ChangeEvent<EObject> {
 	protected EClass eClass;
 	protected CBPResource resource;
 	protected String id;
+	protected EObject eObject;
+	
+	public CreateEObjectEvent(EObject eObject, String id) {
+		super();
+		this.eObject = eObject;
+		this.eClass = eObject.eClass();
+		this.id = id;
+		this.setValue(eObject);
+	}
 	
 	public CreateEObjectEvent(EClass eClass, String id) {
 		super();
@@ -45,5 +54,8 @@ public class CreateEObjectEvent extends ChangeEvent<EObject> {
 	public <U> U accept(IChangeEventVisitor<U> visitor) {
 		return visitor.visit(this);
 	}
+
+	
+	
 	
 }

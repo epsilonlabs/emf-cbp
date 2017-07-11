@@ -3,5 +3,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.emf.ecore_2.12.0.v20160420-0247.jar"/>
+	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.epsilon.emc.emf_1.4.0.201611012202.jar"/>
+	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.epsilon.eol.engine_1.4.0.201611012202.jar"/>
+	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.emf.common_2.12.0.v20160420-0247.jar"/>
+	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.emf.ecore.xmi_2.12.0.v20160420-0247.jar"/>
+	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/com.google.guava_15.0.0.v201403281430.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,0 +1,14 @@
+var e1: new Employee;
+e1.name = "Roy";
+var e2: new Employee;
+e2.name = "Jen";
+var e3: new Employee;
+e2.name = "Moss";
+e2.manages.add(e1);
+e2.manages.add(e3);
+
+e2.manages.move(0,1);
+
+var e4: new Employee;
+e4.name = "Richmond";
+e2.manages.add(e4);

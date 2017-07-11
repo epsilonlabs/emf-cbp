@@ -16,7 +16,8 @@ public class BlogEquivalenceTests extends XmiResourceEquivalenceTests {
 	@Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {     
-                 { "cbpxml" }, { "cbpthrift" }  
+                 { "cbpxml" }
+                 //, { "cbpthrift" }  
            });
     }
 
@@ -36,7 +37,7 @@ public class BlogEquivalenceTests extends XmiResourceEquivalenceTests {
 	
 	@Test
 	public void addRatingsAtIndex() throws Exception {
-		run("var p : new Post; p.ratings.add(1); p.ratings.addAll(0, Sequence{2, 3});");
+		run("var p : new Post; p.ratings.add(1); p.ratings.addAll(0, Sequence{2, 3});", true);
 	}
 
 	@Test
