@@ -7,8 +7,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EClass;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
 import org.eclipse.epsilon.cbp.test.blog.Stats;
 
@@ -26,7 +25,7 @@ import org.eclipse.epsilon.cbp.test.blog.Stats;
  *
  * @generated
  */
-public class StatsImpl extends MinimalEObjectImpl.Container implements Stats {
+public class StatsImpl extends EObjectImpl implements Stats {
 	/**
 	 * The default value of the '{@link #getPageloads() <em>Pageloads</em>}' attribute.
 	 * <!-- begin-user-doc -->

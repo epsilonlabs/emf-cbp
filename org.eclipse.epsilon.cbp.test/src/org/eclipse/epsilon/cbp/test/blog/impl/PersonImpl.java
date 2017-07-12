@@ -7,8 +7,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EClass;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
 import org.eclipse.epsilon.cbp.test.blog.Person;
 
@@ -25,7 +24,7 @@ import org.eclipse.epsilon.cbp.test.blog.Person;
  *
  * @generated
  */
-public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
+public class PersonImpl extends EObjectImpl implements Person {
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
 	 * <!-- begin-user-doc -->

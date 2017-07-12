@@ -11,11 +11,10 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
-import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
-
 import org.eclipse.epsilon.cbp.test.blog.Author;
 import org.eclipse.epsilon.cbp.test.blog.Blog;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
@@ -37,7 +36,7 @@ import org.eclipse.epsilon.cbp.test.blog.Post;
  *
  * @generated
  */
-public class BlogImpl extends MinimalEObjectImpl.Container implements Blog {
+public class BlogImpl extends EObjectImpl implements Blog {
 	/**
 	 * The cached value of the '{@link #getPosts() <em>Posts</em>}' containment reference list.
 	 * <!-- begin-user-doc -->

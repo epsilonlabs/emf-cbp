@@ -7,7 +7,6 @@ import java.util.Collection;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
-import org.eclipse.epsilon.cbp.test.employee.EmployeePackage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -52,8 +51,8 @@ public class FasterLoadingTests extends XmiResourceEquivalenceTests {
 
 	@Override
 	public EPackage getEPackage() {
-		//return BlogPackage.eINSTANCE;
-		return EmployeePackage.eINSTANCE;
+		return BlogPackage.eINSTANCE;
+		//return EmployeePackage.eINSTANCE;
 	}
 
 }

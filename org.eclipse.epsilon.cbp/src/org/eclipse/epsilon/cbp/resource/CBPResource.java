@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -20,7 +21,7 @@ import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
-import org.eclipse.epsilon.cbp.history.EObjectHistoryList;
+import org.eclipse.epsilon.cbp.history.EObjectEventsAdapter;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
 import org.eclipse.epsilon.cbp.util.AppendingURIHandler;
 
@@ -33,7 +34,7 @@ public abstract class CBPResource extends ResourceImpl {
 	protected BiMap<EObject, String> eObjectToIdMap;
 	
 	protected Set<Integer> ignoreList;
-	protected EObjectHistoryList eObjectHistoryList;
+	protected EObjectEventsAdapter eObjectHistoryList;
 	
 	public CBPResource() {
 		super();
@@ -41,8 +42,8 @@ public abstract class CBPResource extends ResourceImpl {
 		this.eAdapters().add(changeEventAdapter);
 		this.eObjectToIdMap = HashBiMap.create();
 		
-		this.ignoreList = new HashSet<>();
-		this.eObjectHistoryList = new EObjectHistoryList();
+		this.ignoreList = new TreeSet<>();
+		this.eObjectHistoryList = new EObjectEventsAdapter(ignoreList);
 
 	}
 
@@ -124,7 +125,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.ignoreList = ignoreList;
 	}
 	
-	public EObjectHistoryList getEObjectHistoryList() {
+	public EObjectEventsAdapter getEObjectHistoryList() {
 		return eObjectHistoryList;
 	}
 	

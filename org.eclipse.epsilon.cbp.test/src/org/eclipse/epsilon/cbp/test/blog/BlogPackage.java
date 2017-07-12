@@ -15,7 +15,6 @@ import org.eclipse.emf.ecore.EReference;
  * <ul>
  *   <li>each class,</li>
  *   <li>each feature of each class,</li>
- *   <li>each operation of each class,</li>
  *   <li>each enum,</li>
  *   <li>and each data type</li>
  * </ul>
@@ -104,15 +103,6 @@ public interface BlogPackage extends EPackage {
 	int BLOG_FEATURE_COUNT = 3;
 
 	/**
-	 * The number of operations of the '<em>Blog</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int BLOG_OPERATION_COUNT = 0;
-
-	/**
 	 * The meta object id for the '{@link org.eclipse.epsilon.cbp.test.blog.impl.PostImpl <em>Post</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -132,13 +122,22 @@ public interface BlogPackage extends EPackage {
 	int POST__TITLE = 0;
 
 	/**
+	 * The feature id for the '<em><b>Subtitle</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int POST__SUBTITLE = 1;
+
+	/**
 	 * The feature id for the '<em><b>Tags</b></em>' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int POST__TAGS = 1;
+	int POST__TAGS = 2;
 
 	/**
 	 * The feature id for the '<em><b>Ratings</b></em>' attribute list.
@@ -147,7 +146,7 @@ public interface BlogPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POST__RATINGS = 2;
+	int POST__RATINGS = 3;
 
 	/**
 	 * The feature id for the '<em><b>Comments</b></em>' containment reference list.
@@ -156,7 +155,7 @@ public interface BlogPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POST__COMMENTS = 3;
+	int POST__COMMENTS = 4;
 
 	/**
 	 * The feature id for the '<em><b>Author</b></em>' reference.
@@ -165,7 +164,7 @@ public interface BlogPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POST__AUTHOR = 4;
+	int POST__AUTHOR = 5;
 
 	/**
 	 * The feature id for the '<em><b>Stats</b></em>' containment reference.
@@ -174,7 +173,7 @@ public interface BlogPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POST__STATS = 5;
+	int POST__STATS = 6;
 
 	/**
 	 * The feature id for the '<em><b>Type</b></em>' attribute.
@@ -183,7 +182,7 @@ public interface BlogPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POST__TYPE = 6;
+	int POST__TYPE = 7;
 
 	/**
 	 * The number of structural features of the '<em>Post</em>' class.
@@ -192,16 +191,7 @@ public interface BlogPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POST_FEATURE_COUNT = 7;
-
-	/**
-	 * The number of operations of the '<em>Post</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int POST_OPERATION_COUNT = 0;
+	int POST_FEATURE_COUNT = 8;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.epsilon.cbp.test.blog.impl.StatsImpl <em>Stats</em>}' class.
@@ -239,15 +229,6 @@ public interface BlogPackage extends EPackage {
 	 * @ordered
 	 */
 	int STATS_FEATURE_COUNT = 2;
-
-	/**
-	 * The number of operations of the '<em>Stats</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int STATS_OPERATION_COUNT = 0;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.epsilon.cbp.test.blog.impl.CommentImpl <em>Comment</em>}' class.
@@ -323,15 +304,6 @@ public interface BlogPackage extends EPackage {
 	int COMMENT_FEATURE_COUNT = 6;
 
 	/**
-	 * The number of operations of the '<em>Comment</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int COMMENT_OPERATION_COUNT = 0;
-
-	/**
 	 * The meta object id for the '{@link org.eclipse.epsilon.cbp.test.blog.impl.PersonImpl <em>Person</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -358,15 +330,6 @@ public interface BlogPackage extends EPackage {
 	 * @ordered
 	 */
 	int PERSON_FEATURE_COUNT = 1;
-
-	/**
-	 * The number of operations of the '<em>Person</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int PERSON_OPERATION_COUNT = 0;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.epsilon.cbp.test.blog.impl.AuthorImpl <em>Author</em>}' class.
@@ -397,15 +360,6 @@ public interface BlogPackage extends EPackage {
 	int AUTHOR_FEATURE_COUNT = PERSON_FEATURE_COUNT + 0;
 
 	/**
-	 * The number of operations of the '<em>Author</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int AUTHOR_OPERATION_COUNT = PERSON_OPERATION_COUNT + 0;
-
-	/**
 	 * The meta object id for the '{@link org.eclipse.epsilon.cbp.test.blog.impl.MemberImpl <em>Member</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -432,15 +386,6 @@ public interface BlogPackage extends EPackage {
 	 * @ordered
 	 */
 	int MEMBER_FEATURE_COUNT = PERSON_FEATURE_COUNT + 0;
-
-	/**
-	 * The number of operations of the '<em>Member</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int MEMBER_OPERATION_COUNT = PERSON_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link org.eclipse.epsilon.cbp.test.blog.PostType <em>Post Type</em>}' enum.
@@ -526,6 +471,17 @@ public interface BlogPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getPost_Title();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.eclipse.epsilon.cbp.test.blog.Post#getSubtitle <em>Subtitle</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Subtitle</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.blog.Post#getSubtitle()
+	 * @see #getPost()
+	 * @generated
+	 */
+	EAttribute getPost_Subtitle();
 
 	/**
 	 * Returns the meta object for the attribute list '{@link org.eclipse.epsilon.cbp.test.blog.Post#getTags <em>Tags</em>}'.
@@ -777,7 +733,6 @@ public interface BlogPackage extends EPackage {
 	 * <ul>
 	 *   <li>each class,</li>
 	 *   <li>each feature of each class,</li>
-	 *   <li>each operation of each class,</li>
 	 *   <li>each enum,</li>
 	 *   <li>and each data type</li>
 	 * </ul>
@@ -836,6 +791,14 @@ public interface BlogPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute POST__TITLE = eINSTANCE.getPost_Title();
+
+		/**
+		 * The meta object literal for the '<em><b>Subtitle</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute POST__SUBTITLE = eINSTANCE.getPost_Subtitle();
 
 		/**
 		 * The meta object literal for the '<em><b>Tags</b></em>' attribute list feature.

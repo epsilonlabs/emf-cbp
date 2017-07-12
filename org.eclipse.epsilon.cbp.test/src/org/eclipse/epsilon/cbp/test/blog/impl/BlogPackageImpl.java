@@ -9,7 +9,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
 import org.eclipse.emf.ecore.impl.EPackageImpl;
-
 import org.eclipse.epsilon.cbp.test.blog.Author;
 import org.eclipse.epsilon.cbp.test.blog.Blog;
 import org.eclipse.epsilon.cbp.test.blog.BlogFactory;
@@ -212,7 +211,7 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getPost_Tags() {
+	public EAttribute getPost_Subtitle() {
 		return (EAttribute)postEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -221,7 +220,7 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getPost_Ratings() {
+	public EAttribute getPost_Tags() {
 		return (EAttribute)postEClass.getEStructuralFeatures().get(2);
 	}
 
@@ -230,8 +229,8 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getPost_Comments() {
-		return (EReference)postEClass.getEStructuralFeatures().get(3);
+	public EAttribute getPost_Ratings() {
+		return (EAttribute)postEClass.getEStructuralFeatures().get(3);
 	}
 
 	/**
@@ -239,7 +238,7 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getPost_Author() {
+	public EReference getPost_Comments() {
 		return (EReference)postEClass.getEStructuralFeatures().get(4);
 	}
 
@@ -248,7 +247,7 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getPost_Stats() {
+	public EReference getPost_Author() {
 		return (EReference)postEClass.getEStructuralFeatures().get(5);
 	}
 
@@ -257,8 +256,17 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getPost_Stats() {
+		return (EReference)postEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EAttribute getPost_Type() {
-		return (EAttribute)postEClass.getEStructuralFeatures().get(6);
+		return (EAttribute)postEClass.getEStructuralFeatures().get(7);
 	}
 
 	/**
@@ -440,6 +448,7 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 
 		postEClass = createEClass(POST);
 		createEAttribute(postEClass, POST__TITLE);
+		createEAttribute(postEClass, POST__SUBTITLE);
 		createEAttribute(postEClass, POST__TAGS);
 		createEAttribute(postEClass, POST__RATINGS);
 		createEReference(postEClass, POST__COMMENTS);
@@ -502,7 +511,7 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 		authorEClass.getESuperTypes().add(this.getPerson());
 		memberEClass.getESuperTypes().add(this.getPerson());
 
-		// Initialize classes, features, and operations; add parameters
+		// Initialize classes and features; add operations and parameters
 		initEClass(blogEClass, Blog.class, "Blog", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getBlog_Posts(), this.getPost(), null, "posts", null, 0, -1, Blog.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getBlog_Members(), this.getMember(), null, "members", null, 0, -1, Blog.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -510,6 +519,7 @@ public class BlogPackageImpl extends EPackageImpl implements BlogPackage {
 
 		initEClass(postEClass, Post.class, "Post", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getPost_Title(), ecorePackage.getEString(), "title", null, 0, 1, Post.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getPost_Subtitle(), ecorePackage.getEString(), "subtitle", null, 0, 1, Post.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getPost_Tags(), ecorePackage.getEString(), "tags", null, 0, -1, Post.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getPost_Ratings(), ecorePackage.getEInt(), "ratings", null, 0, -1, Post.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getPost_Comments(), this.getComment(), null, "comments", null, 0, -1, Post.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

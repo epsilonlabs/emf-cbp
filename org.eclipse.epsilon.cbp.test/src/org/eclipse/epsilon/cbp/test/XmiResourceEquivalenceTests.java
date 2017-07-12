@@ -3,17 +3,21 @@ package org.eclipse.epsilon.cbp.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -21,8 +25,8 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
-import org.eclipse.epsilon.cbp.history.EObjectEventLineHistory;
-import org.eclipse.epsilon.cbp.history.EObjectHistoryList;
+import org.eclipse.epsilon.cbp.history.EObjectEventLines;
+import org.eclipse.epsilon.cbp.history.EObjectEventsAdapter;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
@@ -74,7 +78,7 @@ public abstract class XmiResourceEquivalenceTests {
 		StringOutputStream cbpSos = new StringOutputStream();
 		cbpResource1.save(cbpSos, null);
 
-		 System.out.println(cbpSos.toString());
+		System.out.println(cbpSos.toString());
 
 		// Create a new change-based resource and load what was saved before
 		cbpResourceSet = createResourceSet();
@@ -105,39 +109,66 @@ public abstract class XmiResourceEquivalenceTests {
 			// System.out.println(sCBP);
 
 			//// begin alfa
-			EObjectHistoryList eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
+			EObjectEventsAdapter eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
+			Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 
-			for (Entry<EObject, EObjectEventLineHistory> entry : eObjectHistoryList.geteObjectHistoryList().entrySet()) {
-				EObject eObject = entry.getKey();
-				EObjectEventLineHistory eObjectEventLineHistory = entry.getValue();
+			for (Entry<EObject, EObjectEventLines> entry1 : eObjectHistoryList.geteObjectHistoryList()
+					.entrySet()) {
+				EObject eObject = entry1.getKey();
+				EObjectEventLines eObjectEventLineHistory = entry1.getValue();
 				System.out.println("EObject: " + cbpResource1.getURIFragment(eObject) + " -------------------");
-				for (Entry<ChangeEvent<?>, List<Integer>> subEntry : eObjectEventLineHistory.getEventLinesMap().entrySet()){
-					ChangeEvent<?> event = subEntry.getKey();
-					List<Integer> lines = subEntry.getValue();
-					System.out.println(event.getClass().getSimpleName() + " = " + lines);
+				for (Entry<String, List<Integer>> entry2 : eObjectEventLineHistory.getEventLinesMap().entrySet()) {
+					String eventName = entry2.getKey();
+					List<Integer> lines = entry2.getValue();
+					System.out.println("    " + eventName + " = " + lines);
+				}
+				// attributes
+				Map<EObject, EObjectEventLines> attributeList = eObjectEventLineHistory.getAttributes();
+				System.out.println("    EAttribute:");
+				for (Entry<EObject, EObjectEventLines> entry2 : attributeList.entrySet()) {
+					EAttribute eAttribute = (EAttribute) entry2.getKey();
+					EObjectEventLines eAttributeHistory = entry2.getValue();
+					System.out.println("        " + eAttribute.getName() + " -------------------");
+					for (Entry<String, List<Integer>> entry3 : eAttributeHistory.getEventLinesMap().entrySet()) {
+						String eventName = entry3.getKey();
+						List<Integer> lines = entry3.getValue();
+						System.out.println("            " + eventName + " = " + lines);
+					}
+				}
+				// references
+				Map<EObject, EObjectEventLines> referenceList = eObjectEventLineHistory.getReferences();
+				System.out.println("    EReference:");
+				for (Entry<EObject, EObjectEventLines> entry2 : referenceList.entrySet()) {
+					EReference eReference = (EReference) entry2.getKey();
+					EObjectEventLines eReferenceHistory = entry2.getValue();
+					System.out.println("        " + eReference.getName() + " -------------------");
+					for (Entry<String, List<Integer>> entry3 : eReferenceHistory.getEventLinesMap().entrySet()) {
+						String eventName = entry3.getKey();
+						List<Integer> lines = entry3.getValue();
+						System.out.println("            " + eventName + " = " + lines);
+					}
 				}
 			}
+			System.out.println("IgnoreList = " + ignoreList);
 
-			// String[] list2 =
-			// sCBP.split(System.getProperty("line.separator"));
-			// int count2 = 0;
-			// int actualTotalLines = 0;
-			// Set<Integer> ignoreList = implementation.getIgnoreList();
-			// for (String line : list2){
-			// if (ignoreList.contains(count2)){
-			// count2 += 1;
-			// continue;
-			// }
-			// System.out.println(String.valueOf(count2) + "\t" + line);
-			// count2 += 1;
-			// actualTotalLines += 1;
-			// }
-			// System.out.println("Removed lines: " + ignoreList + " = " +
-			// ignoreList.size());
-			// System.out.println("Total lines: " + actualTotalLines);
-			// System.out.println("% removed lines: " + ignoreList.size() * 1.0
-			// / count2 * 100.0);
-			//// end alfa
+			String[] list2 = sCBP.split(System.getProperty("line.separator"));
+			int count2 = 0;
+			int actualTotalLines = 0;
+			for (String line : list2) {
+				if (ignoreList.contains(count2)) {
+					count2 += 1;
+					continue;
+				}
+				System.out.println(String.valueOf(count2) + "\t" + line);
+				count2 += 1;
+				actualTotalLines += 1;
+			}
+			System.out.println("Removed lines: " + ignoreList + " = " + ignoreList.size());
+			System.out.println("Total lines: " + actualTotalLines);
+			DecimalFormat df = new DecimalFormat("#.00");
+			double percentage = ignoreList.size() * 1.0 / count2 * 100.0;
+			System.out.println("removed lines: " + df.format(percentage) + " %");
+			// end alfa
 		}
 
 		assertEquals(xmiSos.toString(), copyXmiResourceSos.toString());

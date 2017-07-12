@@ -3,6 +3,7 @@ package employee;
 
 class Employee {
 	attr String name;
-	val Employee[*] manages;
+	attr String role;
+	val Employee[*] manages; 
 }
 

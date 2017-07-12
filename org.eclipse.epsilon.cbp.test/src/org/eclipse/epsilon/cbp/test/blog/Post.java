@@ -16,6 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  * </p>
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.Post#getTitle <em>Title</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.blog.Post#getSubtitle <em>Subtitle</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.Post#getTags <em>Tags</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.Post#getRatings <em>Ratings</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.Post#getComments <em>Comments</em>}</li>
@@ -54,6 +55,32 @@ public interface Post extends EObject {
 	 * @generated
 	 */
 	void setTitle(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Subtitle</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Subtitle</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Subtitle</em>' attribute.
+	 * @see #setSubtitle(String)
+	 * @see org.eclipse.epsilon.cbp.test.blog.BlogPackage#getPost_Subtitle()
+	 * @model
+	 * @generated
+	 */
+	String getSubtitle();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.epsilon.cbp.test.blog.Post#getSubtitle <em>Subtitle</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Subtitle</em>' attribute.
+	 * @see #getSubtitle()
+	 * @generated
+	 */
+	void setSubtitle(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Tags</b></em>' attribute list.

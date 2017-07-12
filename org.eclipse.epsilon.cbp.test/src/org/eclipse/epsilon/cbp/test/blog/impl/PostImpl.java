@@ -13,12 +13,11 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
-
 import org.eclipse.epsilon.cbp.test.blog.Author;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
 import org.eclipse.epsilon.cbp.test.blog.Comment;
@@ -35,6 +34,7 @@ import org.eclipse.epsilon.cbp.test.blog.Stats;
  * </p>
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.impl.PostImpl#getTitle <em>Title</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.blog.impl.PostImpl#getSubtitle <em>Subtitle</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.impl.PostImpl#getTags <em>Tags</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.impl.PostImpl#getRatings <em>Ratings</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.blog.impl.PostImpl#getComments <em>Comments</em>}</li>
@@ -45,7 +45,7 @@ import org.eclipse.epsilon.cbp.test.blog.Stats;
  *
  * @generated
  */
-public class PostImpl extends MinimalEObjectImpl.Container implements Post {
+public class PostImpl extends EObjectImpl implements Post {
 	/**
 	 * The default value of the '{@link #getTitle() <em>Title</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -65,6 +65,26 @@ public class PostImpl extends MinimalEObjectImpl.Container implements Post {
 	 * @ordered
 	 */
 	protected String title = TITLE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getSubtitle() <em>Subtitle</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSubtitle()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String SUBTITLE_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getSubtitle() <em>Subtitle</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSubtitle()
+	 * @generated
+	 * @ordered
+	 */
+	protected String subtitle = SUBTITLE_EDEFAULT;
 
 	/**
 	 * The cached value of the '{@link #getTags() <em>Tags</em>}' attribute list.
@@ -174,6 +194,27 @@ public class PostImpl extends MinimalEObjectImpl.Container implements Post {
 		title = newTitle;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, BlogPackage.POST__TITLE, oldTitle, title));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getSubtitle() {
+		return subtitle;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setSubtitle(String newSubtitle) {
+		String oldSubtitle = subtitle;
+		subtitle = newSubtitle;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, BlogPackage.POST__SUBTITLE, oldSubtitle, subtitle));
 	}
 
 	/**
@@ -340,6 +381,8 @@ public class PostImpl extends MinimalEObjectImpl.Container implements Post {
 		switch (featureID) {
 			case BlogPackage.POST__TITLE:
 				return getTitle();
+			case BlogPackage.POST__SUBTITLE:
+				return getSubtitle();
 			case BlogPackage.POST__TAGS:
 				return getTags();
 			case BlogPackage.POST__RATINGS:
@@ -368,6 +411,9 @@ public class PostImpl extends MinimalEObjectImpl.Container implements Post {
 		switch (featureID) {
 			case BlogPackage.POST__TITLE:
 				setTitle((String)newValue);
+				return;
+			case BlogPackage.POST__SUBTITLE:
+				setSubtitle((String)newValue);
 				return;
 			case BlogPackage.POST__TAGS:
 				getTags().clear();
@@ -405,6 +451,9 @@ public class PostImpl extends MinimalEObjectImpl.Container implements Post {
 			case BlogPackage.POST__TITLE:
 				setTitle(TITLE_EDEFAULT);
 				return;
+			case BlogPackage.POST__SUBTITLE:
+				setSubtitle(SUBTITLE_EDEFAULT);
+				return;
 			case BlogPackage.POST__TAGS:
 				getTags().clear();
 				return;
@@ -437,6 +486,8 @@ public class PostImpl extends MinimalEObjectImpl.Container implements Post {
 		switch (featureID) {
 			case BlogPackage.POST__TITLE:
 				return TITLE_EDEFAULT == null ? title != null : !TITLE_EDEFAULT.equals(title);
+			case BlogPackage.POST__SUBTITLE:
+				return SUBTITLE_EDEFAULT == null ? subtitle != null : !SUBTITLE_EDEFAULT.equals(subtitle);
 			case BlogPackage.POST__TAGS:
 				return tags != null && !tags.isEmpty();
 			case BlogPackage.POST__RATINGS:
@@ -465,6 +516,8 @@ public class PostImpl extends MinimalEObjectImpl.Container implements Post {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (title: ");
 		result.append(title);
+		result.append(", subtitle: ");
+		result.append(subtitle);
 		result.append(", tags: ");
 		result.append(tags);
 		result.append(", ratings: ");

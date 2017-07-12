@@ -9,6 +9,7 @@ class Blog {
 
 class Post {
 	attr String title;
+	attr String subtitle;
 	attr String[*] tags;
 	attr int[*] ratings;
 	val Comment[*] comments;

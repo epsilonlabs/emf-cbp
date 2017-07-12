@@ -1,14 +1,22 @@
 var e1: new Employee;
 e1.name = "Roy";
+e1.role = "Employee";
 var e2: new Employee;
 e2.name = "Jen";
+e2.role = "Manager";
 var e3: new Employee;
-e2.name = "Moss";
+e3.name = "Moss";
+e3.name = "Employee";
+
+e1.responsibleTo = e2;
+e3.responsibleTo = e2;
+
 e2.manages.add(e1);
 e2.manages.add(e3);
 
-e2.manages.move(0,1);
-
 var e4: new Employee;
 e4.name = "Richmond";
+e4.name = "Employee";
 e2.manages.add(e4);
+
+e4.responsibleTo = e2;

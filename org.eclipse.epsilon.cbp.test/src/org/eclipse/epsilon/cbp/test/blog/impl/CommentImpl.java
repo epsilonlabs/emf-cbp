@@ -13,13 +13,12 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
-import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.InternalEList;
-
 import org.eclipse.epsilon.cbp.test.blog.Author;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
 import org.eclipse.epsilon.cbp.test.blog.Comment;
@@ -44,7 +43,7 @@ import org.eclipse.epsilon.cbp.test.blog.Member;
  *
  * @generated
  */
-public class CommentImpl extends MinimalEObjectImpl.Container implements Comment {
+public class CommentImpl extends EObjectImpl implements Comment {
 	/**
 	 * The default value of the '{@link #getText() <em>Text</em>}' attribute.
 	 * <!-- begin-user-doc -->

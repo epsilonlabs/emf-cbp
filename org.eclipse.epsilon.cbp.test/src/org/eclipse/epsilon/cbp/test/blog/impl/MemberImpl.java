@@ -3,7 +3,6 @@
 package org.eclipse.epsilon.cbp.test.blog.impl;
 
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
 import org.eclipse.epsilon.cbp.test.blog.Member;
 
