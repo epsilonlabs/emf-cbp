@@ -1,7 +1,6 @@
 package org.eclipse.epsilon.cbp.resource;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,7 +20,7 @@ import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
-import org.eclipse.epsilon.cbp.history.EObjectEventsAdapter;
+import org.eclipse.epsilon.cbp.history.EObjectEventLinesAdapter;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
 import org.eclipse.epsilon.cbp.util.AppendingURIHandler;
 
@@ -34,7 +33,7 @@ public abstract class CBPResource extends ResourceImpl {
 	protected BiMap<EObject, String> eObjectToIdMap;
 	
 	protected Set<Integer> ignoreList;
-	protected EObjectEventsAdapter eObjectHistoryList;
+	protected EObjectEventLinesAdapter eObjectHistoryList;
 	
 	public CBPResource() {
 		super();
@@ -43,7 +42,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.eObjectToIdMap = HashBiMap.create();
 		
 		this.ignoreList = new TreeSet<>();
-		this.eObjectHistoryList = new EObjectEventsAdapter(ignoreList);
+		this.eObjectHistoryList = new EObjectEventLinesAdapter(ignoreList);
 
 	}
 
@@ -81,7 +80,14 @@ public abstract class CBPResource extends ResourceImpl {
 	public EObject getEObject(String uriFragment) {
 		return eObjectToIdMap.inverse().get(uriFragment);
 	}
-
+	
+	public String getEObjectId(EObject eObject){
+		if (eObjectToIdMap.containsKey(eObject)){
+			return eObjectToIdMap.get(eObject);
+		}
+		return null;
+	}
+	
 	public String register(EObject eObject) {
 		String id = eObjectToIdMap.size() + "";
 		adopt(eObject, id);
@@ -125,7 +131,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.ignoreList = ignoreList;
 	}
 	
-	public EObjectEventsAdapter getEObjectHistoryList() {
+	public EObjectEventLinesAdapter getEObjectHistoryList() {
 		return eObjectHistoryList;
 	}
 	

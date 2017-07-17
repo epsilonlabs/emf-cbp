@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;

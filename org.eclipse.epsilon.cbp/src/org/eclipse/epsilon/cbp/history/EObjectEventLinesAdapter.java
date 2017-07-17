@@ -13,6 +13,7 @@ import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
@@ -32,12 +33,12 @@ import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
  *         where an operation involves an object. It maps operations applied to
  *         an object to their respective lines in the change-based model XML.
  */
-public class EObjectEventsAdapter {
+public class EObjectEventLinesAdapter {
 
 	protected Map<EObject, EObjectEventLines> eObjectHistoryList = new HashMap<>();
 	protected Set<Integer> ignoreList;
 
-	public EObjectEventsAdapter(Set<Integer> ignoreList) {
+	public EObjectEventLinesAdapter(Set<Integer> ignoreList) {
 		this.ignoreList = ignoreList;
 	}
 
@@ -60,7 +61,11 @@ public class EObjectEventsAdapter {
 			}
 		} else if (event instanceof AddToResourceEvent || event instanceof RemoveFromResourceEvent) {
 			eObjectHistoryList.get(eObject).addEventLine(event, line);
+		} else if (event instanceof DeleteEObjectEvent) {
+			eObjectHistoryList.get(eObject).addEventLine(event, line);
+			
 		}
+
 		// ATTRIBUTES
 		else if (event instanceof SetEAttributeEvent || event instanceof UnsetEAttributeEvent
 				|| event instanceof MoveWithinEAttributeEvent || event instanceof AddToEAttributeEvent
@@ -158,12 +163,14 @@ public class EObjectEventsAdapter {
 			}
 
 			// ignoring Add To and Remove From Reference
-			if (value != null && (event instanceof AddToEReferenceEvent || event instanceof RemoveFromEReferenceEvent)) {
-				
-				// also add these two events to the value object not only the target
-				// object
+			if (value != null
+					&& (event instanceof AddToEReferenceEvent || event instanceof RemoveFromEReferenceEvent)) {
+
+				// also add these AddTo/RemoveFromReference events to the value
+				// object (not only the target
+				// object)
 				eObjectHistoryList.get(value).addEventLine(event, line);
-				
+
 				Map<String, List<Integer>> eventLinesMap = eObjectHistoryList.get(value).getEventLinesMap();
 				String addReferenceName = AddToEReferenceEvent.class.getSimpleName();
 				String removeReferenceName = RemoveFromEReferenceEvent.class.getSimpleName();

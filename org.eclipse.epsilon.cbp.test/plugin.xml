@@ -33,8 +33,8 @@
    <extension point="org.eclipse.emf.ecore.generated_package">
       <!-- @generated employee -->
       <package
-            uri="org.eclipse.epsilon.cbp.test.employee"
-            class="org.eclipse.epsilon.cbp.test.employee.Org.eclipse.epsilon.cbp.test.employeePackage"
+            uri="employee"
+            class="org.eclipse.epsilon.cbp.test.employee.EmployeePackage"
             genModel="model/employee.genmodel"/>
    </extension>
 

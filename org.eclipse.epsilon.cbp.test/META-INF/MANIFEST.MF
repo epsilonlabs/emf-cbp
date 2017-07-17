@@ -9,7 +9,10 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.epsilon.cbp.test.blog,
  org.eclipse.epsilon.cbp.test.blog.impl,
- org.eclipse.epsilon.cbp.test.blog.util
+ org.eclipse.epsilon.cbp.test.blog.util,
+ org.eclipse.epsilon.cbp.test.employee,
+ org.eclipse.epsilon.cbp.test.employee.impl,
+ org.eclipse.epsilon.cbp.test.employee.util
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.epsilon.cbp,

@@ -61,23 +61,11 @@
     <display labels="false" multiplicity="true"/>  
   </association>  
   <association id="9">    
-    <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="10" name="cbpxmlResourceImpl">        
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="10" name="resource">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
       <multiplicity id="11" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="1" navigable="true"/>    
-    <display labels="false" multiplicity="true"/>  
-  </association>  
-  <association id="12">    
-    <end type="SOURCE" refId="4" navigable="false">      
-      <attribute id="13" name="resource">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="14" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    

@@ -26,7 +26,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.history.EObjectEventLines;
-import org.eclipse.epsilon.cbp.history.EObjectEventsAdapter;
+import org.eclipse.epsilon.cbp.history.EObjectEventLinesAdapter;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
@@ -78,8 +78,6 @@ public abstract class XmiResourceEquivalenceTests {
 		StringOutputStream cbpSos = new StringOutputStream();
 		cbpResource1.save(cbpSos, null);
 
-		System.out.println(cbpSos.toString());
-
 		// Create a new change-based resource and load what was saved before
 		cbpResourceSet = createResourceSet();
 		cbpResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
@@ -87,6 +85,11 @@ public abstract class XmiResourceEquivalenceTests {
 		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", factory);
 		Resource cbpResource2 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
 		final String sCBP = cbpSos.toString();
+
+		//get ignoreList from cbpResource1 and apply it cbpResource2 
+		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
+		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
+
 		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);
 		// inspect(cbpResource);
 
@@ -99,6 +102,7 @@ public abstract class XmiResourceEquivalenceTests {
 		StringOutputStream copyXmiResourceSos = new StringOutputStream();
 		copyXmiResource.doSave(copyXmiResourceSos, null);
 
+		// DEBUG
 		if (debug) {
 			System.out.println("XMIResourceImpl");
 			System.out.println(xmiSos.toString());
@@ -108,12 +112,11 @@ public abstract class XmiResourceEquivalenceTests {
 			System.out.println("---");
 			// System.out.println(sCBP);
 
-			//// begin alfa
-			EObjectEventsAdapter eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
-			Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
+			System.out.println("");
+			System.out.println("DATA STRUCTURE");
+			EObjectEventLinesAdapter eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
 
-			for (Entry<EObject, EObjectEventLines> entry1 : eObjectHistoryList.geteObjectHistoryList()
-					.entrySet()) {
+			for (Entry<EObject, EObjectEventLines> entry1 : eObjectHistoryList.geteObjectHistoryList().entrySet()) {
 				EObject eObject = entry1.getKey();
 				EObjectEventLines eObjectEventLineHistory = entry1.getValue();
 				System.out.println("EObject: " + cbpResource1.getURIFragment(eObject) + " -------------------");
@@ -149,8 +152,19 @@ public abstract class XmiResourceEquivalenceTests {
 					}
 				}
 			}
-			System.out.println("IgnoreList = " + ignoreList);
 
+			System.out.println("");
+			System.out.println("XML BEFORE REMOVED");
+			String[] list1 = cbpSos.toString().split(System.getProperty("line.separator"));
+			int count1 = 0;
+			for (String line : list1) {
+				System.out.println(String.valueOf(count1) + "\t" + line);
+				count1 += 1;
+			}
+			System.out.println("");
+			System.out.println("IGNORE_LIST = " + ignoreList);
+			System.out.println("");
+			System.out.println("XML AFTER REMOVED");
 			String[] list2 = sCBP.split(System.getProperty("line.separator"));
 			int count2 = 0;
 			int actualTotalLines = 0;
@@ -163,12 +177,13 @@ public abstract class XmiResourceEquivalenceTests {
 				count2 += 1;
 				actualTotalLines += 1;
 			}
+			System.out.println("");
+			System.out.println("STATISTICS");
 			System.out.println("Removed lines: " + ignoreList + " = " + ignoreList.size());
 			System.out.println("Total lines: " + actualTotalLines);
 			DecimalFormat df = new DecimalFormat("#.00");
 			double percentage = ignoreList.size() * 1.0 / count2 * 100.0;
 			System.out.println("removed lines: " + df.format(percentage) + " %");
-			// end alfa
 		}
 
 		assertEquals(xmiSos.toString(), copyXmiResourceSos.toString());

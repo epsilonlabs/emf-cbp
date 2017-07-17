@@ -9,7 +9,11 @@ public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValu
 	@SuppressWarnings("unchecked")
 	@Override
 	public void replay() {
-		((List<EObject>) target.eGet(getEStructuralFeature())).addAll(position, getValues());
+		List<EObject> list = (List<EObject>) target.eGet(getEStructuralFeature());
+		if (position > list.size()){
+			position =  list.size();
+		}
+		list.addAll(position, getValues());
 	}
 
 	@Override

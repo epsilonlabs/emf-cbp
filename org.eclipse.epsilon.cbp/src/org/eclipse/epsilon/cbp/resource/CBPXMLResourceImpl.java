@@ -30,6 +30,7 @@ import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
@@ -114,7 +115,14 @@ public class CBPXMLResourceImpl extends CBPResource {
 					e.setAttribute("id", ((CreateEObjectEvent) event).getId());
 					EObject eObject = ((CreateEObjectEvent) event).getValue();
 					eObjectHistoryList.add(eObject, event, line);
-				} else if (event instanceof AddToResourceEvent) {
+				} else if (event instanceof DeleteEObjectEvent) {
+					e = document.createElement("delete");
+					e.setAttribute("epackage", ((DeleteEObjectEvent) event).getEClass().getEPackage().getNsURI());
+					e.setAttribute("eclass", ((DeleteEObjectEvent) event).getEClass().getName());
+					e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
+					EObject eObject = ((DeleteEObjectEvent) event).getValue();
+					eObjectHistoryList.add(eObject, event, line);
+				}else if (event instanceof AddToResourceEvent) {
 					e = document.createElement("add-to-resource");
 					EObject eObject = ((AddToResourceEvent) event).getValue();
 					eObjectHistoryList.add(eObject, event, line);
@@ -125,21 +133,29 @@ public class CBPXMLResourceImpl extends CBPResource {
 				} else if (event instanceof AddToEReferenceEvent) {
 					e = document.createElement("add-to-ereference");
 					EObject eObject = ((AddToEReferenceEvent) event).getTarget();
-					Collection<EObject> values = ((AddToEReferenceEvent) event).getValues();
-					if (values != null && values.size() > 0){
-						for( EObject value : values){
-							eObjectHistoryList.add(eObject, event, line, value);
-						}
-					}
+					EObject value = ((AddToEReferenceEvent) event).getValue();
+					eObjectHistoryList.add(eObject, event, line, value);
+					// Collection<EObject> values = ((AddToEReferenceEvent)
+					// event).getValues();
+					// eObjectHistoryList.add(eObject, event, line);
+					// if (values != null && values.size() > 0) {
+					// for (EObject value : values) {
+					// eObjectHistoryList.add(eObject, event, line, value);
+					// }
+					// }
 				} else if (event instanceof RemoveFromEReferenceEvent) {
 					e = document.createElement("remove-from-ereference");
 					EObject eObject = ((RemoveFromEReferenceEvent) event).getTarget();
-					Collection<EObject> values = ((RemoveFromEReferenceEvent) event).getValues();
-					if (values != null && values.size() > 0){
-						for( EObject value : values){
-							eObjectHistoryList.add(eObject, event, line, value);
-						}
-					}
+					EObject value = ((RemoveFromEReferenceEvent) event).getValue();
+					eObjectHistoryList.add(eObject, event, line, value);
+					// Collection<EObject> values = ((RemoveFromEReferenceEvent)
+					// event).getValues();
+					// eObjectHistoryList.add(eObject, event, line);
+					// if (values != null && values.size() > 0) {
+					// for (EObject value : values) {
+					// eObjectHistoryList.add(eObject, event, line, value);
+					// }
+					// }
 				} else if (event instanceof SetEAttributeEvent) {
 					e = document.createElement("set-eattribute");
 					EObject eObject = ((SetEAttributeEvent) event).getTarget();
@@ -211,7 +227,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				StreamResult result = new StreamResult(out);
 				transformer.transform(source, result);
 				out.write(System.getProperty("line.separator").getBytes());
-				
+
 				line += 1;
 			}
 			persistedEvents = getChangeEvents().size();
@@ -224,18 +240,18 @@ public class CBPXMLResourceImpl extends CBPResource {
 	}
 
 	@Override
-	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+	public void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
 		changeEventAdapter.setEnabled(false);
 		eObjectToIdMap.clear();
 		getChangeEvents().clear();
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
+		int lineNumber = 0;
 		try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			int lineNumber = 0;
 			while ((line = reader.readLine()) != null) {
-				if (ignoreList.contains(String.valueOf(lineNumber))){
+				if (ignoreList.contains(lineNumber)) {
 					lineNumber += 1;
 					continue;
 				}
@@ -247,6 +263,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 			}
 			persistedEvents = getChangeEvents().size();
 		} catch (Exception ex) {
+			System.out.println("Error: " + lineNumber + " : " + line);
+			ex.printStackTrace();
 			throw new IOException(ex);
 		}
 
@@ -308,6 +326,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
 			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
 			return new CreateEObjectEvent(eClass, this, e.getAttribute("id"));
+		}
+		case "delete": {
+			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
+			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
+			return new DeleteEObjectEvent(eClass, this, e.getAttribute("id"));
 		}
 		case "add-to-resource":
 			return new AddToResourceEvent();

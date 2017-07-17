@@ -1,7 +1,38 @@
-simple();
-
+test1();
+//test2();
+//simple();
 //deleteVsRemove();
+operation test2() {
+	var blog1 = new Blog;
 
+	var post1 = new Post;
+	post1.title = "Post 1";
+	var post2 = new Post;
+	post2.title = "Post 2";
+	
+	var posts1 = Collection{post1, post2};
+	blog1.posts.addAll(posts1);
+}
+
+operation test1() {
+	var blog1 = new Blog;
+
+	var post1 = new Post;
+	post1.title = "Post 1";
+	var post2 = new Post;
+	post2.title = "Post 2";
+	var post3 = new Post;
+	post3.title = "Post 3";
+	var post4 = new Post;
+	post4.title = "Post 4";
+	
+	var posts1 = Collection{post1, post2};
+	var posts2 = Collection{post3, post4};
+	
+	blog1.posts = posts1;
+	blog1.posts.addAll(posts2);
+	delete post3;
+}
 
 operation simple(){
 	var blog1 = new Blog;

@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
+import org.eclipse.epsilon.cbp.test.employee.EmployeePackage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -28,7 +29,7 @@ public class FasterLoadingTests extends XmiResourceEquivalenceTests {
 	@Test
 	public void fasterLoadingTest() throws Exception {
 		
-		String eolCode = new String(Files.readAllBytes(Paths.get("data/reset_attribute.eol")));
+		String eolCode = new String(Files.readAllBytes(Paths.get("data/blog.eol")));
 		run(eolCode, true);
 		
 	}
