@@ -14,6 +14,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
 public class ChangeEventAdapter extends EContentAdapter {
@@ -50,7 +51,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 		ChangeEvent<?> event = null;
 
 		switch (n.getEventType()) {
-
 		case Notification.ADD: {
 			if (n.getNotifier() instanceof Resource) {
 				if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
@@ -115,9 +115,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 		case Notification.ADD_MANY: {
 			@SuppressWarnings("unchecked")
-			Collection<EObject> values = (Collection<EObject>) n.getNewValue();
+			Collection<Object> values = (Collection<Object>) n.getNewValue();
 			int position = n.getPosition();
-			for (EObject value : values) {
+			for (Object value : values) {
 				ChangeEvent<?> evt = null;
 				if (n.getNotifier() instanceof Resource) {
 					evt = new AddToResourceEvent();
@@ -133,21 +133,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 			}
 			break;
 		}
-		// case Notification.ADD_MANY: {
-		// @SuppressWarnings("unchecked")
-		// Collection<EObject> values = (Collection<EObject>) n.getNewValue();
-		// if (n.getNotifier() instanceof Resource) {
-		// event = new AddToResourceEvent();
-		// } else if (n.getNotifier() instanceof EObject) {
-		// if (n.getFeature() instanceof EAttribute) {
-		// event = new AddToEAttributeEvent();
-		// } else if (n.getFeature() instanceof EReference) {
-		// event = new AddToEReferenceEvent();
-		// }
-		// }
-		// event.setValues(values);
-		// break;
-		// }
 
 		case Notification.REMOVE: {
 			if (n.getOldValue() instanceof EObject) {
@@ -164,16 +149,22 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 
 		case Notification.REMOVE_MANY: {
-			if (n.getNotifier() instanceof Resource) {
-				event = new RemoveFromResourceEvent();
-			} else if (n.getNotifier() instanceof EObject) {
-				if (n.getFeature() instanceof EAttribute) {
-					event = new RemoveFromEAttributeEvent();
-				} else if (n.getFeature() instanceof EReference) {
-					event = new RemoveFromEReferenceEvent();
+			Collection<Object> values = (Collection<Object>) n.getOldValue();
+			int position = n.getPosition();
+			for (Object value : values) {
+				ChangeEvent<?> evt = null;
+				if (n.getNotifier() instanceof Resource) {
+					evt = new RemoveFromResourceEvent();
+				} else if (n.getNotifier() instanceof EObject) {
+					if (n.getFeature() instanceof EAttribute) {
+						evt = new RemoveFromEAttributeEvent();
+					} else if (n.getFeature() instanceof EReference) {
+						evt = new RemoveFromEReferenceEvent();
+					}
 				}
+				evt.setValues(value);
+				addEventToList(evt, n, position++);
 			}
-			event.setValues(n.getOldValue());
 			break;
 		}
 
@@ -273,10 +264,10 @@ public class ChangeEventAdapter extends EContentAdapter {
 			EObject eObject = eAllContents.next();
 			if (eObject.equals(removedObject)) {
 				isDeleted = false;
+				break;
 			}
 		}
 		if (isDeleted == true) {
-			System.out.println("DELETED: " + removedObject.toString());
 			String id = resource.getEObjectId(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
 			changeEvents.add(e);

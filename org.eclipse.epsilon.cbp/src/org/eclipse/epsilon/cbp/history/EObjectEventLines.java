@@ -23,8 +23,14 @@ public class EObjectEventLines {
 	protected Map<EObject, EObjectEventLines> references = new HashMap<EObject, EObjectEventLines>();
 	protected Map<String, List<Integer>> eventLinesMap = new HashMap<String, List<Integer>>();
 
+	
+	
 	public EObjectEventLines(EObject eObject) {
 		this.eObject = eObject;
+	}
+	
+	public EObject geteObject() {
+		return eObject;
 	}
 	
 	public Map<EObject, EObjectEventLines> getAttributes() {

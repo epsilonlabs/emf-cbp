@@ -9,6 +9,7 @@ public class RemoveFromEReferenceEvent extends EReferenceEvent implements EObjec
 	@SuppressWarnings("unchecked")
 	@Override
 	public void replay() {
+		
 		((Collection<EObject>) target.eGet(getEStructuralFeature())).removeAll(getValues());
 	}
 

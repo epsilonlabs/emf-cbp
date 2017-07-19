@@ -1,9 +1,58 @@
-test1();
+//test1();
 //test2();
 //simple();
 //deleteVsRemove();
+//complex();
+//test3();
+//test4();
+test5();
+
+operation test5(){
+	var post2 = new Post;
+	var post1 = new Post;
+	var x  = "A";
+	
+	post2.tags.add(x);
+	post1.tags.add(x);
+	
+	/*post2.tags.add("A");
+	post2.tags.addAll(Bag{"A","B","A"});
+	post2.tags.addAll(Bag{"A","C"});
+	post2.tags.remove("A");
+	post2.tags.move(0,1);*/
+	//post2.ratings.clear();
+	//post2.ratings = Sequence{6,7};
+}
+
+operation test4() {
+	var blog1 = new Blog;
+
+	var post1 = new Post;
+	post1.title = "AAAAA";
+	var post2 = new Post;
+	post2.title = "BBBBB";
+	
+	blog1.posts.add(post1);
+	blog1.posts.add(post2);
+	blog1.posts.clear();
+	
+}
+
+operation test3() {
+	var blog1 = new Blog;
+	var blog2 = new Blog;
+	var post1 = new Post;
+	post1.title = "AAAAA";
+	
+	blog1.posts.add(post1);
+	blog2.posts.add(post1);
+	delete post1;
+	
+}
+
 operation test2() {
 	var blog1 = new Blog;
+	var blog2 = new Blog;
 
 	var post1 = new Post;
 	post1.title = "Post 1";
@@ -12,6 +61,9 @@ operation test2() {
 	
 	var posts1 = Collection{post1, post2};
 	blog1.posts.addAll(posts1);
+	
+	blog1.posts.remove(post1);
+	blog2.posts.add(post1);
 }
 
 operation test1() {
@@ -78,39 +130,46 @@ operation deleteVsRemove(){
 	
 	var post1 = new Post;
 	post1.title = "First Post!";
-	
 	var post2 = new Post;
 	post2.title = "Second Post!";
-	blog1.posts.add(post2);
 	
+	blog1.posts.add(post1);
+	blog1.posts.add(post2);
+	/*
 	"Before deletion=====".println();
 	for (object in M.allContents()){
 		object.println();
 	}
 	"m owns post1 = ".print() + M.owns(post1).println();
 	"m owns post2 = ".print() + M.owns(post2).println();
-	"After post1 deletion from Resource=====".println();
+	"After post1 deletion=====".println();*/
 	delete post1;
-	for (object in M.allContents()){
+	/*for (object in M.allContents()){
 		object.println();
 	}
 	"m owns post1 = ".print() + M.owns(post1).println();
 	"m owns post1 = ".print() + M.allContents().exists(p | p == post1).println();
 	"m owns post1 = ".print() + Post.all().exists(p | p == post1).println();
 	
-	"After post2 deletion from Collection=====".println();
+	"After post2 remove=====".println();*/
 	blog1.posts.remove(post2);
-	for (object in M.allContents()){
+	/*for (object in M.allContents()){
 		object.println();
 	}
 	"m owns post2 = ".print() + M.owns(post2).println();
 	"m owns post2 = ".print() + M.allContents().exists(p | p == post2).println();
-	"m owns post2 = ".print() + Post.all().exists(p | p == post2).println();
-	
-	"".println();
+	"m owns post2 = ".print() + Post.all().exists(p | p == post2).println();*/
 }
 
-/*var comment1 = new Comment;
+operation complex(){
+
+var blog1 = new Blog;
+var blog2 = new Blog;
+
+var post1 = new Post;
+post1.title = "Post 1";
+
+var comment1 = new Comment;
 comment1.text = "A";
 post1.comments.add(comment1);
 var comment2 = new Comment;
@@ -118,37 +177,13 @@ comment2.text = "B";
 post1.comments.add(comment2);
 
 var post2 = new Post;
-post2.title = "Second Post!";
+post2.title = "Post 2";
 
 blog1.posts.add(post1);
 blog1.posts.add(post2);
-post2.comments.add(comment1);/*
+blog1.posts.move(0,1);
 
-
-
-/*
-var post1 = new Post;
-post1.title = "First Post";
-
-var comment1 = new Comment;
-comment1.text = "Good!";
-post1.comments.add(comment1);
-
-var comment2 = new Comment;
-comment2.text ="Decent!";
-post1.comments.add(comment2);
-blog.posts.add(post1);
-
-var post2 = new Post;
-post2.title = "Second Post";
-blog.posts.add(post2);
-
-comment1.text = "Not that good!";
-
-blog.posts.move(0,1);
 post1.comments.move(1,0);
-
-post1.comments.remove(comment1);
 post2.comments.add(comment1);
 
 var author1 = new Author;
@@ -161,5 +196,10 @@ post2.ratings.addAll(Sequence{4,5});
 post2.ratings.remove(5);
 post2.ratings.move(0,2);
 post2.ratings.clear();
+post2.ratings = Sequence{6,7};
 
-blog.posts.remove(post1);*/
+blog2.posts.add(post1);
+
+delete post1;
+
+}

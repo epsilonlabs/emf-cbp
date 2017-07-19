@@ -88,6 +88,10 @@ public abstract class CBPResource extends ResourceImpl {
 		return null;
 	}
 	
+	public String register(EObject eObject, String id){
+		adopt(eObject, id);
+		return id;
+	}
 	public String register(EObject eObject) {
 		String id = eObjectToIdMap.size() + "";
 		adopt(eObject, id);

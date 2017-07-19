@@ -1,8 +1,10 @@
 package org.eclipse.epsilon.cbp.history;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EAttribute;
@@ -35,7 +37,7 @@ import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
  */
 public class EObjectEventLinesAdapter {
 
-	protected Map<EObject, EObjectEventLines> eObjectHistoryList = new HashMap<>();
+	protected Map<EObject, EObjectEventLines> eObjectEventLinesMap = new HashMap<>();
 	protected Set<Integer> ignoreList;
 
 	public EObjectEventLinesAdapter(Set<Integer> ignoreList) {
@@ -43,7 +45,7 @@ public class EObjectEventLinesAdapter {
 	}
 
 	public Map<EObject, EObjectEventLines> geteObjectHistoryList() {
-		return eObjectHistoryList;
+		return eObjectEventLinesMap;
 	}
 
 	public void add(EObject eObject, ChangeEvent<?> event, int line) {
@@ -52,18 +54,54 @@ public class EObjectEventLinesAdapter {
 
 	public void add(EObject eObject, ChangeEvent<?> event, int line, EObject value) {
 		if (event instanceof RegisterEPackageEvent || event instanceof CreateEObjectEvent) {
-			if (!eObjectHistoryList.containsKey(eObject)) {
+			if (!eObjectEventLinesMap.containsKey(eObject)) {
 				EObjectEventLines eObjectHistory = new EObjectEventLines(eObject);
 				eObjectHistory.addEventLine(event, line);
-				eObjectHistoryList.put(eObject, eObjectHistory);
+				eObjectEventLinesMap.put(eObject, eObjectHistory);
 			} else {
-				eObjectHistoryList.get(eObject).addEventLine(event, line);
+				eObjectEventLinesMap.get(eObject).addEventLine(event, line);
 			}
 		} else if (event instanceof AddToResourceEvent || event instanceof RemoveFromResourceEvent) {
-			eObjectHistoryList.get(eObject).addEventLine(event, line);
+			eObjectEventLinesMap.get(eObject).addEventLine(event, line);
+
+			// OBJECT DELETION
 		} else if (event instanceof DeleteEObjectEvent) {
-			eObjectHistoryList.get(eObject).addEventLine(event, line);
-			
+			eObjectEventLinesMap.get(eObject).addEventLine(event, line);
+
+			EObjectEventLines deletedEObjectEventLines = eObjectEventLinesMap.get(eObject);
+
+			// get all attributes' lines
+			Map<EObject, EObjectEventLines> attributes = deletedEObjectEventLines.getAttributes();
+			for (Entry<EObject, EObjectEventLines> entry : attributes.entrySet()) {
+				EObjectEventLines attributeEventLines = entry.getValue();
+				for (Entry<String, List<Integer>> eventLines : attributeEventLines.getEventLinesMap().entrySet()) {
+					List<Integer> lines = eventLines.getValue();
+					ignoreList.addAll(lines);
+				}
+			}
+
+			// get all references' lines
+			Map<EObject, EObjectEventLines> references = deletedEObjectEventLines.getReferences();
+			for (Entry<EObject, EObjectEventLines> entry : references.entrySet()) {
+				EObjectEventLines referenceEventLines = entry.getValue();
+				for (Entry<String, List<Integer>> eventLines : referenceEventLines.getEventLinesMap().entrySet()) {
+					List<Integer> lines = eventLines.getValue();
+					ignoreList.addAll(lines);
+				}
+			}
+
+			// get all object' lines
+			for (Entry<String, List<Integer>> eventLines : deletedEObjectEventLines.getEventLinesMap().entrySet()) {
+				String key = eventLines.getKey();
+				if (key.equals(AddToResourceEvent.class.getSimpleName())
+						|| key.equals(RemoveFromResourceEvent.class.getSimpleName())
+						|| key.equals(DeleteEObjectEvent.class.getSimpleName())
+						|| key.equals(CreateEObjectEvent.class.getSimpleName())
+						) {
+					List<Integer> lines = eventLines.getValue();
+					ignoreList.addAll(lines);
+				}
+			}
 		}
 
 		// ATTRIBUTES
@@ -71,7 +109,7 @@ public class EObjectEventLinesAdapter {
 				|| event instanceof MoveWithinEAttributeEvent || event instanceof AddToEAttributeEvent
 				|| event instanceof RemoveFromEAttributeEvent) {
 			EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
-			Map<EObject, EObjectEventLines> attributeList = eObjectHistoryList.get(eObject).getAttributes();
+			Map<EObject, EObjectEventLines> attributeList = eObjectEventLinesMap.get(eObject).getAttributes();
 			if (!attributeList.containsKey(eAttribute)) {
 				EObjectEventLines eAttributeHistory = new EObjectEventLines(eObject);
 				eAttributeHistory.addEventLine(event, line);
@@ -120,7 +158,7 @@ public class EObjectEventLinesAdapter {
 				|| event instanceof RemoveFromEReferenceEvent) {
 
 			EReference eReference = ((EReferenceEvent) event).getEReference();
-			Map<EObject, EObjectEventLines> referenceList = eObjectHistoryList.get(eObject).getReferences();
+			Map<EObject, EObjectEventLines> referenceList = eObjectEventLinesMap.get(eObject).getReferences();
 			if (!referenceList.containsKey(eReference)) {
 				EObjectEventLines eReferenceHistory = new EObjectEventLines(eObject);
 				eReferenceHistory.addEventLine(event, line);
@@ -169,9 +207,9 @@ public class EObjectEventLinesAdapter {
 				// also add these AddTo/RemoveFromReference events to the value
 				// object (not only the target
 				// object)
-				eObjectHistoryList.get(value).addEventLine(event, line);
+				eObjectEventLinesMap.get(value).addEventLine(event, line);
 
-				Map<String, List<Integer>> eventLinesMap = eObjectHistoryList.get(value).getEventLinesMap();
+				Map<String, List<Integer>> eventLinesMap = eObjectEventLinesMap.get(value).getEventLinesMap();
 				String addReferenceName = AddToEReferenceEvent.class.getSimpleName();
 				String removeReferenceName = RemoveFromEReferenceEvent.class.getSimpleName();
 				String addResourceName = AddToResourceEvent.class.getSimpleName();

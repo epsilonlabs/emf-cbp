@@ -122,7 +122,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 					e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
 					EObject eObject = ((DeleteEObjectEvent) event).getValue();
 					eObjectHistoryList.add(eObject, event, line);
-				}else if (event instanceof AddToResourceEvent) {
+				} else if (event instanceof AddToResourceEvent) {
 					e = document.createElement("add-to-resource");
 					EObject eObject = ((AddToResourceEvent) event).getValue();
 					eObjectHistoryList.add(eObject, event, line);
@@ -272,12 +272,13 @@ public class CBPXMLResourceImpl extends CBPResource {
 	}
 
 	protected void doLoad(Element e) {
-
+		
 		String name = e.getNodeName();
 
 		ChangeEvent<?> event = buildEvent(e, name);
 
 		if (event instanceof EStructuralFeatureEvent<?>) {
+			String x = e.getAttribute("target");
 			EObject target = getEObject(e.getAttribute("target"));
 			EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(e.getAttribute("name"));
 			((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
@@ -327,11 +328,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
 			return new CreateEObjectEvent(eClass, this, e.getAttribute("id"));
 		}
-		case "delete": {
-			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
-			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
-			return new DeleteEObjectEvent(eClass, this, e.getAttribute("id"));
-		}
 		case "add-to-resource":
 			return new AddToResourceEvent();
 		case "remove-from-resource":
@@ -356,6 +352,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 			return new MoveWithinEAttributeEvent();
 		case "move-in-ereference":
 			return new MoveWithinEReferenceEvent();
+		case "delete": {
+			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
+			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
+			return new DeleteEObjectEvent(eClass, this, e.getAttribute("id"));
+		}
 		}
 
 		return null;
