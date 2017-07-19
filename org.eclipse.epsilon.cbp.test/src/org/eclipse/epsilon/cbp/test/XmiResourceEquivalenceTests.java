@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.history.EObjectEventLines;
 import org.eclipse.epsilon.cbp.history.EObjectEventLinesAdapter;
+import org.eclipse.epsilon.cbp.history.Line;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
@@ -120,9 +121,9 @@ public abstract class XmiResourceEquivalenceTests {
 				EObject eObject = entry1.getKey();
 				EObjectEventLines eObjectEventLineHistory = entry1.getValue();
 				System.out.println("EObject: " + cbpResource1.getURIFragment(eObject) + " -------------------");
-				for (Entry<String, List<Integer>> entry2 : eObjectEventLineHistory.getEventLinesMap().entrySet()) {
+				for (Entry<String, List<Line>> entry2 : eObjectEventLineHistory.getEventLinesMap().entrySet()) {
 					String eventName = entry2.getKey();
-					List<Integer> lines = entry2.getValue();
+					List<Line> lines = entry2.getValue();
 					System.out.println("    " + eventName + " = " + lines);
 				}
 				// attributes
@@ -132,9 +133,9 @@ public abstract class XmiResourceEquivalenceTests {
 					EAttribute eAttribute = (EAttribute) entry2.getKey();
 					EObjectEventLines eAttributeHistory = entry2.getValue();
 					System.out.println("        " + eAttribute.getName() + " -------------------");
-					for (Entry<String, List<Integer>> entry3 : eAttributeHistory.getEventLinesMap().entrySet()) {
+					for (Entry<String, List<Line>> entry3 : eAttributeHistory.getEventLinesMap().entrySet()) {
 						String eventName = entry3.getKey();
-						List<Integer> lines = entry3.getValue();
+						List<Line> lines = entry3.getValue();
 						System.out.println("            " + eventName + " = " + lines);
 					}
 				}
@@ -145,9 +146,9 @@ public abstract class XmiResourceEquivalenceTests {
 					EReference eReference = (EReference) entry2.getKey();
 					EObjectEventLines eReferenceHistory = entry2.getValue();
 					System.out.println("        " + eReference.getName() + " -------------------");
-					for (Entry<String, List<Integer>> entry3 : eReferenceHistory.getEventLinesMap().entrySet()) {
+					for (Entry<String, List<Line>> entry3 : eReferenceHistory.getEventLinesMap().entrySet()) {
 						String eventName = entry3.getKey();
-						List<Integer> lines = entry3.getValue();
+						List<Line> lines = entry3.getValue();
 						System.out.println("            " + eventName + " = " + lines);
 					}
 				}

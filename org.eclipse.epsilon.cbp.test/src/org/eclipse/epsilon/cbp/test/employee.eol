@@ -1,8 +1,0 @@
-var e1 : new Employee;
-e1.name = "Roy";
-var e2 : new Employee;
-e2.name = "Moss";
-var e3 : new Employee;
-e3.name = "Jess";
-e3.manages.add(e1);
-e3.manages.add(e2);

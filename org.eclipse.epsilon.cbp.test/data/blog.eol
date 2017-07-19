@@ -8,18 +8,31 @@
 test5();
 
 operation test5(){
-	var post2 = new Post;
+	var blog = new Blog;
 	var post1 = new Post;
-	var x  = "A";
+	post1.title = "B";
+	var post2 = new Post;
+	post2.title = "A";
+	var post3 = new Post;
+	post3.title = "C";
+	var values = Bag{post1,post2,post3};
+	blog.posts.addAll(values);
+	blog.posts.move(0,1);
+	blog.posts.remove(post2);
+	delete blog;
 	
-	post2.tags.add(x);
-	post1.tags.add(x);
 	
-	/*post2.tags.add("A");
-	post2.tags.addAll(Bag{"A","B","A"});
-	post2.tags.addAll(Bag{"A","C"});
-	post2.tags.remove("A");
-	post2.tags.move(0,1);*/
+	/*for (i in Sequence{0..2}){
+		for (j in Sequence{0..2}){
+			for (k in Sequence{0..3}){
+				var values = Bag{"A","B","C"};
+				post2.tags.addAll(values);
+				post2.tags.move(i,j);
+				post2.tags.add("D");
+				post2.tags.move(k,3);
+			}
+		}
+	}*/
 	//post2.ratings.clear();
 	//post2.ratings = Sequence{6,7};
 }

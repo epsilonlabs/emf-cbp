@@ -1,11 +1,13 @@
 package org.eclipse.epsilon.cbp.event;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
@@ -170,15 +172,33 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 		case Notification.MOVE: {
 			if (n.getNotifier() instanceof EObject) {
+				EObject obj = (EObject) n.getNotifier();
+				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
+				@SuppressWarnings("unchecked")
+				EList<Object> list = (EList<Object>) obj.eGet(feature);
+
+				Object firstValue = null;
+				if (n.getPosition() == (int)n.getOldValue()) {
+					firstValue = list.get(n.getPosition());
+				} else if (n.getPosition() > (int)n.getOldValue()) {
+					firstValue = list.get(n.getPosition() - 1);
+				} else if (n.getPosition() < (int)n.getOldValue()) {
+					firstValue = list.get(n.getPosition() + 1);
+				}
+				Object secondValue = n.getNewValue();
+				List<Object> values = new ArrayList<>(Arrays.asList(firstValue, secondValue));
+
 				FromPositionEvent fromEv = null;
 				if (n.getFeature() instanceof EAttribute) {
 					MoveWithinEAttributeEvent moveEvent = new MoveWithinEAttributeEvent();
 					fromEv = moveEvent;
 					event = moveEvent;
+					event.setValues(values);
 				} else if (n.getFeature() instanceof EReference) {
 					MoveWithinEReferenceEvent moveEvent = new MoveWithinEReferenceEvent();
 					fromEv = moveEvent;
 					event = moveEvent;
+					event.setValues(values);
 				}
 				if (fromEv != null) {
 					fromEv.setFromPosition(((Number) n.getOldValue()).intValue());

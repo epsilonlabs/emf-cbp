@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
-public class MoveWithinEReferenceEvent extends EReferenceEvent implements FromPositionEvent {
+public class MoveWithinEReferenceEvent extends EReferenceEvent implements FromPositionEvent, EObjectValuesEvent {
 
 	private int fromPosition;
 
