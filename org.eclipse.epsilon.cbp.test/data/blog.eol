@@ -5,7 +5,13 @@
 //complex();
 //test3();
 //test4();
-test5();
+//test5();
+
+operation test6(){
+
+ 
+
+}
 
 operation test5(){
 	var blog = new Blog;
@@ -206,13 +212,16 @@ post2.author := author1;
 
 post2.ratings.addAll(Sequence{1,2,3});
 post2.ratings.addAll(Sequence{4,5});
-post2.ratings.remove(5);
-post2.ratings.move(0,2);
+post2.ratings.remove(1);
+post2.ratings.move(0,3);
+post2.ratings.move(3,1);
 post2.ratings.clear();
 post2.ratings = Sequence{6,7};
+post2.ratings.move(1,0);
 
 blog2.posts.add(post1);
 
 delete post1;
+delete post2;
 
 }

@@ -1,12 +1,33 @@
-var e1: new Employee;
-e1.name = "Roy";
-var e2: new Employee;
-e2.name = "Jen";
-var e3: new Employee;
-e3.name = "Moss";
+var e0 = new Employee;
+e0.name = "e0";
+var e1 = new Employee;
+e1.name = "e1";
+var e2 = new Employee;
+e2.name = "e2";
+var e3 = new Employee;
+e3.name = "e3";
 
-e2.manages.addAll(Sequence{e1,e3});
+e0.manages.add(e1);
+e1.manages.add(e2);
+e2.manages.add(e3);
+e0.manages.add(e2);
 
-var e4: new Employee;
-e4.name = "Richmond";
-e2.manages.add(e4);
+//M.owns(e0).println();
+//M.owns(e1).println();
+//M.owns(e2).println();
+//M.owns(e3).println();
+
+
+operation isCircular(targetObject, valueObject): Boolean {
+	var result = false;	
+	for (child in valueObject.manages){
+		if (child == targetObject){
+			result = true;
+			break;
+		}else{
+			result = isCircular(
+			targetObject, child);
+		}
+	}
+	return result;
+}

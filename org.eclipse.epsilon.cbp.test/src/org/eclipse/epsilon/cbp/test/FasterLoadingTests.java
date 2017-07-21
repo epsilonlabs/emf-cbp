@@ -33,27 +33,10 @@ public class FasterLoadingTests extends XmiResourceEquivalenceTests {
 		run(eolCode, true);
 		
 	}
-	
-	@Test
-	public void employeeTest() throws Exception {
-		String eolCode = new String(Files.readAllBytes(Paths.get("data/employee.eol")));
-		run(eolCode, true);
-		
-	}
-	
-	@Test
-	public void justTest() throws Exception {
-		
-		String eolCode = new String("var blog = new Blog; var post1 = new Post; var post2 = new Post;"
-				+ "blog.posts.add(post1); blog.posts.add(post2); blog.posts.remove(post1); delete post2;");
-		run(eolCode, true);
-		
-	}
 
 	@Override
 	public EPackage getEPackage() {
 		return BlogPackage.eINSTANCE;
-		//return EmployeePackage.eINSTANCE;
 	}
 
 }

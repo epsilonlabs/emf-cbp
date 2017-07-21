@@ -59,7 +59,7 @@ public class EObjectEventLinesAdapter {
 	}
 
 	public void add(EObject eObject, ChangeEvent<?> event, int line, Object value) {
-		//REGISTER AND CREATE
+		// REGISTER AND CREATE
 		if (event instanceof RegisterEPackageEvent || event instanceof CreateEObjectEvent) {
 			if (!eObjectEventLinesMap.containsKey(eObject)) {
 				EObjectEventLines eObjectHistory = new EObjectEventLines(eObject);
@@ -91,7 +91,7 @@ public class EObjectEventLinesAdapter {
 				|| event instanceof RemoveFromEReferenceEvent) {
 			if (value instanceof List) {
 				List<Object> list = (List<Object>) value;
-				for (Object val : list){
+				for (Object val : list) {
 					this.handleEReference(eObject, event, line, val);
 				}
 			} else {
@@ -165,7 +165,8 @@ public class EObjectEventLinesAdapter {
 						addAttributeLines.add(line);
 					}
 				}
-				addAttributeLastLine = addAttributeLines.get(addAttributeLines.size() - 1).getLineNumber();
+				if (addAttributeLines.size() > 0)
+					addAttributeLastLine = addAttributeLines.get(addAttributeLines.size() - 1).getLineNumber();
 			}
 			if (eventLinesMap.containsKey(removeAttributeName)) {
 				for (Line line : eventLinesMap.get(removeAttributeName)) {
@@ -173,7 +174,8 @@ public class EObjectEventLinesAdapter {
 						removeAttributeLines.add(line);
 					}
 				}
-				removeAttributeLastLine = removeAttributeLines.get(removeAttributeLines.size() - 1).getLineNumber();
+				if (removeAttributeLines.size() > 0)
+					removeAttributeLastLine = removeAttributeLines.get(removeAttributeLines.size() - 1).getLineNumber();
 			}
 			if (eventLinesMap.containsKey(moveAttributeName)) {
 				for (Line line : eventLinesMap.get(moveAttributeName)) {
