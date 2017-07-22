@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.eclipse.epsilon.cbp.test.employee.Employee;
@@ -29,6 +30,8 @@ import org.eclipse.epsilon.cbp.test.employee.EmployeePackage;
  * </p>
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getName <em>Name</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getAccounts <em>Accounts</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getPartner <em>Partner</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getManages <em>Manages</em>}</li>
  * </ul>
  *
@@ -54,6 +57,26 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 	 * @ordered
 	 */
 	protected String name = NAME_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getAccounts() <em>Accounts</em>}' attribute list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getAccounts()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<Integer> accounts;
+
+	/**
+	 * The cached value of the '{@link #getPartner() <em>Partner</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getPartner()
+	 * @generated
+	 * @ordered
+	 */
+	protected Employee partner;
 
 	/**
 	 * The cached value of the '{@link #getManages() <em>Manages</em>}' containment reference list.
@@ -110,6 +133,56 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EList<Integer> getAccounts() {
+		if (accounts == null) {
+			accounts = new EDataTypeUniqueEList<Integer>(Integer.class, this, EmployeePackage.EMPLOYEE__ACCOUNTS);
+		}
+		return accounts;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Employee getPartner() {
+		if (partner != null && partner.eIsProxy()) {
+			InternalEObject oldPartner = (InternalEObject)partner;
+			partner = (Employee)eResolveProxy(oldPartner);
+			if (partner != oldPartner) {
+				if (eNotificationRequired())
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, EmployeePackage.EMPLOYEE__PARTNER, oldPartner, partner));
+			}
+		}
+		return partner;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Employee basicGetPartner() {
+		return partner;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setPartner(Employee newPartner) {
+		Employee oldPartner = partner;
+		partner = newPartner;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, EmployeePackage.EMPLOYEE__PARTNER, oldPartner, partner));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EList<Employee> getManages() {
 		if (manages == null) {
 			manages = new EObjectContainmentEList<Employee>(Employee.class, this, EmployeePackage.EMPLOYEE__MANAGES);
@@ -141,6 +214,11 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 		switch (featureID) {
 			case EmployeePackage.EMPLOYEE__NAME:
 				return getName();
+			case EmployeePackage.EMPLOYEE__ACCOUNTS:
+				return getAccounts();
+			case EmployeePackage.EMPLOYEE__PARTNER:
+				if (resolve) return getPartner();
+				return basicGetPartner();
 			case EmployeePackage.EMPLOYEE__MANAGES:
 				return getManages();
 		}
@@ -158,6 +236,13 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 		switch (featureID) {
 			case EmployeePackage.EMPLOYEE__NAME:
 				setName((String)newValue);
+				return;
+			case EmployeePackage.EMPLOYEE__ACCOUNTS:
+				getAccounts().clear();
+				getAccounts().addAll((Collection<? extends Integer>)newValue);
+				return;
+			case EmployeePackage.EMPLOYEE__PARTNER:
+				setPartner((Employee)newValue);
 				return;
 			case EmployeePackage.EMPLOYEE__MANAGES:
 				getManages().clear();
@@ -178,6 +263,12 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 			case EmployeePackage.EMPLOYEE__NAME:
 				setName(NAME_EDEFAULT);
 				return;
+			case EmployeePackage.EMPLOYEE__ACCOUNTS:
+				getAccounts().clear();
+				return;
+			case EmployeePackage.EMPLOYEE__PARTNER:
+				setPartner((Employee)null);
+				return;
 			case EmployeePackage.EMPLOYEE__MANAGES:
 				getManages().clear();
 				return;
@@ -195,6 +286,10 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 		switch (featureID) {
 			case EmployeePackage.EMPLOYEE__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+			case EmployeePackage.EMPLOYEE__ACCOUNTS:
+				return accounts != null && !accounts.isEmpty();
+			case EmployeePackage.EMPLOYEE__PARTNER:
+				return partner != null;
 			case EmployeePackage.EMPLOYEE__MANAGES:
 				return manages != null && !manages.isEmpty();
 		}
@@ -213,6 +308,8 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (name: ");
 		result.append(name);
+		result.append(", accounts: ");
+		result.append(accounts);
 		result.append(')');
 		return result.toString();
 	}

@@ -89,14 +89,8 @@ public class EObjectEventLinesAdapter {
 		else if (event instanceof SetEReferenceEvent || event instanceof UnsetEReferenceEvent
 				|| event instanceof MoveWithinEReferenceEvent || event instanceof AddToEReferenceEvent
 				|| event instanceof RemoveFromEReferenceEvent) {
-			if (value instanceof List) {
-				List<Object> list = (List<Object>) value;
-				for (Object val : list) {
-					this.handleEReference(eObject, event, line, val);
-				}
-			} else {
-				this.handleEReference(eObject, event, line, value);
-			}
+
+			this.handleEReference(eObject, event, line, (EObject) value);
 		}
 
 	}
@@ -145,8 +139,8 @@ public class EObjectEventLinesAdapter {
 			}
 		}
 		// ignoring Add To and Remove EAttribute
-		else if (value != null
-				&& (event instanceof AddToEAttributeEvent || event instanceof RemoveFromEAttributeEvent)) {
+		else if (value != null && (event instanceof AddToEAttributeEvent || event instanceof RemoveFromEAttributeEvent
+				|| event instanceof MoveWithinEAttributeEvent)) {
 			Map<String, List<Line>> eventLinesMap = attributeList.get(eAttribute).getEventLinesMap();
 			String addAttributeName = AddToEAttributeEvent.class.getSimpleName();
 			String removeAttributeName = RemoveFromEAttributeEvent.class.getSimpleName();
@@ -179,10 +173,7 @@ public class EObjectEventLinesAdapter {
 			}
 			if (eventLinesMap.containsKey(moveAttributeName)) {
 				for (Line line : eventLinesMap.get(moveAttributeName)) {
-
-					@SuppressWarnings("unchecked")
-					List<Object> values = (List<Object>) line.getValue();
-					if (values.get(0).equals(value) || values.get(1).equals(value)) {
+					if (line.getValue().equals(value)) {
 						moveWithinAttributeLines.add(line);
 					}
 				}
@@ -211,7 +202,7 @@ public class EObjectEventLinesAdapter {
 	 * @param lineNumber
 	 * @param value
 	 */
-	private void handleEReference(EObject eObject, ChangeEvent<?> event, int lineNumber, Object value) {
+	private void handleEReference(EObject eObject, ChangeEvent<?> event, int lineNumber, EObject value) {
 		EReference eReference = ((EReferenceEvent) event).getEReference();
 		Map<EObject, EObjectEventLines> referenceList = eObjectEventLinesMap.get(eObject).getReferences();
 		if (!referenceList.containsKey(eReference)) {
@@ -262,7 +253,13 @@ public class EObjectEventLinesAdapter {
 			// also add these AddTo/RemoveFromReference events to the value
 			// object (not only the target
 			// object)
-			eObjectEventLinesMap.get(value).addEventLine(event, lineNumber);
+			if (!eObjectEventLinesMap.containsKey(value)) {
+				EObjectEventLines eReferenceHistory = new EObjectEventLines(value);
+				eReferenceHistory.addEventLine(event, lineNumber);
+				eObjectEventLinesMap.put(eReference, eReferenceHistory);
+			} else {
+				eObjectEventLinesMap.get(value).addEventLine(event, lineNumber);
+			}
 
 			Map<String, List<Line>> eventLinesMap = eObjectEventLinesMap.get(value).getEventLinesMap();
 			String addReferenceName = AddToEReferenceEvent.class.getSimpleName();

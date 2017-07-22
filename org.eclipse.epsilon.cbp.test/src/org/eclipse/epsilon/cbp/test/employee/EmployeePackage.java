@@ -75,13 +75,31 @@ public interface EmployeePackage extends EPackage {
 	int EMPLOYEE__NAME = 0;
 
 	/**
+	 * The feature id for the '<em><b>Accounts</b></em>' attribute list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EMPLOYEE__ACCOUNTS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Partner</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EMPLOYEE__PARTNER = 2;
+
+	/**
 	 * The feature id for the '<em><b>Manages</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EMPLOYEE__MANAGES = 1;
+	int EMPLOYEE__MANAGES = 3;
 
 	/**
 	 * The number of structural features of the '<em>Employee</em>' class.
@@ -90,7 +108,7 @@ public interface EmployeePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int EMPLOYEE_FEATURE_COUNT = 2;
+	int EMPLOYEE_FEATURE_COUNT = 4;
 
 
 	/**
@@ -113,6 +131,28 @@ public interface EmployeePackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getEmployee_Name();
+
+	/**
+	 * Returns the meta object for the attribute list '{@link org.eclipse.epsilon.cbp.test.employee.Employee#getAccounts <em>Accounts</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute list '<em>Accounts</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.employee.Employee#getAccounts()
+	 * @see #getEmployee()
+	 * @generated
+	 */
+	EAttribute getEmployee_Accounts();
+
+	/**
+	 * Returns the meta object for the reference '{@link org.eclipse.epsilon.cbp.test.employee.Employee#getPartner <em>Partner</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Partner</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.employee.Employee#getPartner()
+	 * @see #getEmployee()
+	 * @generated
+	 */
+	EReference getEmployee_Partner();
 
 	/**
 	 * Returns the meta object for the containment reference list '{@link org.eclipse.epsilon.cbp.test.employee.Employee#getManages <em>Manages</em>}'.
@@ -164,6 +204,22 @@ public interface EmployeePackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute EMPLOYEE__NAME = eINSTANCE.getEmployee_Name();
+
+		/**
+		 * The meta object literal for the '<em><b>Accounts</b></em>' attribute list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute EMPLOYEE__ACCOUNTS = eINSTANCE.getEmployee_Accounts();
+
+		/**
+		 * The meta object literal for the '<em><b>Partner</b></em>' reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference EMPLOYEE__PARTNER = eINSTANCE.getEmployee_Partner();
 
 		/**
 		 * The meta object literal for the '<em><b>Manages</b></em>' containment reference list feature.

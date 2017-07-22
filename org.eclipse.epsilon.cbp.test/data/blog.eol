@@ -5,42 +5,28 @@
 //complex();
 //test3();
 //test4();
-//test5();
+//testMoveReference();
+testMoveAttribute();
 
-operation test6(){
-
- 
-
+operation testMoveAttribute(){
+	var post = new Post;
+	post.ratings.addAll(Collection{1,2,3});
+	post.ratings.move(0,post.ratings.size()-1);
+	post.ratings.remove(0);
 }
 
-operation test5(){
+operation testMoveReference(){
 	var blog = new Blog;
 	var post1 = new Post;
-	post1.title = "B";
+	post1.title = "A";
 	var post2 = new Post;
-	post2.title = "A";
+	post2.title = "B";
 	var post3 = new Post;
 	post3.title = "C";
 	var values = Bag{post1,post2,post3};
 	blog.posts.addAll(values);
-	blog.posts.move(0,1);
-	blog.posts.remove(post2);
-	delete blog;
-	
-	
-	/*for (i in Sequence{0..2}){
-		for (j in Sequence{0..2}){
-			for (k in Sequence{0..3}){
-				var values = Bag{"A","B","C"};
-				post2.tags.addAll(values);
-				post2.tags.move(i,j);
-				post2.tags.add("D");
-				post2.tags.move(k,3);
-			}
-		}
-	}*/
-	//post2.ratings.clear();
-	//post2.ratings = Sequence{6,7};
+	blog.posts.move(1,blog.posts.size()-1);
+	blog.posts.remove(post1);
 }
 
 operation test4() {

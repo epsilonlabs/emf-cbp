@@ -3,6 +3,8 @@ package employee;
 
 class Employee {
 	attr String name;
+	attr Integer[*] accounts;
+	val Employee partner;
 	val Employee[*] manages; 
 }
 

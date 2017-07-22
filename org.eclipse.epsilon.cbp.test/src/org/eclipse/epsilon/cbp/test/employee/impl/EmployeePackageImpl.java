@@ -110,8 +110,26 @@ public class EmployeePackageImpl extends EPackageImpl implements EmployeePackage
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getEmployee_Accounts() {
+		return (EAttribute)employeeEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getEmployee_Partner() {
+		return (EReference)employeeEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EReference getEmployee_Manages() {
-		return (EReference)employeeEClass.getEStructuralFeatures().get(1);
+		return (EReference)employeeEClass.getEStructuralFeatures().get(3);
 	}
 
 	/**
@@ -144,6 +162,8 @@ public class EmployeePackageImpl extends EPackageImpl implements EmployeePackage
 		// Create classes and their features
 		employeeEClass = createEClass(EMPLOYEE);
 		createEAttribute(employeeEClass, EMPLOYEE__NAME);
+		createEAttribute(employeeEClass, EMPLOYEE__ACCOUNTS);
+		createEReference(employeeEClass, EMPLOYEE__PARTNER);
 		createEReference(employeeEClass, EMPLOYEE__MANAGES);
 	}
 
@@ -179,6 +199,8 @@ public class EmployeePackageImpl extends EPackageImpl implements EmployeePackage
 		// Initialize classes and features; add operations and parameters
 		initEClass(employeeEClass, Employee.class, "Employee", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getEmployee_Name(), ecorePackage.getEString(), "name", null, 0, 1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getEmployee_Accounts(), ecorePackage.getEIntegerObject(), "accounts", null, 0, -1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getEmployee_Partner(), this.getEmployee(), null, "partner", null, 0, 1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getEmployee_Manages(), this.getEmployee(), null, "manages", null, 0, -1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource

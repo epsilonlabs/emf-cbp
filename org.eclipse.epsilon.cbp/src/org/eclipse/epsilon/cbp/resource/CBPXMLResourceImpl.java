@@ -169,12 +169,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 				} else if (event instanceof MoveWithinEReferenceEvent) {
 					e = document.createElement("move-in-ereference");
 					EObject eObject = ((MoveWithinEReferenceEvent) event).getTarget();
-					Object values = ((MoveWithinEReferenceEvent) event).getValues();
+					EObject values = ((MoveWithinEReferenceEvent) event).getValue();
 					eObjectEventLinesAdapater.add(eObject, event, line, values);
 				} else if (event instanceof MoveWithinEAttributeEvent) {
 					e = document.createElement("move-in-eattribute");
 					EObject eObject = ((MoveWithinEAttributeEvent) event).getTarget();
-					Object values = ((MoveWithinEAttributeEvent) event).getValues();
+					Object values = ((MoveWithinEAttributeEvent) event).getValue();
 					eObjectEventLinesAdapater.add(eObject, event, line, values);
 				} else {
 					throw new RuntimeException("Unexpected event:" + event);

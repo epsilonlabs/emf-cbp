@@ -16,6 +16,8 @@ import org.eclipse.emf.ecore.EObject;
  * </p>
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getName <em>Name</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getAccounts <em>Accounts</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getPartner <em>Partner</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getManages <em>Manages</em>}</li>
  * </ul>
  *
@@ -49,6 +51,48 @@ public interface Employee extends EObject {
 	 * @generated
 	 */
 	void setName(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Accounts</b></em>' attribute list.
+	 * The list contents are of type {@link java.lang.Integer}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Accounts</em>' attribute list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Accounts</em>' attribute list.
+	 * @see org.eclipse.epsilon.cbp.test.employee.EmployeePackage#getEmployee_Accounts()
+	 * @model
+	 * @generated
+	 */
+	EList<Integer> getAccounts();
+
+	/**
+	 * Returns the value of the '<em><b>Partner</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Partner</em>' reference isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Partner</em>' reference.
+	 * @see #setPartner(Employee)
+	 * @see org.eclipse.epsilon.cbp.test.employee.EmployeePackage#getEmployee_Partner()
+	 * @model
+	 * @generated
+	 */
+	Employee getPartner();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.epsilon.cbp.test.employee.Employee#getPartner <em>Partner</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Partner</em>' reference.
+	 * @see #getPartner()
+	 * @generated
+	 */
+	void setPartner(Employee value);
 
 	/**
 	 * Returns the value of the '<em><b>Manages</b></em>' containment reference list.

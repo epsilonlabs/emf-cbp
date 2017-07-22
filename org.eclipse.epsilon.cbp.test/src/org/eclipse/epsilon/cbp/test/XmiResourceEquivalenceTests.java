@@ -49,6 +49,7 @@ public abstract class XmiResourceEquivalenceTests {
 
 	public void run(String eol, String extension, boolean debug) throws Exception {
 		// Run the code against an XMI model
+		System.out.println("Run the code against an XMI model");
 		EolModule module = new EolModule();
 		module.parse(eol);
 
@@ -64,6 +65,7 @@ public abstract class XmiResourceEquivalenceTests {
 		// inspect(xmiResource);
 
 		// Run the code against a change-based resource
+		System.out.println("Run the code against a change-based resource");
 		module = new EolModule();
 		module.parse(eol);
 

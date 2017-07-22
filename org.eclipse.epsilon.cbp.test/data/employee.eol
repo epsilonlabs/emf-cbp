@@ -6,17 +6,26 @@ var e2 = new Employee;
 e2.name = "e2";
 var e3 = new Employee;
 e3.name = "e3";
+var e4 = new Employee;
+e4.name = "e4";
 
 e0.manages.add(e1);
-e1.manages.add(e2);
-e2.manages.add(e3);
-e0.manages.add(e2);
+e1.manages.add(e4);
+e2.partner = e4;
+e3.partner = e1;
+RemoveRefToObject(e0);
+delete e0;
 
-//M.owns(e0).println();
-//M.owns(e1).println();
-//M.owns(e2).println();
-//M.owns(e3).println();
-
+operation RemoveRefToObject(targetObject){
+	for (child in targetObject.manages){
+		RemoveRefToObject(child);
+	}
+	for (object in M.allContents()){
+		if (object.partner == targetObject){
+			object.partner = null;
+		} 
+	}
+}
 
 operation isCircular(targetObject, valueObject): Boolean {
 	var result = false;	
@@ -28,6 +37,14 @@ operation isCircular(targetObject, valueObject): Boolean {
 			result = isCircular(
 			targetObject, child);
 		}
+	}
+	return result;
+}
+
+operation containedByModel(targetObject): Boolean {
+	var result = false;
+	if (M.allContents().selectOne(object | object == targetObject) <> null){
+		result = true;
 	}
 	return result;
 }
