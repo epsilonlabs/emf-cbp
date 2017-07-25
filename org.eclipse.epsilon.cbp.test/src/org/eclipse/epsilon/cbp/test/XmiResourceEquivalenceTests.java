@@ -49,7 +49,7 @@ public abstract class XmiResourceEquivalenceTests {
 
 	public void run(String eol, String extension, boolean debug) throws Exception {
 		// Run the code against an XMI model
-		System.out.println("Run the code against an XMI model");
+		System.out.println("SAVE XMI");
 		EolModule module = new EolModule();
 		module.parse(eol);
 
@@ -65,7 +65,7 @@ public abstract class XmiResourceEquivalenceTests {
 		// inspect(xmiResource);
 
 		// Run the code against a change-based resource
-		System.out.println("Run the code against a change-based resource");
+		System.out.println("SAVE CBP");
 		module = new EolModule();
 		module.parse(eol);
 
@@ -81,40 +81,9 @@ public abstract class XmiResourceEquivalenceTests {
 		StringOutputStream cbpSos = new StringOutputStream();
 		cbpResource1.save(cbpSos, null);
 
-		// Create a new change-based resource and load what was saved before
-		cbpResourceSet = createResourceSet();
-		cbpResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
-		CBPXMLResourceFactory factory = new CBPXMLResourceFactory();
-		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", factory);
-		Resource cbpResource2 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
-		final String sCBP = cbpSos.toString();
-
-		//get ignoreList from cbpResource1 and apply it cbpResource2 
+		// get ignoreList from cbpResource1 and apply it cbpResource2
 		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
-		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
-
-		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);
-		// inspect(cbpResource);
-
-		xmiResourceSet = createResourceSet();
-		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
-		XMIResourceImpl copyXmiResource = (XMIResourceImpl) xmiResourceSet.createResource(URI.createURI("foo.xmi"));
-		copyXmiResource.getContents().addAll(EcoreUtil.copyAll(cbpResource2.getContents()));
-		// inspect(copyXmiResource);
-
-		StringOutputStream copyXmiResourceSos = new StringOutputStream();
-		copyXmiResource.doSave(copyXmiResourceSos, null);
-
-		// DEBUG
 		if (debug) {
-			System.out.println("XMIResourceImpl");
-			System.out.println(xmiSos.toString());
-			System.out.println();
-			System.out.println("CBPResource");
-			System.out.println(copyXmiResourceSos.toString());
-			System.out.println("---");
-			// System.out.println(sCBP);
-
 			System.out.println("");
 			System.out.println("DATA STRUCTURE");
 			EObjectEventLinesAdapter eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
@@ -155,7 +124,6 @@ public abstract class XmiResourceEquivalenceTests {
 					}
 				}
 			}
-
 			System.out.println("");
 			System.out.println("XML BEFORE REMOVED");
 			String[] list1 = cbpSos.toString().split(System.getProperty("line.separator"));
@@ -165,10 +133,49 @@ public abstract class XmiResourceEquivalenceTests {
 				count1 += 1;
 			}
 			System.out.println("");
-			System.out.println("IGNORE_LIST = " + ignoreList);
+			System.out.println("IGNORE LIST = " + ignoreList);
+			System.out.println("");
+		}
+
+		// Create a new change-based resource and load what was saved before
+		System.out.println("LOAD CBP");
+		cbpResourceSet = createResourceSet();
+		cbpResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
+		CBPXMLResourceFactory factory = new CBPXMLResourceFactory();
+		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", factory);
+		Resource cbpResource2 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
+		final String sCBP = cbpSos.toString();
+
+		// apply cbpResource1 to cbpResource2
+		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
+
+		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);
+		// inspect(cbpResource);
+
+		xmiResourceSet = createResourceSet();
+		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
+		XMIResourceImpl copyXmiResource = (XMIResourceImpl) xmiResourceSet.createResource(URI.createURI("foo.xmi"));
+		copyXmiResource.getContents().addAll(EcoreUtil.copyAll(cbpResource2.getContents()));
+		// inspect(copyXmiResource);
+
+		StringOutputStream copyXmiResourceSos = new StringOutputStream();
+		copyXmiResource.doSave(copyXmiResourceSos, null);
+
+		// DEBUG
+		if (debug) {
+			System.out.println("XMIResourceImpl");
+			System.out.println(xmiSos.toString());
+			System.out.println();
+			System.out.println("CBPResource");
+			System.out.println(copyXmiResourceSos.toString());
+			System.out.println("---");
+			// System.out.println(sCBP);
+
+			
+
 			System.out.println("");
 			System.out.println("XML AFTER REMOVED");
-			String[] list2 = sCBP.split(System.getProperty("line.separator"));
+			String[] list2 = cbpSos.toString().split(System.getProperty("line.separator"));
 			int count2 = 0;
 			int actualTotalLines = 0;
 			for (String line : list2) {

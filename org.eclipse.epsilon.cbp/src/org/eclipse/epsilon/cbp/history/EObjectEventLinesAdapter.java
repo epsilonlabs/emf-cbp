@@ -75,14 +75,20 @@ public class EObjectEventLinesAdapter {
 
 		}
 		// OBJECT DELETION
-		else if (event instanceof DeleteEObjectEvent) {
-			this.handleEObjectDeletion(eObject, event, line);
-		}
+//		else if (event instanceof DeleteEObjectEvent) {
+//			this.handleEObjectDeletion(eObject, event, line);
+//		}
 		// ATTRIBUTES
 		else if (event instanceof SetEAttributeEvent || event instanceof UnsetEAttributeEvent
 				|| event instanceof MoveWithinEAttributeEvent || event instanceof AddToEAttributeEvent
 				|| event instanceof RemoveFromEAttributeEvent) {
-			this.handleEAttribute(eObject, event, line, value);
+			if (value instanceof List) {
+				for (Object val : (List<Object>) value) {
+					this.handleEAttribute(eObject, event, line, val);
+				}
+			} else {
+				this.handleEAttribute(eObject, event, line, value);
+			}
 		}
 
 		// REFERENCES
@@ -146,51 +152,37 @@ public class EObjectEventLinesAdapter {
 			String removeAttributeName = RemoveFromEAttributeEvent.class.getSimpleName();
 			String moveAttributeName = MoveWithinEAttributeEvent.class.getSimpleName();
 
-			int addAttributeLastLine = -1;
-			int removeAttributeLastLine = -1;
+			// int addAttributeLastLine = -1;
+			// int removeAttributeLastLine = -1;
 
-			List<Line> addAttributeLines = new ArrayList<Line>();
-			List<Line> removeAttributeLines = new ArrayList<Line>();
-			List<Line> moveWithinAttributeLines = new ArrayList<Line>();
+			List<Line> addAttributeLines = null;
+			List<Line> removeAttributeLines = null;
+			List<Line> moveWithinAttributeLines = null;
 
 			if (eventLinesMap.containsKey(addAttributeName)) {
-				for (Line line : eventLinesMap.get(addAttributeName)) {
-					if (line.getValue().equals(value)) {
-						addAttributeLines.add(line);
-					}
-				}
-				if (addAttributeLines.size() > 0)
-					addAttributeLastLine = addAttributeLines.get(addAttributeLines.size() - 1).getLineNumber();
+				addAttributeLines = eventLinesMap.get(addAttributeName);
 			}
 			if (eventLinesMap.containsKey(removeAttributeName)) {
-				for (Line line : eventLinesMap.get(removeAttributeName)) {
-					if (line.getValue().equals(value)) {
-						removeAttributeLines.add(line);
-					}
-				}
-				if (removeAttributeLines.size() > 0)
-					removeAttributeLastLine = removeAttributeLines.get(removeAttributeLines.size() - 1).getLineNumber();
+				removeAttributeLines = eventLinesMap.get(removeAttributeName);
 			}
 			if (eventLinesMap.containsKey(moveAttributeName)) {
-				for (Line line : eventLinesMap.get(moveAttributeName)) {
-					if (line.getValue().equals(value)) {
-						moveWithinAttributeLines.add(line);
-					}
+				moveWithinAttributeLines = eventLinesMap.get(moveAttributeName);
+			}
+
+			int delta = -1;
+			if (addAttributeLines != null && removeAttributeLines != null) {
+				if (addAttributeLines.size() > 0 && removeAttributeLines.size() > 0) {
+					delta = addAttributeLines.size() - removeAttributeLines.size();
 				}
 			}
 
-			if (removeAttributeLastLine > addAttributeLastLine) {
+			if (delta == 0) {
 				if (addAttributeLines != null)
 					this.addLinesToIgnoreList(addAttributeLines);
 				if (removeAttributeLines != null)
 					this.addLinesToIgnoreList(removeAttributeLines);
 				if (moveWithinAttributeLines != null)
 					this.addLinesToIgnoreList(moveWithinAttributeLines);
-			} else if (addAttributeLastLine > removeAttributeLastLine) {
-				if (addAttributeLines != null && addAttributeLines.size() > 1)
-					this.addLinesToIgnoreList(addAttributeLines.subList(0, addAttributeLines.size() - 1));
-				if (removeAttributeLines != null)
-					this.addLinesToIgnoreList(removeAttributeLines);
 			}
 		}
 	}
@@ -207,10 +199,10 @@ public class EObjectEventLinesAdapter {
 		Map<EObject, EObjectEventLines> referenceList = eObjectEventLinesMap.get(eObject).getReferences();
 		if (!referenceList.containsKey(eReference)) {
 			EObjectEventLines eReferenceHistory = new EObjectEventLines(eObject);
-			eReferenceHistory.addEventLine(event, lineNumber);
+			eReferenceHistory.addEventLine(event, lineNumber, value);
 			referenceList.put(eReference, eReferenceHistory);
 		} else {
-			referenceList.get(eReference).addEventLine(event, lineNumber);
+			referenceList.get(eReference).addEventLine(event, lineNumber, value);
 		}
 
 		// ignoring Set and Unset Reference
@@ -261,70 +253,108 @@ public class EObjectEventLinesAdapter {
 				eObjectEventLinesMap.get(value).addEventLine(event, lineNumber);
 			}
 
-			Map<String, List<Line>> eventLinesMap = eObjectEventLinesMap.get(value).getEventLinesMap();
+			Map<String, List<Line>> targetEventLinesMap = referenceList.get(eReference).getEventLinesMap();
 			String addReferenceName = AddToEReferenceEvent.class.getSimpleName();
 			String removeReferenceName = RemoveFromEReferenceEvent.class.getSimpleName();
-			String addResourceName = AddToResourceEvent.class.getSimpleName();
-			String removeResourceName = RemoveFromResourceEvent.class.getSimpleName();
 			String moveWithinReferenceName = MoveWithinEReferenceEvent.class.getSimpleName();
 
-			int addReferencetLastLine = -1;
-			int removeReferenceLastLine = -1;
-			int addResourceLastLine = -1;
-			int removeResourceLastLine = -1;
+			//
 
 			List<Line> addReferenceLines = null;
 			List<Line> removeReferenceLines = null;
-			List<Line> addResourceLines = null;
-			List<Line> removeResourceLines = null;
-			List<Line> moveWithiReferenceLines = new ArrayList<Line>();
+			List<Line> moveWithinReferenceLines = null;
 
-			if (eventLinesMap.containsKey(addReferenceName)) {
-				addReferenceLines = eventLinesMap.get(addReferenceName);
-				addReferencetLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getLineNumber();
+			// TARGET OJBECT
+			if (targetEventLinesMap.containsKey(addReferenceName)) {
+				addReferenceLines = targetEventLinesMap.get(addReferenceName);
 			}
-			if (eventLinesMap.containsKey(removeReferenceName)) {
-				removeReferenceLines = eventLinesMap.get(removeReferenceName);
-				removeReferenceLastLine = removeReferenceLines.get(removeReferenceLines.size() - 1).getLineNumber();
+			if (targetEventLinesMap.containsKey(removeReferenceName)) {
+				removeReferenceLines = targetEventLinesMap.get(removeReferenceName);
 			}
-			if (eventLinesMap.containsKey(addResourceName)) {
-				addResourceLines = eventLinesMap.get(addResourceName);
-				addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getLineNumber();
-			}
-			if (eventLinesMap.containsKey(removeResourceName)) {
-				removeResourceLines = eventLinesMap.get(removeResourceName);
-				removeResourceLastLine = removeResourceLines.get(removeResourceLines.size() - 1).getLineNumber();
-			}
-			if (eventLinesMap.containsKey(moveWithinReferenceName)) {
-				moveWithiReferenceLines = eventLinesMap.get(moveWithinReferenceName);
+			if (targetEventLinesMap.containsKey(moveWithinReferenceName)) {
+				moveWithinReferenceLines = targetEventLinesMap.get(moveWithinReferenceName);
 			}
 
-			if (removeReferenceLastLine > addReferencetLastLine) {
+			int delta = -1;
+			if (addReferenceLines != null && removeReferenceLines != null) {
+				if (addReferenceLines.size() > 0 && removeReferenceLines.size() > 0) {
+					delta = addReferenceLines.size() - removeReferenceLines.size();
+				}
+			}
+
+			if (delta == 0) {
 				if (addReferenceLines != null)
 					this.addLinesToIgnoreList(addReferenceLines);
 				if (removeReferenceLines != null)
 					this.addLinesToIgnoreList(removeReferenceLines);
-				if (addResourceLines != null)
-					this.addLinesToIgnoreList(addResourceLines);
-				if (removeResourceLines != null)
-					this.addLinesToIgnoreList(removeResourceLines);
-				if (moveWithiReferenceLines != null)
-					this.addLinesToIgnoreList(moveWithiReferenceLines);
-			} else if (addReferencetLastLine > removeReferenceLastLine) {
-				if (addReferenceLines != null && addReferenceLines.size() > 1)
-					this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1));
-				if (removeReferenceLines != null)
-					this.addLinesToIgnoreList(removeReferenceLines);
-				if (addResourceLines != null)
-					this.addLinesToIgnoreList(addResourceLines);
-				if (removeResourceLines != null)
-					this.addLinesToIgnoreList(removeResourceLines);
-			} else if (removeResourceLastLine > addResourceLastLine) {
-				if (addResourceLines != null)
-					this.addLinesToIgnoreList(addResourceLines);
-				if (removeResourceLines != null)
-					this.addLinesToIgnoreList(removeResourceLines);
+				if (moveWithinReferenceLines != null)
+					this.addLinesToIgnoreList(moveWithinReferenceLines);
+				
+				for (Line l : removeReferenceLines){
+					this.handleEObjectDeletion((EObject)l.getValue(), event, l.getLineNumber());
+				}
 			}
+
+//			// VALUE OBJECT
+//			Map<String, List<Line>> valueEventLinesMap = eObjectEventLinesMap.get(value).getEventLinesMap();
+//
+//			String addResourceName = AddToResourceEvent.class.getSimpleName();
+//			String removeResourceName = RemoveFromResourceEvent.class.getSimpleName();
+//
+//			List<Line> addResourceLines = null;
+//			List<Line> removeResourceLines = null;
+//
+//			int addReferenceLastLine = -1;
+//			int removeReferenceLastLine = -1;
+//			int addResourceLastLine = -1;
+//			int removeResourceLastLine = -1;
+//
+//			if (valueEventLinesMap.containsKey(addReferenceName)) {
+//				addReferenceLines = valueEventLinesMap.get(addReferenceName);
+//				addReferenceLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getLineNumber();
+//			}
+//			if (valueEventLinesMap.containsKey(removeReferenceName)) {
+//				removeReferenceLines = valueEventLinesMap.get(removeReferenceName);
+//				removeReferenceLastLine = removeReferenceLines.get(removeReferenceLines.size() - 1).getLineNumber();
+//			}
+//			if (valueEventLinesMap.containsKey(addResourceName)) {
+//				addResourceLines = valueEventLinesMap.get(addResourceName);
+//				addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getLineNumber();
+//			}
+//			if (valueEventLinesMap.containsKey(removeResourceName)) {
+//				removeResourceLines = valueEventLinesMap.get(removeResourceName);
+//				removeResourceLastLine = removeResourceLines.get(removeResourceLines.size() - 1).getLineNumber();
+//			}
+//			if (valueEventLinesMap.containsKey(moveWithinReferenceName)) {
+//				moveWithinReferenceLines = valueEventLinesMap.get(moveWithinReferenceName);
+//			}
+//
+//			if (removeReferenceLastLine > addReferenceLastLine) {
+//				if (addReferenceLines != null)
+//					this.addLinesToIgnoreList(addReferenceLines);
+//				if (removeReferenceLines != null)
+//					this.addLinesToIgnoreList(removeReferenceLines);
+//				if (addResourceLines != null)
+//					this.addLinesToIgnoreList(addResourceLines);
+//				if (removeResourceLines != null)
+//					this.addLinesToIgnoreList(removeResourceLines);
+//				if (moveWithinReferenceLines != null)
+//					this.addLinesToIgnoreList(moveWithinReferenceLines);
+//			} else if (addReferenceLastLine > removeReferenceLastLine) {
+//				if (addReferenceLines != null && addReferenceLines.size() > 1)
+//					this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1));
+//				if (removeReferenceLines != null)
+//					this.addLinesToIgnoreList(removeReferenceLines);
+//				if (addResourceLines != null)
+//					this.addLinesToIgnoreList(addResourceLines);
+//				if (removeResourceLines != null)
+//					this.addLinesToIgnoreList(removeResourceLines);
+//			} else if (removeResourceLastLine > addResourceLastLine) {
+//				if (addResourceLines != null)
+//					this.addLinesToIgnoreList(addResourceLines);
+//				if (removeResourceLines != null)
+//					this.addLinesToIgnoreList(removeResourceLines);
+//			}
 
 		}
 	}
@@ -333,6 +363,7 @@ public class EObjectEventLinesAdapter {
 		eObjectEventLinesMap.get(eObject).addEventLine(event, line);
 
 		EObjectEventLines deletedEObjectEventLines = eObjectEventLinesMap.get(eObject);
+		Map<String, List<Line>> targetEventLinesMap = deletedEObjectEventLines.getEventLinesMap();
 
 		// get all current object's attributes' lines
 		Map<EObject, EObjectEventLines> attributes = deletedEObjectEventLines.getAttributes();

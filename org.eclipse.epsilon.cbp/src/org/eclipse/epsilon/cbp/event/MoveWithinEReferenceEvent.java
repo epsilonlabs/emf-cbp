@@ -23,22 +23,21 @@ public class MoveWithinEReferenceEvent extends EReferenceEvent implements FromPo
 	@Override
 	public void replay() {
 		EList<EObject> list = (EList<EObject>) target.eGet(getEStructuralFeature());
-//		if (fromPosition >= list.size()) {
-//			fromPosition = list.size() - 1;
-//		}
-//		if (position >= list.size()) {
-//			position = list.size() - 1;
-//		}
-//		((EList<Object>) target.eGet(getEStructuralFeature())).move(position, fromPosition);
-		
-		int steps = position - fromPosition; 
-		Object value = this.getValue();
-		fromPosition = list.indexOf(value);
-		if ((fromPosition + steps) <= 0){
-			position = 0;
-		}else if((fromPosition + steps) >= list.size()-1){
-			position = list.size()-1;
+		if (fromPosition >= list.size()) {
+			fromPosition = list.size() - 1;
 		}
+		if (position >= list.size()) {
+			position = list.size() - 1;
+		}
+		
+//		int steps = position - fromPosition; 
+//		Object value = this.getValue();
+//		fromPosition = list.indexOf(value);
+//		if ((fromPosition + steps) <= 0){
+//			position = 0;
+//		}else if((fromPosition + steps) >= list.size()-1){
+//			position = list.size()-1;
+//		}
 		list.move(position, fromPosition);
 	}
 
