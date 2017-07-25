@@ -30,7 +30,6 @@ import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
-import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
@@ -114,13 +113,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 					e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
 					e.setAttribute("id", ((CreateEObjectEvent) event).getId());
 					EObject eObject = ((CreateEObjectEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line);
-				} else if (event instanceof DeleteEObjectEvent) {
-					e = document.createElement("delete");
-					e.setAttribute("epackage", ((DeleteEObjectEvent) event).getEClass().getEPackage().getNsURI());
-					e.setAttribute("eclass", ((DeleteEObjectEvent) event).getEClass().getName());
-					e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
-					EObject eObject = ((DeleteEObjectEvent) event).getValue();
 					eObjectEventLinesAdapater.add(eObject, event, line);
 				} else if (event instanceof AddToResourceEvent) {
 					e = document.createElement("add-to-resource");
@@ -340,11 +332,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 			return new MoveWithinEAttributeEvent();
 		case "move-in-ereference":
 			return new MoveWithinEReferenceEvent();
-		case "delete": {
-			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
-			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
-			return new DeleteEObjectEvent(eClass, this, e.getAttribute("id"));
-		}
 		}
 
 		return null;

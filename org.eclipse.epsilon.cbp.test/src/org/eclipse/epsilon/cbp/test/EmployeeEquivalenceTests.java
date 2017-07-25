@@ -21,8 +21,8 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 
-	private static final int INITIAL_NUMBER_OF_OBJECTS = 5000;
-	private static final int ITERATION_NUMBER = 20000;
+	private static final int INITIAL_NUMBER_OF_OBJECTS = 10;
+	private static final int ITERATION_NUMBER = 20;
 	private static final String ADD_ATTRIBUTE = "ADD_ATTRIBUTE";
 	private static final String REMOVE_ATTRIBUTE = "REMOVE_ATTRIBUTE";
 	private static final String MOVE_WITHIN_ATTRIBUTE = "MOVE_WITHIN_ATTRIBUTE";
@@ -47,45 +47,9 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 
 	@Test
 	public void employeeTest2() throws Exception {
-		// String eolCode = new
-		// String(Files.readAllBytes(Paths.get("data/employee.eol")));
-		// eolCode = eolCode + "\n";
-		// eolCode = eolCode + "operation isCircular(targetObject, valueObject):
-		// Boolean {" +
-		// " var result = false; " +
-		// " for (child in valueObject.manages){" +
-		// " if (child == targetObject){" +
-		// " result = true;" +
-		// " break;" +
-		// " }else{" +
-		// " result = isCircular(" +
-		// " targetObject, child);" +
-		// " }" +
-		// " }" +
-		// " return result;" +
-		// "}";
-		// eolCode = eolCode + "\n";
-		// eolCode = eolCode + "operation containedByModel(targetObject):
-		// Boolean {" +
-		// " var result = false;" +
-		// " if (M.allContents().selectOne(object | object == targetObject) <>
-		// null){" +
-		// " result = true;" +
-		// " }" +
-		// " return result;" +
-		// "}";
-		// eolCode = eolCode + "\n";
-		// eolCode = eolCode + "operation RemoveRefToObject(targetObject){" +
-		// " for (child in targetObject.manages){" +
-		// " RemoveRefToObject(child);" +
-		// " }" +
-		// " for (object in M.allContents()){" +
-		// " if (object.partner == targetObject){" +
-		// " object.partner = null;" +
-		// " } " +
-		// " }" +
-		// "}";
-		// run(eolCode, true);
+		 String eolCode = new
+		 String(Files.readAllBytes(Paths.get("data/employee.eol")));
+		 run(eolCode, true);
 
 	}
 
@@ -98,8 +62,8 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 		List<String> deletedObjects = new ArrayList<>();
 		Map<String, Integer> eventProbabilityMap = new HashMap<>();
 		eventProbabilityMap.put(CREATE, 1);
-		eventProbabilityMap.put(SET_ATTRIBUTE, 1);
-		eventProbabilityMap.put(UNSET_ATTRIBUTE, 1);
+		//eventProbabilityMap.put(SET_ATTRIBUTE, 1);
+		//eventProbabilityMap.put(UNSET_ATTRIBUTE, 1);
 		eventProbabilityMap.put(ADD_ATTRIBUTE, 1);
 		eventProbabilityMap.put(REMOVE_ATTRIBUTE, 1);
 		eventProbabilityMap.put(MOVE_WITHIN_ATTRIBUTE, 1);
@@ -198,6 +162,19 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 							.format("if (containedByModel(%1$s) and containedByModel(%2$s) and not isCircular(%1$s, %2$s)){\n"
 									+ "    %1$s.manages.add(%2$s);\n" + "}\n", targetObject, valueObject));
 				}
+			}else if (operation.equals(MOVE_WITHIN_REFERENCE) && objects.size() > 0) {
+				int index = ThreadLocalRandom.current().nextInt(objects.size());
+				String object = objects.get(index);
+				int toPos = ThreadLocalRandom.current().nextInt(4);
+				int fromPos = ThreadLocalRandom.current().nextInt(4);
+				codeBuilder.append(String.format(
+						"if (containedByModel(%1$s) and %1$s.manages.size() > 1){\n"
+						+ "    var toPos = %2$s;\n" 
+						+ "    var fromPos = %3$s;\n"
+						+ "    if (toPos >= %1$s.manages.size()) toPos = %1$s.manages.size() -1;\n"
+						+ "    if (fromPos >= %1$s.manages.size()) fromPos = %1$s.manages.size() -1;\n"
+						+ "    %1$s.manages.move(toPos, fromPos);\n" 
+						+ "}\n", object, toPos, fromPos));
 			} else if (operation.equals(DELETE) && objects.size() > 0) {
 				int targetIndex = ThreadLocalRandom.current().nextInt(objects.size());
 				String deletedObject = objects.get(targetIndex);
@@ -216,9 +193,13 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 				+ "			result = true;" + "			break;" + "		}else{" + "			result = isCircular("
 				+ "			targetObject, child);" + "		}" + "	}" + "	return result;" + "}");
 		codeBuilder.append("\n");
-		codeBuilder.append("operation containedByModel(targetObject): Boolean {" + "	var result = false;"
-				+ "	if (M.allContents().selectOne(object | object == targetObject) <> null){" + "		result = true;"
-				+ "	}" + "	return result;" + "}");
+		codeBuilder.append("operation containedByModel(targetObject): Boolean {" 
+				+ "	var result = false;"
+				+ "	if (M.allContents().selectOne(object | object == targetObject) <> null){" 
+				+ "		result = true;"
+				+ "	}" 
+				+ "	return result;" 
+				+ "}");
 		codeBuilder.append("\n");
 		codeBuilder.append("operation RemoveRefToObject(targetObject){" + "	for (child in targetObject.manages){"
 				+ "		RemoveRefToObject(child);" + "	}" + "	for (object in M.allContents()){"
@@ -226,7 +207,7 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 				+ "}");
 
 		eolCode = codeBuilder.toString();
-		// System.out.println(eolCode);
+		 System.out.println(eolCode);
 		System.out.println("Running...");
 		run(eolCode, true);
 

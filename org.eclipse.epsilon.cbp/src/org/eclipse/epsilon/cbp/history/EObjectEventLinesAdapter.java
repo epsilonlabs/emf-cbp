@@ -15,7 +15,6 @@ import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
-import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
@@ -390,7 +389,6 @@ public class EObjectEventLinesAdapter {
 			String key = eventLines.getKey();
 			if (key.equals(AddToResourceEvent.class.getSimpleName())
 					|| key.equals(RemoveFromResourceEvent.class.getSimpleName())
-					|| key.equals(DeleteEObjectEvent.class.getSimpleName())
 					|| key.equals(CreateEObjectEvent.class.getSimpleName())) {
 				List<Line> lines = eventLines.getValue();
 				this.addLinesToIgnoreList(lines);
