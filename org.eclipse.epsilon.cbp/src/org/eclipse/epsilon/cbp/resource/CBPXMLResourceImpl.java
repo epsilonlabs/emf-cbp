@@ -233,13 +233,20 @@ public class CBPXMLResourceImpl extends CBPResource {
 		eObjectToIdMap.clear();
 		getChangeEvents().clear();
 
+		boolean ignore = false;
+		if (options != null){
+			if (options.containsKey("IGNORE")) {
+				ignore = (Boolean) options.get("IGNORE");
+			}
+		}
+		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
 		int lineNumber = 0;
 		try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			while ((line = reader.readLine()) != null) {
-				if (ignoreList.contains(lineNumber)) {
+				if (ignoreList.contains(lineNumber) && ignore == true) {
 					lineNumber += 1;
 					continue;
 				}

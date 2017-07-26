@@ -4,10 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,18 +23,15 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
-import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.history.EObjectEventLines;
 import org.eclipse.epsilon.cbp.history.EObjectEventLinesAdapter;
 import org.eclipse.epsilon.cbp.history.Line;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
-import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.models.IModel;
-import org.junit.rules.TemporaryFolder;
 
 public abstract class XmiResourceEquivalenceTests {
 
@@ -49,7 +45,7 @@ public abstract class XmiResourceEquivalenceTests {
 
 	public void run(String eol, String extension, boolean debug) throws Exception {
 		// Run the code against an XMI model
-		System.out.println("Run the code against an XMI model");
+		System.out.println("SAVE XMI");
 		EolModule module = new EolModule();
 		module.parse(eol);
 
@@ -61,11 +57,30 @@ public abstract class XmiResourceEquivalenceTests {
 		module.execute();
 
 		StringOutputStream xmiSos = new StringOutputStream();
+		long beforeSaveXMI = System.currentTimeMillis();
 		xmiResource.save(xmiSos, null);
+		long afterSaveXMI = System.currentTimeMillis();
 		// inspect(xmiResource);
+		
+		
+		
+		//Load XMI
+		System.out.println("LOAD XMI");
+		xmiResourceSet = createResourceSet();
+		xmiResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
+		XMIResourceFactoryImpl xmiFactory = new XMIResourceFactoryImpl();
+		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", xmiFactory);
+		xmiResource = xmiResourceSet.createResource(URI.createURI("foo.xmi"));
+		final String sXMI = xmiSos.toString();
+		
+		long beforeLoadXMI = System.currentTimeMillis();
+		xmiResource.load(new ByteArrayInputStream(sXMI.getBytes()), null);
+		long afterLoadXMI = System.currentTimeMillis();
 
+		
+		
 		// Run the code against a change-based resource
-		System.out.println("Run the code against a change-based resource");
+		System.out.println("SAVE CBP");
 		module = new EolModule();
 		module.parse(eol);
 
@@ -79,9 +94,14 @@ public abstract class XmiResourceEquivalenceTests {
 		// inspect(cbpResource);
 
 		StringOutputStream cbpSos = new StringOutputStream();
+		long beforeSaveCBP = System.currentTimeMillis();
 		cbpResource1.save(cbpSos, null);
+		long afterSaveCBP = System.currentTimeMillis();
 
+
+		
 		// Create a new change-based resource and load what was saved before
+		System.out.println("LOAD CBP");
 		cbpResourceSet = createResourceSet();
 		cbpResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
 		CBPXMLResourceFactory factory = new CBPXMLResourceFactory();
@@ -93,9 +113,24 @@ public abstract class XmiResourceEquivalenceTests {
 		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
 
+		long beforeLoadCBP = System.currentTimeMillis();
 		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);
+		long afterLoadCBP = System.currentTimeMillis();
+		
+		
+		
+		//
+		Resource cbpResource3 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
+		long beforeLoadIgnoreCBP = System.currentTimeMillis();
+		Map<String,Boolean> options = new HashMap<>();
+		options.put("IGNORE", true);
+		cbpResource3.load(new ByteArrayInputStream(sCBP.getBytes()), options);
+		long afterLoadIgnoreCBP = System.currentTimeMillis();
 		// inspect(cbpResource);
 
+		
+		
+		
 		xmiResourceSet = createResourceSet();
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
 		XMIResourceImpl copyXmiResource = (XMIResourceImpl) xmiResourceSet.createResource(URI.createURI("foo.xmi"));
@@ -187,6 +222,12 @@ public abstract class XmiResourceEquivalenceTests {
 			DecimalFormat df = new DecimalFormat("#.00");
 			double percentage = ignoreList.size() * 1.0 / count2 * 100.0;
 			System.out.println("removed lines: " + df.format(percentage) + " %");
+			System.out.println("");
+			System.out.println("XMI Save Time = " + (afterSaveXMI - beforeSaveXMI) + " ms");
+			System.out.println("XMI Load Time = " + (afterLoadXMI - beforeLoadXMI) + " ms");
+			System.out.println("CBP Save Time = " + (afterSaveCBP - beforeSaveCBP) + " ms");
+			System.out.println("CBP Load Time = " + (afterLoadCBP - beforeLoadCBP) + " ms");
+			System.out.println("Ignore CBP Load Time = " + (afterLoadIgnoreCBP - beforeLoadIgnoreCBP) + " ms");
 		}
 
 		assertEquals(xmiSos.toString(), copyXmiResourceSos.toString());

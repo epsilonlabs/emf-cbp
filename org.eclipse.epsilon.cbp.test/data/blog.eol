@@ -5,14 +5,14 @@
 //complex();
 //test3();
 //test4();
-//testMoveReference();
-testMoveAttribute();
+testMoveReference();
+//testMoveAttribute();
 
 operation testMoveAttribute(){
 	var post = new Post;
 	post.ratings.addAll(Collection{1,2,3});
-	post.ratings.move(0,post.ratings.size()-1);
-	post.ratings.remove(0);
+	post.ratings.move(1,0);
+	post.ratings.remove(2);
 }
 
 operation testMoveReference(){
@@ -25,8 +25,8 @@ operation testMoveReference(){
 	post3.title = "C";
 	var values = Bag{post1,post2,post3};
 	blog.posts.addAll(values);
-	blog.posts.move(1,blog.posts.size()-1);
-	blog.posts.remove(post1);
+	blog.posts.move(1,0);
+	blog.posts.remove(post2);
 }
 
 operation test4() {
