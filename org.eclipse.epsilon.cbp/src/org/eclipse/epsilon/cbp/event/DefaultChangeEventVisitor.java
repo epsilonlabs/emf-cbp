@@ -75,10 +75,5 @@ public class DefaultChangeEventVisitor<T> implements IChangeEventVisitor<T> {
 		return null;
 	}
 
-	@Override
-	public T visit(DeleteEObjectEvent deleteEObjectEvent) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

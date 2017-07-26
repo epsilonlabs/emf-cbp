@@ -13,10 +13,12 @@ operation testMoveAttribute(){
 	post.ratings.addAll(Collection{1,2,3});
 	post.ratings.move(1,0);
 	post.ratings.remove(2);
+
 }
 
 operation testMoveReference(){
-	var blog = new Blog;
+	var blog1 = new Blog;
+	var blog2 = new Blog;
 	var post1 = new Post;
 	post1.title = "A";
 	var post2 = new Post;

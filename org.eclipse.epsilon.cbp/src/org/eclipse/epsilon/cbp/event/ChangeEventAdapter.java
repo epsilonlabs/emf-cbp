@@ -151,6 +151,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 
 		case Notification.REMOVE_MANY: {
+			@SuppressWarnings("unchecked")
 			Collection<Object> values = (Collection<Object>) n.getOldValue();
 			int position = n.getPosition();
 			for (Object value : values) {
@@ -172,35 +173,35 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 		case Notification.MOVE: {
 			if (n.getNotifier() instanceof EObject) {
-//				EObject obj = (EObject) n.getNotifier();
-//				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
-//				@SuppressWarnings("unchecked")
-//				EList<Object> list = (EList<Object>) obj.eGet(feature);
-//
-//				Object firstValue = null;
-//				if (n.getPosition() == (int)n.getOldValue()) {
-//					firstValue = list.get(n.getPosition());
-//				} else if (n.getPosition() > (int)n.getOldValue()) {
-//					firstValue = list.get(n.getPosition() - 1);
-//				} else if (n.getPosition() < (int)n.getOldValue()) {
-//					firstValue = list.get(n.getPosition() + 1);
-//				}
-//				Object secondValue = n.getNewValue();
-//				List<Object> values = new ArrayList<>(Arrays.asList(firstValue, secondValue));
+				EObject obj = (EObject) n.getNotifier();
+				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
+				@SuppressWarnings("unchecked")
+				EList<Object> list = (EList<Object>) obj.eGet(feature);
+				Object newValue = n.getNewValue();
 
+				Object oldValue = null;
+				if (n.getPosition() == (int)n.getOldValue()) {
+					oldValue = list.get(n.getPosition());
+				} else if (n.getPosition() > (int)n.getOldValue()) {
+					oldValue = list.get(n.getPosition() - 1);
+				} else if (n.getPosition() < (int)n.getOldValue()) {
+					oldValue = list.get(n.getPosition() + 1);
+				}
+				List<Object> values = new ArrayList<>();
+				values.add(oldValue);
+				values.add(newValue);
+				
 				FromPositionEvent fromEv = null;
 				if (n.getFeature() instanceof EAttribute) {
 					MoveWithinEAttributeEvent moveEvent = new MoveWithinEAttributeEvent();
 					fromEv = moveEvent;
 					event = moveEvent;
-//					event.setValues(values);
-					event.setValues(n.getNewValue());
+					event.setValues(values);
 				} else if (n.getFeature() instanceof EReference) {
 					MoveWithinEReferenceEvent moveEvent = new MoveWithinEReferenceEvent();
 					fromEv = moveEvent;
 					event = moveEvent;
-					//event.setValues(values);
-					event.setValues(n.getNewValue());
+					event.setValues(values);
 				}
 				if (fromEv != null) {
 					fromEv.setFromPosition(((Number) n.getOldValue()).intValue());
@@ -259,12 +260,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 			}
 			changeEvents.add(event);
 		}
-
-		if (n.getOldValue() instanceof EObject) {
-			if (event instanceof RemoveFromResourceEvent || event instanceof RemoveFromEReferenceEvent) {
-				handleDeletedEObject((EObject) n.getOldValue());
-			}
-		}
 	}
 
 	public void setEnabled(boolean bool) {
@@ -276,23 +271,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 		if (!ePackages.contains(ePackage)) {
 			ePackages.add(ePackage);
 			changeEvents.add(new RegisterEPackageEvent(ePackage, this));
-		}
-	}
-
-	public void handleDeletedEObject(EObject removedObject) {
-		boolean isDeleted = true;
-		TreeIterator<EObject> eAllContents = resource.getAllContents();
-		while (eAllContents.hasNext()) {
-			EObject eObject = eAllContents.next();
-			if (eObject.equals(removedObject)) {
-				isDeleted = false;
-				break;
-			}
-		}
-		if (isDeleted == true) {
-			String id = resource.getEObjectId(removedObject);
-			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
-			changeEvents.add(e);
 		}
 	}
 

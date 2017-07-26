@@ -99,7 +99,6 @@ public abstract class XmiResourceEquivalenceTests {
 		long afterSaveCBP = System.currentTimeMillis();
 
 
-		
 		// Create a new change-based resource and load what was saved before
 		System.out.println("LOAD CBP");
 		cbpResourceSet = createResourceSet();
@@ -140,16 +139,8 @@ public abstract class XmiResourceEquivalenceTests {
 		StringOutputStream copyXmiResourceSos = new StringOutputStream();
 		copyXmiResource.doSave(copyXmiResourceSos, null);
 
-		// DEBUG
-		if (debug) {
-			System.out.println("XMIResourceImpl");
-			System.out.println(xmiSos.toString());
-			System.out.println();
-			System.out.println("CBPResource");
-			System.out.println(copyXmiResourceSos.toString());
-			System.out.println("---");
-			// System.out.println(sCBP);
 
+		if (debug) {
 			System.out.println("");
 			System.out.println("DATA STRUCTURE");
 			EObjectEventLinesAdapter eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
@@ -190,7 +181,6 @@ public abstract class XmiResourceEquivalenceTests {
 					}
 				}
 			}
-
 			System.out.println("");
 			System.out.println("XML BEFORE REMOVED");
 			String[] list1 = cbpSos.toString().split(System.getProperty("line.separator"));
@@ -200,10 +190,25 @@ public abstract class XmiResourceEquivalenceTests {
 				count1 += 1;
 			}
 			System.out.println("");
-			System.out.println("IGNORE_LIST = " + ignoreList);
+			System.out.println("IGNORE LIST = " + ignoreList);
+			System.out.println("");
+		}
+
+		// DEBUG
+		if (debug) {
+			System.out.println("XMIResourceImpl");
+			System.out.println(xmiSos.toString());
+			System.out.println();
+			System.out.println("CBPResource");
+			System.out.println(copyXmiResourceSos.toString());
+			System.out.println("---");
+			// System.out.println(sCBP);
+
+			
+
 			System.out.println("");
 			System.out.println("XML AFTER REMOVED");
-			String[] list2 = sCBP.split(System.getProperty("line.separator"));
+			String[] list2 = cbpSos.toString().split(System.getProperty("line.separator"));
 			int count2 = 0;
 			int actualTotalLines = 0;
 			for (String line : list2) {
