@@ -2,126 +2,26 @@ var e0 = new Employee;
 e0.name = "e0";
 var e1 = new Employee;
 e1.name = "e1";
-var e2 = new Employee;
-e2.name = "e2";
-var e3 = new Employee;
-e3.name = "e3";
-var e4 = new Employee;
-e4.name = "e4";
-var e5 = new Employee;
-e5.name = "e5";
-var e6 = new Employee;
-e6.name = "e6";
-var e7 = new Employee;
-e7.name = "e7";
-var e8 = new Employee;
-e8.name = "e8";
-var e9 = new Employee;
-e9.name = "e9";
-var e10 = new Employee;
-e10.name = "e10";
-if (containedByModel(e1)){
-    RemoveRefToObject(e1)
-;    delete e1;
-}
-if (containedByModel(e10) and e10.manages.size() > 1){
-    var toPos = 3;
-    var fromPos = 3;
-    if (toPos >= e10.manages.size()) toPos = e10.manages.size() -1;
-    if (fromPos >= e10.manages.size()) fromPos = e10.manages.size() -1;
-    e10.manages.move(toPos, fromPos);
-}
-if (containedByModel(e7)){
-    e7.accounts.addAll(Collection{0,1,2,3});
-}
-if (containedByModel(e10)){
-    e10.partner = null;
-}
-if (containedByModel(e8) and e8.accounts.size() > 1){
-    var toPos = 3;
-    var fromPos = 3;
-    if (toPos >= e8.accounts.size()) toPos = e8.accounts.size() -1;
-    if (fromPos >= e8.accounts.size()) fromPos = e8.accounts.size() -1;
-    e8.accounts.move(toPos, fromPos);
-}
-if (containedByModel(e2) and containedByModel(e0) and not isCircular(e2, e0)){
-    e2.partner = e0;
-}
-if (containedByModel(e0)){
-    e0.partner = null;
-}
-if (containedByModel(e7) and e7.accounts.size() > 1){
-    var toPos = 0;
-    var fromPos = 1;
-    if (toPos >= e7.accounts.size()) toPos = e7.accounts.size() -1;
-    if (fromPos >= e7.accounts.size()) fromPos = e7.accounts.size() -1;
-    e7.accounts.move(toPos, fromPos);
-}
-if (containedByModel(e0) and containedByModel(e9) and not isCircular(e0, e9)){
-    e0.manages.add(e9);
-}
-if (containedByModel(e10) and e10.accounts.size() > 1){
-    var toPos = 0;
-    var fromPos = 0;
-    if (toPos >= e10.accounts.size()) toPos = e10.accounts.size() -1;
-    if (fromPos >= e10.accounts.size()) fromPos = e10.accounts.size() -1;
-    e10.accounts.move(toPos, fromPos);
-}
-if (containedByModel(e7) and containedByModel(e5) and not isCircular(e7, e5)){
-    e7.manages.add(e5);
-}
-if (containedByModel(e7) and e7.accounts.size() > 1){
-    var toPos = 3;
-    var fromPos = 3;
-    if (toPos >= e7.accounts.size()) toPos = e7.accounts.size() -1;
-    if (fromPos >= e7.accounts.size()) fromPos = e7.accounts.size() -1;
-    e7.accounts.move(toPos, fromPos);
-}
-var e11 = new Employee;
-e11.name = "e11";
-if (containedByModel(e7) and e7.manages.size() > 1){
-    var toPos = 2;
-    var fromPos = 0;
-    if (toPos >= e7.manages.size()) toPos = e7.manages.size() -1;
-    if (fromPos >= e7.manages.size()) fromPos = e7.manages.size() -1;
-    e7.manages.move(toPos, fromPos);
-}
-if (containedByModel(e5) and e5.accounts.size() > 1){
-    var toPos = 3;
-    var fromPos = 2;
-    if (toPos >= e5.accounts.size()) toPos = e5.accounts.size() -1;
-    if (fromPos >= e5.accounts.size()) fromPos = e5.accounts.size() -1;
-    e5.accounts.move(toPos, fromPos);
-}
-if (containedByModel(e7)){
-    e7.partner = null;
-}
-if (containedByModel(e5) and containedByModel(e0) and not isCircular(e5, e0)){
-    e5.partner = e0;
-}
-if (containedByModel(e2) and containedByModel(e11) and not isCircular(e2, e11)){
-    e2.manages.add(e11);
-}
-if (containedByModel(e6) and containedByModel(e7) and not isCircular(e6, e7)){
-    e6.partner = e7;
-}
-if (containedByModel(e8) and containedByModel(e5) and not isCircular(e8, e5)){
-    e8.manages.add(e5);
-}
+e1.manages.add(e0);
 
-operation RemoveRefToObject(targetObject){
-	for (child in targetObject.manages){
-		RemoveRefToObject(child);
-	}
-	for (object in M.allContents()){
-		if (object.partner == targetObject){
-			object.partner = null;
-		} 
-	}
-}
+e0.accounts.addAll(Bag{11,11,12,13,14});
+//e0.accounts.move(2,0);
+e0.accounts.remove(13);
+e0.accounts.add(3,15);
+e0.accounts.move(2,0);
+e0.accounts.move(3,1);
+e0.accounts.remove(11);
+e0.accounts.move(0,2);
+e0.accounts.remove(12);
+e0.accounts.move(0,1);
+e0.accounts.remove(14);
+e0.accounts.remove(15);
 
-operation isCircular(targetObject, valueObject): Boolean {
-	var result = false;	
+
+
+//e0.refManages.add(e2);
+
+/*operation isCircular(targetObject, valueObject): Boolean {	var result = false;
 	for (child in valueObject.manages){
 		if (child == targetObject){
 			result = true;
@@ -131,13 +31,4 @@ operation isCircular(targetObject, valueObject): Boolean {
 			targetObject, child);
 		}
 	}
-	return result;
-}
-
-operation containedByModel(targetObject): Boolean {
-	var result = false;
-	if (M.allContents().selectOne(object | object == targetObject) <> null){
-		result = true;
-	}
-	return result;
-}
+}*/

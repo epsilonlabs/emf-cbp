@@ -20,7 +20,7 @@ import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
-import org.eclipse.epsilon.cbp.history.EObjectEventLinesAdapter;
+import org.eclipse.epsilon.cbp.history.EObjectHistoryAdapter;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
 import org.eclipse.epsilon.cbp.util.AppendingURIHandler;
 
@@ -33,7 +33,7 @@ public abstract class CBPResource extends ResourceImpl {
 	protected BiMap<EObject, String> eObjectToIdMap;
 	
 	protected Set<Integer> ignoreList;
-	protected EObjectEventLinesAdapter eObjectEventLinesAdapater;
+	protected EObjectHistoryAdapter eObjectEventLinesAdapater;
 	
 	public CBPResource() {
 		super();
@@ -42,7 +42,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.eObjectToIdMap = HashBiMap.create();
 		
 		this.ignoreList = new TreeSet<>();
-		this.eObjectEventLinesAdapater = new EObjectEventLinesAdapter(ignoreList);
+		this.eObjectEventLinesAdapater = new EObjectHistoryAdapter(ignoreList);
 
 	}
 
@@ -135,7 +135,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.ignoreList = ignoreList;
 	}
 	
-	public EObjectEventLinesAdapter getEObjectHistoryList() {
+	public EObjectHistoryAdapter getEObjectHistoryList() {
 		return eObjectEventLinesAdapater;
 	}
 	

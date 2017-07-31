@@ -1,16 +1,29 @@
 package org.eclipse.epsilon.cbp.resource;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.SequenceInputStream;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.management.ValueExp;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -30,6 +43,7 @@ import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
@@ -49,8 +63,11 @@ import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.XMLReader;
 
 public class CBPXMLResourceImpl extends CBPResource {
+
+	boolean newLine = true;
 
 	public static void main(String[] args) throws Exception {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eINSTANCE.getNsURI(), EcorePackage.eINSTANCE);
@@ -113,6 +130,13 @@ public class CBPXMLResourceImpl extends CBPResource {
 					e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
 					e.setAttribute("id", ((CreateEObjectEvent) event).getId());
 					EObject eObject = ((CreateEObjectEvent) event).getValue();
+					eObjectEventLinesAdapater.add(eObject, event, line);
+				} else if (event instanceof DeleteEObjectEvent) {
+					e = document.createElement("delete");
+					e.setAttribute("epackage", ((DeleteEObjectEvent) event).getEClass().getEPackage().getNsURI());
+					e.setAttribute("eclass", ((DeleteEObjectEvent) event).getEClass().getName());
+					e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
+					EObject eObject = ((DeleteEObjectEvent) event).getValue();
 					eObjectEventLinesAdapater.add(eObject, event, line);
 				} else if (event instanceof AddToResourceEvent) {
 					e = document.createElement("add-to-resource");
@@ -219,34 +243,181 @@ public class CBPXMLResourceImpl extends CBPResource {
 		}
 	}
 
+
 	@Override
 	public void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
 		changeEventAdapter.setEnabled(false);
 		eObjectToIdMap.clear();
 		getChangeEvents().clear();
 
-		boolean ignore = false;
-		if (options != null){
-			if (options.containsKey("IGNORE")) {
-				ignore = (Boolean) options.get("IGNORE");
-			}
-		}
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line = null;
+		boolean optimised = true;
+		if (options != null && options.containsKey("optimise")) {
+			optimised = (Boolean) options.get("optimise");
+		}
+
+
 		int lineNumber = 0;
 		try {
-			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			while ((line = reader.readLine()) != null) {
-				if (ignoreList.contains(lineNumber) && ignore == true) {
-					lineNumber += 1;
-					continue;
+			ByteArrayInputStream begin = new ByteArrayInputStream("<m>".getBytes());
+			ByteArrayInputStream end = new ByteArrayInputStream("</m>".getBytes());
+			InputStream stream = new SequenceInputStream(begin, inputStream);
+			stream = new SequenceInputStream(stream, end);
+
+			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+			XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
+
+			ChangeEvent<?> event = null;
+			boolean ignore = false;
+			
+//			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+//			 while ((line = reader.readLine()) != null) {
+//		            //String[] strings = line.split("><");
+//		        }
+			
+//			BufferedInputStream bis = new BufferedInputStream(inputStream);
+//			int b;
+//			while ( (b=bis.read()) != -1 ){
+//			    char c = (char) b;
+//			    if (c == '\n'){
+//			    	//System.out.println("NEW LINE");
+//			    }
+//			}
+			
+			while (xmlReader.hasNext()) {
+				XMLEvent xmlEvent = xmlReader.nextEvent();
+				if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
+					StartElement e = xmlEvent.asStartElement();
+					String name = e.getName().getLocalPart();
+
+					if (name.equals("m")) {
+						continue;
+					}
+
+					if (!name.equals("value")) {
+						if (ignoreList.contains(lineNumber) && optimised == true) {
+							ignore = true;
+						}
+						
+						if (ignore == false) {
+							switch (name) {
+							case "register": {
+								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
+								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
+								event = new RegisterEPackageEvent(ePackage, changeEventAdapter);
+								break;
+							}
+							case "create": {
+								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
+								String className = e.getAttributeByName(new QName("eclass")).getValue();
+								String id = e.getAttributeByName(new QName("id")).getValue();
+								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
+								EClass eClass = (EClass) ePackage.getEClassifier(className);
+								event = new CreateEObjectEvent(eClass, this, id);
+								break;
+							}
+							case "add-to-resource":
+								event = new AddToResourceEvent();
+								break;
+							case "remove-from-resource":
+								event = new RemoveFromResourceEvent();
+								break;
+							case "add-to-ereference":
+								event = new AddToEReferenceEvent();
+								break;
+							case "remove-from-ereference":
+								event = new RemoveFromEReferenceEvent();
+								break;
+							case "set-eattribute":
+								event = new SetEAttributeEvent();
+								break;
+							case "set-ereference":
+								event = new SetEReferenceEvent();
+								break;
+							case "unset-eattribute":
+								event = new UnsetEAttributeEvent();
+								break;
+							case "unset-ereference":
+								event = new UnsetEReferenceEvent();
+								break;
+							case "add-to-eattribute":
+								event = new AddToEAttributeEvent();
+								break;
+							case "remove-from-eattribute":
+								event = new RemoveFromEAttributeEvent();
+								break;
+							case "move-in-eattribute":
+								event = new MoveWithinEAttributeEvent();
+								break;
+							case "move-in-ereference":
+								event = new MoveWithinEReferenceEvent();
+								break;
+							case "delete": {
+								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
+								String className = e.getAttributeByName(new QName("eclass")).getValue();
+								String id = e.getAttributeByName(new QName("id")).getValue();
+								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
+								EClass eClass = (EClass) ePackage.getEClassifier(className);
+								event = new DeleteEObjectEvent(eClass, this, id);
+								break;
+							}
+							}
+
+							if (event instanceof EStructuralFeatureEvent<?>) {
+								String sTarget = e.getAttributeByName(new QName("target")).getValue();
+								String sName = e.getAttributeByName(new QName("name")).getValue();
+								EObject target = getEObject(sTarget);
+								EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(sName);
+								((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
+								((EStructuralFeatureEvent<?>) event).setTarget(target);
+							} else if (event instanceof ResourceEvent) {
+								((ResourceEvent) event).setResource(this);
+							}
+
+							if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent
+									|| event instanceof AddToResourceEvent) {
+								String sPosition = e.getAttributeByName(new QName("position")).getValue();
+								event.setPosition(Integer.parseInt(sPosition));
+							}
+							if (event instanceof FromPositionEvent) {
+								String sTo = e.getAttributeByName(new QName("to")).getValue();
+								String sFrom = e.getAttributeByName(new QName("from")).getValue();
+								event.setPosition(Integer.parseInt(sTo));
+								((FromPositionEvent) event).setFromPosition(Integer.parseInt(sFrom));
+							}
+						}
+
+					} else if (name.equals("value")) {
+						if (ignore == false) {
+							if (event instanceof EObjectValuesEvent) {
+								EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
+								String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+								EObject eob = resolveXRef(seobject);
+								valuesEvent.getValues().add(eob);
+							} else if (event instanceof EAttributeEvent) {
+								EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
+								String sliteral = e.getAttributeByName(new QName("literal")).getValue();
+								EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature().getEType());
+								Object value = eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType,
+										sliteral);
+								eAttributeEvent.getValues().add(value);
+							}
+						}
+					}
 				}
-				if (line.trim().length() > 0) {
-					Document document = documentBuilder.parse(new ByteArrayInputStream(line.getBytes()));
-					doLoad(document.getDocumentElement());
+				if (xmlEvent.getEventType() == XMLStreamConstants.END_ELEMENT) {
+					EndElement ee = xmlEvent.asEndElement();
+					String name = ee.getName().getLocalPart();
+					if (event != null && !name.equals("value") && !name.equals("m")) {
+						if (ignore == false) {
+							event.replay();
+							getChangeEvents().add(event);
+						} else {
+							ignore = false;
+						}
+						lineNumber += 1;
+					}
 				}
-				lineNumber += 1;
 			}
 			persistedEvents = getChangeEvents().size();
 		} catch (Exception ex) {
@@ -339,6 +510,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 			return new MoveWithinEAttributeEvent();
 		case "move-in-ereference":
 			return new MoveWithinEReferenceEvent();
+		case "delete": {
+			EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(e.getAttribute("epackage"));
+			EClass eClass = (EClass) ePackage.getEClassifier(e.getAttribute("eclass"));
+			return new DeleteEObjectEvent(eClass, this, e.getAttribute("id"));
+		}
 		}
 
 		return null;

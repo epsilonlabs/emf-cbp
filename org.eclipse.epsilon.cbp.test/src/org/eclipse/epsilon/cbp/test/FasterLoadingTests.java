@@ -7,14 +7,13 @@ import java.util.Collection;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.test.blog.BlogPackage;
-import org.eclipse.epsilon.cbp.test.employee.EmployeePackage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class FasterLoadingTests extends XmiResourceEquivalenceTests {
+public class FasterLoadingTests extends LoadingPerformanceEquivalenceTests {
 
 	@Parameters
 	public static Collection<Object[]> data() {

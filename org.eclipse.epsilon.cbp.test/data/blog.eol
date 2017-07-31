@@ -11,14 +11,13 @@ testMoveReference();
 operation testMoveAttribute(){
 	var post = new Post;
 	post.ratings.addAll(Collection{1,2,3});
-	post.ratings.move(1,0);
-	post.ratings.remove(2);
+	//post.ratings.move(0,1);
+	post.ratings.remove(3);
 
 }
 
 operation testMoveReference(){
 	var blog1 = new Blog;
-	var blog2 = new Blog;
 	var post1 = new Post;
 	post1.title = "A";
 	var post2 = new Post;
@@ -26,9 +25,9 @@ operation testMoveReference(){
 	var post3 = new Post;
 	post3.title = "C";
 	var values = Bag{post1,post2,post3};
-	blog.posts.addAll(values);
-	blog.posts.move(1,0);
-	blog.posts.remove(post2);
+	blog1.posts.addAll(values);
+	//blog1.posts.move(0,1);
+	blog1.posts.remove(post3);
 }
 
 operation test4() {

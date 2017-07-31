@@ -1,10 +1,11 @@
 @namespace(uri="employee", prefix="")
-package employee;
+package entity;
 
 class Employee {
 	attr String name;
 	attr Integer[*] accounts;
-	val Employee partner;
-	val Employee[*] manages; 
+	ref Employee partner;
+	val Employee[*] manages;
+	ref Employee[*] refManages;  
 }
 

@@ -37,7 +37,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	@Override
 	public void notifyChanged(Notification n) {
-
+	
 		super.notifyChanged(n);
 
 		if (n.isTouch() || !enabled) {
@@ -180,17 +180,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 				Object newValue = n.getNewValue();
 
 				Object oldValue = null;
-				if (n.getPosition() == (int)n.getOldValue()) {
+				if (n.getPosition() == (int) n.getOldValue()) {
 					oldValue = list.get(n.getPosition());
-				} else if (n.getPosition() > (int)n.getOldValue()) {
+				} else if (n.getPosition() > (int) n.getOldValue()) {
 					oldValue = list.get(n.getPosition() - 1);
-				} else if (n.getPosition() < (int)n.getOldValue()) {
+				} else if (n.getPosition() < (int) n.getOldValue()) {
 					oldValue = list.get(n.getPosition() + 1);
 				}
 				List<Object> values = new ArrayList<>();
 				values.add(oldValue);
 				values.add(newValue);
-				
+
 				FromPositionEvent fromEv = null;
 				if (n.getFeature() instanceof EAttribute) {
 					MoveWithinEAttributeEvent moveEvent = new MoveWithinEAttributeEvent();
@@ -260,6 +260,12 @@ public class ChangeEventAdapter extends EContentAdapter {
 			}
 			changeEvents.add(event);
 		}
+
+		if (n.getOldValue() instanceof EObject) {
+			if (event instanceof RemoveFromResourceEvent || event instanceof RemoveFromEReferenceEvent) {
+				handleDeletedEObject((EObject) n.getOldValue());
+			}
+		}
 	}
 
 	public void setEnabled(boolean bool) {
@@ -271,6 +277,23 @@ public class ChangeEventAdapter extends EContentAdapter {
 		if (!ePackages.contains(ePackage)) {
 			ePackages.add(ePackage);
 			changeEvents.add(new RegisterEPackageEvent(ePackage, this));
+		}
+	}
+
+	public void handleDeletedEObject(EObject removedObject) {
+		boolean isDeleted = true;
+		TreeIterator<EObject> eAllContents = resource.getAllContents();
+		while (eAllContents.hasNext()) {
+			EObject eObject = eAllContents.next();
+			if (eObject.equals(removedObject)) {
+				isDeleted = false;
+				break;
+			}
+		}
+		if (isDeleted == true) {
+			String id = resource.getEObjectId(removedObject);
+			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
+			changeEvents.add(e);
 		}
 	}
 

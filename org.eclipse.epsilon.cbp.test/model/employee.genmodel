@@ -10,6 +10,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute employee.ecore#//Employee/accounts"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference employee.ecore#//Employee/partner"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference employee.ecore#//Employee/manages"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference employee.ecore#//Employee/refManages"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

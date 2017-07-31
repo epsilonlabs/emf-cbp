@@ -1,18 +1,22 @@
 package org.eclipse.epsilon.cbp.event;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValuesEvent {
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void replay() {
 		List<EObject> list = (List<EObject>) target.eGet(getEStructuralFeature());
-		if (position > list.size()){
-			position =  list.size();
+		if (position > list.size()) {
+			position = list.size();
 		}
+
 		list.addAll(position, getValues());
 	}
 
@@ -20,5 +24,5 @@ public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValu
 	public <U> U accept(IChangeEventVisitor<U> visitor) {
 		return visitor.visit(this);
 	}
-	
+
 }

@@ -18,18 +18,19 @@ public class DeleteEObjectEvent extends ChangeEvent<EObject> {
 		this.id = id;
 		this.setValue(eObject);
 	}
-	
+
 	public DeleteEObjectEvent(EClass eClass, CBPResource resource, String id) {
 		super();
 		this.eClass = eClass;
 		this.id = id;
 		this.resource = resource;
+		this.eObject = resource.getEObject(id);
 	}
-	
+
 	public EClass getEClass() {
 		return eClass;
 	}
-	
+
 	public String getId() {
 		return id;
 	}

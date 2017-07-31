@@ -102,13 +102,22 @@ public interface EmployeePackage extends EPackage {
 	int EMPLOYEE__MANAGES = 3;
 
 	/**
+	 * The feature id for the '<em><b>Ref Manages</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EMPLOYEE__REF_MANAGES = 4;
+
+	/**
 	 * The number of structural features of the '<em>Employee</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EMPLOYEE_FEATURE_COUNT = 4;
+	int EMPLOYEE_FEATURE_COUNT = 5;
 
 
 	/**
@@ -164,6 +173,17 @@ public interface EmployeePackage extends EPackage {
 	 * @generated
 	 */
 	EReference getEmployee_Manages();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.eclipse.epsilon.cbp.test.employee.Employee#getRefManages <em>Ref Manages</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Ref Manages</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.employee.Employee#getRefManages()
+	 * @see #getEmployee()
+	 * @generated
+	 */
+	EReference getEmployee_RefManages();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -228,6 +248,14 @@ public interface EmployeePackage extends EPackage {
 		 * @generated
 		 */
 		EReference EMPLOYEE__MANAGES = eINSTANCE.getEmployee_Manages();
+
+		/**
+		 * The meta object literal for the '<em><b>Ref Manages</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference EMPLOYEE__REF_MANAGES = eINSTANCE.getEmployee_RefManages();
 
 	}
 

@@ -5,25 +5,28 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 
-/***
- * 
- * @author Alfa This is a Class to capture lines in the change-based model XML
- *         where an operation involves an object. It maps operations applied to
- *         an object to their respective lines in the change-based model XML.
- */
-public class EObjectEventLines {
 
-	protected EObject eObject = null;
-	protected Map<EObject, EObjectEventLines> attributes = new HashMap<EObject, EObjectEventLines>();
-	protected Map<EObject, EObjectEventLines> references = new HashMap<EObject, EObjectEventLines>();
-	protected Map<String, List<Line>> eventLinesMap = new HashMap<String, List<Line>>();
+public class EObjectHistory {
 
-	public EObjectEventLines(EObject eObject) {
+	private EObject eObject = null;
+	private boolean isMoved = false;
+	private Map<EObject, EObjectHistory> attributes = new HashMap<EObject, EObjectHistory>();
+	private Map<EObject, EObjectHistory> references = new HashMap<EObject, EObjectHistory>();
+	private Map<String, List<Line>> eventLinesMap = new HashMap<String, List<Line>>();
+	
+	public boolean isMoved() {
+		return isMoved;
+	}
+
+	public void setMoved(boolean isMoved) {
+		this.isMoved = isMoved;
+	}
+
+	public EObjectHistory(EObject eObject) {
 		this.eObject = eObject;
 	}
 
@@ -31,11 +34,11 @@ public class EObjectEventLines {
 		return eObject;
 	}
 
-	public Map<EObject, EObjectEventLines> getAttributes() {
+	public Map<EObject, EObjectHistory> getAttributes() {
 		return attributes;
 	}
 
-	public Map<EObject, EObjectEventLines> getReferences() {
+	public Map<EObject, EObjectHistory> getReferences() {
 		return references;
 	}
 

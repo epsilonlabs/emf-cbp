@@ -137,6 +137,15 @@ public class EmployeePackageImpl extends EPackageImpl implements EmployeePackage
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getEmployee_RefManages() {
+		return (EReference)employeeEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EmployeeFactory getEmployeeFactory() {
 		return (EmployeeFactory)getEFactoryInstance();
 	}
@@ -165,6 +174,7 @@ public class EmployeePackageImpl extends EPackageImpl implements EmployeePackage
 		createEAttribute(employeeEClass, EMPLOYEE__ACCOUNTS);
 		createEReference(employeeEClass, EMPLOYEE__PARTNER);
 		createEReference(employeeEClass, EMPLOYEE__MANAGES);
+		createEReference(employeeEClass, EMPLOYEE__REF_MANAGES);
 	}
 
 	/**
@@ -202,6 +212,7 @@ public class EmployeePackageImpl extends EPackageImpl implements EmployeePackage
 		initEAttribute(getEmployee_Accounts(), ecorePackage.getEIntegerObject(), "accounts", null, 0, -1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getEmployee_Partner(), this.getEmployee(), null, "partner", null, 0, 1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getEmployee_Manages(), this.getEmployee(), null, "manages", null, 0, -1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getEmployee_RefManages(), this.getEmployee(), null, "refManages", null, 0, -1, Employee.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);

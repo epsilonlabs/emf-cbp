@@ -19,9 +19,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
+public class EmployeeEquivalenceTests extends LoadingPerformanceEquivalenceTests {
 
-	private static final int ITERATION = 1000;
+	private static final int ITERATION = 10000;
 	private static final String ADD_ATTRIBUTE = "ADD_ATTRIBUTE";
 	private static final String REMOVE_ATTRIBUTE = "REMOVE_ATTRIBUTE";
 	private static final String MOVE_WITHIN_ATTRIBUTE = "MOVE_WITHIN_ATTRIBUTE";
@@ -60,16 +60,16 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 		List<String> objects = new ArrayList<>();
 		List<String> deletedObjects = new ArrayList<>();
 		Map<String, Integer> eventProbabilityMap = new HashMap<>();
-		eventProbabilityMap.put(CREATE, 5);
-		eventProbabilityMap.put(SET_ATTRIBUTE, 1);
-		eventProbabilityMap.put(UNSET_ATTRIBUTE, 1);
-		eventProbabilityMap.put(ADD_ATTRIBUTE, 1);
-		eventProbabilityMap.put(REMOVE_ATTRIBUTE, 1);
-//		eventProbabilityMap.put(MOVE_WITHIN_ATTRIBUTE, 1);
-		eventProbabilityMap.put(SET_REFERENCE, 1);
-		eventProbabilityMap.put(UNSET_REFERENCE, 1);
+		eventProbabilityMap.put(CREATE, 1);
+//		eventProbabilityMap.put(SET_ATTRIBUTE, 1);
+//		eventProbabilityMap.put(UNSET_ATTRIBUTE, 1);
+//		eventProbabilityMap.put(ADD_ATTRIBUTE, 1);
+//		eventProbabilityMap.put(REMOVE_ATTRIBUTE, 1);
+////		eventProbabilityMap.put(MOVE_WITHIN_ATTRIBUTE, 1);
+//		eventProbabilityMap.put(SET_REFERENCE, 1);
+//		eventProbabilityMap.put(UNSET_REFERENCE, 1);
 		eventProbabilityMap.put(ADD_REFERENCE, 1);
-//		eventProbabilityMap.put(MOVE_WITHIN_REFERENCE, 1);
+////		eventProbabilityMap.put(MOVE_WITHIN_REFERENCE, 1);
 		eventProbabilityMap.put(DELETE, 1);
 		
 		List<String> operations = new ArrayList<>();
@@ -84,6 +84,14 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 		codeBuilder.append(
 				String.format("%s.name = \"%s\";\n", objects.get(objects.size() - 1), objects.get(objects.size() - 1)));
 
+		for (int i = 0; i < 10000; i++) {
+			nameIncrement += 1;
+			objects.add("e" + nameIncrement);
+			codeBuilder.append(String.format("var %s = new Employee;\n", objects.get(objects.size() - 1)));
+			codeBuilder.append(String.format("%s.name = \"%s\";\n", objects.get(objects.size() - 1),
+					objects.get(objects.size() - 1)));
+		}
+		
 		for (int i = 0; i < ITERATION; i++) {
 			String operation = operations.get(ThreadLocalRandom.current().nextInt(operations.size()));
 
@@ -198,7 +206,7 @@ public class EmployeeEquivalenceTests extends XmiResourceEquivalenceTests {
 				+ "}");
 
 		eolCode = codeBuilder.toString();
-		 System.out.println(eolCode);
+		//System.out.println(eolCode);
 		System.out.println("Running...");
 		run(eolCode, true);
 

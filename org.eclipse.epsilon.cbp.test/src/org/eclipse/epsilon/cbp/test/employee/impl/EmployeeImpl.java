@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.eclipse.epsilon.cbp.test.employee.Employee;
 import org.eclipse.epsilon.cbp.test.employee.EmployeePackage;
@@ -33,6 +34,7 @@ import org.eclipse.epsilon.cbp.test.employee.EmployeePackage;
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getAccounts <em>Accounts</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getPartner <em>Partner</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getManages <em>Manages</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.employee.impl.EmployeeImpl#getRefManages <em>Ref Manages</em>}</li>
  * </ul>
  *
  * @generated
@@ -87,6 +89,16 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 	 * @ordered
 	 */
 	protected EList<Employee> manages;
+
+	/**
+	 * The cached value of the '{@link #getRefManages() <em>Ref Manages</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getRefManages()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<Employee> refManages;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -195,6 +207,18 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EList<Employee> getRefManages() {
+		if (refManages == null) {
+			refManages = new EObjectResolvingEList<Employee>(Employee.class, this, EmployeePackage.EMPLOYEE__REF_MANAGES);
+		}
+		return refManages;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -221,6 +245,8 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 				return basicGetPartner();
 			case EmployeePackage.EMPLOYEE__MANAGES:
 				return getManages();
+			case EmployeePackage.EMPLOYEE__REF_MANAGES:
+				return getRefManages();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -248,6 +274,10 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 				getManages().clear();
 				getManages().addAll((Collection<? extends Employee>)newValue);
 				return;
+			case EmployeePackage.EMPLOYEE__REF_MANAGES:
+				getRefManages().clear();
+				getRefManages().addAll((Collection<? extends Employee>)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -272,6 +302,9 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 			case EmployeePackage.EMPLOYEE__MANAGES:
 				getManages().clear();
 				return;
+			case EmployeePackage.EMPLOYEE__REF_MANAGES:
+				getRefManages().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -292,6 +325,8 @@ public class EmployeeImpl extends EObjectImpl implements Employee {
 				return partner != null;
 			case EmployeePackage.EMPLOYEE__MANAGES:
 				return manages != null && !manages.isEmpty();
+			case EmployeePackage.EMPLOYEE__REF_MANAGES:
+				return refManages != null && !refManages.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}

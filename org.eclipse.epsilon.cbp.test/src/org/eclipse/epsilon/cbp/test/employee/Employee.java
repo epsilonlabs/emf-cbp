@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getAccounts <em>Accounts</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getPartner <em>Partner</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getManages <em>Manages</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.employee.Employee#getRefManages <em>Ref Manages</em>}</li>
  * </ul>
  *
  * @see org.eclipse.epsilon.cbp.test.employee.EmployeePackage#getEmployee()
@@ -109,5 +110,21 @@ public interface Employee extends EObject {
 	 * @generated
 	 */
 	EList<Employee> getManages();
+
+	/**
+	 * Returns the value of the '<em><b>Ref Manages</b></em>' reference list.
+	 * The list contents are of type {@link org.eclipse.epsilon.cbp.test.employee.Employee}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Ref Manages</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Ref Manages</em>' reference list.
+	 * @see org.eclipse.epsilon.cbp.test.employee.EmployeePackage#getEmployee_RefManages()
+	 * @model
+	 * @generated
+	 */
+	EList<Employee> getRefManages();
 
 } // Employee

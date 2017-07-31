@@ -15,6 +15,7 @@ import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
@@ -28,15 +29,9 @@ import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
 
-/***
- * 
- * @author Alfa This is a Class to capture lines in the change-based model XML
- *         where an operation involves an object. It maps operations applied to
- *         an object to their respective lines in the change-based model XML.
- */
-public class EObjectEventLinesAdapter {
+public class EObjectHistoryAdapter {
 
-	protected Map<EObject, EObjectEventLines> eObjectEventLinesMap = new HashMap<>();
+	protected Map<EObject, EObjectHistory> eObjectEventLinesMap = new HashMap<>();
 	protected Set<Integer> ignoreList;
 
 	private void addLinesToIgnoreList(List<Line> lines) {
@@ -45,11 +40,19 @@ public class EObjectEventLinesAdapter {
 		}
 	}
 
-	public EObjectEventLinesAdapter(Set<Integer> ignoreList) {
+	private void addLinesToIgnoreList(List<Line> lines, Object filterValue) {
+		for (Line line : lines) {
+			if (line.getValue().equals(filterValue)) {
+				ignoreList.add(line.getLineNumber());
+			}
+		}
+	}
+
+	public EObjectHistoryAdapter(Set<Integer> ignoreList) {
 		this.ignoreList = ignoreList;
 	}
 
-	public Map<EObject, EObjectEventLines> geteObjectHistoryList() {
+	public Map<EObject, EObjectHistory> geteObjectHistoryList() {
 		return eObjectEventLinesMap;
 	}
 
@@ -57,11 +60,12 @@ public class EObjectEventLinesAdapter {
 		this.add(eObject, event, line, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void add(EObject eObject, ChangeEvent<?> event, int line, Object value) {
 		// REGISTER AND CREATE
 		if (event instanceof RegisterEPackageEvent || event instanceof CreateEObjectEvent) {
 			if (!eObjectEventLinesMap.containsKey(eObject)) {
-				EObjectEventLines eObjectHistory = new EObjectEventLines(eObject);
+				EObjectHistory eObjectHistory = new EObjectHistory(eObject);
 				eObjectHistory.addEventLine(event, line);
 				eObjectEventLinesMap.put(eObject, eObjectHistory);
 			} else {
@@ -74,9 +78,9 @@ public class EObjectEventLinesAdapter {
 
 		}
 		// OBJECT DELETION
-//		else if (event instanceof DeleteEObjectEvent) {
-//			this.handleEObjectDeletion(eObject, event, line);
-//		}
+		else if (event instanceof DeleteEObjectEvent) {
+			this.handleEObjectDeletion(eObject, event, line);
+		}
 		// ATTRIBUTES
 		else if (event instanceof SetEAttributeEvent || event instanceof UnsetEAttributeEvent
 				|| event instanceof MoveWithinEAttributeEvent || event instanceof AddToEAttributeEvent
@@ -102,9 +106,9 @@ public class EObjectEventLinesAdapter {
 
 	private void handleEAttribute(EObject eObject, ChangeEvent<?> event, int lineNumber, Object value) {
 		EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
-		Map<EObject, EObjectEventLines> attributeList = eObjectEventLinesMap.get(eObject).getAttributes();
+		Map<EObject, EObjectHistory> attributeList = eObjectEventLinesMap.get(eObject).getAttributes();
 		if (!attributeList.containsKey(eAttribute)) {
-			EObjectEventLines eAttributeHistory = new EObjectEventLines(eObject);
+			EObjectHistory eAttributeHistory = new EObjectHistory(eObject);
 			eAttributeHistory.addEventLine(event, lineNumber, value);
 			attributeList.put(eAttribute, eAttributeHistory);
 		} else {
@@ -146,13 +150,14 @@ public class EObjectEventLinesAdapter {
 		// ignoring Add To and Remove EAttribute
 		else if (value != null && (event instanceof AddToEAttributeEvent || event instanceof RemoveFromEAttributeEvent
 				|| event instanceof MoveWithinEAttributeEvent)) {
-			Map<String, List<Line>> eventLinesMap = attributeList.get(eAttribute).getEventLinesMap();
+			EObjectHistory eAttributeHistory = attributeList.get(eAttribute);
+			if (event instanceof MoveWithinEAttributeEvent) {
+				eAttributeHistory.setMoved(true);
+			}
+			Map<String, List<Line>> eventLinesMap = eAttributeHistory.getEventLinesMap();
 			String addAttributeName = AddToEAttributeEvent.class.getSimpleName();
 			String removeAttributeName = RemoveFromEAttributeEvent.class.getSimpleName();
 			String moveAttributeName = MoveWithinEAttributeEvent.class.getSimpleName();
-
-			// int addAttributeLastLine = -1;
-			// int removeAttributeLastLine = -1;
 
 			List<Line> addAttributeLines = null;
 			List<Line> removeAttributeLines = null;
@@ -176,6 +181,7 @@ public class EObjectEventLinesAdapter {
 			}
 
 			if (delta == 0) {
+				eAttributeHistory.setMoved(false);
 				if (addAttributeLines != null)
 					this.addLinesToIgnoreList(addAttributeLines);
 				if (removeAttributeLines != null)
@@ -183,21 +189,63 @@ public class EObjectEventLinesAdapter {
 				if (moveWithinAttributeLines != null)
 					this.addLinesToIgnoreList(moveWithinAttributeLines);
 			}
+			if (delta == 1) {
+				eAttributeHistory.setMoved(false);
+				if (addAttributeLines != null)
+					this.addLinesToIgnoreList(addAttributeLines.subList(0, addAttributeLines.size() - 1));
+				if (removeAttributeLines != null)
+					this.addLinesToIgnoreList(removeAttributeLines);
+				if (moveWithinAttributeLines != null)
+					this.addLinesToIgnoreList(moveWithinAttributeLines);
+			}
+			if (delta != 0 && delta != 1) {
+				if (eAttributeHistory.isMoved() == false) {
+					int addAttributeLastLine = -1;
+					int removeAttributeLastLine = -1;
+					List<Line> valueAddAttributeLines = new ArrayList<Line>();
+					List<Line> valueRemoveAttributeLines = new ArrayList<>();
+					
+					if (eventLinesMap.containsKey(addAttributeName)) {
+						for (Line line : eventLinesMap.get(addAttributeName)) {
+							if (line.getValue().equals(value)) {
+								valueAddAttributeLines.add(line);
+							}
+						}
+						if (valueAddAttributeLines.size() > 0)
+						addAttributeLastLine = valueAddAttributeLines.get(valueAddAttributeLines.size() - 1).getLineNumber();
+					}
+					if (eventLinesMap.containsKey(removeAttributeName)) {
+						for (Line line : eventLinesMap.get(removeAttributeName)) {
+							if (line.getValue().equals(value)) {
+								valueRemoveAttributeLines.add(line);
+							}
+						}
+						if (valueRemoveAttributeLines.size() > 0)
+						removeAttributeLastLine = valueRemoveAttributeLines.get(valueRemoveAttributeLines.size() - 1)
+								.getLineNumber();
+					}
+					
+					if (addAttributeLastLine > removeAttributeLastLine){
+						if (valueAddAttributeLines != null)
+							this.addLinesToIgnoreList(valueAddAttributeLines.subList(0, valueAddAttributeLines.size()-1));
+						if (valueRemoveAttributeLines != null)
+							this.addLinesToIgnoreList(valueRemoveAttributeLines);
+					}else if (addAttributeLastLine < removeAttributeLastLine){
+						if (valueAddAttributeLines != null)
+							this.addLinesToIgnoreList(valueAddAttributeLines);
+						if (valueRemoveAttributeLines != null)
+							this.addLinesToIgnoreList(valueRemoveAttributeLines);
+					}
+				}
+			}
 		}
 	}
 
-	/***
-	 * 
-	 * @param eObject
-	 * @param event
-	 * @param lineNumber
-	 * @param value
-	 */
 	private void handleEReference(EObject eObject, ChangeEvent<?> event, int lineNumber, EObject value) {
 		EReference eReference = ((EReferenceEvent) event).getEReference();
-		Map<EObject, EObjectEventLines> referenceList = eObjectEventLinesMap.get(eObject).getReferences();
+		Map<EObject, EObjectHistory> referenceList = eObjectEventLinesMap.get(eObject).getReferences();
 		if (!referenceList.containsKey(eReference)) {
-			EObjectEventLines eReferenceHistory = new EObjectEventLines(eObject);
+			EObjectHistory eReferenceHistory = new EObjectHistory(eObject);
 			eReferenceHistory.addEventLine(event, lineNumber, value);
 			referenceList.put(eReference, eReferenceHistory);
 		} else {
@@ -245,7 +293,7 @@ public class EObjectEventLinesAdapter {
 			// object (not only the target
 			// object)
 			if (!eObjectEventLinesMap.containsKey(value)) {
-				EObjectEventLines eReferenceHistory = new EObjectEventLines(value);
+				EObjectHistory eReferenceHistory = new EObjectHistory(value);
 				eReferenceHistory.addEventLine(event, lineNumber);
 				eObjectEventLinesMap.put(eReference, eReferenceHistory);
 			} else {
@@ -257,13 +305,16 @@ public class EObjectEventLinesAdapter {
 			String removeReferenceName = RemoveFromEReferenceEvent.class.getSimpleName();
 			String moveWithinReferenceName = MoveWithinEReferenceEvent.class.getSimpleName();
 
-			//
+			int addReferenceLastLine = -1;
+			int removeReferenceLastLine = -1;
+			int addResourceLastLine = -1;
+			int removeResourceLastLine = -1;
 
 			List<Line> addReferenceLines = null;
 			List<Line> removeReferenceLines = null;
 			List<Line> moveWithinReferenceLines = null;
 
-			// TARGET OJBECT
+			// TARGET OBJECT
 			if (targetEventLinesMap.containsKey(addReferenceName)) {
 				addReferenceLines = targetEventLinesMap.get(addReferenceName);
 			}
@@ -288,72 +339,81 @@ public class EObjectEventLinesAdapter {
 					this.addLinesToIgnoreList(removeReferenceLines);
 				if (moveWithinReferenceLines != null)
 					this.addLinesToIgnoreList(moveWithinReferenceLines);
-				
-				for (Line l : removeReferenceLines){
-					this.handleEObjectDeletion((EObject)l.getValue(), event, l.getLineNumber());
+
+				for (Line l : removeReferenceLines) {
+					this.handleEObjectDeletion((EObject) l.getValue(), event, l.getLineNumber());
+				}
+			} else {
+				if (removeReferenceLastLine > addReferenceLastLine) {
+					if (addReferenceLines != null)
+						this.addLinesToIgnoreList(addReferenceLines, value);
+					if (removeReferenceLines != null)
+						this.addLinesToIgnoreList(removeReferenceLines, value);
+				} else if (addReferenceLastLine > removeReferenceLastLine) {
+					if (addReferenceLines != null && addReferenceLines.size() > 1)
+						this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1), value);
+					if (removeReferenceLines != null)
+						this.addLinesToIgnoreList(removeReferenceLines, value);
 				}
 			}
 
-//			// VALUE OBJECT
-//			Map<String, List<Line>> valueEventLinesMap = eObjectEventLinesMap.get(value).getEventLinesMap();
-//
-//			String addResourceName = AddToResourceEvent.class.getSimpleName();
-//			String removeResourceName = RemoveFromResourceEvent.class.getSimpleName();
-//
-//			List<Line> addResourceLines = null;
-//			List<Line> removeResourceLines = null;
-//
-//			int addReferenceLastLine = -1;
-//			int removeReferenceLastLine = -1;
-//			int addResourceLastLine = -1;
-//			int removeResourceLastLine = -1;
-//
-//			if (valueEventLinesMap.containsKey(addReferenceName)) {
-//				addReferenceLines = valueEventLinesMap.get(addReferenceName);
-//				addReferenceLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getLineNumber();
-//			}
-//			if (valueEventLinesMap.containsKey(removeReferenceName)) {
-//				removeReferenceLines = valueEventLinesMap.get(removeReferenceName);
-//				removeReferenceLastLine = removeReferenceLines.get(removeReferenceLines.size() - 1).getLineNumber();
-//			}
-//			if (valueEventLinesMap.containsKey(addResourceName)) {
-//				addResourceLines = valueEventLinesMap.get(addResourceName);
-//				addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getLineNumber();
-//			}
-//			if (valueEventLinesMap.containsKey(removeResourceName)) {
-//				removeResourceLines = valueEventLinesMap.get(removeResourceName);
-//				removeResourceLastLine = removeResourceLines.get(removeResourceLines.size() - 1).getLineNumber();
-//			}
-//			if (valueEventLinesMap.containsKey(moveWithinReferenceName)) {
-//				moveWithinReferenceLines = valueEventLinesMap.get(moveWithinReferenceName);
-//			}
-//
-//			if (removeReferenceLastLine > addReferenceLastLine) {
-//				if (addReferenceLines != null)
-//					this.addLinesToIgnoreList(addReferenceLines);
-//				if (removeReferenceLines != null)
-//					this.addLinesToIgnoreList(removeReferenceLines);
-//				if (addResourceLines != null)
-//					this.addLinesToIgnoreList(addResourceLines);
-//				if (removeResourceLines != null)
-//					this.addLinesToIgnoreList(removeResourceLines);
-//				if (moveWithinReferenceLines != null)
-//					this.addLinesToIgnoreList(moveWithinReferenceLines);
-//			} else if (addReferenceLastLine > removeReferenceLastLine) {
-//				if (addReferenceLines != null && addReferenceLines.size() > 1)
-//					this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1));
-//				if (removeReferenceLines != null)
-//					this.addLinesToIgnoreList(removeReferenceLines);
-//				if (addResourceLines != null)
-//					this.addLinesToIgnoreList(addResourceLines);
-//				if (removeResourceLines != null)
-//					this.addLinesToIgnoreList(removeResourceLines);
-//			} else if (removeResourceLastLine > addResourceLastLine) {
-//				if (addResourceLines != null)
-//					this.addLinesToIgnoreList(addResourceLines);
-//				if (removeResourceLines != null)
-//					this.addLinesToIgnoreList(removeResourceLines);
-//			}
+			// VALUE OBJECT
+			Map<String, List<Line>> valueEventLinesMap = eObjectEventLinesMap.get(value).getEventLinesMap();
+
+			String addResourceName = AddToResourceEvent.class.getSimpleName();
+			String removeResourceName = RemoveFromResourceEvent.class.getSimpleName();
+
+			List<Line> addResourceLines = null;
+			List<Line> removeResourceLines = null;
+
+			if (valueEventLinesMap.containsKey(addReferenceName)) {
+				addReferenceLines = valueEventLinesMap.get(addReferenceName);
+				addReferenceLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getLineNumber();
+			}
+			if (valueEventLinesMap.containsKey(removeReferenceName)) {
+				removeReferenceLines = valueEventLinesMap.get(removeReferenceName);
+				removeReferenceLastLine = removeReferenceLines.get(removeReferenceLines.size() - 1).getLineNumber();
+			}
+			if (valueEventLinesMap.containsKey(addResourceName)) {
+				addResourceLines = valueEventLinesMap.get(addResourceName);
+				addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getLineNumber();
+			}
+			if (valueEventLinesMap.containsKey(removeResourceName)) {
+				removeResourceLines = valueEventLinesMap.get(removeResourceName);
+				removeResourceLastLine = removeResourceLines.get(removeResourceLines.size() - 1).getLineNumber();
+			}
+			if (valueEventLinesMap.containsKey(moveWithinReferenceName)) {
+				moveWithinReferenceLines = valueEventLinesMap.get(moveWithinReferenceName);
+			}
+
+			if (removeReferenceLastLine > addReferenceLastLine) {
+				if (addReferenceLines != null)
+					this.addLinesToIgnoreList(addReferenceLines);
+				if (removeReferenceLines != null)
+					this.addLinesToIgnoreList(removeReferenceLines);
+				if (addResourceLines != null && eReference.isContainment() == true)
+					this.addLinesToIgnoreList(addResourceLines);
+				if (removeResourceLines != null && eReference.isContainment() == true)
+					this.addLinesToIgnoreList(removeResourceLines);
+				if (moveWithinReferenceLines != null)
+					this.addLinesToIgnoreList(moveWithinReferenceLines);
+			} else if (addReferenceLastLine > removeReferenceLastLine) {
+				// if (addReferenceLines != null && addReferenceLines.size() >
+				// 1)
+				// this.addLinesToIgnoreList(addReferenceLines.subList(0,
+				// addReferenceLines.size() - 1));
+				if (removeReferenceLines != null)
+					this.addLinesToIgnoreList(removeReferenceLines);
+				if (addResourceLines != null && eReference.isContainment() == true)
+					this.addLinesToIgnoreList(addResourceLines);
+				if (removeResourceLines != null && eReference.isContainment() == true)
+					this.addLinesToIgnoreList(removeResourceLines);
+			} else if (removeResourceLastLine > addResourceLastLine) {
+				if (addResourceLines != null && eReference.isContainment() == true)
+					this.addLinesToIgnoreList(addResourceLines);
+				if (removeResourceLines != null && eReference.isContainment() == true)
+					this.addLinesToIgnoreList(removeResourceLines);
+			}
 
 		}
 	}
@@ -361,13 +421,13 @@ public class EObjectEventLinesAdapter {
 	private void handleEObjectDeletion(EObject eObject, ChangeEvent<?> event, int line) {
 		eObjectEventLinesMap.get(eObject).addEventLine(event, line);
 
-		EObjectEventLines deletedEObjectEventLines = eObjectEventLinesMap.get(eObject);
+		EObjectHistory deletedEObjectEventLines = eObjectEventLinesMap.get(eObject);
 		Map<String, List<Line>> targetEventLinesMap = deletedEObjectEventLines.getEventLinesMap();
 
 		// get all current object's attributes' lines
-		Map<EObject, EObjectEventLines> attributes = deletedEObjectEventLines.getAttributes();
-		for (Entry<EObject, EObjectEventLines> entry : attributes.entrySet()) {
-			EObjectEventLines attributeEventLines = entry.getValue();
+		Map<EObject, EObjectHistory> attributes = deletedEObjectEventLines.getAttributes();
+		for (Entry<EObject, EObjectHistory> entry : attributes.entrySet()) {
+			EObjectHistory attributeEventLines = entry.getValue();
 			for (Entry<String, List<Line>> eventLines : attributeEventLines.getEventLinesMap().entrySet()) {
 				List<Line> lines = eventLines.getValue();
 				this.addLinesToIgnoreList(lines);
@@ -375,9 +435,9 @@ public class EObjectEventLinesAdapter {
 		}
 
 		// get all current object's references' lines
-		Map<EObject, EObjectEventLines> references = deletedEObjectEventLines.getReferences();
-		for (Entry<EObject, EObjectEventLines> entry : references.entrySet()) {
-			EObjectEventLines referenceEventLines = entry.getValue();
+		Map<EObject, EObjectHistory> references = deletedEObjectEventLines.getReferences();
+		for (Entry<EObject, EObjectHistory> entry : references.entrySet()) {
+			EObjectHistory referenceEventLines = entry.getValue();
 			for (Entry<String, List<Line>> eventLines : referenceEventLines.getEventLinesMap().entrySet()) {
 				List<Line> lines = eventLines.getValue();
 				this.addLinesToIgnoreList(lines);
@@ -389,6 +449,7 @@ public class EObjectEventLinesAdapter {
 			String key = eventLines.getKey();
 			if (key.equals(AddToResourceEvent.class.getSimpleName())
 					|| key.equals(RemoveFromResourceEvent.class.getSimpleName())
+					|| key.equals(DeleteEObjectEvent.class.getSimpleName())
 					|| key.equals(CreateEObjectEvent.class.getSimpleName())) {
 				List<Line> lines = eventLines.getValue();
 				this.addLinesToIgnoreList(lines);

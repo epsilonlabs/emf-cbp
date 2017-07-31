@@ -1,0 +1,12 @@
+@namespace(uri="node", prefix="")
+package node;
+
+class Node {
+	attr String name;
+	attr Integer[*] points;
+	ref Node refNode;
+	val Node valNode;
+	val Node[*] valNodes;
+	ref Node[*] refNodes;  
+}
+

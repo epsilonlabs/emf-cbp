@@ -9,6 +9,7 @@ public interface IChangeEventVisitor<T> {
 	T visit(AddToEReferenceEvent addToEReferenceEvent);
 	T visit(AddToResourceEvent addToResourceEvent);
 	T visit(CreateEObjectEvent createEObjectEvent);
+	T visit(DeleteEObjectEvent deleteEObjectEvent);
 	T visit(MoveWithinEAttributeEvent moveWithinEAttributeEvent);
 	T visit(MoveWithinEReferenceEvent moveWithinEReferenceEvent);
 	T visit(RegisterEPackageEvent registerEPackageEvent);
