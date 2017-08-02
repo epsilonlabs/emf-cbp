@@ -100,6 +100,9 @@ public abstract class LoadingPerformanceEquivalenceTests {
 
 		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 		
+		
+		int actualTotalLines = 0;
+		int count2 = 0;
 		if (debug) {
 			System.out.println("");
 			System.out.println("DATA STRUCTURE");
@@ -109,7 +112,7 @@ public abstract class LoadingPerformanceEquivalenceTests {
 				EObject eObject = entry1.getKey();
 				EObjectHistory eObjectEventLineHistory = entry1.getValue();
 				System.out.println("EObject: " + cbpResource1.getURIFragment(eObject) + " -------------------");
-				for (Entry<String, List<Line>> entry2 : eObjectEventLineHistory.getEventLinesMap().entrySet()) {
+				for (Entry<String, List<Line>> entry2 : eObjectEventLineHistory.getEventRecords().entrySet()) {
 					String eventName = entry2.getKey();
 					List<Line> lines = entry2.getValue();
 					System.out.println("    " + eventName + " = " + lines);
@@ -121,7 +124,7 @@ public abstract class LoadingPerformanceEquivalenceTests {
 					EAttribute eAttribute = (EAttribute) entry2.getKey();
 					EObjectHistory eAttributeHistory = entry2.getValue();
 					System.out.println("        " + eAttribute.getName() + " -------------------");
-					for (Entry<String, List<Line>> entry3 : eAttributeHistory.getEventLinesMap().entrySet()) {
+					for (Entry<String, List<Line>> entry3 : eAttributeHistory.getEventRecords().entrySet()) {
 						String eventName = entry3.getKey();
 						List<Line> lines = entry3.getValue();
 						System.out.println("            " + eventName + " = " + lines);
@@ -134,7 +137,7 @@ public abstract class LoadingPerformanceEquivalenceTests {
 					EReference eReference = (EReference) entry2.getKey();
 					EObjectHistory eReferenceHistory = entry2.getValue();
 					System.out.println("        " + eReference.getName() + " -------------------");
-					for (Entry<String, List<Line>> entry3 : eReferenceHistory.getEventLinesMap().entrySet()) {
+					for (Entry<String, List<Line>> entry3 : eReferenceHistory.getEventRecords().entrySet()) {
 						String eventName = entry3.getKey();
 						List<Line> lines = entry3.getValue();
 						System.out.println("            " + eventName + " = " + lines);
@@ -149,6 +152,19 @@ public abstract class LoadingPerformanceEquivalenceTests {
 				System.out.println(String.valueOf(count1) + "\t" + line);
 				count1 += 1;
 			}
+			
+			System.out.println("\nXML AFTER REMOVED");
+			String[] list2 = cbpSos.toString().split(System.getProperty("line.separator"));
+			for (String line : list2) {
+				if (ignoreList.contains(count2)) {
+					count2 += 1;
+					continue;
+				}
+				System.out.println(String.valueOf(count2) + "\t" + line);
+				count2 += 1;
+				actualTotalLines += 1;
+			}
+			
 			System.out.println("");
 			System.out.println("IGNORE LIST = " + ignoreList);
 			System.out.println("");
@@ -209,18 +225,7 @@ public abstract class LoadingPerformanceEquivalenceTests {
 
 			System.out.println("");
 			System.out.println("XML AFTER REMOVED");
-			String[] list2 = cbpSos.toString().split(System.getProperty("line.separator"));
-			int count2 = 0;
-			int actualTotalLines = 0;
-			for (String line : list2) {
-				if (ignoreList.contains(count2)) {
-					count2 += 1;
-					continue;
-				}
-				System.out.println(String.valueOf(count2) + "\t" + line);
-				count2 += 1;
-				actualTotalLines += 1;
-			}
+			
 			System.out.println("");
 			System.out.println("STATISTICS");
 			System.out.println("Removed lines: " + ignoreList + " = " + ignoreList.size());

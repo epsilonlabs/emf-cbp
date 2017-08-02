@@ -1,11 +1,11 @@
 package org.eclipse.epsilon.cbp.test;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +26,6 @@ import org.eclipse.epsilon.cbp.test.employee.Employee;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.models.IModel;
 
 public abstract class LoadingPerformanceTests {
 
@@ -151,7 +150,7 @@ public abstract class LoadingPerformanceTests {
 					Resource cbpResource1 = cbpResourceSet1.createResource(URI.createURI("foo3." + extension));
 					InMemoryEmfModel modelCbp = new InMemoryEmfModel("M", cbpResource1, getEPackage());
 					moduleCbp.getContext().getModelRepository().addModel(modelCbp);
-					//moduleCbp.getContext().getModelRepository().getModels().addAll(getExtraModels());
+					// moduleCbp.getContext().getModelRepository().getModels().addAll(getExtraModels());
 					moduleCbp.execute();
 
 					ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
@@ -325,6 +324,16 @@ public abstract class LoadingPerformanceTests {
 					sumNumOfLineOptCBP, sumNumOfLineCBP));
 
 		} catch (Exception e) {
+			SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");// dd/MM/yyyy
+			Date now = new Date();
+			String strDate = sdfDate.format(now);
+			PrintWriter out = new PrintWriter("logs" + File.separator + strDate + ".log");
+			String strLog = "";
+			strLog += eol;
+			strLog += "\n";
+			strLog += e.toString();
+			out.println(strLog);
+			out.close();
 			e.printStackTrace();
 		}
 	}

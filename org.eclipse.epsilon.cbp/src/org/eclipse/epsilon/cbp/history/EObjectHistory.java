@@ -16,7 +16,7 @@ public class EObjectHistory {
 	private boolean isMoved = false;
 	private Map<EObject, EObjectHistory> attributes = new HashMap<EObject, EObjectHistory>();
 	private Map<EObject, EObjectHistory> references = new HashMap<EObject, EObjectHistory>();
-	private Map<String, List<Line>> eventLinesMap = new HashMap<String, List<Line>>();
+	private Map<String, List<Line>> eventRecords = new HashMap<String, List<Line>>();
 	
 	public boolean isMoved() {
 		return isMoved;
@@ -30,7 +30,7 @@ public class EObjectHistory {
 		this.eObject = eObject;
 	}
 
-	public EObject geteObject() {
+	public EObject getEObject() {
 		return eObject;
 	}
 
@@ -42,22 +42,22 @@ public class EObjectHistory {
 		return references;
 	}
 
-	public Map<String, List<Line>> getEventLinesMap() {
-		return eventLinesMap;
+	public Map<String, List<Line>> getEventRecords() {
+		return eventRecords;
 	}
 
-	public void addEventLine(ChangeEvent<?> event, int lineNumber) {
-		this.addEventLine(event, lineNumber, null);
+	public void addEventRecord(ChangeEvent<?> event, int lineNumber) {
+		this.addEventRecord(event, lineNumber, null);
 	}
 
-	public void addEventLine(ChangeEvent<?> event, int lineNumber, Object value) {
+	public void addEventRecord(ChangeEvent<?> event, int lineNumber, Object value) {
 		Line line = new Line(lineNumber, value);
 		String eventName = event.getClass().getSimpleName();
-		if (!this.getEventLinesMap().containsKey(eventName)) {
+		if (!this.getEventRecords().containsKey(eventName)) {
 			List<Line> lines = new ArrayList<Line>(Arrays.asList(line));
-			this.getEventLinesMap().put(eventName, lines);
+			this.getEventRecords().put(eventName, lines);
 		} else {
-			this.getEventLinesMap().get(eventName).add(line);
+			this.getEventRecords().get(eventName).add(line);
 		}
 	}
 

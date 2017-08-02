@@ -123,75 +123,75 @@ public class CBPXMLResourceImpl extends CBPResource {
 					RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
 					e = document.createElement("register");
 					e.setAttribute("epackage", r.getEPackage().getNsURI());
-					eObjectEventLinesAdapater.add(r.getEPackage(), event, line);
+					eObjectHistoryAdapater.add(r.getEPackage(), event, line);
 				} else if (event instanceof CreateEObjectEvent) {
 					e = document.createElement("create");
 					e.setAttribute("epackage", ((CreateEObjectEvent) event).getEClass().getEPackage().getNsURI());
 					e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
 					e.setAttribute("id", ((CreateEObjectEvent) event).getId());
 					EObject eObject = ((CreateEObjectEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof DeleteEObjectEvent) {
 					e = document.createElement("delete");
 					e.setAttribute("epackage", ((DeleteEObjectEvent) event).getEClass().getEPackage().getNsURI());
 					e.setAttribute("eclass", ((DeleteEObjectEvent) event).getEClass().getName());
 					e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
 					EObject eObject = ((DeleteEObjectEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof AddToResourceEvent) {
 					e = document.createElement("add-to-resource");
 					EObject eObject = ((AddToResourceEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof RemoveFromResourceEvent) {
 					e = document.createElement("remove-from-resource");
 					EObject eObject = ((RemoveFromResourceEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof AddToEReferenceEvent) {
 					e = document.createElement("add-to-ereference");
 					EObject eObject = ((AddToEReferenceEvent) event).getTarget();
 					EObject value = ((AddToEReferenceEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line, value);
+					eObjectHistoryAdapater.add(eObject, event, line, value);
 				} else if (event instanceof RemoveFromEReferenceEvent) {
 					e = document.createElement("remove-from-ereference");
 					EObject eObject = ((RemoveFromEReferenceEvent) event).getTarget();
 					EObject value = ((RemoveFromEReferenceEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line, value);
+					eObjectHistoryAdapater.add(eObject, event, line, value);
 				} else if (event instanceof SetEAttributeEvent) {
 					e = document.createElement("set-eattribute");
 					EObject eObject = ((SetEAttributeEvent) event).getTarget();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof SetEReferenceEvent) {
 					e = document.createElement("set-ereference");
 					EObject eObject = ((SetEReferenceEvent) event).getTarget();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof UnsetEReferenceEvent) {
 					e = document.createElement("unset-ereference");
 					EObject eObject = ((UnsetEReferenceEvent) event).getTarget();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof UnsetEAttributeEvent) {
 					e = document.createElement("unset-eattribute");
 					EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
-					eObjectEventLinesAdapater.add(eObject, event, line);
+					eObjectHistoryAdapater.add(eObject, event, line);
 				} else if (event instanceof AddToEAttributeEvent) {
 					e = document.createElement("add-to-eattribute");
 					EObject eObject = ((AddToEAttributeEvent) event).getTarget();
 					Object value = ((AddToEAttributeEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line, value);
+					eObjectHistoryAdapater.add(eObject, event, line, value);
 				} else if (event instanceof RemoveFromEAttributeEvent) {
 					e = document.createElement("remove-from-eattribute");
 					EObject eObject = ((RemoveFromEAttributeEvent) event).getTarget();
 					Object value = ((RemoveFromEAttributeEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line, value);
+					eObjectHistoryAdapater.add(eObject, event, line, value);
 				} else if (event instanceof MoveWithinEReferenceEvent) {
 					e = document.createElement("move-in-ereference");
 					EObject eObject = ((MoveWithinEReferenceEvent) event).getTarget();
 					EObject values = ((MoveWithinEReferenceEvent) event).getValue();
-					eObjectEventLinesAdapater.add(eObject, event, line, values);
+					eObjectHistoryAdapater.add(eObject, event, line, values);
 				} else if (event instanceof MoveWithinEAttributeEvent) {
 					e = document.createElement("move-in-eattribute");
 					EObject eObject = ((MoveWithinEAttributeEvent) event).getTarget();
 					Object values = ((MoveWithinEAttributeEvent) event).getValues();
-					eObjectEventLinesAdapater.add(eObject, event, line, values);
+					eObjectHistoryAdapater.add(eObject, event, line, values);
 				} else {
 					throw new RuntimeException("Unexpected event:" + event);
 				}

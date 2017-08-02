@@ -17,6 +17,7 @@ public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValu
 			position = list.size();
 		}
 
+		Collection<EObject> col = getValues();
 		list.addAll(position, getValues());
 	}
 

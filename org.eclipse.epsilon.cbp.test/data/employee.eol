@@ -2,33 +2,56 @@ var e0 = new Employee;
 e0.name = "e0";
 var e1 = new Employee;
 e1.name = "e1";
-e1.manages.add(e0);
+var e2 = new Employee;
+e2.name = "e2";
+var e3 = new Employee;
+e3.name = "e3";
+var e4 = new Employee;
+e4.name = "e4";
 
-e0.accounts.addAll(Bag{11,11,12,13,14});
-//e0.accounts.move(2,0);
-e0.accounts.remove(13);
-e0.accounts.add(3,15);
-e0.accounts.move(2,0);
-e0.accounts.move(3,1);
-e0.accounts.remove(11);
-e0.accounts.move(0,2);
-e0.accounts.remove(12);
-e0.accounts.move(0,1);
-e0.accounts.remove(14);
-e0.accounts.remove(15);
+e0.manages.add(e1);
+e1.manages.add(e2);
+e3.refManages.add(e2);
+RemoveRefToObject(e1);
+delete e1;
 
 
+operation RemoveRefToObject(targetObject){
+	for (child in targetObject.manages){
+		RemoveRefToObject(child);	
+	}
+	for (object in M.allContents()){
+		if (object.partner == targetObject){
+			object.partner = null;
+		}
+		object.refManages.remove(targetObject);
+		/*for (item in object.refManages){ 
+			if (item == targetObject){
+				object.refManages.
+				"+---Item: ".print();
+				item.println();
+			}
+		}*/
+	}
+}
+operation containedByModel(targetObject): Boolean { 
+	var result = false;
+	if (M.allContents()
+		.selectOne(object | object == targetObject) 
+		<> null){ 	
+		result = true;
+	} 
+	return result; 
+}
 
-//e0.refManages.add(e2);
-
-/*operation isCircular(targetObject, valueObject): Boolean {	var result = false;
+operation isCircular(targetObject, valueObject): Boolean {	
 	for (child in valueObject.manages){
 		if (child == targetObject){
-			result = true;
-			break;
+			return true;
 		}else{
-			result = isCircular(
+			return isCircular(
 			targetObject, child);
 		}
 	}
-}*/
+	return false;
+}

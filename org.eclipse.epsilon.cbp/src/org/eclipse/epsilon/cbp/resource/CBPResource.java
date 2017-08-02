@@ -33,7 +33,7 @@ public abstract class CBPResource extends ResourceImpl {
 	protected BiMap<EObject, String> eObjectToIdMap;
 	
 	protected Set<Integer> ignoreList;
-	protected EObjectHistoryAdapter eObjectEventLinesAdapater;
+	protected EObjectHistoryAdapter eObjectHistoryAdapater;
 	
 	public CBPResource() {
 		super();
@@ -42,7 +42,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.eObjectToIdMap = HashBiMap.create();
 		
 		this.ignoreList = new TreeSet<>();
-		this.eObjectEventLinesAdapater = new EObjectHistoryAdapter(ignoreList);
+		this.eObjectHistoryAdapater = new EObjectHistoryAdapter(ignoreList);
 
 	}
 
@@ -136,7 +136,7 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 	
 	public EObjectHistoryAdapter getEObjectHistoryList() {
-		return eObjectEventLinesAdapater;
+		return eObjectHistoryAdapater;
 	}
 	
 }
