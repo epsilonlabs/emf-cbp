@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -31,6 +32,8 @@ public abstract class LoadingPerformanceTests {
 
 	private final String extension;
 
+	protected StringBuilder errorMessage = new StringBuilder();
+	protected StringBuilder outputText = new StringBuilder();
 	protected StringOutputStream xmiOutputStream = null;
 	protected StringOutputStream cbpOutputStream = null;
 	protected Thread threadSaveXMI = null;
@@ -95,6 +98,7 @@ public abstract class LoadingPerformanceTests {
 					xmiResource1.save(xmiOutputStream, null);
 					afterSaveXMI = System.currentTimeMillis();
 				} catch (Exception e) {
+					errorMessage.append(e.toString() + "\n");
 					e.printStackTrace();
 				}
 			}
@@ -130,6 +134,7 @@ public abstract class LoadingPerformanceTests {
 					xmiResource2.load(new ByteArrayInputStream(sXMI.getBytes()), null);
 					afterLoadXMI = System.currentTimeMillis();
 				} catch (IOException e) {
+					errorMessage.append(e.toString() + "\n");
 					e.printStackTrace();
 				}
 			}
@@ -160,6 +165,7 @@ public abstract class LoadingPerformanceTests {
 					cbpResource1.save(cbpOutputStream, null);
 					afterSaveCBP = System.currentTimeMillis();
 				} catch (Exception e) {
+					errorMessage.append(e.toString() + "\n");
 					e.printStackTrace();
 				}
 			}
@@ -197,6 +203,7 @@ public abstract class LoadingPerformanceTests {
 					cbpResource3.load(new ByteArrayInputStream(sCBP2.getBytes()), options);
 					afterLoadCBP = System.currentTimeMillis();
 				} catch (IOException e) {
+					errorMessage.append(e.toString() + "\n");
 					e.printStackTrace();
 				}
 			}
@@ -239,7 +246,21 @@ public abstract class LoadingPerformanceTests {
 					cbpResource2.load(new ByteArrayInputStream(sCBP1.getBytes()), null);
 					afterLoadOptCBP = System.currentTimeMillis();
 				} catch (IOException e) {
+					errorMessage.append(e.toString() + "\n");
 					e.printStackTrace();
+					try {
+						saveErrorMessages();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					try {
+						saveOutputText();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.exit(0);
 				}
 			}
 		};
@@ -294,8 +315,8 @@ public abstract class LoadingPerformanceTests {
 				threadLoadXMI.join();
 				threadLoadOptCBP.join();
 
-				// System.out.println(xmiOutputStream.toString());
-				// System.out.println(cbpOutputStream.toString());
+				// appendLineToOutputText(xmiOutputStream.toString());
+				// appendLineToOutputText(cbpOutputStream.toString());
 
 				deltaSaveXMI = deltaSaveXMI + ((double) (afterSaveXMI - beforeSaveXMI)) / 1000;
 				deltaLoadXMI = deltaLoadXMI + ((double) (afterLoadXMI - beforeLoadXMI)) / 1000;
@@ -319,22 +340,16 @@ public abstract class LoadingPerformanceTests {
 			sumNumOfLineOptCBP = sumNumOfLineOptCBP / iteration;
 			sumNumOfLineCBP = sumNumOfLineCBP / iteration;
 
-			System.out.println(String.format("%1$.4f\t%2$.4f\t%3$.4f\t%4$.4f\t%5$.4f\t%6$.0f\t%7$.0f\t%8$.0f",
+			appendLineToOutputText(String.format("%1$.4f\t%2$.4f\t%3$.4f\t%4$.4f\t%5$.4f\t%6$.0f\t%7$.0f\t%8$.0f",
 					deltaSaveXMI, deltaSaveCBP, deltaLoadXMI, deltaLoadOCBP, deltaLoadCBP, sumNumOfNodes,
 					sumNumOfLineOptCBP, sumNumOfLineCBP));
 
 		} catch (Exception e) {
-			SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");// dd/MM/yyyy
-			Date now = new Date();
-			String strDate = sdfDate.format(now);
-			PrintWriter out = new PrintWriter("logs" + File.separator + strDate + ".log");
-			String strLog = "";
-			strLog += eol;
-			strLog += "\n";
-			strLog += e.toString();
-			out.println(strLog);
-			out.close();
+			errorMessage.append("\n" + eol);
+			errorMessage.append(e.toString() + "\n");
+			saveErrorMessages();
 			e.printStackTrace();
+			
 		}
 	}
 
@@ -347,7 +362,39 @@ public abstract class LoadingPerformanceTests {
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
 		return xmiResourceSet;
 	}
-
+	
+	protected void appendToOutputText(String text){
+		outputText.append(text);
+		System.out.print(text);
+	}
+	
+	protected void appendLineToOutputText(String text){
+		outputText.append(text+ "\n");
+		System.out.println(text);
+	}
+	
+	protected void saveErrorMessages() throws FileNotFoundException{
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");// dd/MM/yyyy
+		Date now = new Date();
+		String strDate = sdfDate.format(now);
+		PrintWriter out = new PrintWriter("logs" + File.separator + strDate + ".log");
+		out.println(errorMessage.toString());
+		out.close();
+		errorMessage.setLength(0);
+	}
+	
+	protected void saveOutputText() throws FileNotFoundException{
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");// dd/MM/yyyy
+		Date now = new Date();
+		String strDate = sdfDate.format(now);
+		PrintWriter out = new PrintWriter("output" + File.separator + strDate + ".txt");
+		out.println(outputText.toString());
+		out.close();
+		outputText.setLength(0);
+	}
+	
+	
+	
 	protected void run(String eol) throws Exception {
 		run(eol, false);
 	}

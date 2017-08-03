@@ -422,8 +422,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			persistedEvents = getChangeEvents().size();
 		} catch (Exception ex) {
 			System.out.println("Error: " + lineNumber + " : " + line);
-			ex.printStackTrace();
-			throw new IOException(ex);
+			throw new IOException("Error: " + lineNumber + " : " + line + "\n" + ex.toString() + "\n");
 		}
 
 		changeEventAdapter.setEnabled(true);

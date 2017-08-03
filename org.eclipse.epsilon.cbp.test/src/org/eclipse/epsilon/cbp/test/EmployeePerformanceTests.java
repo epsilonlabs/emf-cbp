@@ -2,9 +2,11 @@ package org.eclipse.epsilon.cbp.test;
 
 import static org.junit.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +36,9 @@ public class EmployeePerformanceTests extends LoadingPerformanceTests {
 	@Test
 	public void testDeepTreePerformance() throws Exception {
 		String eolCode = "";
-		System.out.println("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
 		for (int i = 20; i <= 400; i += 20) {
-			System.out.print(String.valueOf(i) + "\t");
+			appendToOutputText(String.valueOf(i) + "\t");
 			String code = "";
 			code += "var eRoot = new Employee;";
 			code += "eRoot.name = \"0\";";
@@ -49,18 +51,23 @@ public class EmployeePerformanceTests extends LoadingPerformanceTests {
 			eolCode = String.format(code, i);
 			run(eolCode, true);
 		}
-
+		
+		saveOutputText();
+	    saveErrorMessages();
 		assertEquals(true, true);
 	}
 
 	@Test
 	public void testRandomModelPerformance() throws Exception {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// dd/MM/yyyy
+		appendLineToOutputText("Start: " + sdf.format(new Date())+ "\n");
+		
 		String eolCode = "";
-		System.out.println("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
 		//for (int i = 3200; i <= 3200; i += 200) {
 	    for (int i = 0; i <= 4000; i += 200) {
 			eolCode = "";
-			System.out.print(String.valueOf(i) + "\t");
+			appendToOutputText(String.valueOf(i) + "\t");
 
 			int nameIndex = 0;
 			for (nameIndex = 0; nameIndex < i; nameIndex++) {
@@ -71,15 +78,15 @@ public class EmployeePerformanceTests extends LoadingPerformanceTests {
 			// Random operation
 			Map<String, Integer> eventProbabilityMap = new HashMap<>();
 			eventProbabilityMap.put("CREATE", 1);
-			eventProbabilityMap.put("SET_ATTRIBUTE", 1);
-			eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
-			eventProbabilityMap.put("ADD_ATTRIBUTE", 3);
-			eventProbabilityMap.put("MOVE_ATTRIBUTE", 2);
-			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
+//			eventProbabilityMap.put("SET_ATTRIBUTE", 1);
+//			eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
+//			eventProbabilityMap.put("ADD_ATTRIBUTE", 3);
+//			eventProbabilityMap.put("MOVE_ATTRIBUTE", 2);
+//			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
 			eventProbabilityMap.put("ADD_REFERENCE_REF", 3);
 			eventProbabilityMap.put("MOVE_REFERENCE_REF", 2);
-			eventProbabilityMap.put("ADD_REFERENCE_VAL", 3);
-			eventProbabilityMap.put("MOVE_REFERENCE_VAL", 2);
+//			eventProbabilityMap.put("ADD_REFERENCE_VAL", 3);
+//			eventProbabilityMap.put("MOVE_REFERENCE_VAL", 2);
 			eventProbabilityMap.put("DELETE", 2);
 
 			List<String> operations = new ArrayList<>();
@@ -240,18 +247,21 @@ public class EmployeePerformanceTests extends LoadingPerformanceTests {
 			eolCode += "}\n";
 
 			run(eolCode, true);
-			// System.out.println(eolCode);
+			// appendLineToOutputText(eolCode);
 		}
 
+	    appendLineToOutputText("\nEnd: " + sdf.format(new Date()));
+	    saveOutputText();
+	    saveErrorMessages();
 		assertEquals(true, true);
 	}
 
 	@Test
 	public void testCreateObjectPerformance() throws Exception {
 		String eolCode = "";
-		System.out.println("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
 		for (int i = 500; i <= 10000; i += 500) {
-			System.out.print(String.valueOf(i) + "\t");
+			appendToOutputText(String.valueOf(i) + "\t");
 			String code = "";
 			code += "var eRoot = new Employee;";
 			code += "for(i in Sequence{1..%1$d}){";
@@ -261,7 +271,8 @@ public class EmployeePerformanceTests extends LoadingPerformanceTests {
 			eolCode = String.format(code, i);
 			run(eolCode, true);
 		}
-
+		saveOutputText();
+	    saveErrorMessages();
 		assertEquals(true, true);
 	}
 
