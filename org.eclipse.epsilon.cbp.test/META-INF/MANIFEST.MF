@@ -12,7 +12,10 @@ Export-Package: org.eclipse.epsilon.cbp.test.blog,
  org.eclipse.epsilon.cbp.test.blog.util,
  org.eclipse.epsilon.cbp.test.employee,
  org.eclipse.epsilon.cbp.test.employee.impl,
- org.eclipse.epsilon.cbp.test.employee.util
+ org.eclipse.epsilon.cbp.test.employee.util,
+ org.eclipse.epsilon.cbp.test.node,
+ org.eclipse.epsilon.cbp.test.node.impl,
+ org.eclipse.epsilon.cbp.test.node.util
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.epsilon.cbp,

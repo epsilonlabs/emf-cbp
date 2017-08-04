@@ -23,7 +23,6 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
-import org.eclipse.epsilon.cbp.test.employee.Employee;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
@@ -32,6 +31,7 @@ public abstract class LoadingPerformanceTests {
 
 	private final String extension;
 
+	protected String eol = "";
 	protected StringBuilder errorMessage = new StringBuilder();
 	protected StringBuilder outputText = new StringBuilder();
 	protected StringOutputStream xmiOutputStream = null;
@@ -62,6 +62,7 @@ public abstract class LoadingPerformanceTests {
 	}
 
 	public abstract EPackage getEPackage();
+	public abstract Class<?> getNodeClass();
 
 	// Save XMI -------------------------------------------
 	public void testSaveXMI(String eol, String extension, boolean debug) throws Exception {
@@ -90,7 +91,7 @@ public abstract class LoadingPerformanceTests {
 					numberOfNodes = 0;
 					while (iterator.hasNext()) {
 						EObject eObject = iterator.next();
-						if (eObject instanceof Employee) {
+						if (getNodeClass().isInstance(eObject)) {
 							numberOfNodes += 1;
 						}
 					}
@@ -271,6 +272,7 @@ public abstract class LoadingPerformanceTests {
 	public void run(String eol, String extension, boolean debug) throws Exception {
 
 		try {
+			this.eol = eol;
 			int iteration = 10;
 			double deltaSaveXMI = 0;
 			double deltaLoadXMI = 0;
@@ -378,6 +380,8 @@ public abstract class LoadingPerformanceTests {
 		Date now = new Date();
 		String strDate = sdfDate.format(now);
 		PrintWriter out = new PrintWriter("logs" + File.separator + strDate + ".log");
+		this.appendLineToOutputText(this.eol);
+		this.appendLineToOutputText(cbpOutputStream.toString());
 		out.println(errorMessage.toString());
 		out.close();
 		errorMessage.setLength(0);

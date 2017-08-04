@@ -13,7 +13,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class FasterLoadingTests extends LoadingPerformanceEquivalenceTests {
+public class FasterLoadingTests extends LoadingEquivalenceTests {
 
 	@Parameters
 	public static Collection<Object[]> data() {

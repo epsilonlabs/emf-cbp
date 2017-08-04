@@ -3,7 +3,7 @@ package node;
 
 class Node {
 	attr String name;
-	attr Integer[*] points;
+	attr Integer[*] values;
 	ref Node refNode;
 	val Node valNode;
 	val Node[*] valNodes;

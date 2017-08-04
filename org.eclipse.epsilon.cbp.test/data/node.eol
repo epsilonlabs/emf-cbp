@@ -1,0 +1,4 @@
+var node = new Node;
+node.name = "Old Name!";
+node.name = null;
+node.name = "Newest Name!";

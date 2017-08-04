@@ -33,11 +33,11 @@ import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.models.IModel;
 
-public abstract class LoadingPerformanceEquivalenceTests {
+public abstract class LoadingEquivalenceTests {
 
 	private final String extension;
 
-	public LoadingPerformanceEquivalenceTests(String extension) {
+	public LoadingEquivalenceTests(String extension) {
 		this.extension = extension;
 	}
 
@@ -61,10 +61,8 @@ public abstract class LoadingPerformanceEquivalenceTests {
 		xmiResource.save(xmiSos, null);
 		long afterSaveXMI = System.currentTimeMillis();
 		// inspect(xmiResource);
-		
-		
-		
-		//Load XMI
+
+		// Load XMI
 		System.out.println("LOAD XMI");
 		xmiResourceSet = createResourceSet();
 		xmiResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
@@ -72,13 +70,11 @@ public abstract class LoadingPerformanceEquivalenceTests {
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", xmiFactory);
 		xmiResource = xmiResourceSet.createResource(URI.createURI("foo.xmi"));
 		final String sXMI = xmiSos.toString();
-		
+
 		long beforeLoadXMI = System.currentTimeMillis();
 		xmiResource.load(new ByteArrayInputStream(sXMI.getBytes()), null);
 		long afterLoadXMI = System.currentTimeMillis();
 
-		
-		
 		// Run the code against a change-based resource
 		System.out.println("SAVE CBP");
 		module = new EolModule();
@@ -99,8 +95,7 @@ public abstract class LoadingPerformanceEquivalenceTests {
 		long afterSaveCBP = System.currentTimeMillis();
 
 		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
-		
-		
+
 		int actualTotalLines = 0;
 		int count2 = 0;
 		if (debug) {
@@ -152,7 +147,7 @@ public abstract class LoadingPerformanceEquivalenceTests {
 				System.out.println(String.valueOf(count1) + "\t" + line);
 				count1 += 1;
 			}
-			
+
 			System.out.println("\nXML AFTER REMOVED");
 			String[] list2 = cbpSos.toString().split(System.getProperty("line.separator"));
 			for (String line : list2) {
@@ -164,14 +159,15 @@ public abstract class LoadingPerformanceEquivalenceTests {
 				count2 += 1;
 				actualTotalLines += 1;
 			}
-			
+
 			System.out.println("");
 			System.out.println("IGNORE LIST = " + ignoreList);
 			System.out.println("");
-			
+
 			System.out.println("XMIResourceImpl");
 			System.out.println(xmiSos.toString());
 			System.out.println();
+
 		}
 
 		// Create a new change-based resource and load what was saved before
@@ -183,24 +179,12 @@ public abstract class LoadingPerformanceEquivalenceTests {
 		Resource cbpResource2 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
 		final String sCBP = cbpSos.toString();
 
-		//get ignoreList from cbpResource1 and apply it cbpResource2 
+		// get ignoreList from cbpResource1 and apply it cbpResource2
 		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
 
 		long beforeLoadCBP = System.currentTimeMillis();
 		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);
 		long afterLoadCBP = System.currentTimeMillis();
-		
-		
-		
-		System.out.println("");
-		System.out.println("LOAD CBP");
-		Resource cbpResource3 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
-		long beforeLoadIgnoreCBP = System.currentTimeMillis();
-		Map<String,Boolean> options = new HashMap<>();
-		options.put("optimise", false);
-		cbpResource3.load(new ByteArrayInputStream(sCBP.getBytes()), options);
-		long afterLoadIgnoreCBP = System.currentTimeMillis();
-		// inspect(cbpResource);
 
 		xmiResourceSet = createResourceSet();
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
@@ -211,21 +195,27 @@ public abstract class LoadingPerformanceEquivalenceTests {
 		StringOutputStream copyXmiResourceSos = new StringOutputStream();
 		copyXmiResource.doSave(copyXmiResourceSos, null);
 
-
-		
-
-		// DEBUG
 		if (debug) {
 			System.out.println("CBPResource");
 			System.out.println(copyXmiResourceSos.toString());
 			System.out.println("---");
-			// System.out.println(sCBP);
+		}
 
-			
+		System.out.println("");
+		System.out.println("LOAD CBP");
+		Resource cbpResource3 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
+		long beforeLoadIgnoreCBP = System.currentTimeMillis();
+		Map<String, Boolean> options = new HashMap<>();
+		options.put("optimise", false);
+		cbpResource3.load(new ByteArrayInputStream(sCBP.getBytes()), options);
+		long afterLoadIgnoreCBP = System.currentTimeMillis();
+		// inspect(cbpResource);
 
+		// DEBUG
+		if (debug) {
 			System.out.println("");
 			System.out.println("XML AFTER REMOVED");
-			
+
 			System.out.println("");
 			System.out.println("STATISTICS");
 			System.out.println("Removed lines: " + ignoreList + " = " + ignoreList.size());
@@ -277,6 +267,6 @@ public abstract class LoadingPerformanceEquivalenceTests {
 
 	protected Collection<IModel> getExtraModels() {
 		return Collections.emptyList();
-}
+	}
 
 }

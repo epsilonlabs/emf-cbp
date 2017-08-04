@@ -12,14 +12,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.epsilon.cbp.test.employee.EmployeePackage;
+import org.eclipse.epsilon.cbp.test.node.NodePackage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
+public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 
 	private static final int ITERATION = 400;
 	private static final String ADD_ATTRIBUTE = "ADD_ATTRIBUTE";
@@ -40,20 +40,45 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 
 	}
 
-	public EmployeeEquivalenceTests(String extension) {
+	public NodeEquivalenceTests(String extension) {
 		super(extension);
 	}
 
+	
 	@Test
-	public void employeeTest2() throws Exception {
-		 String eolCode = new
-		 String(Files.readAllBytes(Paths.get("data/employee.eol")));
-		 run(eolCode, true);
+	public void unsetAttributeTest() throws Exception {
+		String eolCode = new String();
+		eolCode += "var node = new Node;\n";
+		eolCode += "node.name = \"Old Name!\";\n";
+		eolCode += "node.name = null;\n";
+		eolCode += "node.name = \"New Name!\";\n";
+		eolCode += "node.name = null;\n";
+		System.out.println(eolCode);
+		run(eolCode, true);
+
+	}
+	
+	@Test
+	public void setAttributeTest() throws Exception {
+		String eolCode = new String();
+		eolCode += "var node = new Node;\n";
+		eolCode += "node.name = \"Old Name!\";\n";
+		eolCode += "node.name = null;\n";
+		eolCode += "node.name = \"New Name!\";\n";
+		System.out.println(eolCode);
+		run(eolCode, true);
 
 	}
 
 	@Test
-	public void employeeTest() throws Exception {
+	public void nodeTest2() throws Exception {
+		String eolCode = new String(Files.readAllBytes(Paths.get("data/node.eol")));
+		run(eolCode, true);
+
+	}
+
+	@Test
+	public void nodeTest() throws Exception {
 		StringBuilder codeBuilder = new StringBuilder();
 		String eolCode = "";
 		int nameIncrement = 0;
@@ -71,7 +96,7 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 		eventProbabilityMap.put(ADD_REFERENCE, 1);
 		eventProbabilityMap.put(MOVE_WITHIN_REFERENCE, 1);
 		eventProbabilityMap.put(DELETE, 1);
-		
+
 		List<String> operations = new ArrayList<>();
 		for (Entry<String, Integer> entry : eventProbabilityMap.entrySet()) {
 			for (int i = 0; i < entry.getValue(); i++) {
@@ -80,25 +105,25 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 		}
 
 		objects.add("e" + nameIncrement);
-		codeBuilder.append(String.format("var %s = new Employee;\n", objects.get(objects.size() - 1)));
+		codeBuilder.append(String.format("var %s = new Node;\n", objects.get(objects.size() - 1)));
 		codeBuilder.append(
 				String.format("%s.name = \"%s\";\n", objects.get(objects.size() - 1), objects.get(objects.size() - 1)));
 
 		for (int i = 0; i < 50; i++) {
 			nameIncrement += 1;
 			objects.add("e" + nameIncrement);
-			codeBuilder.append(String.format("var %s = new Employee;\n", objects.get(objects.size() - 1)));
+			codeBuilder.append(String.format("var %s = new Node;\n", objects.get(objects.size() - 1)));
 			codeBuilder.append(String.format("%s.name = \"%s\";\n", objects.get(objects.size() - 1),
 					objects.get(objects.size() - 1)));
 		}
-		
+
 		for (int i = 0; i < ITERATION; i++) {
 			String operation = operations.get(ThreadLocalRandom.current().nextInt(operations.size()));
 
 			if (operation.equals(CREATE)) {
 				nameIncrement += 1;
 				objects.add("e" + nameIncrement);
-				codeBuilder.append(String.format("var %s = new Employee;\n", objects.get(objects.size() - 1)));
+				codeBuilder.append(String.format("var %s = new Node;\n", objects.get(objects.size() - 1)));
 				codeBuilder.append(String.format("%s.name = \"%s\";\n", objects.get(objects.size() - 1),
 						objects.get(objects.size() - 1)));
 			} else if (operation.equals(SET_ATTRIBUTE) && objects.size() > 0) {
@@ -115,15 +140,14 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 				int index = ThreadLocalRandom.current().nextInt(objects.size());
 				String object = objects.get(index);
 				codeBuilder.append(String.format(
-						"if (containedByModel(%1$s)){\n" + "    %1$s.accounts.addAll(Collection{0,1,2,3});\n" + "}\n",
+						"if (containedByModel(%1$s)){\n" + "    %1$s.values.addAll(Collection{0,1,2,3});\n" + "}\n",
 						object));
 			} else if (operation.equals(REMOVE_ATTRIBUTE) && objects.size() > 0) {
 				int index = ThreadLocalRandom.current().nextInt(objects.size());
 				int removedValue = ThreadLocalRandom.current().nextInt(4);
 				String object = objects.get(index);
 				codeBuilder.append(
-						String.format("if (containedByModel(%1$s)){\n" 
-								+ "    %1$s.accounts.remove(%2$s);\n" + "}\n",
+						String.format("if (containedByModel(%1$s)){\n" + "    %1$s.values.remove(%2$s);\n" + "}\n",
 								object, removedValue));
 			} else if (operation.equals(MOVE_WITHIN_ATTRIBUTE) && objects.size() > 0) {
 				int index = ThreadLocalRandom.current().nextInt(objects.size());
@@ -131,11 +155,11 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 				int toPos = ThreadLocalRandom.current().nextInt(4);
 				int fromPos = ThreadLocalRandom.current().nextInt(4);
 
-				codeBuilder.append(String.format("if (containedByModel(%1$s) and %1$s.accounts.size() > 1){\n"
+				codeBuilder.append(String.format("if (containedByModel(%1$s) and %1$s.values.size() > 1){\n"
 						+ "    var toPos = %2$s;\n" + "    var fromPos = %3$s;\n"
-						+ "    if (toPos >= %1$s.accounts.size()) toPos = %1$s.accounts.size() -1;\n"
-						+ "    if (fromPos >= %1$s.accounts.size()) fromPos = %1$s.accounts.size() -1;\n"
-						+ "    %1$s.accounts.move(toPos, fromPos);\n" + "}\n", object, toPos, fromPos));
+						+ "    if (toPos >= %1$s.values.size()) toPos = %1$s.values.size() -1;\n"
+						+ "    if (fromPos >= %1$s.values.size()) fromPos = %1$s.values.size() -1;\n"
+						+ "    %1$s.values.move(toPos, fromPos);\n" + "}\n", object, toPos, fromPos));
 			} else if (operation.equals(SET_REFERENCE) && objects.size() > 0) {
 				int targetIndex = ThreadLocalRandom.current().nextInt(objects.size());
 				String targetObject = objects.get(targetIndex);
@@ -159,21 +183,18 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 				if (!targetObject.equals(valueObject)) {
 					codeBuilder.append(String
 							.format("if (containedByModel(%1$s) and containedByModel(%2$s) and not isCircular(%1$s, %2$s)){\n"
-									+ "    %1$s.manages.add(%2$s);\n" + "}\n", targetObject, valueObject));
+									+ "    %1$s.valNodes.add(%2$s);\n" + "}\n", targetObject, valueObject));
 				}
-			}else if (operation.equals(MOVE_WITHIN_REFERENCE) && objects.size() > 0) {
+			} else if (operation.equals(MOVE_WITHIN_REFERENCE) && objects.size() > 0) {
 				int index = ThreadLocalRandom.current().nextInt(objects.size());
 				String object = objects.get(index);
 				int toPos = ThreadLocalRandom.current().nextInt(4);
 				int fromPos = ThreadLocalRandom.current().nextInt(4);
-				codeBuilder.append(String.format(
-						"if (containedByModel(%1$s) and %1$s.manages.size() > 1){\n"
-						+ "    var toPos = %2$s;\n" 
-						+ "    var fromPos = %3$s;\n"
-						+ "    if (toPos >= %1$s.manages.size()) toPos = %1$s.manages.size() -1;\n"
-						+ "    if (fromPos >= %1$s.manages.size()) fromPos = %1$s.manages.size() -1;\n"
-						+ "    %1$s.manages.move(toPos, fromPos);\n" 
-						+ "}\n", object, toPos, fromPos));
+				codeBuilder.append(String.format("if (containedByModel(%1$s) and %1$s.valNodes.size() > 1){\n"
+						+ "    var toPos = %2$s;\n" + "    var fromPos = %3$s;\n"
+						+ "    if (toPos >= %1$s.valNodes.size()) toPos = %1$s.valNodes.size() -1;\n"
+						+ "    if (fromPos >= %1$s.valNodes.size()) fromPos = %1$s.valNodes.size() -1;\n"
+						+ "    %1$s.valNodes.move(toPos, fromPos);\n" + "}\n", object, toPos, fromPos));
 			} else if (operation.equals(DELETE) && objects.size() > 0) {
 				int targetIndex = ThreadLocalRandom.current().nextInt(objects.size());
 				String deletedObject = objects.get(targetIndex);
@@ -185,22 +206,18 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 		}
 
 		codeBuilder.append("\n");
-		codeBuilder.append("\"Total Employee: \".print();Employee.all().size().println();\n");
+		codeBuilder.append("\"Total Node: \".print();Node.all().size().println();\n");
 		codeBuilder.append("\n");
 		codeBuilder.append("operation isCircular(targetObject, valueObject): Boolean {" + "	var result = false;	"
-				+ "	for (child in valueObject.manages){" + "		if (child == targetObject){"
+				+ "	for (child in valueObject.valNodes){" + "		if (child == targetObject){"
 				+ "			result = true;" + "			break;" + "		}else{" + "			result = isCircular("
 				+ "			targetObject, child);" + "		}" + "	}" + "	return result;" + "}");
 		codeBuilder.append("\n");
-		codeBuilder.append("operation containedByModel(targetObject): Boolean {" 
-				+ "	var result = false;"
-				+ "	if (M.allContents().selectOne(object | object == targetObject) <> null){" 
-				+ "		result = true;"
-				+ "	}" 
-				+ "	return result;" 
-				+ "}");
+		codeBuilder.append("operation containedByModel(targetObject): Boolean {" + "	var result = false;"
+				+ "	if (M.allContents().selectOne(object | object == targetObject) <> null){" + "		result = true;"
+				+ "	}" + "	return result;" + "}");
 		codeBuilder.append("\n");
-		codeBuilder.append("operation RemoveRefToObject(targetObject){" + "	for (child in targetObject.manages){"
+		codeBuilder.append("operation RemoveRefToObject(targetObject){" + "	for (child in targetObject.valNodes){"
 				+ "		RemoveRefToObject(child);" + "	}" + "	for (object in M.allContents()){"
 				+ "		if (object.partner == targetObject){" + "			object.partner = null;" + "		} " + "	}"
 				+ "}");
@@ -214,7 +231,7 @@ public class EmployeeEquivalenceTests extends LoadingEquivalenceTests {
 
 	@Override
 	public EPackage getEPackage() {
-		return EmployeePackage.eINSTANCE;
+		return NodePackage.eINSTANCE;
 	}
 
 	public String randomString(int length) {
