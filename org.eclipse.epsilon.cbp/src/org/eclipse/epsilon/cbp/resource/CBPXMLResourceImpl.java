@@ -243,7 +243,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 		}
 	}
 
-
 	@Override
 	public void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
 		changeEventAdapter.setEnabled(false);
@@ -255,7 +254,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 		if (options != null && options.containsKey("optimise")) {
 			optimised = (Boolean) options.get("optimise");
 		}
-
 
 		int lineNumber = 0;
 		try {
@@ -269,21 +267,22 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 			ChangeEvent<?> event = null;
 			boolean ignore = false;
-			
-//			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//			 while ((line = reader.readLine()) != null) {
-//		            //String[] strings = line.split("><");
-//		        }
-			
-//			BufferedInputStream bis = new BufferedInputStream(inputStream);
-//			int b;
-//			while ( (b=bis.read()) != -1 ){
-//			    char c = (char) b;
-//			    if (c == '\n'){
-//			    	//System.out.println("NEW LINE");
-//			    }
-//			}
-			
+
+			// BufferedReader reader = new BufferedReader(new
+			// InputStreamReader(inputStream));
+			// while ((line = reader.readLine()) != null) {
+			// //String[] strings = line.split("><");
+			// }
+
+			// BufferedInputStream bis = new BufferedInputStream(inputStream);
+			// int b;
+			// while ( (b=bis.read()) != -1 ){
+			// char c = (char) b;
+			// if (c == '\n'){
+			// //System.out.println("NEW LINE");
+			// }
+			// }
+
 			while (xmlReader.hasNext()) {
 				XMLEvent xmlEvent = xmlReader.nextEvent();
 				if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
@@ -298,11 +297,13 @@ public class CBPXMLResourceImpl extends CBPResource {
 						if (ignoreList.contains(lineNumber) && optimised == true) {
 							ignore = true;
 						}
-						
+
 						if (ignore == false) {
+							line = name;
 							switch (name) {
 							case "register": {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
+								line = line + ", package: " + packageName;
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								event = new RegisterEPackageEvent(ePackage, changeEventAdapter);
 								break;
@@ -311,6 +312,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
 								String className = e.getAttributeByName(new QName("eclass")).getValue();
 								String id = e.getAttributeByName(new QName("id")).getValue();
+								line = line + ", package: " + packageName + ", class: " + className + ", id: " + id;
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								EClass eClass = (EClass) ePackage.getEClassifier(className);
 								event = new CreateEObjectEvent(eClass, this, id);
@@ -356,6 +358,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
 								String className = e.getAttributeByName(new QName("eclass")).getValue();
 								String id = e.getAttributeByName(new QName("id")).getValue();
+								line = line + ", package: " + packageName + ", class: " + className + ", id: " + id;
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								EClass eClass = (EClass) ePackage.getEClassifier(className);
 								event = new DeleteEObjectEvent(eClass, this, id);
@@ -366,6 +369,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 							if (event instanceof EStructuralFeatureEvent<?>) {
 								String sTarget = e.getAttributeByName(new QName("target")).getValue();
 								String sName = e.getAttributeByName(new QName("name")).getValue();
+								line = line + ", target: " + sTarget + ", name: " + sName;
 								EObject target = getEObject(sTarget);
 								EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(sName);
 								((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
@@ -377,11 +381,14 @@ public class CBPXMLResourceImpl extends CBPResource {
 							if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent
 									|| event instanceof AddToResourceEvent) {
 								String sPosition = e.getAttributeByName(new QName("position")).getValue();
+								line = line + ", target: " + sPosition;
 								event.setPosition(Integer.parseInt(sPosition));
 							}
 							if (event instanceof FromPositionEvent) {
 								String sTo = e.getAttributeByName(new QName("to")).getValue();
+								line = line + ", to: " + sTo;
 								String sFrom = e.getAttributeByName(new QName("from")).getValue();
+								line = line + ", from: " + sFrom;
 								event.setPosition(Integer.parseInt(sTo));
 								((FromPositionEvent) event).setFromPosition(Integer.parseInt(sFrom));
 							}
@@ -392,11 +399,13 @@ public class CBPXMLResourceImpl extends CBPResource {
 							if (event instanceof EObjectValuesEvent) {
 								EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
 								String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+								line = line + ", value: " + seobject;
 								EObject eob = resolveXRef(seobject);
 								valuesEvent.getValues().add(eob);
 							} else if (event instanceof EAttributeEvent) {
 								EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
 								String sliteral = e.getAttributeByName(new QName("literal")).getValue();
+								line = line + ", value: " + sliteral;
 								EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature().getEType());
 								Object value = eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType,
 										sliteral);
@@ -412,6 +421,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 						if (ignore == false) {
 							event.replay();
 							getChangeEvents().add(event);
+							line = "";
 						} else {
 							ignore = false;
 						}
@@ -421,6 +431,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			}
 			persistedEvents = getChangeEvents().size();
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			System.out.println("Error: " + lineNumber + " : " + line);
 			throw new IOException("Error: " + lineNumber + " : " + line + "\n" + ex.toString() + "\n");
 		}

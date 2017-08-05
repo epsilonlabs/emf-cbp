@@ -50,24 +50,24 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 			code += "	   eRoot = node;\n";
 			code += "}\n";
 			eolCode = String.format(code, i);
-			//System.out.println(eolCode);
+			// System.out.println(eolCode);
 			run(eolCode, true);
 		}
-		
+
 		saveOutputText();
-	    saveErrorMessages();
+		saveErrorMessages();
 		assertEquals(true, true);
 	}
 
 	@Test
 	public void testRandomModelPerformance() throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// dd/MM/yyyy
-		appendLineToOutputText("Start: " + sdf.format(new Date())+ "\n");
-		
+		appendLineToOutputText("Start: " + sdf.format(new Date()) + "\n");
+
 		String eolCode = "";
 		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
-		//for (int i = 3200; i <= 3200; i += 200) {
-	    for (int i = 0; i <= 6000; i += 200) {
+		// for (int i = 3200; i <= 3200; i += 200) {
+		for (int i = 0; i <= 4000; i += 200) {
 			eolCode = "";
 			appendToOutputText(String.valueOf(i) + "\t");
 
@@ -80,13 +80,13 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 			// Random operation
 			Map<String, Integer> eventProbabilityMap = new HashMap<>();
 			eventProbabilityMap.put("CREATE", 1);
-//			eventProbabilityMap.put("SET_ATTRIBUTE", 1);
-//			eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
-//			eventProbabilityMap.put("ADD_ATTRIBUTE", 3);
-//			eventProbabilityMap.put("MOVE_ATTRIBUTE", 2);
-//			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
-//			eventProbabilityMap.put("ADD_REFERENCE_REF", 3);
-//			eventProbabilityMap.put("MOVE_REFERENCE_REF", 2);
+			eventProbabilityMap.put("SET_ATTRIBUTE", 1);
+			eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
+			eventProbabilityMap.put("ADD_ATTRIBUTE", 3);
+			eventProbabilityMap.put("MOVE_ATTRIBUTE", 2);
+			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
+			eventProbabilityMap.put("ADD_REFERENCE_REF", 3);
+			eventProbabilityMap.put("MOVE_REFERENCE_REF", 2);
 			eventProbabilityMap.put("ADD_REFERENCE_VAL", 3);
 			eventProbabilityMap.put("MOVE_REFERENCE_VAL", 2);
 			eventProbabilityMap.put("DELETE", 2);
@@ -206,24 +206,12 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					String code = "";
 					code += "if (M.owns(%1$s)){\n";
-					//code += "    RemoveRefToObject(%1$s)\n;";
-					code += "    delete %1$s;\n";
+					code += "    deleteObject(%1$s);\n";
 					code += "}\n";
 					eolCode += String.format(code, target);
 				}
 			}
-			// eolCode += "\"Total Node:
-			// \".print();Node.all().size().println();\n";
-			// eolCode += "operation containedByModel(targetObject): Boolean
-			// {\n"
-			// + " var result = false;\n"
-			// + " if (M.allContents().selectOne(object | object ==
-			// targetObject) <> null){\n"
-			// + " result = true;\n"
-			// + " }\n"
-			// + " return result;\n"
-			// + "}\n";
-			
+
 			eolCode += "operation isCircular(targetObject, valueObject): Boolean {\n";
 			eolCode += "	for (child in valueObject.valNodes){\n";
 			eolCode += "		if (child == targetObject){\n";
@@ -236,25 +224,23 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 			eolCode += "	return false;\n";
 			eolCode += "}\n";
 
-			eolCode += "operation RemoveRefToObject(targetObject){\n";
-			eolCode += "	for (child in targetObject.valNodes){\n";
-			eolCode += "		RemoveRefToObject(child);\n";
+			eolCode += "operation deleteObject(object){\n";
+			eolCode += "	var i : Integer = object.valNodes.size()-1;\n";
+			eolCode += "	while (i >= 0){\n";
+			eolCode += "		var x = object.valNodes.get(i);\n";
+			eolCode += "		deleteObject(x);\n";
+			eolCode += "		i -= 1;\n";
 			eolCode += "	}\n";
-			eolCode += "	for (object in M.allContents()){\n";
-			eolCode += "		if (object.refNode == targetObject){\n";
-			eolCode += "			object.refNode = null;\n";
-			eolCode += "		}\n";
-			eolCode += "		object.refNodes.remove(targetObject);\n";
-			eolCode += "	}\n";
+			eolCode += "	delete object;\n";
 			eolCode += "}\n";
 
 			run(eolCode, true);
 			// appendLineToOutputText(eolCode);
 		}
 
-	    appendLineToOutputText("\nEnd: " + sdf.format(new Date()));
-	    saveOutputText();
-	    saveErrorMessages();
+		appendLineToOutputText("\nEnd: " + sdf.format(new Date()));
+		saveOutputText();
+		saveErrorMessages();
 		assertEquals(true, true);
 	}
 
@@ -274,7 +260,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 			run(eolCode, true);
 		}
 		saveOutputText();
-	    saveErrorMessages();
+		saveErrorMessages();
 		assertEquals(true, true);
 	}
 
@@ -282,9 +268,9 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	public EPackage getEPackage() {
 		return NodePackage.eINSTANCE;
 	}
-	
+
 	@Override
-	public Class getNodeClass(){
+	public Class getNodeClass() {
 		return Node.class;
 	}
 

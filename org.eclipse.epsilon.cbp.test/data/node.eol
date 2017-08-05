@@ -1,4 +1,29 @@
-var node = new Node;
-node.name = "Old Name!";
-node.name = null;
-node.name = "Newest Name!";
+var n0 = new Node;
+n0.name = "n0";
+var n1 = new Node;
+n1.name = "n1";
+var n2 = new Node;
+n2.name = "n2";
+var n3 = new Node;
+n3.name = "n3";
+var n4 = new Node;
+n4.name = "n4";
+
+n4.refNode = n3;
+n0.valNodes.add(n1);
+n1.valNodes.add(n3);
+n1.valNodes.add(n2);
+n0.refNode = n2;
+n4.refNode = n1;
+deleteObject(n1);
+
+operation deleteObject(object){
+	var i : Integer = object.valNodes.size()-1;
+	while (i >= 0){
+		var x = object.valNodes.get(i);
+		deleteObject(x);
+		i -= 1;
+	}
+	object.name.println();
+	delete object;
+}

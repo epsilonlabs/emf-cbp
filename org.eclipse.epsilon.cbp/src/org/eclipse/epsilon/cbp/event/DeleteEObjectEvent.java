@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.event;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
 public class DeleteEObjectEvent extends ChangeEvent<EObject> {
@@ -37,7 +38,9 @@ public class DeleteEObjectEvent extends ChangeEvent<EObject> {
 
 	@Override
 	public void replay() {
-		resource.detached(eObject);
+		//EcoreUtil.remove(eObject);
+		EcoreUtil.delete(eObject);
+		//resource.detached(eObject);
 	}
 
 	@Override

@@ -10,7 +10,9 @@ import java.util.Set;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -364,9 +366,10 @@ public class EObjectHistoryAdapter {
 				if (moveWithinReferenceLines != null)
 					this.addLinesToIgnoreList(moveWithinReferenceLines);
 
-//				for (Line l : removeReferenceLines) {
-//					this.handleEObjectDeletion((EObject) l.getValue(), event, l.getLineNumber());
-//				}
+				// for (Line l : removeReferenceLines) {
+				// this.handleEObjectDeletion((EObject) l.getValue(), event,
+				// l.getLineNumber());
+				// }
 			} else if (delta == 1) {
 				eReferenceHistory.setMoved(false);
 
@@ -395,11 +398,12 @@ public class EObjectHistoryAdapter {
 				if (moveWithinReferenceLines != null)
 					this.addLinesToIgnoreList(moveWithinReferenceLines);
 
-//				if (eReferenceTarget.isContainment()) {
-//					for (Line l : removeReferenceLines) {
-//						this.handleEObjectDeletion((EObject) l.getValue(), event, l.getLineNumber());
-//					}
-//				}
+				// if (eReferenceTarget.isContainment()) {
+				// for (Line l : removeReferenceLines) {
+				// this.handleEObjectDeletion((EObject) l.getValue(), event,
+				// l.getLineNumber());
+				// }
+				// }
 			}
 			// else if (delta != 0 && delta != 1) {
 			// if (eReferenceHistory.isMoved() == false) {
@@ -500,9 +504,9 @@ public class EObjectHistoryAdapter {
 					}
 
 					if (removeReferenceLastLine > addReferenceLastLine) {
-						if (addReferenceLines != null)
+						if (addReferenceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(addReferenceLines);
-						if (removeReferenceLines != null)
+						if (removeReferenceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(removeReferenceLines);
 						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(addResourceLines);
@@ -511,16 +515,16 @@ public class EObjectHistoryAdapter {
 						if (moveWithinReferenceLines != null)
 							this.addLinesToIgnoreList(moveWithinReferenceLines);
 					} else if (addReferenceLastLine > removeReferenceLastLine) {
-						if (addReferenceLines != null && addReferenceLines.size() > 1)
+						if (addReferenceLines != null && addReferenceLines.size() > 1
+								&& eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1));
-						if (removeReferenceLines != null)
+						if (removeReferenceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(removeReferenceLines);
 						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(addResourceLines);
 						if (removeResourceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(removeResourceLines);
-					} 
-					else if (removeResourceLastLine > addResourceLastLine) {
+					} else if (removeResourceLastLine > addResourceLastLine) {
 						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(addResourceLines);
 						if (removeResourceLines != null && eReferenceTarget.isContainment() == true)
@@ -534,6 +538,11 @@ public class EObjectHistoryAdapter {
 	}
 
 	private void handleEObjectDeletion(EObject eObject, ChangeEvent<?> event, int line) {
+		
+//		String name = (String) eObject.eGet(eObject.eClass().getEStructuralFeature("name"));
+//		if (name.equals("e94")){
+//			System.out.println(name);
+//		}
 		EObjectHistory eObjectHistory = modelHistory.get(eObject);
 		eObjectHistory.addEventRecord(event, line);
 		if (eObjectHistory.isMoved() == false) {
@@ -547,11 +556,13 @@ public class EObjectHistoryAdapter {
 				for (Entry<String, List<Line>> eventLines : referenceHistory.getEventRecords().entrySet()) {
 					List<Line> lines = eventLines.getValue();
 
-//					if (((EReference) referenceEntry.getKey()).isContainment()) {
-//						for (Line row : lines) {
-//							this.handleEObjectDeletion((EObject) row.getValue(), event, row.getLineNumber());
-//						}
-//					}
+					// if (((EReference)
+					// referenceEntry.getKey()).isContainment()) {
+					// for (Line row : lines) {
+					// this.handleEObjectDeletion((EObject) row.getValue(),
+					// event, row.getLineNumber());
+					// }
+					// }
 
 					this.addLinesToIgnoreList(lines);
 				}
@@ -572,9 +583,10 @@ public class EObjectHistoryAdapter {
 				String key = eventLines.getKey();
 				if (key.equals(RemoveFromResourceEvent.class.getSimpleName())
 						|| key.equals(AddToResourceEvent.class.getSimpleName())
+						|| key.equals(AddToEReferenceEvent.class.getSimpleName())
+						|| key.equals(RemoveFromEReferenceEvent.class.getSimpleName())
 						|| key.equals(DeleteEObjectEvent.class.getSimpleName())
-						|| key.equals(CreateEObjectEvent.class.getSimpleName())
-						) {
+						|| key.equals(CreateEObjectEvent.class.getSimpleName())) {
 					List<Line> lines = eventLines.getValue();
 					this.addLinesToIgnoreList(lines);
 				}

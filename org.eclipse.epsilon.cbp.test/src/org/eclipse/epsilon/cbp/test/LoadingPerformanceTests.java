@@ -32,6 +32,7 @@ public abstract class LoadingPerformanceTests {
 	private final String extension;
 
 	protected String eol = "";
+	protected String cbpXml = "";
 	protected StringBuilder errorMessage = new StringBuilder();
 	protected StringBuilder outputText = new StringBuilder();
 	protected StringOutputStream xmiOutputStream = null;
@@ -236,6 +237,7 @@ public abstract class LoadingPerformanceTests {
 						}
 					}
 
+					cbpXml = cbpOutputStream.toString();
 					String sCBP1 = cbpOutputStream.toString();
 
 					numOfLineCBP = 0;
@@ -380,8 +382,10 @@ public abstract class LoadingPerformanceTests {
 		Date now = new Date();
 		String strDate = sdfDate.format(now);
 		PrintWriter out = new PrintWriter("logs" + File.separator + strDate + ".log");
+		errorMessage.append("\n" + this.eol + "\n");
+		errorMessage.append("\n" + this.cbpXml + "\n");
 		this.appendLineToOutputText(this.eol);
-		this.appendLineToOutputText(cbpOutputStream.toString());
+		this.appendLineToOutputText(this.cbpXml);
 		out.println(errorMessage.toString());
 		out.close();
 		errorMessage.setLength(0);

@@ -213,8 +213,7 @@ public abstract class LoadingEquivalenceTests {
 
 		// DEBUG
 		if (debug) {
-			System.out.println("");
-			System.out.println("XML AFTER REMOVED");
+			
 
 			System.out.println("");
 			System.out.println("STATISTICS");
