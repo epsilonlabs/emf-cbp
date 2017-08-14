@@ -7,7 +7,9 @@
   <genPackages prefix="Node" disposableProviderFactory="true" ecorePackage="node.ecore#/">
     <genClasses ecoreClass="node.ecore#//Node">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/defName"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/values"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/listValues"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference node.ecore#//Node/refNode"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference node.ecore#//Node/valNode"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference node.ecore#//Node/valNodes"/>

@@ -75,13 +75,31 @@ public interface NodePackage extends EPackage {
 	int NODE__NAME = 0;
 
 	/**
+	 * The feature id for the '<em><b>Def Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NODE__DEF_NAME = 1;
+
+	/**
 	 * The feature id for the '<em><b>Values</b></em>' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__VALUES = 1;
+	int NODE__VALUES = 2;
+
+	/**
+	 * The feature id for the '<em><b>List Values</b></em>' attribute list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NODE__LIST_VALUES = 3;
 
 	/**
 	 * The feature id for the '<em><b>Ref Node</b></em>' reference.
@@ -90,7 +108,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__REF_NODE = 2;
+	int NODE__REF_NODE = 4;
 
 	/**
 	 * The feature id for the '<em><b>Val Node</b></em>' containment reference.
@@ -99,7 +117,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__VAL_NODE = 3;
+	int NODE__VAL_NODE = 5;
 
 	/**
 	 * The feature id for the '<em><b>Val Nodes</b></em>' containment reference list.
@@ -108,7 +126,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__VAL_NODES = 4;
+	int NODE__VAL_NODES = 6;
 
 	/**
 	 * The feature id for the '<em><b>Ref Nodes</b></em>' reference list.
@@ -117,7 +135,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__REF_NODES = 5;
+	int NODE__REF_NODES = 7;
 
 	/**
 	 * The number of structural features of the '<em>Node</em>' class.
@@ -126,7 +144,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE_FEATURE_COUNT = 6;
+	int NODE_FEATURE_COUNT = 8;
 
 
 	/**
@@ -151,6 +169,17 @@ public interface NodePackage extends EPackage {
 	EAttribute getNode_Name();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.eclipse.epsilon.cbp.test.node.Node#getDefName <em>Def Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Def Name</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.node.Node#getDefName()
+	 * @see #getNode()
+	 * @generated
+	 */
+	EAttribute getNode_DefName();
+
+	/**
 	 * Returns the meta object for the attribute list '{@link org.eclipse.epsilon.cbp.test.node.Node#getValues <em>Values</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -160,6 +189,17 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getNode_Values();
+
+	/**
+	 * Returns the meta object for the attribute list '{@link org.eclipse.epsilon.cbp.test.node.Node#getListValues <em>List Values</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute list '<em>List Values</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.node.Node#getListValues()
+	 * @see #getNode()
+	 * @generated
+	 */
+	EAttribute getNode_ListValues();
 
 	/**
 	 * Returns the meta object for the reference '{@link org.eclipse.epsilon.cbp.test.node.Node#getRefNode <em>Ref Node</em>}'.
@@ -246,12 +286,28 @@ public interface NodePackage extends EPackage {
 		EAttribute NODE__NAME = eINSTANCE.getNode_Name();
 
 		/**
+		 * The meta object literal for the '<em><b>Def Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute NODE__DEF_NAME = eINSTANCE.getNode_DefName();
+
+		/**
 		 * The meta object literal for the '<em><b>Values</b></em>' attribute list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
 		EAttribute NODE__VALUES = eINSTANCE.getNode_Values();
+
+		/**
+		 * The meta object literal for the '<em><b>List Values</b></em>' attribute list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute NODE__LIST_VALUES = eINSTANCE.getNode_ListValues();
 
 		/**
 		 * The meta object literal for the '<em><b>Ref Node</b></em>' reference feature.

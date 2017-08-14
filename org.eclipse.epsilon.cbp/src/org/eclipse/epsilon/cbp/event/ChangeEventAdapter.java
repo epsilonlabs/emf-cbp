@@ -37,7 +37,23 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	@Override
 	public void notifyChanged(Notification n) {
-	
+
+		// if (n.getEventType() == Notification.ADD) {
+		// System.out.println(n.getEventType() + " ADD");
+		// } else if (n.getEventType() == Notification.REMOVE) {
+		// System.out.println(n.getEventType() + " REMOVE");
+		// } else if (n.getEventType() == Notification.SET) {
+		// System.out.println(n.getEventType() + " SET");
+		// } else if (n.getEventType() == Notification.UNSET) {
+		// System.out.println(n.getEventType() + " UNSET");
+		// } else if (n.getEventType() == Notification.ADD_MANY) {
+		// System.out.println(n.getEventType() + " ADD_MANY");
+		// } else if (n.getEventType() == Notification.REMOVE_MANY) {
+		// System.out.println(n.getEventType() + " REMOVE_MANY");
+		// } else if (n.getEventType() == Notification.MOVE) {
+		// System.out.println(n.getEventType() + " MOVE");
+		// }
+
 		super.notifyChanged(n);
 
 		if (n.isTouch() || !enabled) {
@@ -173,35 +189,38 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 		case Notification.MOVE: {
 			if (n.getNotifier() instanceof EObject) {
-				EObject obj = (EObject) n.getNotifier();
-				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
-				@SuppressWarnings("unchecked")
-				EList<Object> list = (EList<Object>) obj.eGet(feature);
-				Object newValue = n.getNewValue();
-
-				Object oldValue = null;
-				if (n.getPosition() == (int) n.getOldValue()) {
-					oldValue = list.get(n.getPosition());
-				} else if (n.getPosition() > (int) n.getOldValue()) {
-					oldValue = list.get(n.getPosition() - 1);
-				} else if (n.getPosition() < (int) n.getOldValue()) {
-					oldValue = list.get(n.getPosition() + 1);
-				}
-				List<Object> values = new ArrayList<>();
-				values.add(oldValue);
-				values.add(newValue);
+				// EObject obj = (EObject) n.getNotifier();
+				// EStructuralFeature feature = (EStructuralFeature)
+				// n.getFeature();
+				// @SuppressWarnings("unchecked")
+				// EList<Object> list = (EList<Object>) obj.eGet(feature);
+				// Object newValue = n.getNewValue();
+				//
+				// Object oldValue = null;
+				// if (n.getPosition() == (int) n.getOldValue()) {
+				// oldValue = list.get(n.getPosition());
+				// } else if (n.getPosition() > (int) n.getOldValue()) {
+				// oldValue = list.get(n.getPosition() - 1);
+				// } else if (n.getPosition() < (int) n.getOldValue()) {
+				// oldValue = list.get(n.getPosition() + 1);
+				// }
+				// List<Object> values = new ArrayList<>();
+				// values.add(oldValue);
+				// values.add(newValue);
 
 				FromPositionEvent fromEv = null;
 				if (n.getFeature() instanceof EAttribute) {
 					MoveWithinEAttributeEvent moveEvent = new MoveWithinEAttributeEvent();
 					fromEv = moveEvent;
 					event = moveEvent;
-					event.setValues(values);
+					// event.setValues(values);
+					event.setValues(n.getNewValue());
 				} else if (n.getFeature() instanceof EReference) {
 					MoveWithinEReferenceEvent moveEvent = new MoveWithinEReferenceEvent();
 					fromEv = moveEvent;
 					event = moveEvent;
-					event.setValues(values);
+					// event.setValues(values);
+					event.setValues(n.getNewValue());
 				}
 				if (fromEv != null) {
 					fromEv.setFromPosition(((Number) n.getOldValue()).intValue());
@@ -261,9 +280,14 @@ public class ChangeEventAdapter extends EContentAdapter {
 			changeEvents.add(event);
 		}
 
-		if (n.getOldValue() instanceof EObject) {
-			if (event instanceof RemoveFromResourceEvent || event instanceof RemoveFromEReferenceEvent) {
-				handleDeletedEObject((EObject) n.getOldValue());
+		if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
+			if (event instanceof UnsetEReferenceEvent || event instanceof RemoveFromResourceEvent
+					|| event instanceof RemoveFromEReferenceEvent) {
+				if (n.getOldValue() instanceof EObject){
+					handleDeletedEObject((EObject) n.getOldValue());
+				} else if (n.getOldValue() instanceof EList){
+					handleDeletedEObject((EObject) event.getValue());
+				}
 			}
 		}
 	}

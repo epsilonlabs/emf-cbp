@@ -35,46 +35,21 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	}
 
 	@Test
-	public void testDeepTreePerformance() throws Exception {
-		String eolCode = "";
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
-		for (int i = 0; i <= 480; i += 20) {
-			appendToOutputText(String.valueOf(i) + "\t");
-			String code = "";
-			code += "var eRoot = new Node;\n";
-			code += "eRoot.name = \"0\";\n";
-			code += "for(i in Sequence{1..%1$d}){\n";
-			code += "    var node = new Node;\n";
-			code += "    node.name = i.asString();\n";
-			code += "    eRoot.valNodes.add(node);\n";
-			code += "	   eRoot = node;\n";
-			code += "}\n";
-			eolCode = String.format(code, i);
-			// System.out.println(eolCode);
-			run(eolCode, true);
-		}
-
-		saveOutputText();
-		saveErrorMessages();
-		assertEquals(true, true);
-	}
-
-	@Test
 	public void testRandomModelPerformance() throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// dd/MM/yyyy
 		appendLineToOutputText("Start: " + sdf.format(new Date()) + "\n");
 
-		String eolCode = "";
+		StringBuilder eolCode = new StringBuilder();
 		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
 		// for (int i = 3200; i <= 3200; i += 200) {
-		for (int i = 0; i <= 4000; i += 200) {
-			eolCode = "";
+		for (int i = 0; i <= 100000; i += 500) {
+			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
 
 			int nameIndex = 0;
 			for (nameIndex = 0; nameIndex < i; nameIndex++) {
-				eolCode += String.format("var e%1$s = new Node;\n", nameIndex);
-				eolCode += String.format("e%1$s.name = \"e%1$s\";\n", nameIndex);
+				eolCode.append(String.format("var e%1$s = new Node;\n", nameIndex));
+				eolCode.append(String.format("e%1$s.name = \"e%1$s\";\n", nameIndex));
 			}
 
 			// Random operation
@@ -101,144 +76,145 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 			for (int k = 0; k < nameIndex; k++) {
 				String operation = operations.get(ThreadLocalRandom.current().nextInt(operations.size()));
 				if (operation.equals("CREATE")) {
-					eolCode += String.format("var e%1$s = new Node;\n", nameIndex);
-					eolCode += String.format("e%1$s.name = \"e%1$s\";\n", nameIndex);
+					eolCode.append(String.format("var e%1$s = new Node;\n", nameIndex));
+					eolCode.append(String.format("e%1$s.name = \"e%1$s\";\n", nameIndex));
 					nameIndex += 1;
 				} else if (operation.equals("SET_ATTRIBUTE")) {
 					String value = this.randomString(4);
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					String code = "";
-					code += "if (M.owns(%1$s)){\n";
-					code += "    %1$s.name = \"%2$s\";\n";
-					code += "}\n";
-					eolCode += String.format(code, target, value);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s)){\n");
+					code.append("    %1$s.name = \"%2$s\";\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, value));
 				} else if (operation.equals("UNSET_ATTRIBUTE")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					String code = "";
-					code += "if (M.owns(%1$s)){\n";
-					code += "    %1$s.name = null;\n";
-					code += "}\n";
-					eolCode += String.format(code, target);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s)){\n");
+					code.append("    %1$s.name = null;\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target));
 				} else if (operation.equals("ADD_ATTRIBUTE")) {
 					int value = ThreadLocalRandom.current().nextInt(3);
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					String code = "";
-					code += "if (M.owns(%1$s)){\n";
-					code += "    %1$s.values.add(%2$s);\n";
-					code += "}\n";
-					eolCode += String.format(code, target, value);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s)){\n");
+					code.append("    %1$s.values.add(%2$s);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, value));
 				} else if (operation.equals("REMOVE_ATTRIBUTE")) {
 					int value = ThreadLocalRandom.current().nextInt(3);
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					String code = "";
-					code += "if (M.owns(%1$s)){\n";
-					code += "    %1$s.values.remove(%2$s);\n";
-					code += "}\n";
-					eolCode += String.format(code, target, value);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s)){\n");
+					code.append("    %1$s.values.remove(%2$s);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, value));
 				} else if (operation.equals("ADD_REFERENCE_VAL")) {
 					String value = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					String code = "";
-					code += "if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s and isCircular(%1$s, %2$s) == false){\n";
-					code += "    %1$s.valNodes.add(%2$s);\n";
-					code += "}\n";
-					eolCode += String.format(code, target, value);
+					StringBuilder code = new StringBuilder();
+					code.append(
+							"if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s and isCircular(%1$s, %2$s) == false){\n");
+					code.append("    %1$s.valNodes.add(%2$s);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, value));
 				} else if (operation.equals("ADD_REFERENCE_REF")) {
 					String value = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					String code = "";
-					code += "if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s){\n";
-					code += "    %1$s.refNodes.add(%2$s);\n";
-					code += "}\n";
-					eolCode += String.format(code, target, value);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s){\n");
+					code.append("    %1$s.refNodes.add(%2$s);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, value));
 				} else if (operation.equals("MOVE_ATTRIBUTE")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					int toIndex = ThreadLocalRandom.current().nextInt(3);
 					int fromIndex = ThreadLocalRandom.current().nextInt(3);
-					String code = "";
-					code += "if (M.owns(%1$s) and %1$s.values.size() > 1){\n";
-					code += "    var toIndex = %2$s;\n";
-					code += "    var fromIndex = %3$s;\n";
-					code += "    if (toIndex >= %1$s.values.size()){\n";
-					code += "        toIndex = %1$s.values.size() - 1;\n";
-					code += "    }\n";
-					code += "    if (fromIndex >= %1$s.values.size()){\n";
-					code += "        fromIndex = %1$s.values.size() - 1;\n";
-					code += "    }\n";
-					code += "    %1$s.values.move(toIndex, fromIndex);\n";
-					code += "}\n";
-					eolCode += String.format(code, target, toIndex, fromIndex);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s) and %1$s.values.size() > 1){\n");
+					code.append("    var toIndex = %2$s;\n");
+					code.append("    var fromIndex = %3$s;\n");
+					code.append("    if (toIndex >= %1$s.values.size()){\n");
+					code.append("        toIndex = %1$s.values.size() - 1;\n");
+					code.append("    }\n");
+					code.append("    if (fromIndex >= %1$s.values.size()){\n");
+					code.append("        fromIndex = %1$s.values.size() - 1;\n");
+					code.append("    }\n");
+					code.append("    %1$s.values.move(toIndex, fromIndex);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, toIndex, fromIndex));
 				} else if (operation.equals("MOVE_REFERENCE_REF")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					int toIndex = ThreadLocalRandom.current().nextInt(3);
 					int fromIndex = ThreadLocalRandom.current().nextInt(3);
-					String code = "";
-					code += "if (M.owns(%1$s) and %1$s.refNodes.size() > 1){\n";
-					code += "    var toIndex = %2$s;\n";
-					code += "    var fromIndex = %3$s;\n";
-					code += "    if (toIndex >= %1$s.refNodes.size()){\n";
-					code += "        toIndex = %1$s.refNodes.size() - 1;\n";
-					code += "    }\n";
-					code += "    if (fromIndex >= %1$s.refNodes.size()){\n";
-					code += "        fromIndex = %1$s.refNodes.size() - 1;\n";
-					code += "    }\n";
-					code += "    %1$s.refNodes.move(toIndex, fromIndex);\n";
-					code += "}\n";
-					eolCode += String.format(code, target, toIndex, fromIndex);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s) and %1$s.refNodes.size() > 1){\n");
+					code.append("    var toIndex = %2$s;\n");
+					code.append("    var fromIndex = %3$s;\n");
+					code.append("    if (toIndex >= %1$s.refNodes.size()){\n");
+					code.append("        toIndex = %1$s.refNodes.size() - 1;\n");
+					code.append("    }\n");
+					code.append("    if (fromIndex >= %1$s.refNodes.size()){\n");
+					code.append("        fromIndex = %1$s.refNodes.size() - 1;\n");
+					code.append("    }\n");
+					code.append("    %1$s.refNodes.move(toIndex, fromIndex);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, toIndex, fromIndex));
 				} else if (operation.equals("MOVE_REFERENCE_VAL")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					int toIndex = ThreadLocalRandom.current().nextInt(3);
 					int fromIndex = ThreadLocalRandom.current().nextInt(3);
-					String code = "";
-					code += "if (M.owns(%1$s) and %1$s.valNodes.size() > 1){\n";
-					code += "    var toIndex = %2$s;\n";
-					code += "    var fromIndex = %3$s;\n";
-					code += "    if (toIndex >= %1$s.valNodes.size()){\n";
-					code += "        toIndex = %1$s.valNodes.size() - 1;\n";
-					code += "    }\n";
-					code += "    if (fromIndex >= %1$s.valNodes.size()){\n";
-					code += "        fromIndex = %1$s.valNodes.size() - 1;\n";
-					code += "    }\n";
-					code += "    %1$s.valNodes.move(toIndex, fromIndex);\n";
-					code += "}\n";
-					eolCode += String.format(code, target, toIndex, fromIndex);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s) and %1$s.valNodes.size() > 1){\n");
+					code.append("    var toIndex = %2$s;\n");
+					code.append("    var fromIndex = %3$s;\n");
+					code.append("    if (toIndex >= %1$s.valNodes.size()){\n");
+					code.append("        toIndex = %1$s.valNodes.size() - 1;\n");
+					code.append("    }\n");
+					code.append("    if (fromIndex >= %1$s.valNodes.size()){\n");
+					code.append("        fromIndex = %1$s.valNodes.size() - 1;\n");
+					code.append("    }\n");
+					code.append("    %1$s.valNodes.move(toIndex, fromIndex);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target, toIndex, fromIndex));
 				} else if (operation.equals("DELETE")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					String code = "";
-					code += "if (M.owns(%1$s)){\n";
-					code += "    deleteObject(%1$s);\n";
-					code += "}\n";
-					eolCode += String.format(code, target);
+					StringBuilder code = new StringBuilder();
+					code.append("if (M.owns(%1$s)){\n");
+					code.append("    deleteObject(%1$s);\n");
+					code.append("}\n");
+					eolCode.append(String.format(code.toString(), target));
 				}
 			}
 
-			eolCode += "operation isCircular(targetObject, valueObject): Boolean {\n";
-			eolCode += "	for (child in valueObject.valNodes){\n";
-			eolCode += "		if (child == targetObject){\n";
-			eolCode += "			return true;\n";
-			eolCode += "		}else{\n";
-			eolCode += "			return isCircular(\n";
-			eolCode += "			targetObject, child);\n";
-			eolCode += "		}\n";
-			eolCode += "	}\n";
-			eolCode += "	return false;\n";
-			eolCode += "}\n";
+			eolCode.append("operation isCircular(targetObject, valueObject): Boolean {\n");
+			eolCode.append("	for (child in valueObject.valNodes){\n");
+			eolCode.append("		if (child == targetObject){\n");
+			eolCode.append("			return true;\n");
+			eolCode.append("		}else{\n");
+			eolCode.append("			return isCircular(\n");
+			eolCode.append("			targetObject, child);\n");
+			eolCode.append("		}\n");
+			eolCode.append("	}\n");
+			eolCode.append("	return false;\n");
+			eolCode.append("}\n");
 
-			eolCode += "operation deleteObject(object){\n";
-			eolCode += "	var i : Integer = object.valNodes.size()-1;\n";
-			eolCode += "	while (i >= 0){\n";
-			eolCode += "		var x = object.valNodes.get(i);\n";
-			eolCode += "		deleteObject(x);\n";
-			eolCode += "		i -= 1;\n";
-			eolCode += "	}\n";
-			eolCode += "	delete object;\n";
-			eolCode += "}\n";
+			eolCode.append("operation deleteObject(object){\n");
+			eolCode.append("	var i : Integer = object.valNodes.size()-1;\n");
+			eolCode.append("	while (i >= 0){\n");
+			eolCode.append("		var x = object.valNodes.get(i);\n");
+			eolCode.append("		deleteObject(x);\n");
+			eolCode.append("		i -= 1;\n");
+			eolCode.append("	}\n");
+			eolCode.append("	delete object;\n");
+			eolCode.append("}\n");
 
-			run(eolCode, true);
+			run(eolCode.toString(), true);
 			// appendLineToOutputText(eolCode);
 		}
 
-		appendLineToOutputText("\nEnd: " + sdf.format(new Date()));
+		appendLineToOutputText("\nEnd: " + sdf.format(new Date()) + "\n");
 		saveOutputText();
 		saveErrorMessages();
 		assertEquals(true, true);
@@ -246,19 +222,44 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 
 	@Test
 	public void testCreateObjectPerformance() throws Exception {
-		String eolCode = "";
+		StringBuilder eolCode = new StringBuilder();
 		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
 		for (int i = 500; i <= 10000; i += 500) {
 			appendToOutputText(String.valueOf(i) + "\t");
-			String code = "";
-			code += "var eRoot = new Node;";
-			code += "for(i in Sequence{1..%1$d}){";
-			code += "    var node = new Node;";
-			code += "    node.name = i.asString();";
-			code += "}";
-			eolCode = String.format(code, i);
-			run(eolCode, true);
+			StringBuilder code = new StringBuilder();
+			code.append("var eRoot = new Node;\n");
+			code.append("for(i in Sequence{1..%1$d}){\n");
+			code.append("    var node = new Node;\n");
+			code.append("    node.name = i.asString();\n");
+			code.append("}\n");
+			eolCode.append(String.format(code.toString(), i));
+			run(eolCode.toString(), true);
 		}
+		saveOutputText();
+		saveErrorMessages();
+		assertEquals(true, true);
+	}
+
+	@Test
+	public void testDeepTreePerformance() throws Exception {
+		StringBuilder eolCode = new StringBuilder();
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		for (int i = 0; i <= 480; i += 20) {
+			appendToOutputText(String.valueOf(i) + "\t");
+			StringBuilder code = new StringBuilder();
+			code.append("var eRoot = new Node;\n");
+			code.append("eRoot.name = \"0\";\n");
+			code.append("for(i in Sequence{1..%1$d}){\n");
+			code.append("    var node = new Node;\n");
+			code.append("    node.name = i.asString();\n");
+			code.append("    eRoot.valNodes.add(node);\n");
+			code.append("	   eRoot = node;\n");
+			code.append("}\n");
+			eolCode.append(String.format(code.toString(), i));
+			// System.out.println(eolCode);
+			run(eolCode.toString(), true);
+		}
+
 		saveOutputText();
 		saveErrorMessages();
 		assertEquals(true, true);
@@ -270,7 +271,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	}
 
 	@Override
-	public Class getNodeClass() {
+	public Class<?> getNodeClass() {
 		return Node.class;
 	}
 

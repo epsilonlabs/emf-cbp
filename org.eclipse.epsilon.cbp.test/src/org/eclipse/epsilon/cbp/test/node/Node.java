@@ -16,7 +16,9 @@ import org.eclipse.emf.ecore.EObject;
  * </p>
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getName <em>Name</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getDefName <em>Def Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getValues <em>Values</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getListValues <em>List Values</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getRefNode <em>Ref Node</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getValNode <em>Val Node</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getValNodes <em>Val Nodes</em>}</li>
@@ -55,6 +57,33 @@ public interface Node extends EObject {
 	void setName(String value);
 
 	/**
+	 * Returns the value of the '<em><b>Def Name</b></em>' attribute.
+	 * The default value is <code>"Foo"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Def Name</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Def Name</em>' attribute.
+	 * @see #setDefName(String)
+	 * @see org.eclipse.epsilon.cbp.test.node.NodePackage#getNode_DefName()
+	 * @model default="Foo"
+	 * @generated
+	 */
+	String getDefName();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.epsilon.cbp.test.node.Node#getDefName <em>Def Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Def Name</em>' attribute.
+	 * @see #getDefName()
+	 * @generated
+	 */
+	void setDefName(String value);
+
+	/**
 	 * Returns the value of the '<em><b>Values</b></em>' attribute list.
 	 * The list contents are of type {@link java.lang.Integer}.
 	 * <!-- begin-user-doc -->
@@ -69,6 +98,22 @@ public interface Node extends EObject {
 	 * @generated
 	 */
 	EList<Integer> getValues();
+
+	/**
+	 * Returns the value of the '<em><b>List Values</b></em>' attribute list.
+	 * The list contents are of type {@link java.lang.Integer}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>List Values</em>' attribute list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>List Values</em>' attribute list.
+	 * @see org.eclipse.epsilon.cbp.test.node.NodePackage#getNode_ListValues()
+	 * @model unique="false"
+	 * @generated
+	 */
+	EList<Integer> getListValues();
 
 	/**
 	 * Returns the value of the '<em><b>Ref Node</b></em>' reference.

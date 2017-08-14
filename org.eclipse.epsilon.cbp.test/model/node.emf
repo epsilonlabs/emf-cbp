@@ -3,7 +3,9 @@ package node;
 
 class Node {
 	attr String name;
+	attr String defName = "Foo";
 	attr Integer[*] values;
+	!unique attr Integer[*] listValues;
 	ref Node refNode;
 	val Node valNode;
 	val Node[*] valNodes;

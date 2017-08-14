@@ -166,6 +166,8 @@ public abstract class LoadingPerformanceTests {
 					beforeSaveCBP = System.currentTimeMillis();
 					cbpResource1.save(cbpOutputStream, null);
 					afterSaveCBP = System.currentTimeMillis();
+					
+					cbpXml = cbpOutputStream.toString();
 				} catch (Exception e) {
 					errorMessage.append(e.toString() + "\n");
 					e.printStackTrace();
@@ -237,7 +239,6 @@ public abstract class LoadingPerformanceTests {
 						}
 					}
 
-					cbpXml = cbpOutputStream.toString();
 					String sCBP1 = cbpOutputStream.toString();
 
 					numOfLineCBP = 0;
@@ -275,7 +276,7 @@ public abstract class LoadingPerformanceTests {
 
 		try {
 			this.eol = eol;
-			int iteration = 10;
+			int iteration = 3;
 			double deltaSaveXMI = 0;
 			double deltaLoadXMI = 0;
 			double deltaSaveCBP = 0;
@@ -285,7 +286,7 @@ public abstract class LoadingPerformanceTests {
 			double sumNumOfLineCBP = 0;
 			double sumNumOfLineOptCBP = 0;
 
-			for (int i = 1; i <= iteration; i++) {
+			for (int i = 0; i <= iteration; i++) {
 				int xmiorcbp = ThreadLocalRandom.current().nextInt(2);
 				if (xmiorcbp == 0) {
 					this.testSaveXMI(eol, extension, debug);
@@ -315,12 +316,13 @@ public abstract class LoadingPerformanceTests {
 
 				threadSaveCBP.join();
 				threadLoadCBP.join();
+				threadLoadOptCBP.join();
 				threadSaveXMI.join();
 				threadLoadXMI.join();
-				threadLoadOptCBP.join();
+				
 
 				// appendLineToOutputText(xmiOutputStream.toString());
-				// appendLineToOutputText(cbpOutputStream.toString());
+//				 appendLineToOutputText(cbpOutputStream.toString());
 
 				deltaSaveXMI = deltaSaveXMI + ((double) (afterSaveXMI - beforeSaveXMI)) / 1000;
 				deltaLoadXMI = deltaLoadXMI + ((double) (afterLoadXMI - beforeLoadXMI)) / 1000;

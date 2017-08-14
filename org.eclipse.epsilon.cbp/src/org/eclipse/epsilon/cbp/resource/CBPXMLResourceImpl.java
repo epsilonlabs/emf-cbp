@@ -185,7 +185,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				} else if (event instanceof MoveWithinEReferenceEvent) {
 					e = document.createElement("move-in-ereference");
 					EObject eObject = ((MoveWithinEReferenceEvent) event).getTarget();
-					EObject values = ((MoveWithinEReferenceEvent) event).getValue();
+					Object values = ((MoveWithinEReferenceEvent) event).getValues();
 					eObjectHistoryAdapater.add(eObject, event, line, values);
 				} else if (event instanceof MoveWithinEAttributeEvent) {
 					e = document.createElement("move-in-eattribute");

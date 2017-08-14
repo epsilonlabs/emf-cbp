@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EDataTypeEList;
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
@@ -31,7 +32,9 @@ import org.eclipse.epsilon.cbp.test.node.NodePackage;
  * </p>
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getName <em>Name</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getDefName <em>Def Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getValues <em>Values</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getListValues <em>List Values</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getRefNode <em>Ref Node</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getValNode <em>Val Node</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getValNodes <em>Val Nodes</em>}</li>
@@ -62,6 +65,26 @@ public class NodeImpl extends EObjectImpl implements Node {
 	protected String name = NAME_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getDefName() <em>Def Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDefName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String DEF_NAME_EDEFAULT = "Foo";
+
+	/**
+	 * The cached value of the '{@link #getDefName() <em>Def Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDefName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String defName = DEF_NAME_EDEFAULT;
+
+	/**
 	 * The cached value of the '{@link #getValues() <em>Values</em>}' attribute list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -70,6 +93,16 @@ public class NodeImpl extends EObjectImpl implements Node {
 	 * @ordered
 	 */
 	protected EList<Integer> values;
+
+	/**
+	 * The cached value of the '{@link #getListValues() <em>List Values</em>}' attribute list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getListValues()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<Integer> listValues;
 
 	/**
 	 * The cached value of the '{@link #getRefNode() <em>Ref Node</em>}' reference.
@@ -156,11 +189,44 @@ public class NodeImpl extends EObjectImpl implements Node {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getDefName() {
+		return defName;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setDefName(String newDefName) {
+		String oldDefName = defName;
+		defName = newDefName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NodePackage.NODE__DEF_NAME, oldDefName, defName));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EList<Integer> getValues() {
 		if (values == null) {
 			values = new EDataTypeUniqueEList<Integer>(Integer.class, this, NodePackage.NODE__VALUES);
 		}
 		return values;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EList<Integer> getListValues() {
+		if (listValues == null) {
+			listValues = new EDataTypeEList<Integer>(Integer.class, this, NodePackage.NODE__LIST_VALUES);
+		}
+		return listValues;
 	}
 
 	/**
@@ -294,8 +360,12 @@ public class NodeImpl extends EObjectImpl implements Node {
 		switch (featureID) {
 			case NodePackage.NODE__NAME:
 				return getName();
+			case NodePackage.NODE__DEF_NAME:
+				return getDefName();
 			case NodePackage.NODE__VALUES:
 				return getValues();
+			case NodePackage.NODE__LIST_VALUES:
+				return getListValues();
 			case NodePackage.NODE__REF_NODE:
 				if (resolve) return getRefNode();
 				return basicGetRefNode();
@@ -321,9 +391,16 @@ public class NodeImpl extends EObjectImpl implements Node {
 			case NodePackage.NODE__NAME:
 				setName((String)newValue);
 				return;
+			case NodePackage.NODE__DEF_NAME:
+				setDefName((String)newValue);
+				return;
 			case NodePackage.NODE__VALUES:
 				getValues().clear();
 				getValues().addAll((Collection<? extends Integer>)newValue);
+				return;
+			case NodePackage.NODE__LIST_VALUES:
+				getListValues().clear();
+				getListValues().addAll((Collection<? extends Integer>)newValue);
 				return;
 			case NodePackage.NODE__REF_NODE:
 				setRefNode((Node)newValue);
@@ -354,8 +431,14 @@ public class NodeImpl extends EObjectImpl implements Node {
 			case NodePackage.NODE__NAME:
 				setName(NAME_EDEFAULT);
 				return;
+			case NodePackage.NODE__DEF_NAME:
+				setDefName(DEF_NAME_EDEFAULT);
+				return;
 			case NodePackage.NODE__VALUES:
 				getValues().clear();
+				return;
+			case NodePackage.NODE__LIST_VALUES:
+				getListValues().clear();
 				return;
 			case NodePackage.NODE__REF_NODE:
 				setRefNode((Node)null);
@@ -383,8 +466,12 @@ public class NodeImpl extends EObjectImpl implements Node {
 		switch (featureID) {
 			case NodePackage.NODE__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+			case NodePackage.NODE__DEF_NAME:
+				return DEF_NAME_EDEFAULT == null ? defName != null : !DEF_NAME_EDEFAULT.equals(defName);
 			case NodePackage.NODE__VALUES:
 				return values != null && !values.isEmpty();
+			case NodePackage.NODE__LIST_VALUES:
+				return listValues != null && !listValues.isEmpty();
 			case NodePackage.NODE__REF_NODE:
 				return refNode != null;
 			case NodePackage.NODE__VAL_NODE:
@@ -409,8 +496,12 @@ public class NodeImpl extends EObjectImpl implements Node {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (name: ");
 		result.append(name);
+		result.append(", defName: ");
+		result.append(defName);
 		result.append(", values: ");
 		result.append(values);
+		result.append(", listValues: ");
+		result.append(listValues);
 		result.append(')');
 		return result.toString();
 	}

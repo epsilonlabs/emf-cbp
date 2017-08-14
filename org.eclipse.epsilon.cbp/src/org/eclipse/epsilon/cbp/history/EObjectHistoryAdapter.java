@@ -94,7 +94,13 @@ public class EObjectHistoryAdapter {
 				|| event instanceof MoveWithinEReferenceEvent || event instanceof AddToEReferenceEvent
 				|| event instanceof RemoveFromEReferenceEvent) {
 
-			this.handleEReference(eObject, event, line, (EObject) value);
+			if (value instanceof List) {
+				for (Object val : (List<Object>) value) {
+					this.handleEReference(eObject, event, line, (EObject) val);
+				}
+			} else {
+				this.handleEReference(eObject, event, line, (EObject) value);
+			}
 		}
 
 	}
@@ -585,6 +591,7 @@ public class EObjectHistoryAdapter {
 						|| key.equals(AddToResourceEvent.class.getSimpleName())
 						|| key.equals(AddToEReferenceEvent.class.getSimpleName())
 						|| key.equals(RemoveFromEReferenceEvent.class.getSimpleName())
+						|| key.equals(MoveWithinEReferenceEvent.class.getSimpleName())
 						|| key.equals(DeleteEObjectEvent.class.getSimpleName())
 						|| key.equals(CreateEObjectEvent.class.getSimpleName())) {
 					List<Line> lines = eventLines.getValue();

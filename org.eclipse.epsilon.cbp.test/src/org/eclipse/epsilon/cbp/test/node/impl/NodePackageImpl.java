@@ -110,7 +110,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getNode_Values() {
+	public EAttribute getNode_DefName() {
 		return (EAttribute)nodeEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -119,25 +119,25 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getNode_Values() {
+		return (EAttribute)nodeEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getNode_ListValues() {
+		return (EAttribute)nodeEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EReference getNode_RefNode() {
-		return (EReference)nodeEClass.getEStructuralFeatures().get(2);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getNode_ValNode() {
-		return (EReference)nodeEClass.getEStructuralFeatures().get(3);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getNode_ValNodes() {
 		return (EReference)nodeEClass.getEStructuralFeatures().get(4);
 	}
 
@@ -146,8 +146,26 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getNode_RefNodes() {
+	public EReference getNode_ValNode() {
 		return (EReference)nodeEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getNode_ValNodes() {
+		return (EReference)nodeEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getNode_RefNodes() {
+		return (EReference)nodeEClass.getEStructuralFeatures().get(7);
 	}
 
 	/**
@@ -180,7 +198,9 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
 		// Create classes and their features
 		nodeEClass = createEClass(NODE);
 		createEAttribute(nodeEClass, NODE__NAME);
+		createEAttribute(nodeEClass, NODE__DEF_NAME);
 		createEAttribute(nodeEClass, NODE__VALUES);
+		createEAttribute(nodeEClass, NODE__LIST_VALUES);
 		createEReference(nodeEClass, NODE__REF_NODE);
 		createEReference(nodeEClass, NODE__VAL_NODE);
 		createEReference(nodeEClass, NODE__VAL_NODES);
@@ -219,7 +239,9 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
 		// Initialize classes and features; add operations and parameters
 		initEClass(nodeEClass, Node.class, "Node", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getNode_Name(), ecorePackage.getEString(), "name", null, 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getNode_DefName(), ecorePackage.getEString(), "defName", "Foo", 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getNode_Values(), ecorePackage.getEIntegerObject(), "values", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getNode_ListValues(), ecorePackage.getEIntegerObject(), "listValues", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getNode_RefNode(), this.getNode(), null, "refNode", null, 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getNode_ValNode(), this.getNode(), null, "valNode", null, 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getNode_ValNodes(), this.getNode(), null, "valNodes", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
