@@ -2,6 +2,8 @@
 package node;
 
 class Node {
+	attr Integer deep = 0;
+	ref  Node parent;
 	attr String name;
 	attr String defName = "Foo";
 	attr Integer[*] values;

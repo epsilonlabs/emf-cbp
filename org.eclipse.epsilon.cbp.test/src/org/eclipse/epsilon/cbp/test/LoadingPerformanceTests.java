@@ -276,7 +276,7 @@ public abstract class LoadingPerformanceTests {
 
 		try {
 			this.eol = eol;
-			int iteration = 3;
+			int iteration = 10;
 			double deltaSaveXMI = 0;
 			double deltaLoadXMI = 0;
 			double deltaSaveCBP = 0;
@@ -286,7 +286,7 @@ public abstract class LoadingPerformanceTests {
 			double sumNumOfLineCBP = 0;
 			double sumNumOfLineOptCBP = 0;
 
-			for (int i = 0; i <= iteration; i++) {
+			for (int i = 0; i < iteration; i++) {
 				int xmiorcbp = ThreadLocalRandom.current().nextInt(2);
 				if (xmiorcbp == 0) {
 					this.testSaveXMI(eol, extension, debug);

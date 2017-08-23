@@ -15,6 +15,8 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * </p>
  * <ul>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getDeep <em>Deep</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getParent <em>Parent</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getName <em>Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getDefName <em>Def Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.Node#getValues <em>Values</em>}</li>
@@ -30,6 +32,59 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface Node extends EObject {
+	/**
+	 * Returns the value of the '<em><b>Deep</b></em>' attribute.
+	 * The default value is <code>"0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Deep</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Deep</em>' attribute.
+	 * @see #setDeep(Integer)
+	 * @see org.eclipse.epsilon.cbp.test.node.NodePackage#getNode_Deep()
+	 * @model default="0"
+	 * @generated
+	 */
+	Integer getDeep();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.epsilon.cbp.test.node.Node#getDeep <em>Deep</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Deep</em>' attribute.
+	 * @see #getDeep()
+	 * @generated
+	 */
+	void setDeep(Integer value);
+
+	/**
+	 * Returns the value of the '<em><b>Parent</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Parent</em>' reference isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Parent</em>' reference.
+	 * @see #setParent(Node)
+	 * @see org.eclipse.epsilon.cbp.test.node.NodePackage#getNode_Parent()
+	 * @model
+	 * @generated
+	 */
+	Node getParent();
+
+	/**
+	 * Sets the value of the '{@link org.eclipse.epsilon.cbp.test.node.Node#getParent <em>Parent</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Parent</em>' reference.
+	 * @see #getParent()
+	 * @generated
+	 */
+	void setParent(Node value);
+
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->

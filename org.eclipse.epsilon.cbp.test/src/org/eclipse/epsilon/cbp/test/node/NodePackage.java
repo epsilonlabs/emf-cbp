@@ -66,13 +66,31 @@ public interface NodePackage extends EPackage {
 	int NODE = 0;
 
 	/**
+	 * The feature id for the '<em><b>Deep</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NODE__DEEP = 0;
+
+	/**
+	 * The feature id for the '<em><b>Parent</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NODE__PARENT = 1;
+
+	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__NAME = 0;
+	int NODE__NAME = 2;
 
 	/**
 	 * The feature id for the '<em><b>Def Name</b></em>' attribute.
@@ -81,7 +99,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__DEF_NAME = 1;
+	int NODE__DEF_NAME = 3;
 
 	/**
 	 * The feature id for the '<em><b>Values</b></em>' attribute list.
@@ -90,7 +108,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__VALUES = 2;
+	int NODE__VALUES = 4;
 
 	/**
 	 * The feature id for the '<em><b>List Values</b></em>' attribute list.
@@ -99,7 +117,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__LIST_VALUES = 3;
+	int NODE__LIST_VALUES = 5;
 
 	/**
 	 * The feature id for the '<em><b>Ref Node</b></em>' reference.
@@ -108,7 +126,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__REF_NODE = 4;
+	int NODE__REF_NODE = 6;
 
 	/**
 	 * The feature id for the '<em><b>Val Node</b></em>' containment reference.
@@ -117,7 +135,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__VAL_NODE = 5;
+	int NODE__VAL_NODE = 7;
 
 	/**
 	 * The feature id for the '<em><b>Val Nodes</b></em>' containment reference list.
@@ -126,7 +144,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__VAL_NODES = 6;
+	int NODE__VAL_NODES = 8;
 
 	/**
 	 * The feature id for the '<em><b>Ref Nodes</b></em>' reference list.
@@ -135,7 +153,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE__REF_NODES = 7;
+	int NODE__REF_NODES = 9;
 
 	/**
 	 * The number of structural features of the '<em>Node</em>' class.
@@ -144,7 +162,7 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NODE_FEATURE_COUNT = 8;
+	int NODE_FEATURE_COUNT = 10;
 
 
 	/**
@@ -156,6 +174,28 @@ public interface NodePackage extends EPackage {
 	 * @generated
 	 */
 	EClass getNode();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.eclipse.epsilon.cbp.test.node.Node#getDeep <em>Deep</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Deep</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.node.Node#getDeep()
+	 * @see #getNode()
+	 * @generated
+	 */
+	EAttribute getNode_Deep();
+
+	/**
+	 * Returns the meta object for the reference '{@link org.eclipse.epsilon.cbp.test.node.Node#getParent <em>Parent</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Parent</em>'.
+	 * @see org.eclipse.epsilon.cbp.test.node.Node#getParent()
+	 * @see #getNode()
+	 * @generated
+	 */
+	EReference getNode_Parent();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.eclipse.epsilon.cbp.test.node.Node#getName <em>Name</em>}'.
@@ -276,6 +316,22 @@ public interface NodePackage extends EPackage {
 		 * @generated
 		 */
 		EClass NODE = eINSTANCE.getNode();
+
+		/**
+		 * The meta object literal for the '<em><b>Deep</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute NODE__DEEP = eINSTANCE.getNode_Deep();
+
+		/**
+		 * The meta object literal for the '<em><b>Parent</b></em>' reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference NODE__PARENT = eINSTANCE.getNode_Parent();
 
 		/**
 		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.

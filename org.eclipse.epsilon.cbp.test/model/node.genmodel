@@ -6,6 +6,8 @@
   <foreignModel>node.ecore</foreignModel>
   <genPackages prefix="Node" disposableProviderFactory="true" ecorePackage="node.ecore#/">
     <genClasses ecoreClass="node.ecore#//Node">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/deep"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference node.ecore#//Node/parent"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/defName"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/values"/>

@@ -31,6 +31,8 @@ import org.eclipse.epsilon.cbp.test.node.NodePackage;
  * The following features are implemented:
  * </p>
  * <ul>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getDeep <em>Deep</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getParent <em>Parent</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getDefName <em>Def Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.test.node.impl.NodeImpl#getValues <em>Values</em>}</li>
@@ -44,6 +46,36 @@ import org.eclipse.epsilon.cbp.test.node.NodePackage;
  * @generated
  */
 public class NodeImpl extends EObjectImpl implements Node {
+	/**
+	 * The default value of the '{@link #getDeep() <em>Deep</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDeep()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final Integer DEEP_EDEFAULT = new Integer(0);
+
+	/**
+	 * The cached value of the '{@link #getDeep() <em>Deep</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDeep()
+	 * @generated
+	 * @ordered
+	 */
+	protected Integer deep = DEEP_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getParent() <em>Parent</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getParent()
+	 * @generated
+	 * @ordered
+	 */
+	protected Node parent;
+
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -161,6 +193,65 @@ public class NodeImpl extends EObjectImpl implements Node {
 	@Override
 	protected EClass eStaticClass() {
 		return NodePackage.Literals.NODE;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Integer getDeep() {
+		return deep;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setDeep(Integer newDeep) {
+		Integer oldDeep = deep;
+		deep = newDeep;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NodePackage.NODE__DEEP, oldDeep, deep));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Node getParent() {
+		if (parent != null && parent.eIsProxy()) {
+			InternalEObject oldParent = (InternalEObject)parent;
+			parent = (Node)eResolveProxy(oldParent);
+			if (parent != oldParent) {
+				if (eNotificationRequired())
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, NodePackage.NODE__PARENT, oldParent, parent));
+			}
+		}
+		return parent;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Node basicGetParent() {
+		return parent;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setParent(Node newParent) {
+		Node oldParent = parent;
+		parent = newParent;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NodePackage.NODE__PARENT, oldParent, parent));
 	}
 
 	/**
@@ -358,6 +449,11 @@ public class NodeImpl extends EObjectImpl implements Node {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
+			case NodePackage.NODE__DEEP:
+				return getDeep();
+			case NodePackage.NODE__PARENT:
+				if (resolve) return getParent();
+				return basicGetParent();
 			case NodePackage.NODE__NAME:
 				return getName();
 			case NodePackage.NODE__DEF_NAME:
@@ -388,6 +484,12 @@ public class NodeImpl extends EObjectImpl implements Node {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
+			case NodePackage.NODE__DEEP:
+				setDeep((Integer)newValue);
+				return;
+			case NodePackage.NODE__PARENT:
+				setParent((Node)newValue);
+				return;
 			case NodePackage.NODE__NAME:
 				setName((String)newValue);
 				return;
@@ -428,6 +530,12 @@ public class NodeImpl extends EObjectImpl implements Node {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
+			case NodePackage.NODE__DEEP:
+				setDeep(DEEP_EDEFAULT);
+				return;
+			case NodePackage.NODE__PARENT:
+				setParent((Node)null);
+				return;
 			case NodePackage.NODE__NAME:
 				setName(NAME_EDEFAULT);
 				return;
@@ -464,6 +572,10 @@ public class NodeImpl extends EObjectImpl implements Node {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
+			case NodePackage.NODE__DEEP:
+				return DEEP_EDEFAULT == null ? deep != null : !DEEP_EDEFAULT.equals(deep);
+			case NodePackage.NODE__PARENT:
+				return parent != null;
 			case NodePackage.NODE__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case NodePackage.NODE__DEF_NAME:
@@ -494,7 +606,9 @@ public class NodeImpl extends EObjectImpl implements Node {
 		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (name: ");
+		result.append(" (deep: ");
+		result.append(deep);
+		result.append(", name: ");
 		result.append(name);
 		result.append(", defName: ");
 		result.append(defName);

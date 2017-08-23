@@ -114,9 +114,18 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 					String value = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					StringBuilder code = new StringBuilder();
-					code.append(
-							"if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s and isCircular(%1$s, %2$s) == false){\n");
-					code.append("    %1$s.valNodes.add(%2$s);\n");
+					code.append("if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s ");
+					code.append("    and isCircular(%1$s, %2$s) == false){\n");
+					code.append("    if (%1$s.deep + 1 > 300){\n");
+					code.append("        var x = %1$s.parent;\n");
+					code.append("        %2$s.deep = x.deep + 1;\n");
+					code.append("        %2$s.parent = x;\n");
+					code.append("        x.valNodes.add(%2$s);\n");
+					code.append("    }else{\n");
+					code.append("        %2$s.deep = %1$s.deep + 1;\n");
+					code.append("        %2$s.parent = %1$s;\n");
+					code.append("    	 %1$s.valNodes.add(%2$s);\n");
+					code.append("    }");
 					code.append("}\n");
 					eolCode.append(String.format(code.toString(), target, value));
 				} else if (operation.equals("ADD_REFERENCE_REF")) {
@@ -124,7 +133,16 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 					StringBuilder code = new StringBuilder();
 					code.append("if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s){\n");
-					code.append("    %1$s.refNodes.add(%2$s);\n");
+					code.append("    if (%1$s.deep + 1 > 300){\n");
+					code.append("        var x = %1$s.parent;\n");
+					code.append("        %2$s.deep = x.deep + 1;\n");
+					code.append("        %2$s.parent = x;\n");
+					code.append("        x.refNodes.add(%2$s);\n");
+					code.append("    }else{\n");
+					code.append("        %2$s.deep = %1$s.deep + 1;\n");
+					code.append("        %2$s.parent = %1$s;\n");
+					code.append("    	 %1$s.refNodes.add(%2$s);\n");
+					code.append("    }");
 					code.append("}\n");
 					eolCode.append(String.format(code.toString(), target, value));
 				} else if (operation.equals("MOVE_ATTRIBUTE")) {
@@ -220,11 +238,34 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 		assertEquals(true, true);
 	}
 
+	
+	@Test
+	public void testCreateSmallNumberOfObjectsPerformance() throws Exception {
+		StringBuilder eolCode = new StringBuilder();
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		for (int i = 0; i <100; i += 1) {
+			eolCode.setLength(0);
+			appendToOutputText(String.valueOf(i) + "\t");
+			StringBuilder code = new StringBuilder();
+			code.append("for(i in Sequence{0..%1$d}){\n");
+			//code.append("   i.println();\n");
+			code.append("   var node = new Node;\n");
+			code.append("}\n");
+			eolCode.append(String.format(code.toString(), i));
+			//System.out.println(eolCode);
+			run(eolCode.toString(), true);
+		}
+		//saveOutputText();
+		//saveErrorMessages();
+		assertEquals(true, true);
+	}
+	
 	@Test
 	public void testCreateObjectPerformance() throws Exception {
 		StringBuilder eolCode = new StringBuilder();
 		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
 		for (int i = 500; i <= 10000; i += 500) {
+			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
 			StringBuilder code = new StringBuilder();
 			code.append("var eRoot = new Node;\n");
@@ -241,10 +282,37 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	}
 
 	@Test
+	public void testDeepTreeRemoveRootPerformance() throws Exception {
+		StringBuilder eolCode = new StringBuilder();
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		for (int i = 0; i <= 2000; i += 20) {
+			eolCode.setLength(0);
+			appendToOutputText(String.valueOf(i) + "\t");
+			StringBuilder code = new StringBuilder();
+			//code.append("var root = new Node;\n");
+			code.append("for(i in Sequence{0..%1$d}){\n");
+			code.append("    var node = new Node;\n");
+//			code.append("	 for(j in Sequence{0..100}){\n");
+//			code.append("	     node.name = j.asString();\n");
+//			code.append("	 }\n");
+			code.append("    delete node;\n");
+			code.append("}\n");
+			eolCode.append(String.format(code.toString(), i));
+			// System.out.println(eolCode);
+			run(eolCode.toString(), true);
+		}
+
+		saveOutputText();
+		//saveErrorMessages();
+		assertEquals(true, true);
+	}
+	
+	@Test
 	public void testDeepTreePerformance() throws Exception {
 		StringBuilder eolCode = new StringBuilder();
 		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
 		for (int i = 0; i <= 480; i += 20) {
+			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
 			StringBuilder code = new StringBuilder();
 			code.append("var eRoot = new Node;\n");
