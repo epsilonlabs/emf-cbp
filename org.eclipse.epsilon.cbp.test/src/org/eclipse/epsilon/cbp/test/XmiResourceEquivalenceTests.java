@@ -25,8 +25,11 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
-import org.eclipse.epsilon.cbp.history.EObjectHistory;
-import org.eclipse.epsilon.cbp.history.EObjectHistoryAdapter;
+import org.eclipse.epsilon.cbp.history.ObjectHistory;
+import org.eclipse.epsilon.cbp.history.ReferenceHistory;
+import org.eclipse.epsilon.cbp.history.ModelHistory;
+import org.eclipse.epsilon.cbp.history.AttributeHistory;
+import org.eclipse.epsilon.cbp.history.EventHistory;
 import org.eclipse.epsilon.cbp.history.Line;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
@@ -115,38 +118,38 @@ public abstract class XmiResourceEquivalenceTests {
 
 			System.out.println("");
 			System.out.println("DATA STRUCTURE");
-			EObjectHistoryAdapter eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
+			ModelHistory eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
 
-			for (Entry<EObject, EObjectHistory> entry1 : eObjectHistoryList.geteObjectHistoryList().entrySet()) {
+			for (Entry<EObject, ObjectHistory> entry1 : eObjectHistoryList.geteObjectHistoryList().entrySet()) {
 				EObject eObject = entry1.getKey();
-				EObjectHistory eObjectEventLineHistory = entry1.getValue();
+				ObjectHistory eObjectEventLineHistory = entry1.getValue();
 				System.out.println("EObject: " + cbpResource1.getURIFragment(eObject) + " -------------------");
-				for (Entry<String, List<Line>> entry2 : eObjectEventLineHistory.getEventRecords().entrySet()) {
+				for (Entry<String, EventHistory> entry2 : eObjectEventLineHistory.getEventHistoryMap().entrySet()) {
 					String eventName = entry2.getKey();
 					List<Line> lines = entry2.getValue();
 					System.out.println("    " + eventName + " = " + lines);
 				}
 				// attributes
-				Map<EObject, EObjectHistory> attributeList = eObjectEventLineHistory.getAttributes();
+				Map<EObject, AttributeHistory> attributeList = eObjectEventLineHistory.getAttributes();
 				System.out.println("    EAttribute:");
-				for (Entry<EObject, EObjectHistory> entry2 : attributeList.entrySet()) {
+				for (Entry<EObject, AttributeHistory> entry2 : attributeList.entrySet()) {
 					EAttribute eAttribute = (EAttribute) entry2.getKey();
-					EObjectHistory eAttributeHistory = entry2.getValue();
+					ObjectHistory eAttributeHistory = entry2.getValue();
 					System.out.println("        " + eAttribute.getName() + " -------------------");
-					for (Entry<String, List<Line>> entry3 : eAttributeHistory.getEventRecords().entrySet()) {
+					for (Entry<String, EventHistory> entry3 : eAttributeHistory.getEventHistoryMap().entrySet()) {
 						String eventName = entry3.getKey();
 						List<Line> lines = entry3.getValue();
 						System.out.println("            " + eventName + " = " + lines);
 					}
 				}
 				// references
-				Map<EObject, EObjectHistory> referenceList = eObjectEventLineHistory.getReferences();
+				Map<EObject, ReferenceHistory> referenceList = eObjectEventLineHistory.getReferences();
 				System.out.println("    EReference:");
-				for (Entry<EObject, EObjectHistory> entry2 : referenceList.entrySet()) {
+				for (Entry<EObject, ReferenceHistory> entry2 : referenceList.entrySet()) {
 					EReference eReference = (EReference) entry2.getKey();
-					EObjectHistory eReferenceHistory = entry2.getValue();
+					ObjectHistory eReferenceHistory = entry2.getValue();
 					System.out.println("        " + eReference.getName() + " -------------------");
-					for (Entry<String, List<Line>> entry3 : eReferenceHistory.getEventRecords().entrySet()) {
+					for (Entry<String, EventHistory> entry3 : eReferenceHistory.getEventHistoryMap().entrySet()) {
 						String eventName = entry3.getKey();
 						List<Line> lines = entry3.getValue();
 						System.out.println("            " + eventName + " = " + lines);

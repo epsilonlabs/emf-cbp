@@ -1,10 +1,9 @@
 var n1 = new Node;
 n1.name = "A";
-var n2 = new Node;
-var n3 = new Node;
 
-n1.valNodes.addAll(Collection{n2, n3});
-n1.valNodes.clear();
+var object = M.allContents.selectOne(node | node.name == "A");
+object.println();
+
 
 
 operation deleteObject(object){
