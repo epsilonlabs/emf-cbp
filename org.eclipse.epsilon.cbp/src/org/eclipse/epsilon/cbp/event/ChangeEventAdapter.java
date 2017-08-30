@@ -350,11 +350,11 @@ public class ChangeEventAdapter extends EContentAdapter {
 			modelHistory.addObjectHistoryLine(eObject, event, line, values);
 		} else if (event instanceof MoveWithinEReferenceEvent) {
 			eObject = ((MoveWithinEReferenceEvent) event).getTarget();
-			values = ((MoveWithinEReferenceEvent) event).getValues();
+			values = ((MoveWithinEReferenceEvent) event).getValue();
 			modelHistory.addObjectHistoryLine(eObject, event, line, values);
 		} else if (event instanceof MoveWithinEAttributeEvent) {
 			eObject = ((MoveWithinEAttributeEvent) event).getTarget();
-			values = ((MoveWithinEAttributeEvent) event).getValues();
+			values = ((MoveWithinEAttributeEvent) event).getValue();
 			modelHistory.addObjectHistoryLine(eObject, event, line, values);
 		}
 

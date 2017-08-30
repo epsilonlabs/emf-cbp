@@ -55,6 +55,11 @@ public abstract class LoadingPerformanceTests {
 	protected long numberOfNodes = 0;
 	protected long numOfLineCBP = 0;
 	protected long numOfLineOptCBP = 0;
+	protected double valAttributeSetUnset = 0;
+	protected double valReferenceSetUnset = 0;
+	protected double valAttributeAddRemoveMove = 0;
+	protected double valReferenceAddRemoveMove = 0;
+	protected double valDelete = 0;
 
 	protected Set<Integer> ignoreList = null;
 
@@ -63,6 +68,7 @@ public abstract class LoadingPerformanceTests {
 	}
 
 	public abstract EPackage getEPackage();
+
 	public abstract Class<?> getNodeClass();
 
 	// Save XMI -------------------------------------------
@@ -160,13 +166,19 @@ public abstract class LoadingPerformanceTests {
 					// moduleCbp.getContext().getModelRepository().getModels().addAll(getExtraModels());
 					moduleCbp.execute();
 
+					valDelete = ((CBPResource) cbpResource1).getAvgTimeDelete();
+					valAttributeAddRemoveMove = ((CBPResource) cbpResource1).getAvgTimeAttributeAddRemoveMove();
+					valAttributeSetUnset = ((CBPResource) cbpResource1).getAvgTimeAttributeSetUnset();
+					valReferenceAddRemoveMove = ((CBPResource) cbpResource1).getAvgTimeReferenceAddRemoveMove();
+					valReferenceSetUnset = ((CBPResource) cbpResource1).getAvgTimeReferenceSetUnset();
+
 					ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 
 					cbpOutputStream = new StringOutputStream();
 					beforeSaveCBP = System.currentTimeMillis();
 					cbpResource1.save(cbpOutputStream, null);
 					afterSaveCBP = System.currentTimeMillis();
-					
+
 					cbpXml = cbpOutputStream.toString();
 				} catch (Exception e) {
 					errorMessage.append(e.toString() + "\n");
@@ -276,7 +288,7 @@ public abstract class LoadingPerformanceTests {
 
 		try {
 			this.eol = eol;
-			int iteration = 10;
+			int iteration = 2;
 			double deltaSaveXMI = 0;
 			double deltaLoadXMI = 0;
 			double deltaSaveCBP = 0;
@@ -285,6 +297,11 @@ public abstract class LoadingPerformanceTests {
 			double sumNumOfNodes = 0;
 			double sumNumOfLineCBP = 0;
 			double sumNumOfLineOptCBP = 0;
+			double sumAttributeSetUnset = 0;
+			double sumReferenceSetUnset = 0;
+			double sumAttributeAddRemoveMove = 0;
+			double sumReferenceAddRemoveMove = 0;
+			double sumDelete = 0;
 
 			for (int i = 0; i < iteration; i++) {
 				int xmiorcbp = ThreadLocalRandom.current().nextInt(2);
@@ -319,10 +336,9 @@ public abstract class LoadingPerformanceTests {
 				threadLoadOptCBP.join();
 				threadSaveXMI.join();
 				threadLoadXMI.join();
-				
 
 				// appendLineToOutputText(xmiOutputStream.toString());
-//				 appendLineToOutputText(cbpOutputStream.toString());
+				// appendLineToOutputText(cbpOutputStream.toString());
 
 				deltaSaveXMI = deltaSaveXMI + ((double) (afterSaveXMI - beforeSaveXMI)) / 1000;
 				deltaLoadXMI = deltaLoadXMI + ((double) (afterLoadXMI - beforeLoadXMI)) / 1000;
@@ -332,6 +348,11 @@ public abstract class LoadingPerformanceTests {
 				sumNumOfNodes = sumNumOfNodes + numberOfNodes;
 				sumNumOfLineOptCBP = sumNumOfLineOptCBP + numOfLineOptCBP;
 				sumNumOfLineCBP = sumNumOfLineCBP + numOfLineCBP;
+				sumAttributeSetUnset = sumAttributeSetUnset + valAttributeSetUnset;
+				sumReferenceSetUnset = sumReferenceSetUnset + valReferenceSetUnset;
+				sumAttributeAddRemoveMove = sumAttributeAddRemoveMove + valAttributeAddRemoveMove;
+				sumReferenceAddRemoveMove = sumReferenceAddRemoveMove + valReferenceAddRemoveMove;
+				sumDelete = sumDelete + valDelete;
 
 				xmiOutputStream.reset();
 				cbpOutputStream.reset();
@@ -345,17 +366,24 @@ public abstract class LoadingPerformanceTests {
 			sumNumOfNodes = sumNumOfNodes / iteration;
 			sumNumOfLineOptCBP = sumNumOfLineOptCBP / iteration;
 			sumNumOfLineCBP = sumNumOfLineCBP / iteration;
+			sumAttributeSetUnset = sumAttributeSetUnset / iteration;
+			sumReferenceSetUnset = sumReferenceSetUnset / iteration;
+			sumAttributeAddRemoveMove = sumAttributeAddRemoveMove / iteration;
+			sumReferenceAddRemoveMove = sumReferenceAddRemoveMove / iteration;
+			sumDelete = sumDelete / iteration;
 
-			appendLineToOutputText(String.format("%1$.4f\t%2$.4f\t%3$.4f\t%4$.4f\t%5$.4f\t%6$.0f\t%7$.0f\t%8$.0f",
+			appendLineToOutputText(String.format("%1$.4f\t%2$.4f\t%3$.4f\t%4$.4f\t%5$.4f\t%6$.0f\t%7$.0f"
+					+ "\t%8$.0f\t%9$.0f\t%10$.0f\t%11$.0f\t%12$.0f\t%13$.0f",
 					deltaSaveXMI, deltaSaveCBP, deltaLoadXMI, deltaLoadOCBP, deltaLoadCBP, sumNumOfNodes,
-					sumNumOfLineOptCBP, sumNumOfLineCBP));
+					sumNumOfLineOptCBP, sumNumOfLineCBP, sumAttributeSetUnset, sumReferenceSetUnset,
+					sumAttributeAddRemoveMove, sumReferenceAddRemoveMove, sumDelete));
 
 		} catch (Exception e) {
 			errorMessage.append("\n" + eol);
 			errorMessage.append(e.toString() + "\n");
 			saveErrorMessages();
 			e.printStackTrace();
-			
+
 		}
 	}
 
@@ -368,18 +396,18 @@ public abstract class LoadingPerformanceTests {
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
 		return xmiResourceSet;
 	}
-	
-	protected void appendToOutputText(String text){
+
+	protected void appendToOutputText(String text) {
 		outputText.append(text);
 		System.out.print(text);
 	}
-	
-	protected void appendLineToOutputText(String text){
-		outputText.append(text+ "\n");
+
+	protected void appendLineToOutputText(String text) {
+		outputText.append(text + "\n");
 		System.out.println(text);
 	}
-	
-	protected void saveErrorMessages() throws FileNotFoundException{
+
+	protected void saveErrorMessages() throws FileNotFoundException {
 		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");// dd/MM/yyyy
 		Date now = new Date();
 		String strDate = sdfDate.format(now);
@@ -392,8 +420,8 @@ public abstract class LoadingPerformanceTests {
 		out.close();
 		errorMessage.setLength(0);
 	}
-	
-	protected void saveOutputText() throws FileNotFoundException{
+
+	protected void saveOutputText() throws FileNotFoundException {
 		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");// dd/MM/yyyy
 		Date now = new Date();
 		String strDate = sdfDate.format(now);
@@ -402,9 +430,7 @@ public abstract class LoadingPerformanceTests {
 		out.close();
 		outputText.setLength(0);
 	}
-	
-	
-	
+
 	protected void run(String eol) throws Exception {
 		run(eol, false);
 	}

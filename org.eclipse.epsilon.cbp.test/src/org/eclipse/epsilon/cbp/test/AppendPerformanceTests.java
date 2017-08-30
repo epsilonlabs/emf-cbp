@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -31,6 +33,11 @@ public abstract class AppendPerformanceTests {
 	long afterXMISave = 0;
 	long beforeCBPAppend = 0;
 	long afterCBPAppend = 0;
+	long numberOfNodes = 0;
+	long limit = 0;
+	long limitIncrement = 200;
+	
+	public abstract Class<?> getNodeClass();
 
 	public AppendPerformanceTests(String extension, Resource.Factory factory) {
 		this.extension = extension;
@@ -47,7 +54,7 @@ public abstract class AppendPerformanceTests {
 
 	public void runImpl(String extension, boolean debug, String... sessions) throws Exception {
 
-		System.out.print("Nodes\tCBPAppend\tXMISave\n");
+		System.out.print("NumOps\tCBPAppend\tXMISave\tNumNodes\n");
 
 		StringOutputStream cbpOutput = new StringOutputStream();
 		CBPResource cbpResource = (CBPResource) factory.createResource(URI.createURI("foo." + extension));
@@ -67,7 +74,7 @@ public abstract class AppendPerformanceTests {
 			beforeCBPAppend = System.nanoTime();
 			cbpResource.save(cbpOutput, null);
 			afterCBPAppend = System.nanoTime();
-			
+
 			// XMI -----------------
 			module.getContext().getModelRepository().removeModel(cbpModel);
 			xmiOutput.reset();
@@ -80,11 +87,22 @@ public abstract class AppendPerformanceTests {
 			xmiResource.save(xmiOutput, null);
 			afterXMISave = System.nanoTime();
 
+			TreeIterator<EObject> iterator = xmiResource.getAllContents();
+			numberOfNodes = 0;
+			while (iterator.hasNext()) {
+				EObject eObject = iterator.next();
+				if (getNodeClass().isInstance(eObject)) {
+					numberOfNodes += 1;
+				}
+			}
+			
 			// print time
-			if (count % 200 == 0) {
+			if (numberOfNodes >= limit) {
 				System.out.print(count + "\t");
 				System.out.print(String.format("%1$.6f\t", (double) (afterCBPAppend - beforeCBPAppend)/1000000));
-				System.out.print(String.format("%1$.6f\n", (double) (afterXMISave - beforeXMISave)/1000000));
+				System.out.print(String.format("%1$.6f\t", (double) (afterXMISave - beforeXMISave)/1000000));
+				System.out.print(String.format("%1$s\n", numberOfNodes));
+				limit += limitIncrement;
 			}
 			count += 1;
 		}

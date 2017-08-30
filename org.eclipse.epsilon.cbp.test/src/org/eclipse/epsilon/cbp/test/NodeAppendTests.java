@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.test.node.Node;
 import org.eclipse.epsilon.cbp.test.node.NodePackage;
 //import org.eclipse.epsilon.cbp.thrift.CBPThriftResourceFactory;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class NodeAppendTests extends AppendPerformanceTests {
 	public void testAppendRandomModel() throws Exception {
 		List<String> list = new ArrayList<>();
 		int nameIndex = 0;
-		int iteration = 5000;
+		int iteration = 20000;
 
 		// Random operation
 		Map<String, Integer> eventProbabilityMap = new HashMap<>();
@@ -265,6 +266,11 @@ public class NodeAppendTests extends AppendPerformanceTests {
 	@Override
 	public EPackage getEPackage() {
 		return NodePackage.eINSTANCE;
+	}
+	
+	@Override
+	public Class<?> getNodeClass() {
+		return Node.class;
 	}
 	
 	public String randomString(int length) {

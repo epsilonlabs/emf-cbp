@@ -40,7 +40,8 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 		appendLineToOutputText("Start: " + sdf.format(new Date()) + "\n");
 
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP"
+				+ "\tTAtSU\tTAtARM\tTReSU\tTReARM, TiDel");
 		// for (int i = 3200; i <= 3200; i += 200) {
 		for (int i = 0; i <= 100000; i += 500) {
 			eolCode.setLength(0);

@@ -31,6 +31,37 @@ import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
 
 public class ModelHistory extends ObjectHistory {
 
+	protected long beforeAttributeSetUnset = 0;
+	protected long afterAttributeSetUnset = 0;
+	protected long beforeAttributeAddRemoveMove = 0;
+	protected long afterAttributeAddRemoveMove = 0;	
+	protected long beforeReferenceSetUnset = 0;
+	protected long afterReferenceSetUnset = 0;
+	protected long beforeReferenceAddRemoveMove = 0;
+	protected long afterReferenceAddRemoveMove = 0;	
+	protected long beforeDelete = 0;
+	protected long afterDelete = 0;
+	protected long countAttributeSetUnset = 0;
+	protected long countAttributeAddRemoveMove = 0;	
+	protected long countReferenceSetUnset = 0;
+	protected long countReferenceAddRemoveMove = 0;	
+	protected long countDelete = 0;
+	protected long timeAttributeSetUnset = 0;
+	protected long timeAttributeAddRemoveMove = 0;	
+	protected long timeReferenceSetUnset = 0;
+	protected long timeReferenceAddRemoveMove = 0;	
+	protected long timeDelete = 0;
+	protected double avgTimeAttributeSetUnset = 0;
+	protected double avgTimeAttributeAddRemoveMove = 0;	
+	protected double avgTimeReferenceSetUnset = 0;
+	protected double avgTimeReferenceAddRemoveMove = 0;	
+	protected double avgTimeDelete = 0;
+	protected long totalTimeAttributeSetUnset = 0;
+	protected long totalTimeAttributeAddRemoveMove = 0;	
+	protected long totalTimeReferenceSetUnset = 0;
+	protected long totalTimeReferenceAddRemoveMove = 0;	
+	protected long totalTimeDelete = 0;
+	
 	protected Map<EObject, ObjectHistory> modelHistory = new HashMap<>();
 	protected Set<Integer> ignoreList;
 
@@ -94,38 +125,76 @@ public class ModelHistory extends ObjectHistory {
 		}
 		// OBJECT DELETION
 		else if (event instanceof DeleteEObjectEvent) {
+			countDelete+= 1;
+			beforeDelete = System.nanoTime();
 			this.handleEObjectDeletion(eObject, event, line);
+			afterDelete = System.nanoTime();
+			timeDelete = afterDelete - beforeDelete;
+			totalTimeDelete += timeDelete;
+			avgTimeDelete = (double) totalTimeDelete / countDelete; 
 		}
-		// ATTRIBUTES
-		else if (event instanceof SetEAttributeEvent || event instanceof UnsetEAttributeEvent
-				|| event instanceof MoveWithinEAttributeEvent || event instanceof AddToEAttributeEvent
+		// ATTRIBUTE SET AND UNSET EVENTS
+		else if (event instanceof SetEAttributeEvent || event instanceof UnsetEAttributeEvent) {
+			countAttributeSetUnset+= 1;
+			beforeAttributeSetUnset = System.nanoTime();
+			this.handleAttributeSetUnsetEvents(eObject, event, line, value);
+			afterAttributeSetUnset = System.nanoTime();
+			timeAttributeSetUnset = afterAttributeSetUnset - beforeAttributeSetUnset;
+			totalTimeAttributeSetUnset += timeAttributeSetUnset;
+			avgTimeAttributeSetUnset = (double) totalTimeAttributeSetUnset / countAttributeSetUnset;
+		} 
+		// ATTRIBUTE ADD, REMOVE, AND MOVE EVENTS
+		else if (event instanceof MoveWithinEAttributeEvent || event instanceof AddToEAttributeEvent
 				|| event instanceof RemoveFromEAttributeEvent) {
-			if (value instanceof List) {
-				for (Object val : (List<Object>) value) {
-					this.handleEAttribute(eObject, event, line, val);
-				}
-			} else {
-				this.handleEAttribute(eObject, event, line, value);
-			}
+//			if (value instanceof List) {
+//				for (Object val : (List<Object>) value) {
+//					this.handleAttributeAddRemoveMoveEvents(eObject, event, line, val);
+//				}
+//			} else {
+				countAttributeAddRemoveMove+= 1;
+				beforeAttributeAddRemoveMove = System.nanoTime();
+				this.handleAttributeAddRemoveMoveEvents(eObject, event, line, value);
+				afterAttributeAddRemoveMove = System.nanoTime();
+				timeAttributeAddRemoveMove = afterAttributeAddRemoveMove - beforeAttributeAddRemoveMove;
+				totalTimeAttributeAddRemoveMove += timeAttributeAddRemoveMove;
+				avgTimeAttributeAddRemoveMove = (double) totalTimeAttributeAddRemoveMove / countAttributeAddRemoveMove;
+//			}
 		}
 
-		// REFERENCES
-		else if (event instanceof SetEReferenceEvent || event instanceof UnsetEReferenceEvent
-				|| event instanceof MoveWithinEReferenceEvent || event instanceof AddToEReferenceEvent
+		// REFERENCE SET AND UNSET EVENTS
+		else if (event instanceof SetEReferenceEvent || event instanceof UnsetEReferenceEvent) {
+			countReferenceSetUnset+= 1;
+			beforeReferenceSetUnset = System.nanoTime();
+			this.handleReferenceSetUnsetEvents(eObject, event, line, (EObject) value);
+			afterReferenceSetUnset = System.nanoTime();
+			timeReferenceSetUnset = afterReferenceSetUnset - beforeReferenceSetUnset;
+			totalTimeReferenceSetUnset += timeReferenceSetUnset;
+			avgTimeReferenceSetUnset = (double) totalTimeReferenceSetUnset / countReferenceSetUnset; 
+		} 
+		
+		// REFERENCE ADD, REMOVE, AND MOVE EVENTS
+		else if (event instanceof MoveWithinEReferenceEvent || event instanceof AddToEReferenceEvent
 				|| event instanceof RemoveFromEReferenceEvent) {
-
-			if (value instanceof List) {
-				for (Object val : (List<Object>) value) {
-					this.handleEReference(eObject, event, line, (EObject) val);
-				}
-			} else {
-				this.handleEReference(eObject, event, line, (EObject) value);
-			}
+			
+//			if (value instanceof List) {
+//				for (Object val : (List<Object>) value) {
+//					this.handleReferenceAddRemoveMoveEvents(eObject, event, line, (EObject) val);
+//				}
+//			} else {
+				countReferenceAddRemoveMove+= 1;
+				beforeReferenceAddRemoveMove = System.nanoTime();
+				this.handleReferenceAddRemoveMoveEvents(eObject, event, line, (EObject) value);
+				afterReferenceAddRemoveMove = System.nanoTime();
+				timeReferenceAddRemoveMove = afterReferenceAddRemoveMove - beforeReferenceAddRemoveMove;
+				totalTimeReferenceAddRemoveMove += timeReferenceAddRemoveMove;
+				avgTimeReferenceAddRemoveMove = (double) totalTimeReferenceAddRemoveMove / countReferenceAddRemoveMove; 
+//			}
+			
 		}
 
 	}
 
-	private void handleEAttribute(EObject eObject, ChangeEvent<?> event, int lineNumber, Object value) {
+	private void handleAttributeSetUnsetEvents(EObject eObject, ChangeEvent<?> event, int lineNumber, Object value) {
 		EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
 		Map<EObject, AttributeHistory> attributeList = modelHistory.get(eObject).getAttributes();
 		if (!attributeList.containsKey(eAttribute)) {
@@ -169,8 +238,22 @@ public class ModelHistory extends ObjectHistory {
 					this.addLinesToIgnoreList(unsetAttributeLines);
 			}
 		}
+	}
+
+	private void handleAttributeAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, int lineNumber,
+			Object value) {
+		EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
+		Map<EObject, AttributeHistory> attributeList = modelHistory.get(eObject).getAttributes();
+		if (!attributeList.containsKey(eAttribute)) {
+			AttributeHistory eAttributeHistory = new AttributeHistory(eObject);
+			eAttributeHistory.addEventLine(event, lineNumber, value);
+			attributeList.put(eAttribute, eAttributeHistory);
+		} else {
+			attributeList.get(eAttribute).addEventLine(event, lineNumber, value);
+		}
+
 		// ignoring Add To and Remove EAttribute
-		else if (value != null && (event instanceof AddToEAttributeEvent || event instanceof RemoveFromEAttributeEvent
+		if (value != null && (event instanceof AddToEAttributeEvent || event instanceof RemoveFromEAttributeEvent
 				|| event instanceof MoveWithinEAttributeEvent)) {
 			ObjectHistory eAttributeHistory = attributeList.get(eAttribute);
 			if (event instanceof MoveWithinEAttributeEvent) {
@@ -274,7 +357,7 @@ public class ModelHistory extends ObjectHistory {
 		}
 	}
 
-	private void handleEReference(EObject eObject, ChangeEvent<?> event, int lineNumber, EObject value) {
+	private void handleReferenceSetUnsetEvents(EObject eObject, ChangeEvent<?> event, int lineNumber, EObject value) {
 		EReference eReferenceTarget = ((EReferenceEvent) event).getEReference();
 		Map<EObject, ReferenceHistory> referenceList = modelHistory.get(eObject).getReferences();
 		if (!referenceList.containsKey(eReferenceTarget)) {
@@ -317,9 +400,22 @@ public class ModelHistory extends ObjectHistory {
 					this.addLinesToIgnoreList(unsetReferenceLines);
 			}
 		}
+	}
+
+	private void handleReferenceAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, int lineNumber,
+			EObject value) {
+		EReference eReferenceTarget = ((EReferenceEvent) event).getEReference();
+		Map<EObject, ReferenceHistory> referenceList = modelHistory.get(eObject).getReferences();
+		if (!referenceList.containsKey(eReferenceTarget)) {
+			ReferenceHistory eReferenceHistory = new ReferenceHistory(eObject);
+			eReferenceHistory.addEventLine(event, lineNumber, value);
+			referenceList.put(eReferenceTarget, eReferenceHistory);
+		} else {
+			referenceList.get(eReferenceTarget).addEventLine(event, lineNumber, value);
+		}
 
 		// ignoring Add To and Remove From Reference
-		else if (value != null && (event instanceof AddToEReferenceEvent || event instanceof RemoveFromEReferenceEvent
+		if (value != null && (event instanceof AddToEReferenceEvent || event instanceof RemoveFromEReferenceEvent
 				|| event instanceof MoveWithinEReferenceEvent)) {
 
 			// also add these AddTo/RemoveFromReference events to the value
@@ -540,5 +636,25 @@ public class ModelHistory extends ObjectHistory {
 				}
 			}
 		}
+	}
+	
+	public double getAvgTimeDelete() {
+		return this.avgTimeDelete;
+	}
+
+	public double getAvgTimeAttributeSetUnset() {
+		return avgTimeAttributeSetUnset;
+	}
+
+	public double getAvgTimeAttributeAddRemoveMove() {
+		return avgTimeAttributeAddRemoveMove;
+	}
+
+	public double getAvgTimeReferenceSetUnset() {
+		return avgTimeReferenceSetUnset;
+	}
+
+	public double getAvgTimeReferenceAddRemoveMove() {
+		return avgTimeReferenceAddRemoveMove;
 	}
 }

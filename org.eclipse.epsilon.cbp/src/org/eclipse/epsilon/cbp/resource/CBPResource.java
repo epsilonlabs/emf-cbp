@@ -44,6 +44,26 @@ public abstract class CBPResource extends ResourceImpl {
 		this.eAdapters().add(changeEventAdapter);
 		this.eObjectToIdMap = HashBiMap.create();
 	}
+	
+	public double getAvgTimeDelete() {
+		return modelHistory.getAvgTimeDelete();
+	}
+	
+	public double getAvgTimeReferenceSetUnset() {
+		return modelHistory.getAvgTimeReferenceSetUnset();
+	}
+	
+	public double getAvgTimeReferenceAddRemoveMove() {
+		return modelHistory.getAvgTimeReferenceAddRemoveMove();
+	}
+	
+	public double getAvgTimeAttributeSetUnset() {
+		return modelHistory.getAvgTimeAttributeSetUnset();
+	}
+	
+	public double getAvgTimeAttributeAddRemoveMove() {
+		return modelHistory.getAvgTimeAttributeAddRemoveMove();
+	}
 
 	public CBPResource(URI uri) {
 		this();
