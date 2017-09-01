@@ -166,18 +166,18 @@ public abstract class LoadingPerformanceTests {
 					// moduleCbp.getContext().getModelRepository().getModels().addAll(getExtraModels());
 					moduleCbp.execute();
 
-					valDelete = ((CBPResource) cbpResource1).getAvgTimeDelete();
-					valAttributeAddRemoveMove = ((CBPResource) cbpResource1).getAvgTimeAttributeAddRemoveMove();
-					valAttributeSetUnset = ((CBPResource) cbpResource1).getAvgTimeAttributeSetUnset();
-					valReferenceAddRemoveMove = ((CBPResource) cbpResource1).getAvgTimeReferenceAddRemoveMove();
-					valReferenceSetUnset = ((CBPResource) cbpResource1).getAvgTimeReferenceSetUnset();
-
 					ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 
 					cbpOutputStream = new StringOutputStream();
 					beforeSaveCBP = System.currentTimeMillis();
 					cbpResource1.save(cbpOutputStream, null);
 					afterSaveCBP = System.currentTimeMillis();
+					
+					valDelete = ((CBPResource) cbpResource1).getAvgTimeDelete();
+					valAttributeAddRemoveMove = ((CBPResource) cbpResource1).getAvgTimeAttributeAddRemoveMove();
+					valAttributeSetUnset = ((CBPResource) cbpResource1).getAvgTimeAttributeSetUnset();
+					valReferenceAddRemoveMove = ((CBPResource) cbpResource1).getAvgTimeReferenceAddRemoveMove();
+					valReferenceSetUnset = ((CBPResource) cbpResource1).getAvgTimeReferenceSetUnset();
 
 					cbpXml = cbpOutputStream.toString();
 				} catch (Exception e) {
@@ -288,7 +288,7 @@ public abstract class LoadingPerformanceTests {
 
 		try {
 			this.eol = eol;
-			int iteration = 2;
+			int iteration = 3;
 			double deltaSaveXMI = 0;
 			double deltaLoadXMI = 0;
 			double deltaSaveCBP = 0;

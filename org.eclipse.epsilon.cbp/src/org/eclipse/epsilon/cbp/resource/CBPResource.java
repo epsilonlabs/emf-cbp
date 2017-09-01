@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.cbp.resource;
 
+import java.io.ObjectInputStream.GetField;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -39,10 +40,16 @@ public abstract class CBPResource extends ResourceImpl {
 		super();
 		this.ignoreList = new TreeSet<>();
 		this.modelHistory = new ModelHistory(ignoreList);
-		
-		changeEventAdapter = new ChangeEventAdapter(this, modelHistory);
+		this.changeEventAdapter = new ChangeEventAdapter(this);
 		this.eAdapters().add(changeEventAdapter);
 		this.eObjectToIdMap = HashBiMap.create();
+	}
+	public ChangeEventAdapter getChangeEventAdapter(){
+		return changeEventAdapter;
+	}
+	
+	public ModelHistory getModelHistory(){
+		return modelHistory;
 	}
 	
 	public double getAvgTimeDelete() {

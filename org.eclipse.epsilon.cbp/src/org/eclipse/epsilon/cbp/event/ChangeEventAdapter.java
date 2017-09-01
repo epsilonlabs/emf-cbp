@@ -1,7 +1,6 @@
 package org.eclipse.epsilon.cbp.event;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -16,8 +15,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.history.ModelHistory;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
 public class ChangeEventAdapter extends EContentAdapter {
@@ -27,16 +24,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 	protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
 	// protected HashSet<EObject> processedEObjects = new HashSet<EObject>();
 	protected CBPResource resource = null;
-	protected ModelHistory modelHistory = null;
-	protected int line = 0;
 
 	public ChangeEventAdapter(CBPResource resource) {
 		this.resource = resource;
-	}
-
-	public ChangeEventAdapter(CBPResource resource, ModelHistory modelHistory) {
-		this.resource = resource;
-		this.modelHistory = modelHistory;
 	}
 
 	public List<ChangeEvent<?>> getChangeEvents() {
@@ -286,80 +276,18 @@ public class ChangeEventAdapter extends EContentAdapter {
 				event.setPosition(n.getPosition());
 			}
 			changeEvents.add(event);
-			this.addToModelHistory(event, position);
 		}
 
 		if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
 			if (event instanceof UnsetEReferenceEvent || event instanceof RemoveFromResourceEvent
 					|| event instanceof RemoveFromEReferenceEvent) {
-				if (n.getOldValue() instanceof EObject) {
+				if (n.getOldValue() instanceof EObject){
 					handleDeletedEObject((EObject) n.getOldValue());
-				} else if (n.getOldValue() instanceof EList) {
+				} else if (n.getOldValue() instanceof EList){
 					handleDeletedEObject((EObject) event.getValue());
 				}
 			}
 		}
-	}
-
-	private void addToModelHistory(ChangeEvent<?> event, int position) {
-		EObject eObject = null;
-		Object values = null;
-		if (event instanceof RegisterEPackageEvent) {
-			RegisterEPackageEvent r = (RegisterEPackageEvent) event;
-			modelHistory.setEObject(r.getEPackage());
-			modelHistory.addEventLine(event, line);
-		} else if (event instanceof CreateEObjectEvent) {
-			eObject = ((CreateEObjectEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof DeleteEObjectEvent) {
-			eObject = ((DeleteEObjectEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof AddToResourceEvent) {
-			eObject = ((AddToResourceEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof RemoveFromResourceEvent) {
-			eObject = ((RemoveFromResourceEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof AddToEReferenceEvent) {
-			eObject = ((AddToEReferenceEvent) event).getTarget();
-			values = ((AddToEReferenceEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line, values);
-		} else if (event instanceof RemoveFromEReferenceEvent) {
-			eObject = ((RemoveFromEReferenceEvent) event).getTarget();
-			values = ((RemoveFromEReferenceEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line, values);
-		} else if (event instanceof SetEAttributeEvent) {
-			eObject = ((SetEAttributeEvent) event).getTarget();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof SetEReferenceEvent) {
-			eObject = ((SetEReferenceEvent) event).getTarget();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof UnsetEReferenceEvent) {
-			eObject = ((UnsetEReferenceEvent) event).getTarget();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof UnsetEAttributeEvent) {
-			eObject = ((UnsetEAttributeEvent) event).getTarget();
-			modelHistory.addObjectHistoryLine(eObject, event, line);
-		} else if (event instanceof AddToEAttributeEvent) {
-			eObject = ((AddToEAttributeEvent) event).getTarget();
-			values = ((AddToEAttributeEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line, values);
-		} else if (event instanceof RemoveFromEAttributeEvent) {
-			eObject = ((RemoveFromEAttributeEvent) event).getTarget();
-			values = ((RemoveFromEAttributeEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line, values);
-		} else if (event instanceof MoveWithinEReferenceEvent) {
-			eObject = ((MoveWithinEReferenceEvent) event).getTarget();
-			values = ((MoveWithinEReferenceEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line, values);
-		} else if (event instanceof MoveWithinEAttributeEvent) {
-			eObject = ((MoveWithinEAttributeEvent) event).getTarget();
-			values = ((MoveWithinEAttributeEvent) event).getValue();
-			modelHistory.addObjectHistoryLine(eObject, event, line, values);
-		}
-
-		modelHistory.addObjectHistoryLine(eObject, event, position, values);
-		line += 1;
 	}
 
 	public void setEnabled(boolean bool) {
@@ -370,9 +298,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		EPackage ePackage = eObject.eClass().getEPackage();
 		if (!ePackages.contains(ePackage)) {
 			ePackages.add(ePackage);
-			ChangeEvent<?> event = new RegisterEPackageEvent(ePackage, this);
-			changeEvents.add(event);
-			this.addToModelHistory(event, -1);
+			changeEvents.add(new RegisterEPackageEvent(ePackage, this));
 		}
 	}
 
@@ -388,18 +314,15 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 		if (isDeleted == true) {
 			String id = resource.getEObjectId(removedObject);
-			ChangeEvent<?> event = new DeleteEObjectEvent(removedObject, id);
-			changeEvents.add(event);
-			this.addToModelHistory(event, -1);
+			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
+			changeEvents.add(e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public void handleCreateEObject(EObject obj) {
 		if (!resource.isRegistered(obj)) {
-			ChangeEvent<?> event = new CreateEObjectEvent(obj, resource.register(obj)); 
-			changeEvents.add(event);
-			this.addToModelHistory(event, -1);
+			changeEvents.add(new CreateEObjectEvent(obj, resource.register(obj)));
 
 			// Include prior attribute values into the resource
 			for (EAttribute eAttr : obj.eClass().getEAllAttributes()) {
@@ -414,7 +337,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 							e.setTarget(obj);
 							e.setPosition(i++);
 							changeEvents.add(e);
-							this.addToModelHistory(e, -1);
 						}
 					} else {
 						Object value = obj.eGet(eAttr);
@@ -424,7 +346,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 						e.setValue(value);
 						e.setTarget(obj);
 						changeEvents.add(e);
-						this.addToModelHistory(e, -1);
 					}
 				}
 			}
@@ -454,7 +375,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 							e.setTarget(obj);
 							e.setPosition(i++);
 							changeEvents.add(e);
-							this.addToModelHistory(e, -1);
 						}
 					} else {
 						EObject value = (EObject) obj.eGet(eRef);
@@ -467,7 +387,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 						e.setValue(value);
 						e.setTarget(obj);
 						changeEvents.add(e);
-						this.addToModelHistory(e, -1);
 					}
 				}
 			}

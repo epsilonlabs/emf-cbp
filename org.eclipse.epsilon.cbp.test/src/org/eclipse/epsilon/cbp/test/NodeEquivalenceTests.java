@@ -21,7 +21,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 
-	private static final int ITERATION = 400;
+	private static final int ITERATION = 1000;
 	private static final String ADD_ATTRIBUTE = "ADD_ATTRIBUTE";
 	private static final String REMOVE_ATTRIBUTE = "REMOVE_ATTRIBUTE";
 	private static final String MOVE_WITHIN_ATTRIBUTE = "MOVE_WITHIN_ATTRIBUTE";
@@ -91,8 +91,8 @@ public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 		eventProbabilityMap.put(ADD_ATTRIBUTE, 1);
 		eventProbabilityMap.put(REMOVE_ATTRIBUTE, 1);
 		eventProbabilityMap.put(MOVE_WITHIN_ATTRIBUTE, 1);
-		eventProbabilityMap.put(SET_REFERENCE, 1);
-		eventProbabilityMap.put(UNSET_REFERENCE, 1);
+//		eventProbabilityMap.put(SET_REFERENCE, 1);
+//		eventProbabilityMap.put(UNSET_REFERENCE, 1);
 		eventProbabilityMap.put(ADD_REFERENCE, 1);
 		eventProbabilityMap.put(MOVE_WITHIN_REFERENCE, 1);
 		eventProbabilityMap.put(DELETE, 1);
@@ -168,13 +168,13 @@ public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 				if (!targetObject.equals(valueObject)) {
 					codeBuilder.append(String
 							.format("if (containedByModel(%1$s) and containedByModel(%2$s) and not isCircular(%1$s, %2$s)){\n"
-									+ "    %1$s.partner = %2$s;\n" + "}\n", targetObject, valueObject));
+									+ "    %1$s.parent = %2$s;\n" + "}\n", targetObject, valueObject));
 				}
 			} else if (operation.equals(UNSET_REFERENCE) && objects.size() > 0) {
 				int index = ThreadLocalRandom.current().nextInt(objects.size());
 				String object = objects.get(index);
 				codeBuilder.append(
-						String.format("if (containedByModel(%1$s)){\n" + "    %1$s.partner = null;\n" + "}\n", object));
+						String.format("if (containedByModel(%1$s)){\n" + "    %1$s.parent = null;\n" + "}\n", object));
 			} else if (operation.equals(ADD_REFERENCE) && objects.size() > 0) {
 				int targetIndex = ThreadLocalRandom.current().nextInt(objects.size());
 				String targetObject = objects.get(targetIndex);
@@ -183,7 +183,10 @@ public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 				if (!targetObject.equals(valueObject)) {
 					codeBuilder.append(String
 							.format("if (containedByModel(%1$s) and containedByModel(%2$s) and not isCircular(%1$s, %2$s)){\n"
-									+ "    %1$s.valNodes.add(%2$s);\n" + "}\n", targetObject, valueObject));
+									+ "    %2$s.parent =%1$s ;\n" 
+									+ "    %1$s.valNodes.add(%2$s);\n" 
+									+ "}\n", 
+									targetObject, valueObject));
 				}
 			} else if (operation.equals(MOVE_WITHIN_REFERENCE) && objects.size() > 0) {
 				int index = ThreadLocalRandom.current().nextInt(objects.size());
@@ -219,7 +222,7 @@ public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 		codeBuilder.append("\n");
 		codeBuilder.append("operation RemoveRefToObject(targetObject){" + "	for (child in targetObject.valNodes){"
 				+ "		RemoveRefToObject(child);" + "	}" + "	for (object in M.allContents()){"
-				+ "		if (object.partner == targetObject){" + "			object.partner = null;" + "		} " + "	}"
+				+ "		if (object.parent == targetObject){" + "			object.parent = null;" + "		} " + "	}"
 				+ "}");
 
 		eolCode = codeBuilder.toString();

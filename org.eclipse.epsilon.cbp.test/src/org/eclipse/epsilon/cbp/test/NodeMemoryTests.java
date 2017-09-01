@@ -22,7 +22,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class NodePerformanceTests extends LoadingPerformanceTests {
+public class NodeMemoryTests extends MemoryPerformanceTests {
 
 	@Parameters
 	public static Collection<Object[]> data() {
@@ -30,7 +30,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 
 	}
 
-	public NodePerformanceTests(String extension) {
+	public NodeMemoryTests(String extension) {
 		super(extension);
 	}
 
@@ -40,10 +40,9 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 		appendLineToOutputText("Start: " + sdf.format(new Date()) + "\n");
 
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP"
-				+ "\tTAtSU\tTReSU\tTAtARM\tTReARM\tTiDel");
+		appendLineToOutputText("No\tNuNodes\tObjHistory\tIgnoreLst\tChgeEvent\tCBPSize   \tXMISize");
 		// for (int i = 3200; i <= 3200; i += 200) {
-		for (int i = 0; i <= 2000; i += 100) {
+		for (int i = 0; i <= 100000; i += 500) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
 
@@ -58,8 +57,8 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 			eventProbabilityMap.put("CREATE", 1);
 			eventProbabilityMap.put("SET_ATTRIBUTE", 1);
 			eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
-//			eventProbabilityMap.put("SET_REFERENCE", 1);
-//			eventProbabilityMap.put("UNSET_REFERENCE", 1);
+			eventProbabilityMap.put("SET_REFERENCE", 1);
+			eventProbabilityMap.put("UNSET_REFERENCE", 1);
 			eventProbabilityMap.put("ADD_ATTRIBUTE", 3);
 			eventProbabilityMap.put("MOVE_ATTRIBUTE", 2);
 			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
@@ -138,7 +137,6 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 					StringBuilder code = new StringBuilder();
 					code.append(
 							"if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s and isCircular(%1$s, %2$s) == false){\n");
-					code.append("    %2$s.parent = %1$s;\n");
 					code.append("    %1$s.valNodes.add(%2$s);\n");
 					code.append("}\n");
 					eolCode.append(String.format(code.toString(), target, value));
@@ -284,7 +282,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	@Test
 	public void testCreateSmallNumberOfObjectsPerformance() throws Exception {
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tNumbNodes\tObjHisSiz\tCBPSize\tXMISize");
 		for (int i = 0; i <100; i += 1) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
@@ -305,7 +303,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	@Test
 	public void testCreateObjectPerformance() throws Exception {
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tNumbNodes\tObjHisSiz\tCBPSize\tXMISize");
 		for (int i = 500; i <= 10000; i += 500) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
@@ -326,7 +324,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	@Test
 	public void testDeepTreeRemoveRootPerformance() throws Exception {
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tNumbNodes\tObjHisSiz\tCBPSize\tXMISize");
 		for (int i = 0; i <= 2000; i += 20) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
@@ -352,7 +350,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 	@Test
 	public void testDeepTreePerformance() throws Exception {
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP");
+		appendLineToOutputText("No\tNumbNodes\tObjHisSiz\tCBPSize\tXMISize");
 		for (int i = 0; i <= 480; i += 20) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
