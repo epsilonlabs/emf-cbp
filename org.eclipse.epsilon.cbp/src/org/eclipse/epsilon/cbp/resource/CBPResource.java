@@ -1,7 +1,15 @@
 package org.eclipse.epsilon.cbp.resource;
 
-import java.io.ObjectInputStream.GetField;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,42 +40,42 @@ public abstract class CBPResource extends ResourceImpl {
 
 	protected ChangeEventAdapter changeEventAdapter;
 	protected BiMap<EObject, String> eObjectToIdMap;
-	
-	protected Set<Integer> ignoreList;
+	protected List<Long> ignoreList;
 	protected ModelHistory modelHistory;
-	
+	protected int persistedIgnoredEvents = 0;
+
 	public CBPResource() {
-		super();
-		this.ignoreList = new TreeSet<>();
+		this.ignoreList = new ArrayList<Long>();
 		this.modelHistory = new ModelHistory(ignoreList);
 		this.changeEventAdapter = new ChangeEventAdapter(this);
 		this.eAdapters().add(changeEventAdapter);
 		this.eObjectToIdMap = HashBiMap.create();
 	}
-	public ChangeEventAdapter getChangeEventAdapter(){
+
+	public ChangeEventAdapter getChangeEventAdapter() {
 		return changeEventAdapter;
 	}
-	
-	public ModelHistory getModelHistory(){
+
+	public ModelHistory getModelHistory() {
 		return modelHistory;
 	}
-	
+
 	public double getAvgTimeDelete() {
 		return modelHistory.getAvgTimeDelete();
 	}
-	
+
 	public double getAvgTimeReferenceSetUnset() {
 		return modelHistory.getAvgTimeReferenceSetUnset();
 	}
-	
+
 	public double getAvgTimeReferenceAddRemoveMove() {
 		return modelHistory.getAvgTimeReferenceAddRemoveMove();
 	}
-	
+
 	public double getAvgTimeAttributeSetUnset() {
 		return modelHistory.getAvgTimeAttributeSetUnset();
 	}
-	
+
 	public double getAvgTimeAttributeAddRemoveMove() {
 		return modelHistory.getAvgTimeAttributeAddRemoveMove();
 	}
@@ -80,13 +88,10 @@ public abstract class CBPResource extends ResourceImpl {
 	// Adapted from URIHandler.DEFAULT_HANDLERS and ExtensibleURIConverterImpl()
 	@Override
 	protected URIConverter getURIConverter() {
-		return new ExtensibleURIConverterImpl(Arrays.asList(new URIHandler[] { 
-				new AppendFileURIHandlerImpl(),
+		return new ExtensibleURIConverterImpl(Arrays.asList(new URIHandler[] { new AppendFileURIHandlerImpl(),
 				new AppendingURIHandler(new PlatformResourceURIHandlerImpl()),
-				new AppendingURIHandler(new EFSURIHandlerImpl()), 
-				new AppendingURIHandler(new ArchiveURIHandlerImpl()),
-				new AppendingURIHandler(new URIHandlerImpl()) }), 
-				ContentHandler.Registry.INSTANCE.contentHandlers());
+				new AppendingURIHandler(new EFSURIHandlerImpl()), new AppendingURIHandler(new ArchiveURIHandlerImpl()),
+				new AppendingURIHandler(new URIHandlerImpl()) }), ContentHandler.Registry.INSTANCE.contentHandlers());
 	}
 
 	public List<ChangeEvent<?>> getChangeEvents() {
@@ -106,24 +111,25 @@ public abstract class CBPResource extends ResourceImpl {
 	public EObject getEObject(String uriFragment) {
 		return eObjectToIdMap.inverse().get(uriFragment);
 	}
-	
-	public String getEObjectId(EObject eObject){
-		if (eObjectToIdMap.containsKey(eObject)){
+
+	public String getEObjectId(EObject eObject) {
+		if (eObjectToIdMap.containsKey(eObject)) {
 			return eObjectToIdMap.get(eObject);
 		}
 		return null;
 	}
-	
-	public String register(EObject eObject, String id){
+
+	public String register(EObject eObject, String id) {
 		adopt(eObject, id);
 		return id;
 	}
+
 	public String register(EObject eObject) {
 		String id = eObjectToIdMap.size() + "";
 		adopt(eObject, id);
 		return id;
 	}
-	
+
 	public void adopt(EObject eObject, String id) {
 		if (!eObjectToIdMap.containsKey(eObject))
 			eObjectToIdMap.put(eObject, id);
@@ -152,17 +158,36 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		return eob;
 	}
-	
-	public Set<Integer> getIgnoreList() {
+
+	public List<Long> getIgnoreList() {
 		return this.ignoreList;
 	}
 
-	public void setIgnoreList(Set<Integer> ignoreList) {
+	public void setIgnoreList(List<Long> ignoreList) {
 		this.ignoreList = ignoreList;
 	}
-	
+
 	public ModelHistory getEObjectHistoryList() {
 		return modelHistory;
 	}
-	
+
+	public void loadIgnoreList(ByteArrayInputStream inputStream) throws IOException {
+		DataInputStream dis = new DataInputStream(inputStream);
+		ignoreList.clear();
+		while (dis.available() > 0) {
+			long value = dis.readLong();
+			ignoreList.add(value);
+		}
+		persistedIgnoredEvents = ignoreList.size();
+	}
+
+	public void saveIgnoreList(ByteArrayOutputStream outputStream) throws IOException {
+		DataOutputStream dos = new DataOutputStream(outputStream);
+		for (Long item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
+			dos.writeLong(item);
+		}
+		dos.close();
+		persistedIgnoredEvents = ignoreList.size();
+	}
+
 }

@@ -3,6 +3,7 @@ package org.eclipse.epsilon.cbp.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
@@ -57,6 +58,7 @@ public abstract class AppendPerformanceTests {
 		System.out.print("NumOps\tCBPAppend\tXMISave\tNumNodes\n");
 
 		StringOutputStream cbpOutput = new StringOutputStream();
+		ByteArrayOutputStream ignoreListOutput = new ByteArrayOutputStream();
 		CBPResource cbpResource = (CBPResource) factory.createResource(URI.createURI("foo." + extension));
 
 		StringOutputStream xmiOutput = new StringOutputStream();
@@ -64,15 +66,17 @@ public abstract class AppendPerformanceTests {
 
 		int count = 1;
 		for (String eol : sessions) {
+			
 			// CBP ------------------
 			EolModule module = new EolModule();
 			module.parse(eol);
 			InMemoryEmfModel cbpModel = new InMemoryEmfModel("M", cbpResource, getEPackage());
 			module.getContext().getModelRepository().addModel(cbpModel);
 			module.execute();
-
+			
 			beforeCBPAppend = System.nanoTime();
 			cbpResource.save(cbpOutput, null);
+			cbpResource.saveIgnoreList(ignoreListOutput);
 			afterCBPAppend = System.nanoTime();
 
 			// XMI -----------------

@@ -91,7 +91,7 @@ public abstract class XmiResourceEquivalenceTests {
 		final String sCBP = cbpSos.toString();
 
 		//get ignoreList from cbpResource1 and apply it cbpResource2 
-		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
+		List<Long> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
 
 		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);

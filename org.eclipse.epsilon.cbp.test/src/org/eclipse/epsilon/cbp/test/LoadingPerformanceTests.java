@@ -6,8 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -61,7 +63,7 @@ public abstract class LoadingPerformanceTests {
 	protected double valReferenceAddRemoveMove = 0;
 	protected double valDelete = 0;
 
-	protected Set<Integer> ignoreList = null;
+	protected List<Long> ignoreList = null;
 
 	public LoadingPerformanceTests(String extension) {
 		this.extension = extension;
@@ -212,7 +214,7 @@ public abstract class LoadingPerformanceTests {
 					}
 
 					String sCBP2 = cbpOutputStream.toString();
-					((CBPResource) cbpResource3).setIgnoreList(new TreeSet<>(ignoreList));
+					((CBPResource) cbpResource3).setIgnoreList(new ArrayList<Long>(ignoreList));
 					Map<Object, Object> options = new HashMap<>();
 					options.put("optimise", false);
 					beforeLoadCBP = System.currentTimeMillis();
@@ -257,7 +259,7 @@ public abstract class LoadingPerformanceTests {
 					numOfLineCBP = sCBP1.split("\r\n|\r|\n").length;
 					numOfLineOptCBP = numOfLineCBP - ignoreList.size();
 
-					((CBPResource) cbpResource2).setIgnoreList(new TreeSet<>(ignoreList));
+					((CBPResource) cbpResource2).setIgnoreList(new ArrayList<Long>(ignoreList));
 					beforeLoadOptCBP = System.currentTimeMillis();
 					cbpResource2.load(new ByteArrayInputStream(sCBP1.getBytes()), null);
 					afterLoadOptCBP = System.currentTimeMillis();

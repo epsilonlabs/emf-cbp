@@ -63,20 +63,22 @@ public class ModelHistory extends ObjectHistory {
 	protected long totalTimeDelete = 0;
 
 	protected Map<EObject, ObjectHistory> modelHistory = new HashMap<>();
-	protected Set<Integer> ignoreList;
+	protected List<Long> ignoreList;
 
 	private void addLinesToIgnoreList(EventHistory lines) {
 		for (Line line : lines) {
-			ignoreList.add(line.getLineNumber());
+			if (!ignoreList.contains(line.getEventNumber())) {
+				ignoreList.add(line.getEventNumber());
+			}
 		}
 	}
 
-	public ModelHistory(Set<Integer> ignoreList, EObject eObject) {
+	public ModelHistory(List<Long> ignoreList, EObject eObject) {
 		super(eObject);
 		this.ignoreList = ignoreList;
 	}
 
-	public ModelHistory(Set<Integer> ignoreList) {
+	public ModelHistory(List<Long> ignoreList) {
 		super(null);
 		this.ignoreList = ignoreList;
 	}
@@ -213,19 +215,19 @@ public class ModelHistory extends ObjectHistory {
 			Map<String, EventHistory> eventLinesMap = attributeList.get(eAttribute).getEventHistoryMap();
 			String setAttributeName = SetEAttributeEvent.class.getSimpleName();
 			String unsetAttributeName = UnsetEAttributeEvent.class.getSimpleName();
-			int setAttributeLastLine = -1;
-			int unsetAttributeLastLine = -1;
+			long setAttributeLastLine = -1L;
+			long unsetAttributeLastLine = -1L;
 
 			EventHistory setAttributeLines = null;
 			EventHistory unsetAttributeLines = null;
 
 			if (eventLinesMap.containsKey(setAttributeName)) {
 				setAttributeLines = eventLinesMap.get(setAttributeName);
-				setAttributeLastLine = setAttributeLines.get(setAttributeLines.size() - 1).getLineNumber();
+				setAttributeLastLine = setAttributeLines.get(setAttributeLines.size() - 1).getEventNumber();
 			}
 			if (eventLinesMap.containsKey(unsetAttributeName)) {
 				unsetAttributeLines = eventLinesMap.get(unsetAttributeName);
-				unsetAttributeLastLine = unsetAttributeLines.get(unsetAttributeLines.size() - 1).getLineNumber();
+				unsetAttributeLastLine = unsetAttributeLines.get(unsetAttributeLines.size() - 1).getEventNumber();
 			}
 
 			if (unsetAttributeLastLine > setAttributeLastLine) {
@@ -317,8 +319,8 @@ public class ModelHistory extends ObjectHistory {
 			}
 			if (delta != 0 && delta != 1) {
 				if (eAttributeHistory.isMoved() == false) {
-					int addAttributeLastLine = -1;
-					int removeAttributeLastLine = -1;
+					long addAttributeLastLine = -1L;
+					long removeAttributeLastLine = -1L;
 					EventHistory valueAddAttributeLines = new EventHistory(event);
 					EventHistory valueRemoveAttributeLines = new EventHistory(event);
 
@@ -330,7 +332,7 @@ public class ModelHistory extends ObjectHistory {
 						}
 						if (valueAddAttributeLines.size() > 0)
 							addAttributeLastLine = valueAddAttributeLines.get(valueAddAttributeLines.size() - 1)
-									.getLineNumber();
+									.getEventNumber();
 					}
 					if (eventLinesMap.containsKey(removeAttributeName)) {
 						for (Line line : eventLinesMap.get(removeAttributeName)) {
@@ -340,7 +342,7 @@ public class ModelHistory extends ObjectHistory {
 						}
 						if (valueRemoveAttributeLines.size() > 0)
 							removeAttributeLastLine = valueRemoveAttributeLines
-									.get(valueRemoveAttributeLines.size() - 1).getLineNumber();
+									.get(valueRemoveAttributeLines.size() - 1).getEventNumber();
 					}
 
 					if (addAttributeLastLine > removeAttributeLastLine) {
@@ -376,19 +378,19 @@ public class ModelHistory extends ObjectHistory {
 			Map<String, EventHistory> eventLinesMap = referenceList.get(eReferenceTarget).getEventHistoryMap();
 			String seReferenceName = SetEReferenceEvent.class.getSimpleName();
 			String unsetReferenceName = UnsetEReferenceEvent.class.getSimpleName();
-			int setReferenceLastLine = -1;
-			int unsetReferenceLastLine = -1;
+			long setReferenceLastLine = -1L;
+			long unsetReferenceLastLine = -1L;
 
 			EventHistory setReferenceLines = null;
 			EventHistory unsetReferenceLines = null;
 
 			if (eventLinesMap.containsKey(seReferenceName)) {
 				setReferenceLines = eventLinesMap.get(seReferenceName);
-				setReferenceLastLine = setReferenceLines.get(setReferenceLines.size() - 1).getLineNumber();
+				setReferenceLastLine = setReferenceLines.get(setReferenceLines.size() - 1).getEventNumber();
 			}
 			if (eventLinesMap.containsKey(unsetReferenceName)) {
 				unsetReferenceLines = eventLinesMap.get(unsetReferenceName);
-				unsetReferenceLastLine = unsetReferenceLines.get(unsetReferenceLines.size() - 1).getLineNumber();
+				unsetReferenceLastLine = unsetReferenceLines.get(unsetReferenceLines.size() - 1).getEventNumber();
 			}
 
 			if (unsetReferenceLastLine > setReferenceLastLine) {
@@ -526,10 +528,10 @@ public class ModelHistory extends ObjectHistory {
 
 			else if (delta != 0 && delta != 1) {
 				if (valueHistory.isMoved() == false) {
-					int addReferenceLastLine = -1;
-					int removeReferenceLastLine = -1;
-					int addResourceLastLine = -1;
-					int removeResourceLastLine = -1;
+					long addReferenceLastLine = -1L;
+					long removeReferenceLastLine = -1L;
+					long addResourceLastLine = -1L;
+					long removeResourceLastLine = -1L;
 
 					Map<String, EventHistory> valueEventLinesMap = modelHistory.get(value).getEventHistoryMap();
 
@@ -541,21 +543,21 @@ public class ModelHistory extends ObjectHistory {
 
 					if (valueEventLinesMap.containsKey(addReferenceName)) {
 						addReferenceLines = valueEventLinesMap.get(addReferenceName);
-						addReferenceLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getLineNumber();
+						addReferenceLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getEventNumber();
 					}
 					if (valueEventLinesMap.containsKey(removeReferenceName)) {
 						removeReferenceLines = valueEventLinesMap.get(removeReferenceName);
 						removeReferenceLastLine = removeReferenceLines.get(removeReferenceLines.size() - 1)
-								.getLineNumber();
+								.getEventNumber();
 					}
 					if (valueEventLinesMap.containsKey(addResourceName)) {
 						addResourceLines = valueEventLinesMap.get(addResourceName);
-						addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getLineNumber();
+						addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getEventNumber();
 					}
 					if (valueEventLinesMap.containsKey(removeResourceName)) {
 						removeResourceLines = valueEventLinesMap.get(removeResourceName);
 						removeResourceLastLine = removeResourceLines.get(removeResourceLines.size() - 1)
-								.getLineNumber();
+								.getEventNumber();
 					}
 					if (valueEventLinesMap.containsKey(moveWithinReferenceName)) {
 						moveWithinReferenceLines = valueEventLinesMap.get(moveWithinReferenceName);

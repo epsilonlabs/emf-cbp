@@ -4,19 +4,19 @@ import java.util.List;
 
 public class Line {
 
-	protected int lineNumber;
+	protected Long lineNumber;
 	protected Object value;
 
-	Line(int lineNumber) {
+	Line(long lineNumber) {
 		this.lineNumber = lineNumber;
 	}
 
-	Line(int lineNumber, Object value) {
-		this.lineNumber = lineNumber;
+	Line(long lineNumber2, Object value) {
+		this.lineNumber = lineNumber2;
 		this.value = value;
 	}
 
-	public int getLineNumber() {
+	public long getEventNumber() {
 		return lineNumber;
 	}
 

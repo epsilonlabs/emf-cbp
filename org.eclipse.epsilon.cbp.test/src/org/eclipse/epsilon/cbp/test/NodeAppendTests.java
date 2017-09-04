@@ -55,7 +55,7 @@ public class NodeAppendTests extends AppendPerformanceTests {
 	public void testAppendRandomModel() throws Exception {
 		List<String> list = new ArrayList<>();
 		int nameIndex = 0;
-		int iteration = 20000;
+		int iteration = 1000000;
 
 		// Random operation
 		Map<String, Integer> eventProbabilityMap = new HashMap<>();

@@ -1,6 +1,9 @@
 package org.eclipse.epsilon.cbp.resource;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -83,7 +86,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	}
 
 	protected int persistedEvents = 0;
-
+	
 	public CBPXMLResourceImpl() {
 		super();
 	}
@@ -92,6 +95,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 		super(uri);
 	}
 
+	
+	
 	@Override
 	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
 
@@ -243,11 +248,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 		String line = null;
 		boolean optimised = true;
-		if (options != null && options.containsKey("optimise")) {
+		if (options != null && options.containsKey("optimise")) { // CHECK IF THE LOAD IS OPTIMISED OR NOT
 			optimised = (Boolean) options.get("optimise");
 		}
 
-		int lineNumber = 0;
+		int eventNumber = 0;
 		try {
 			ByteArrayInputStream begin = new ByteArrayInputStream("<m>".getBytes());
 			ByteArrayInputStream end = new ByteArrayInputStream("</m>".getBytes());
@@ -286,8 +291,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 					}
 
 					if (!name.equals("value")) {
-						if (ignoreList.contains(lineNumber) && optimised == true) {
+						if (ignoreList.contains(eventNumber) && optimised == true) {
 							ignore = true;
+							//ignoreList.remove(eventNumber);
 						}
 
 						if (ignore == false) {
@@ -417,15 +423,15 @@ public class CBPXMLResourceImpl extends CBPResource {
 						} else {
 							ignore = false;
 						}
-						lineNumber += 1;
+						eventNumber += 1;
 					}
 				}
 			}
 			persistedEvents = getChangeEvents().size();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			System.out.println("Error: " + lineNumber + " : " + line);
-			throw new IOException("Error: " + lineNumber + " : " + line + "\n" + ex.toString() + "\n");
+			System.out.println("Error: " + eventNumber + " : " + line);
+			throw new IOException("Error: " + eventNumber + " : " + line + "\n" + ex.toString() + "\n");
 		}
 
 		changeEventAdapter.setEnabled(true);

@@ -97,7 +97,7 @@ public abstract class LoadingEquivalenceTests {
 		cbpResource1.save(cbpSos, null);
 		long afterSaveCBP = System.currentTimeMillis();
 
-		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
+		List<Long> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 
 		int actualTotalLines = 0;
 		int count2 = 0;
