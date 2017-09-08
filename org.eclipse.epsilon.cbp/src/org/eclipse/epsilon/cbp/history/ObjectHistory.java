@@ -48,12 +48,12 @@ public class ObjectHistory {
 		return getEventHistoryMap;
 	}
 
-	public void addEventLine(ChangeEvent<?> event, int lineNumber) {
-		this.addEventLine(event, lineNumber, null);
+	public void addEventLine(ChangeEvent<?> event, long eventNumber) {
+		this.addEventLine(event, eventNumber, null);
 	}
 
-	public void addEventLine(ChangeEvent<?> event, int lineNumber, Object value) {
-		Line line = new Line(lineNumber, value);
+	public void addEventLine(ChangeEvent<?> event, long eventNumber, Object value) {
+		Line line = new Line(eventNumber, value);
 		String eventName = event.getClass().getSimpleName();
 		if (!this.getEventHistoryMap().containsKey(eventName)) {
 			EventHistory lines = new EventHistory(Arrays.asList(line));

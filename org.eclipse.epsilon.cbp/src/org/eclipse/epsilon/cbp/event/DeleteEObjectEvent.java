@@ -38,9 +38,12 @@ public class DeleteEObjectEvent extends ChangeEvent<EObject> {
 
 	@Override
 	public void replay() {
+		this.eObject = resource.getEObject(this.id);
+		this.setValue(eObject);
 		//EcoreUtil.remove(eObject);
 		EcoreUtil.delete(eObject);
-		//resource.detached(eObject);
+		//resource.unregister(eObject);
+//		resource.detached(eObject);
 	}
 
 	@Override

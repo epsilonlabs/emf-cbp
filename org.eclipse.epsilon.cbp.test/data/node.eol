@@ -1,8 +1,20 @@
 var n1 = new Node;
+n1.name = "n1";
 var n2 = new Node;
-
-n2.parent = n1;
+n2.name = "n2";
+var n3 = new Node;
+n3.name = "n3";
+var n4 = new Node;
+n4.name = "n4";
 n1.valNodes.add(n2);
+n1.valNodes.add(n3);
+delete n4;
+
+var n1 = M.allContents.selectOne(node | node.name == "n1");
+var n5 = new Node; n5.name = "n5";
+n1.valNodes.add(n5);
+var n2 = M.allContents.selectOne(node | node.name == "n2");
+n2.defName = "Hello!";
 
 operation deleteObject(object){
 	var i : Integer = object.valNodes.size()-1;

@@ -35,7 +35,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	@Override
 	public void notifyChanged(Notification n) {
-
+		
 		// if (n.getEventType() == Notification.ADD) {
 		// System.out.println(n.getEventType() + " ADD");
 		// } else if (n.getEventType() == Notification.REMOVE) {
@@ -294,6 +294,10 @@ public class ChangeEventAdapter extends EContentAdapter {
 		enabled = bool;
 	}
 
+	public void handleStartNewSession(){
+		changeEvents.add(new StartNewSessionEvent());
+	}
+	
 	public void handleEPackageOf(EObject eObject) {
 		EPackage ePackage = eObject.eClass().getEPackage();
 		if (!ePackages.contains(ePackage)) {

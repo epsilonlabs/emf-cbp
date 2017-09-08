@@ -99,53 +99,17 @@ public abstract class LoadingEquivalenceTests {
 
 		List<Long> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
 
-		int actualTotalLines = 0;
-		int count2 = 0;
+		long actualTotalLines = 0;
+		long count2 = 0;
 		if (debug) {
 			System.out.println("");
 			System.out.println("DATA STRUCTURE");
-			ModelHistory eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
-
-			for (Entry<EObject, ObjectHistory> entry1 : eObjectHistoryList.geteObjectHistoryList().entrySet()) {
-				EObject eObject = entry1.getKey();
-				ObjectHistory eObjectEventLineHistory = entry1.getValue();
-				System.out.println("EObject: " + cbpResource1.getURIFragment(eObject) + " -------------------");
-				for (Entry<String, EventHistory> entry2 : eObjectEventLineHistory.getEventHistoryMap().entrySet()) {
-					String eventName = entry2.getKey();
-					List<Line> lines = entry2.getValue();
-					System.out.println("    " + eventName + " = " + lines);
-				}
-				// attributes
-				Map<EObject, AttributeHistory> attributeList = eObjectEventLineHistory.getAttributes();
-				System.out.println("    EAttribute:");
-				for (Entry<EObject, AttributeHistory> entry2 : attributeList.entrySet()) {
-					EAttribute eAttribute = (EAttribute) entry2.getKey();
-					ObjectHistory eAttributeHistory = entry2.getValue();
-					System.out.println("        " + eAttribute.getName() + " -------------------");
-					for (Entry<String, EventHistory> entry3 : eAttributeHistory.getEventHistoryMap().entrySet()) {
-						String eventName = entry3.getKey();
-						List<Line> lines = entry3.getValue();
-						System.out.println("            " + eventName + " = " + lines);
-					}
-				}
-				// references
-				Map<EObject, ReferenceHistory> referenceList = eObjectEventLineHistory.getReferences();
-				System.out.println("    EReference:");
-				for (Entry<EObject, ReferenceHistory> entry2 : referenceList.entrySet()) {
-					EReference eReference = (EReference) entry2.getKey();
-					ObjectHistory eReferenceHistory = entry2.getValue();
-					System.out.println("        " + eReference.getName() + " -------------------");
-					for (Entry<String, EventHistory> entry3 : eReferenceHistory.getEventHistoryMap().entrySet()) {
-						String eventName = entry3.getKey();
-						List<Line> lines = entry3.getValue();
-						System.out.println("            " + eventName + " = " + lines);
-					}
-				}
-			}
+			ModelHistory modelHistory = ((CBPResource) cbpResource1).getModelHistory();
+			modelHistory.printStructure();
 			System.out.println("");
 			System.out.println("XML BEFORE REMOVED");
 			String[] list1 = cbpSos.toString().split(System.getProperty("line.separator"));
-			int count1 = 0;
+			long count1 = 0;
 			for (String line : list1) {
 				System.out.println(String.valueOf(count1) + "\t" + line);
 				count1 += 1;
@@ -184,7 +148,7 @@ public abstract class LoadingEquivalenceTests {
 
 		// get ignoreList from cbpResource1 and apply it cbpResource2
 		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
-
+		
 		long beforeLoadCBP = System.currentTimeMillis();
 		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);
 		long afterLoadCBP = System.currentTimeMillis();

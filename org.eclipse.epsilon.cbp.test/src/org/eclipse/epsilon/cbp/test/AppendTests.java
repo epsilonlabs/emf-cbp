@@ -7,7 +7,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Factory;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
@@ -16,7 +15,7 @@ public abstract class AppendTests {
 
 	private final String extension;
 	private final Factory factory;
-
+	
 	public AppendTests(String extension, Resource.Factory factory) {
 		this.extension = extension;
 		this.factory = factory;
@@ -54,6 +53,7 @@ public abstract class AppendTests {
 			module.parse(eol);
 			InMemoryEmfModel model = new InMemoryEmfModel("M", resource, getEPackage());
 			module.getContext().getModelRepository().addModel(model);
+			resource.startNewSession();
 			module.execute();
 			resource.save(multiSessionSosWithReload, null);
 		}
@@ -84,5 +84,5 @@ public abstract class AppendTests {
 	}
 	
 	public abstract EPackage getEPackage();
-	
+		
 }

@@ -5,14 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -43,10 +38,11 @@ public abstract class CBPResource extends ResourceImpl {
 	protected List<Long> ignoreList;
 	protected ModelHistory modelHistory;
 	protected int persistedIgnoredEvents = 0;
+	protected int idCounter = 0;
 
 	public CBPResource() {
 		this.ignoreList = new ArrayList<Long>();
-		this.modelHistory = new ModelHistory(ignoreList);
+		this.modelHistory = new ModelHistory(ignoreList, this);
 		this.changeEventAdapter = new ChangeEventAdapter(this);
 		this.eAdapters().add(changeEventAdapter);
 		this.eObjectToIdMap = HashBiMap.create();
@@ -119,20 +115,32 @@ public abstract class CBPResource extends ResourceImpl {
 		return null;
 	}
 
+	public void unregister(EObject eObject) {
+		eObjectToIdMap.remove(eObject);
+	}
+
 	public String register(EObject eObject, String id) {
 		adopt(eObject, id);
 		return id;
 	}
 
 	public String register(EObject eObject) {
-		String id = eObjectToIdMap.size() + "";
+//		if (eObjectToIdMap.size() > idCounter){
+//			idCounter = eObjectToIdMap.size();
+//		}
+		while (eObjectToIdMap.containsValue(String.valueOf(idCounter))){
+			idCounter += 1;
+		}
+		String id = String.valueOf(idCounter);
+		idCounter = idCounter + 1;
 		adopt(eObject, id);
 		return id;
 	}
 
 	public void adopt(EObject eObject, String id) {
-		if (!eObjectToIdMap.containsKey(eObject))
+		if (!eObjectToIdMap.containsKey(eObject)) {
 			eObjectToIdMap.put(eObject, id);
+		}
 	}
 
 	public boolean isRegistered(EObject eObject) {
@@ -167,10 +175,6 @@ public abstract class CBPResource extends ResourceImpl {
 		this.ignoreList = ignoreList;
 	}
 
-	public ModelHistory getEObjectHistoryList() {
-		return modelHistory;
-	}
-
 	public void loadIgnoreList(ByteArrayInputStream inputStream) throws IOException {
 		DataInputStream dis = new DataInputStream(inputStream);
 		ignoreList.clear();
@@ -188,6 +192,10 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		dos.close();
 		persistedIgnoredEvents = ignoreList.size();
+	}
+
+	public void startNewSession() {
+		changeEventAdapter.handleStartNewSession();
 	}
 
 }

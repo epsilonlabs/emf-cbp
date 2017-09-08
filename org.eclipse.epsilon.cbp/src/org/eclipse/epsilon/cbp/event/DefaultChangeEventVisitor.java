@@ -80,5 +80,9 @@ public class DefaultChangeEventVisitor<T> implements IChangeEventVisitor<T> {
 		return null;
 	}
 
+	@Override
+	public T visit(StartNewSessionEvent startNewSessionEvent) {
+		return null;
+	}
 
 }

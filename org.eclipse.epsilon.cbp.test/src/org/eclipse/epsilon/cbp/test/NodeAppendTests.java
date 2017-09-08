@@ -137,7 +137,7 @@ public class NodeAppendTests extends AppendPerformanceTests {
 				String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 				StringBuilder code = new StringBuilder();
 				code.append("var %1$s = M.allContents.selectOne(node | node.name == \"%1$s\");\n");
-				code.append("var %2$s = M.allContents.selectOne(node | node.name == \"%2$s\";\n");
+				code.append("var %2$s = M.allContents.selectOne(node | node.name == \"%2$s\");\n");
 				code.append("if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s ");
 				code.append("    and isCircular(%1$s, %2$s) == false){\n");
 				code.append("    if (%1$s.deep + 1 > 300){\n");
@@ -169,7 +169,7 @@ public class NodeAppendTests extends AppendPerformanceTests {
 				String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
 				StringBuilder code = new StringBuilder();
 				code.append("var %1$s = M.allContents.selectOne(node | node.name == \"%1$s\");\n");
-				code.append("var %2$s = M.allContents.selectOne(node | node.name == \"%2$s\";\n");
+				code.append("var %2$s = M.allContents.selectOne(node | node.name == \"%2$s\");\n");
 				code.append("if (M.owns(%1$s) and M.owns(%2$s) and %1$s <> %2$s){\n");
 				code.append("    if (%1$s.deep + 1 > 300){\n");
 				code.append("        var x = %1$s.parent;\n");

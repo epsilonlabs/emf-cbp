@@ -118,9 +118,9 @@ public abstract class XmiResourceEquivalenceTests {
 
 			System.out.println("");
 			System.out.println("DATA STRUCTURE");
-			ModelHistory eObjectHistoryList = ((CBPResource) cbpResource1).getEObjectHistoryList();
+			ModelHistory eObjectHistoryList = ((CBPResource) cbpResource1).getModelHistory();
 
-			for (Entry<EObject, ObjectHistory> entry1 : eObjectHistoryList.geteObjectHistoryList().entrySet()) {
+			for (Entry<EObject, ObjectHistory> entry1 : eObjectHistoryList.geteObjectHistoryMap().entrySet()) {
 				EObject eObject = entry1.getKey();
 				ObjectHistory eObjectEventLineHistory = entry1.getValue();
 				System.out.println("EObject: " + cbpResource1.getURIFragment(eObject) + " -------------------");
