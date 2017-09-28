@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.cbp.test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +42,17 @@ public class NodeCompareTests extends ComparePerformanceTests {
 	public NodeCompareTests(String extension, Resource.Factory factory) {
 		super(extension, factory);
 	}
+	
+	@Test
+	public void compareTwoEolFiles() throws Exception {
+		
+		String initialCode = "";
+		initialCode = new String(Files.readAllBytes(Paths.get("data/node1.eol")));
+		this.createInitialModel(initialCode);
+		String modifierCode = "";
+		modifierCode = new String(Files.readAllBytes(Paths.get("data/node2.eol")));
+		this.debug(modifierCode.toString(), 0);
+	}
 
 	@Test
 	public void simpleTest() throws Exception {
@@ -60,7 +73,7 @@ public class NodeCompareTests extends ComparePerformanceTests {
 		// node.name == \"n3\");\n");
 		// modifierCode.append("delete n3;\n");
 
-		this.createInitialMode(initialCode.toString());
+		this.createInitialModel(initialCode.toString());
 		this.debug(modifierCode.toString(), 0);
 	}
 
@@ -127,7 +140,7 @@ public class NodeCompareTests extends ComparePerformanceTests {
 		initialCode.append(isCircularCode.toString());
 		initialCode.append(deleteObjectCode.toString());
 
-		this.createInitialMode(initialCode.toString());
+		this.createInitialModel(initialCode.toString());
 
 		// modifier operations to modify the random model
 

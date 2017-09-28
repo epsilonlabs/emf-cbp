@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -135,7 +137,57 @@ public class ModelHistory extends ObjectHistory {
 		else if (event instanceof DeleteEObjectEvent) {
 			countDelete += 1;
 			beforeDelete = System.nanoTime();
-			this.handleEObjectDeletion(eObject, event, eventNumber);
+
+			DeleteEObjectEvent deletedEvent = (DeleteEObjectEvent) event;
+			EObject parent = (deletedEvent.getParentEObject() instanceof EObject)
+					? (EObject) deletedEvent.getParentEObject() : null;
+			EReference reference = (deletedEvent.getEReference() instanceof EReference)
+					? (EReference) deletedEvent.getEReference() : null;
+
+			// register to parent
+			if (parent != null && reference != null) {
+				ObjectHistory parentHistory = objectHistoryMap.get(parent);
+				ReferenceHistory refHistory = parentHistory.getReferences().get(reference);
+				if (refHistory != null) {
+					refHistory.addEventLine(deletedEvent, eventNumber, eObject);
+				}
+			}
+
+			// register to self
+			ObjectHistory eObjectHistory = objectHistoryMap.get(eObject);
+			eObjectHistory.addEventLine(event, eventNumber);
+
+			// remove children
+			for (ReferenceHistory rh : eObjectHistory.getReferences().values()) {
+				EventHistory eh = rh.getEventHistoryMap().get((deletedEvent).getClass().getSimpleName());
+				if (eh != null) {
+					for (Line line : eh) {
+						EObject subEObject = (EObject) line.getValue();
+						long lineNum = line.getEventNumber();
+						this.handleEObjectDeletion(subEObject, deletedEvent, lineNum, true);
+					}
+				}
+			}
+
+			// remove self
+			this.handleEObjectDeletion(eObject, event, eventNumber, false);
+			
+			// remove siblings if isRemoved is false
+			if (parent != null && reference != null && eObjectHistory.isMoved() == false) {
+				ObjectHistory parentHistory = objectHistoryMap.get(parent);
+				ReferenceHistory rh = parentHistory.getReferences().get(reference);
+				if (rh != null) {
+					EventHistory eh = rh.getEventHistoryMap().get((deletedEvent).getClass().getSimpleName());
+					if (eh!= null){
+						for (Line line : eh) {
+							EObject subEObject = (EObject) line.getValue();
+							long lineNum = line.getEventNumber();
+							this.handleEObjectDeletion(subEObject, deletedEvent, lineNum, true);
+						}
+					}
+				}
+			}
+
 			afterDelete = System.nanoTime();
 			timeDelete = afterDelete - beforeDelete;
 			totalTimeDelete += timeDelete;
@@ -603,12 +655,10 @@ public class ModelHistory extends ObjectHistory {
 		}
 	}
 
-	private void handleEObjectDeletion(EObject eObject, ChangeEvent<?> event, long eventNumber) {
+	private void handleEObjectDeletion(EObject eObject, ChangeEvent<?> event, long eventNumber, boolean childDeletion) {
 
-		ObjectHistory eObjectHistory = objectHistoryMap.get(eObject);
-		eObjectHistory.addEventLine(event, eventNumber);
-		if (eObjectHistory.isMoved() == false) {
-			ObjectHistory deletedEObjectHistory = objectHistoryMap.get(eObject);
+		ObjectHistory deletedEObjectHistory = objectHistoryMap.get(eObject);
+		if (childDeletion == true || deletedEObjectHistory.isMoved() == false) {
 
 			// get all current object's references' lines
 			Map<EObject, ReferenceHistory> references = deletedEObjectHistory.getReferences();
@@ -668,9 +718,8 @@ public class ModelHistory extends ObjectHistory {
 	public double getAvgTimeReferenceAddRemoveMove() {
 		return avgTimeReferenceAddRemoveMove;
 	}
-	
-	public void printStructure(){
-		int x = 1;
+
+	public void printStructure() {
 		for (Entry<EObject, ObjectHistory> entry1 : this.geteObjectHistoryMap().entrySet()) {
 			EObject eObject = entry1.getKey();
 			ObjectHistory eObjectEventLineHistory = entry1.getValue();

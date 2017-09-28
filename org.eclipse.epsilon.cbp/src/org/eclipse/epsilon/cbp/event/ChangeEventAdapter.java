@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
 public class ChangeEventAdapter extends EContentAdapter {
@@ -35,7 +36,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	@Override
 	public void notifyChanged(Notification n) {
-		
+
 		// if (n.getEventType() == Notification.ADD) {
 		// System.out.println(n.getEventType() + " ADD");
 		// } else if (n.getEventType() == Notification.REMOVE) {
@@ -281,23 +282,23 @@ public class ChangeEventAdapter extends EContentAdapter {
 		if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
 			if (event instanceof UnsetEReferenceEvent || event instanceof RemoveFromResourceEvent
 					|| event instanceof RemoveFromEReferenceEvent) {
-				if (n.getOldValue() instanceof EObject){
-					handleDeletedEObject((EObject) n.getOldValue());
-				} else if (n.getOldValue() instanceof EList){
-					handleDeletedEObject((EObject) event.getValue());
+				// if (n.getNotifier() instanceof EObject) {
+				if (n.getOldValue() instanceof EObject) {
+					handleDeletedEObject((EObject) n.getOldValue(), n.getNotifier(), n.getFeature());
+				} else if (n.getOldValue() instanceof EList) {
+					handleDeletedEObject((EObject) event.getValue(), n.getNotifier(), n.getFeature());
 				}
+				// } else {
+				// if (n.getOldValue() instanceof EObject) {
+				// handleDeletedEObject((EObject) n.getOldValue());
+				// } else if (n.getOldValue() instanceof EList) {
+				// handleDeletedEObject((EObject) event.getValue());
+				// }
+				// }
 			}
 		}
 	}
 
-	public void setEnabled(boolean bool) {
-		enabled = bool;
-	}
-
-	public void handleStartNewSession(){
-		changeEvents.add(new StartNewSessionEvent());
-	}
-	
 	public void handleEPackageOf(EObject eObject) {
 		EPackage ePackage = eObject.eClass().getEPackage();
 		if (!ePackages.contains(ePackage)) {
@@ -307,6 +308,10 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
 
 	public void handleDeletedEObject(EObject removedObject) {
+		this.handleDeletedEObject(removedObject, null, null);
+	}
+
+	public void handleDeletedEObject(EObject removedObject, Object parent, Object feature) {
 		boolean isDeleted = true;
 		TreeIterator<EObject> eAllContents = resource.getAllContents();
 		while (eAllContents.hasNext()) {
@@ -316,11 +321,38 @@ public class ChangeEventAdapter extends EContentAdapter {
 				break;
 			}
 		}
+
 		if (isDeleted == true) {
+			for (EReference eRef : removedObject.eClass().getEAllReferences()) {
+				if (eRef.isContainment() && eRef.isChangeable()) {
+					if (eRef.isMany()) {
+						EList<?> values = (EList<?>) removedObject.eGet(eRef);
+						while (values.size() > 0) {
+							EObject value = (EObject) values.get(values.size() - 1);
+							handleDeletedEObject(value, removedObject, eRef);
+							EcoreUtil.delete(value);
+						}
+					} else {
+						EObject value = (EObject) removedObject.eGet(eRef);
+						if (value != null) {
+							handleDeletedEObject(value, removedObject, eRef);
+							EcoreUtil.delete(value);
+						}
+					}
+				}
+			}
 			String id = resource.getEObjectId(removedObject);
-			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
+			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id, parent, feature);
 			changeEvents.add(e);
 		}
+	}
+
+	public void setEnabled(boolean bool) {
+		enabled = bool;
+	}
+
+	public void handleStartNewSession() {
+		changeEvents.add(new StartNewSessionEvent());
 	}
 
 	@SuppressWarnings("unchecked")

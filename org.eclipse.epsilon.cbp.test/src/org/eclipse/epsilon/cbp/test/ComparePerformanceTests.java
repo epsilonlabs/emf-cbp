@@ -12,6 +12,8 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.ReferenceChange;
+import org.eclipse.emf.compare.ResourceAttachmentChange;
 import org.eclipse.emf.compare.match.DefaultComparisonFactory;
 import org.eclipse.emf.compare.match.DefaultEqualityHelperFactory;
 import org.eclipse.emf.compare.match.DefaultMatchEngine;
@@ -89,7 +91,7 @@ public abstract class ComparePerformanceTests {
 		runImpl(extension, modifierCode, true, operationCount);
 	}
 
-	public void createInitialMode(String initialCode) throws Exception {
+	public void createInitialModel(String initialCode) throws Exception {
 		initialOutput = new StringOutputStream();
 		initialIgnoreListOutput = new ByteArrayOutputStream();
 		EolModule initialModule = new EolModule();
@@ -97,7 +99,7 @@ public abstract class ComparePerformanceTests {
 		initialResourceSet = new ResourceSetImpl();
 		initialResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpxml",
 				new CBPXMLResourceFactory());
-		initialResource = (CBPResource) initialResourceSet.createResource(URI.createURI("foo1." + extension));
+		initialResource = (CBPResource) initialResourceSet.createResource(URI.createURI("foo." + extension));
 		InMemoryEmfModel initialModel = new InMemoryEmfModel("M", initialResource, getEPackage());
 		initialModule.getContext().getModelRepository().addModel(initialModel);
 		initialModule.parse(initialCode);
@@ -131,7 +133,7 @@ public abstract class ComparePerformanceTests {
 		modifiedResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpxml",
 				new CBPXMLResourceFactory());
 		CBPResource modifiedResource = (CBPResource) modifiedResourceSet
-				.createResource(URI.createURI("foo2." + extension));
+				.createResource(URI.createURI("foo." + extension));
 
 		// modifiedResource.getContents().addAll(initialResource.getContents());
 
@@ -141,8 +143,8 @@ public abstract class ComparePerformanceTests {
 		InMemoryEmfModel modifiedModel = new InMemoryEmfModel("M", modifiedResource, getEPackage());
 		modifierModule.getContext().getModelRepository().addModel(modifiedModel);
 
-		// modifiedIgnoreListOutput.write(initialIgnoreListOutput.toByteArray());
-		// modifiedOutput.write(initialOutput.toString().getBytes());
+		 modifiedIgnoreListOutput.write(initialIgnoreListOutput.toByteArray());
+		 modifiedOutput.write(initialOutput.toString().getBytes());
 
 		// ((CBPResource) modifiedResource).getModelHistory().printStructure();
 		// System.out.println("IgnoreList 1 = " + ((CBPResource)
@@ -212,6 +214,13 @@ public abstract class ComparePerformanceTests {
 			if (comparison != null && comparison.getDifferences() != null) {
 				for (Diff diff : comparison.getDifferences()) {
 					System.out.println(diff);
+					if ( diff instanceof ResourceAttachmentChange){
+						System.out.println(((ResourceAttachmentChange) diff).getSource());
+					}else if ( diff instanceof ReferenceChange){
+						System.out.println(((ReferenceChange) diff).getValue());
+						System.out.println(((ReferenceChange) diff).getMatch());
+					}
+					
 				}
 				System.out.println();
 			}

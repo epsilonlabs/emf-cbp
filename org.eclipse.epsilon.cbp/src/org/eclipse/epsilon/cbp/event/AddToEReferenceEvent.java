@@ -1,7 +1,9 @@
 package org.eclipse.epsilon.cbp.event;
 
+import java.io.Console;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
@@ -18,6 +20,9 @@ public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValu
 		}
 
 		Collection<EObject> col = getValues();
+		if (col == null){
+			System.out.println("");
+		}
 		list.addAll(position, getValues());
 	}
 

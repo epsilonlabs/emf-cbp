@@ -1,0 +1,8 @@
+var n1 = M.allContents.selectOne(node | node.name == "n1");
+if (n1 <> null){
+	var n5 = new Node; 
+	n5.name = "n5";
+	n1.valNodes.add(n5);
+}else{
+	"n1 is null".println();
+}

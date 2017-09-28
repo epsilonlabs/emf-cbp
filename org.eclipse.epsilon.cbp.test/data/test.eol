@@ -4,18 +4,15 @@ var n1 = new Node;
 n1.name = "n1";
 var n2 = new Node;
 n2.name = "n2";
-var n3 = new Node;
-n3.name = "n3";
-var n4 = new Node;
-n4.name = "n4";
 
-n4.refNode = n3;
-n0.valNodes.add(n1);
-n1.valNodes.add(n3);
 n1.valNodes.add(n2);
-n0.refNode = n2;
-n4.refNode = n1;
-deleteObject(n1);
+delete n1;
+
+if (M.owns(n2)){
+	"Mengandung".println();
+
+}
+
 
 operation deleteObject(object){
 	var i : Integer = object.valNodes.size()-1;

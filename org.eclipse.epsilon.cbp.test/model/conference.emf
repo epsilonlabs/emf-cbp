@@ -1,0 +1,49 @@
+@namespace(uri="conference", prefix="")
+package conference;
+
+abstract class Node {
+	attr String index;
+	attr String key;	
+}
+
+class Conference extends Node{
+	val Person[*] participants;
+	val Room[*] rooms;
+	val Day[*] days;
+}
+
+class Person extends Node{
+	attr String fullName;
+	attr String affiliation;
+}
+
+class Day extends Node{
+	attr String name;
+	val Slot[*] slots;
+}
+
+abstract class Slot extends Node{
+	attr String start;
+	attr String end;
+	ref Room room;
+}
+
+class Break extends Slot {
+	attr String reason;
+}
+
+class Track extends Slot {
+	attr String title;
+	val Talk[*] talks;
+}
+
+class Talk extends Node{
+	attr String title;
+	attr int duration;
+	ref Person speaker;
+	ref Person discussant;
+}
+
+class Room extends Node{
+	attr String name;
+}

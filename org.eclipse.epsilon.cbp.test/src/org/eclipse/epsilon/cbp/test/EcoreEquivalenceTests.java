@@ -16,7 +16,7 @@ public class EcoreEquivalenceTests extends XmiResourceEquivalenceTests {
 	@Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {     
-                 { "cbpxml" }, { "cbpthrift" }  
+                 { "cbpxml" }//, { "cbpthrift" }  
            });
     }
 

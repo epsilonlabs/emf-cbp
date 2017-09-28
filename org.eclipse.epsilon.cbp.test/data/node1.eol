@@ -1,0 +1,4 @@
+var n1 = new Node;
+n1.name = "n1";
+var n2 = new Node;
+n2.name = "n2";
