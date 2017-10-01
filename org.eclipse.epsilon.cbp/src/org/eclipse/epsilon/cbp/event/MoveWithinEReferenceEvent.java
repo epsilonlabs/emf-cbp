@@ -1,7 +1,5 @@
 package org.eclipse.epsilon.cbp.event;
 
-import java.util.List;
-
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
@@ -29,7 +27,11 @@ public class MoveWithinEReferenceEvent extends EReferenceEvent implements FromPo
 		if (position >= list.size()) {
 			position = list.size() - 1;
 		}
-		list.move(position, fromPosition);
+		EObject a = this.getValue();
+		EObject b = list.get(fromPosition);
+		if (b.equals(a)) {
+			list.move(position, fromPosition);
+		}
 	}
 
 	@Override

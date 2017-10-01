@@ -1,9 +1,6 @@
 package org.eclipse.epsilon.cbp.event;
 
-import java.util.List;
-
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
 
 public class MoveWithinEAttributeEvent extends EAttributeEvent implements FromPositionEvent {
 

@@ -185,7 +185,7 @@ public abstract class LoadingEquivalenceTests {
 			System.out.println("");
 			System.out.println("STATISTICS");
 			System.out.println("Removed lines: " + ignoreList + " = " + ignoreList.size());
-			System.out.println("Total lines: " + actualTotalLines);
+			System.out.println("Total lines after removal: " + actualTotalLines);
 			DecimalFormat df = new DecimalFormat("#.00");
 			double percentage = ignoreList.size() * 1.0 / count2 * 100.0;
 			System.out.println("removed lines: " + df.format(percentage) + " %");

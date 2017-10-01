@@ -13,7 +13,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.test.conference.ConferencePackage;
-import org.eclipse.epsilon.cbp.test.node.NodePackage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -22,6 +21,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 
+	private static final int NUMBER_OF_OPERATION = 50000;
 	int objectTotalCount = 0;
 	Map<String, Integer> objectCounters = new HashMap<>();
 	StringBuilder code = new StringBuilder();
@@ -61,12 +61,12 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 //		run(eolCode.toString(), true);
 //	}
 //
-	@Test
-	public void testFromFile() throws Exception {
-		String eolCode = new String(Files.readAllBytes(Paths.get("data/conference.eol")));
-		run(eolCode, true);
-
-	}
+//	@Test
+//	public void testFromFile() throws Exception {
+//		String eolCode = new String(Files.readAllBytes(Paths.get("data/conference.eol")));
+//		run(eolCode, true);
+//
+//	}
 
 	@Test
 	public void testRandomModel() throws Exception {
@@ -109,31 +109,9 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 
 		// initial
 		codeList.add(createObjectCode("Conference", "c"));
-//		codeList.add(createObjectCode("Conference", "c"));
-//		codeList.add(createObjectCode("Conference", "c"));
-//		codeList.add(createObjectCode("Conference", "c"));
-//		for (String item : objectSeeds){
-//			if (item.equals("Conference")){
-//				codeList.add(createObjectCode(item, "c"));
-//			}else if (item.equals("Person")){
-//				codeList.add(createObjectCode(item, "p"));
-//			}else if (item.equals("Day")){
-//				codeList.add(createObjectCode(item, "d"));
-//			}else if (item.equals("Room")){
-//				codeList.add(createObjectCode(item, "r"));
-//			}
-//			else if (item.equals("Break")){
-//				codeList.add(createObjectCode(item, "b"));
-//			}
-//			else if (item.equals("Track")){
-//				codeList.add(createObjectCode(item, "tr"));
-//			}else if (item.equals("Talk")){
-//				codeList.add(createObjectCode(item, "ta"));
-//			}
-//		}
 	
 		// create objects
-		for (int i = 0; i < 2000; i++) {
+		for (int i = 0; i < NUMBER_OF_OPERATION; i++) {
 			int opIndex = ThreadLocalRandom.current().nextInt(opSeeds.size());
 			String opType = opSeeds.get(opIndex);
 			if (opType.equals("CREATE")) {
@@ -178,7 +156,6 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 			temp.append("			delete c;\n");
 			temp.append("		}\n");
 			temp.append("	}else if(c.isKindOf(Day)) {\n");
-			temp.append("			\"AAAA\".println();\n");
 			temp.append("			for(s in c.slots){\n");
 			temp.append("				if (s.isTypeOf(Track)){\n");			
 			temp.append("					delete s.talks;\n");

@@ -503,37 +503,45 @@ public class ModelHistory extends ObjectHistory {
 				if (moveWithinReferenceLines != null)
 					this.addLinesToIgnoreList(moveWithinReferenceLines);
 
-			} else if (delta == 1) {
-				eReferenceHistory.setMoved(false);
+			} 
+//			else if (delta == 1) {
+//				eReferenceHistory.setMoved(false);
+//
+//				EventHistory lines = eReferenceHistory.getEventHistoryMap()
+//						.get(AddToEReferenceEvent.class.getSimpleName());
+//				Set<EObject> eObjectList = new HashSet<>();
+//				for (Line line : lines) {
+//					eObjectList.add((EObject) line.getValue());
+//				}
+//				for (EObject item : eObjectList) {
+//					objectHistoryMap.get(item).setMoved(false);
+//				}
+//
+//				if (addReferenceLines != null) {
+//					EventHistory temp = new EventHistory(event);
+//					
+//					
+//					
+//					
+//					for (Line lAdd : addReferenceLines) {
+//						for (Line lRem : removeReferenceLines) {
+//							if (lAdd.getValue().equals(lRem.getValue())) {
+//								temp.add(lAdd);
+//							}
+//						}
+//					}
+//					this.addLinesToIgnoreList(temp);
+//					if (ignoreSet.contains(100)){
+//						System.out.println();
+//					}
+//				}
+//				if (removeReferenceLines != null)
+//					this.addLinesToIgnoreList(removeReferenceLines);
+//				if (moveWithinReferenceLines != null)
+//					this.addLinesToIgnoreList(moveWithinReferenceLines);
+//			}
 
-				EventHistory lines = eReferenceHistory.getEventHistoryMap()
-						.get(AddToEReferenceEvent.class.getSimpleName());
-				Set<EObject> eObjectList = new HashSet<>();
-				for (Line line : lines) {
-					eObjectList.add((EObject) line.getValue());
-				}
-				for (EObject item : eObjectList) {
-					objectHistoryMap.get(item).setMoved(false);
-				}
-
-				if (addReferenceLines != null) {
-					EventHistory temp = new EventHistory(event);
-					for (Line lAdd : addReferenceLines) {
-						for (Line lRem : removeReferenceLines) {
-							if (lAdd.getValue().equals(lRem.getValue())) {
-								temp.add(lAdd);
-							}
-						}
-					}
-					this.addLinesToIgnoreList(temp);
-				}
-				if (removeReferenceLines != null)
-					this.addLinesToIgnoreList(removeReferenceLines);
-				if (moveWithinReferenceLines != null)
-					this.addLinesToIgnoreList(moveWithinReferenceLines);
-			}
-
-			else if (delta != 0 && delta != 1) {
+			else if (delta != 0/* && delta != 1*/) {
 				if (valueHistory.isMoved() == false) {
 					int addReferenceLastLine = -1;
 					int removeReferenceLastLine = -1;
@@ -574,9 +582,9 @@ public class ModelHistory extends ObjectHistory {
 					}
 
 					if (removeReferenceLastLine > addReferenceLastLine) {
-						if (addReferenceLines != null && eReferenceTarget.isContainment() == true)
+						if (addReferenceLines != null && eReferenceTarget.isContainment() == true){			
 							this.addLinesToIgnoreList(addReferenceLines);
-						if (removeReferenceLines != null && eReferenceTarget.isContainment() == true)
+						}if (removeReferenceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(removeReferenceLines);
 						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(addResourceLines);
@@ -586,8 +594,9 @@ public class ModelHistory extends ObjectHistory {
 							this.addLinesToIgnoreList(moveWithinReferenceLines);
 					} else if (addReferenceLastLine > removeReferenceLastLine) {
 						if (addReferenceLines != null && addReferenceLines.size() > 1
-								&& eReferenceTarget.isContainment() == true)
+								&& eReferenceTarget.isContainment() == true){
 							this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1));
+						}	
 						if (removeReferenceLines != null && eReferenceTarget.isContainment() == true)
 							this.addLinesToIgnoreList(removeReferenceLines);
 						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
@@ -679,6 +688,7 @@ public class ModelHistory extends ObjectHistory {
 			EObject eObject = entry1.getKey();
 			ObjectHistory eObjectEventLineHistory = entry1.getValue();
 			System.out.println("EObject: " + resource.getURIFragment(eObject) + " -------------------");
+			System.out.println("IsMoved = " + eObjectEventLineHistory.isMoved());
 			for (Entry<String, EventHistory> entry2 : eObjectEventLineHistory.getEventHistoryMap().entrySet()) {
 				String eventName = entry2.getKey();
 				List<Line> lines = entry2.getValue();
@@ -691,6 +701,7 @@ public class ModelHistory extends ObjectHistory {
 				EAttribute eAttribute = (EAttribute) entry2.getKey();
 				ObjectHistory eAttributeHistory = entry2.getValue();
 				System.out.println("        " + eAttribute.getName() + " -------------------");
+				System.out.println("        IsMoved = " + eAttributeHistory.isMoved());
 				for (Entry<String, EventHistory> entry3 : eAttributeHistory.getEventHistoryMap().entrySet()) {
 					String eventName = entry3.getKey();
 					List<Line> lines = entry3.getValue();
@@ -704,6 +715,7 @@ public class ModelHistory extends ObjectHistory {
 				EReference eReference = (EReference) entry2.getKey();
 				ObjectHistory eReferenceHistory = entry2.getValue();
 				System.out.println("        " + eReference.getName() + " -------------------");
+				System.out.println("        IsMoved = " + eReferenceHistory.isMoved());
 				for (Entry<String, EventHistory> entry3 : eReferenceHistory.getEventHistoryMap().entrySet()) {
 					String eventName = entry3.getKey();
 					List<Line> lines = entry3.getValue();
