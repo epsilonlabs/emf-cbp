@@ -7,7 +7,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -35,15 +38,17 @@ public abstract class CBPResource extends ResourceImpl {
 
 	protected ChangeEventAdapter changeEventAdapter;
 	protected BiMap<EObject, String> eObjectToIdMap;
-	protected List<Long> ignoreList;
+	protected Set<Integer> ignoreSet;
+	protected List<Integer> ignoreList; 
 	protected ModelHistory modelHistory;
 	protected int persistedIgnoredEvents = 0;
 	protected int idCounter = 0;
 
 	public CBPResource() {
-		this.ignoreList = new ArrayList<Long>();
-		this.modelHistory = new ModelHistory(ignoreList, this);
-		this.changeEventAdapter = new ChangeEventAdapter(this);
+		this.ignoreSet = new HashSet<>();
+		this.ignoreList = new ArrayList<Integer>();
+		this.modelHistory = new ModelHistory(ignoreSet, this, ignoreList);
+		this.changeEventAdapter = new ChangeEventAdapter(this, modelHistory);
 		this.eAdapters().add(changeEventAdapter);
 		this.eObjectToIdMap = HashBiMap.create();
 	}
@@ -125,10 +130,10 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 
 	public String register(EObject eObject) {
-//		if (eObjectToIdMap.size() > idCounter){
-//			idCounter = eObjectToIdMap.size();
-//		}
-		while (eObjectToIdMap.containsValue(String.valueOf(idCounter))){
+		// if (eObjectToIdMap.size() > idCounter){
+		// idCounter = eObjectToIdMap.size();
+		// }
+		while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
 			idCounter += 1;
 		}
 		String id = String.valueOf(idCounter);
@@ -167,28 +172,30 @@ public abstract class CBPResource extends ResourceImpl {
 		return eob;
 	}
 
-	public List<Long> getIgnoreList() {
-		return this.ignoreList;
+	public Set<Integer> getIgnoreSet() {
+		return this.ignoreSet;
 	}
 
-	public void setIgnoreList(List<Long> ignoreList) {
-		this.ignoreList = ignoreList;
+	public void setIgnoreSet(Set<Integer> ignoreSet) {
+		this.ignoreSet = ignoreSet;
 	}
 
-	public void loadIgnoreList(ByteArrayInputStream inputStream) throws IOException {
+	public void loadIgnoreSet(ByteArrayInputStream inputStream) throws IOException {
 		DataInputStream dis = new DataInputStream(inputStream);
-		ignoreList.clear();
+		ignoreSet.clear();
 		while (dis.available() > 0) {
-			long value = dis.readLong();
-			ignoreList.add(value);
+			int value = dis.readInt();
+			if (ignoreSet.add(value)){
+				ignoreList.add(value);
+			}
 		}
 		persistedIgnoredEvents = ignoreList.size();
 	}
 
-	public void saveIgnoreList(ByteArrayOutputStream outputStream) throws IOException {
+	public void saveIgnoreSet(ByteArrayOutputStream outputStream) throws IOException {
 		DataOutputStream dos = new DataOutputStream(outputStream);
-		for (Long item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
-			dos.writeLong(item);
+		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
+			dos.writeInt(item);
 		}
 		dos.close();
 		persistedIgnoredEvents = ignoreList.size();

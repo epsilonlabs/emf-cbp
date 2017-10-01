@@ -76,7 +76,7 @@ public abstract class AppendPerformanceTests {
 			
 			beforeCBPAppend = System.nanoTime();
 			cbpResource.save(cbpOutput, null);
-			cbpResource.saveIgnoreList(ignoreListOutput);
+			cbpResource.saveIgnoreSet(ignoreListOutput);
 			afterCBPAppend = System.nanoTime();
 
 			// XMI -----------------

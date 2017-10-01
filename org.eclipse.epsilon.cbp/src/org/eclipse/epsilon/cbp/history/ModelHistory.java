@@ -7,12 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -67,39 +64,41 @@ public class ModelHistory extends ObjectHistory {
 	protected long totalTimeDelete = 0;
 
 	protected Map<EObject, ObjectHistory> objectHistoryMap = new HashMap<>();
-	protected List<Long> ignoreList;
+	protected Set<Integer> ignoreSet;
+	protected List<Integer> ignoreList;
 	protected CBPResource resource;
 
 	private void addLinesToIgnoreList(EventHistory lines) {
 		for (Line line : lines) {
-			if (!ignoreList.contains(line.getEventNumber())) {
+			if (ignoreSet.add(line.getEventNumber())) {
 				ignoreList.add(line.getEventNumber());
 			}
 		}
 	}
 
-	public ModelHistory(List<Long> ignoreList, EObject eObject, CBPResource resource) {
+	public ModelHistory(Set<Integer> ignoreSet, EObject eObject, CBPResource resource) {
 		super(eObject);
-		this.ignoreList = ignoreList;
+		this.ignoreSet = ignoreSet;
 		this.resource = resource;
 	}
 
-	public ModelHistory(List<Long> ignoreList, CBPResource resource) {
+	public ModelHistory(Set<Integer> ignoreSet, CBPResource resource, List<Integer> ignoreList) {
 		super(null);
-		this.ignoreList = ignoreList;
+		this.ignoreSet = ignoreSet;
 		this.resource = resource;
+		this.ignoreList = ignoreList;
 	}
 
 	public Map<EObject, ObjectHistory> geteObjectHistoryMap() {
 		return objectHistoryMap;
 	}
 
-	public void addObjectHistoryLine(EObject eObject, ChangeEvent<?> event, long eventNumber) {
+	public void addObjectHistoryLine(EObject eObject, ChangeEvent<?> event, int eventNumber) {
 		this.addObjectHistoryLine(eObject, event, eventNumber, null);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addObjectHistoryLine(EObject eObject, ChangeEvent<?> event, long eventNumber, Object value) {
+	public void addObjectHistoryLine(EObject eObject, ChangeEvent<?> event, int eventNumber, Object value) {
 		// REGISTER
 		if (event instanceof RegisterEPackageEvent) {
 			String name = RegisterEPackageEvent.class.getSimpleName();
@@ -137,57 +136,7 @@ public class ModelHistory extends ObjectHistory {
 		else if (event instanceof DeleteEObjectEvent) {
 			countDelete += 1;
 			beforeDelete = System.nanoTime();
-
-			DeleteEObjectEvent deletedEvent = (DeleteEObjectEvent) event;
-			EObject parent = (deletedEvent.getParentEObject() instanceof EObject)
-					? (EObject) deletedEvent.getParentEObject() : null;
-			EReference reference = (deletedEvent.getEReference() instanceof EReference)
-					? (EReference) deletedEvent.getEReference() : null;
-
-			// register to parent
-			if (parent != null && reference != null) {
-				ObjectHistory parentHistory = objectHistoryMap.get(parent);
-				ReferenceHistory refHistory = parentHistory.getReferences().get(reference);
-				if (refHistory != null) {
-					refHistory.addEventLine(deletedEvent, eventNumber, eObject);
-				}
-			}
-
-			// register to self
-			ObjectHistory eObjectHistory = objectHistoryMap.get(eObject);
-			eObjectHistory.addEventLine(event, eventNumber);
-
-			// remove children
-			for (ReferenceHistory rh : eObjectHistory.getReferences().values()) {
-				EventHistory eh = rh.getEventHistoryMap().get((deletedEvent).getClass().getSimpleName());
-				if (eh != null) {
-					for (Line line : eh) {
-						EObject subEObject = (EObject) line.getValue();
-						long lineNum = line.getEventNumber();
-						this.handleEObjectDeletion(subEObject, deletedEvent, lineNum, true);
-					}
-				}
-			}
-
-			// remove self
-			this.handleEObjectDeletion(eObject, event, eventNumber, false);
-			
-			// remove siblings if isRemoved is false
-			if (parent != null && reference != null && eObjectHistory.isMoved() == false) {
-				ObjectHistory parentHistory = objectHistoryMap.get(parent);
-				ReferenceHistory rh = parentHistory.getReferences().get(reference);
-				if (rh != null) {
-					EventHistory eh = rh.getEventHistoryMap().get((deletedEvent).getClass().getSimpleName());
-					if (eh!= null){
-						for (Line line : eh) {
-							EObject subEObject = (EObject) line.getValue();
-							long lineNum = line.getEventNumber();
-							this.handleEObjectDeletion(subEObject, deletedEvent, lineNum, true);
-						}
-					}
-				}
-			}
-
+			this.handleEObjectDeletion(eObject, event, eventNumber);
 			afterDelete = System.nanoTime();
 			timeDelete = afterDelete - beforeDelete;
 			totalTimeDelete += timeDelete;
@@ -256,7 +205,7 @@ public class ModelHistory extends ObjectHistory {
 
 	}
 
-	private void handleAttributeSetUnsetEvents(EObject eObject, ChangeEvent<?> event, long eventNumber, Object value) {
+	private void handleAttributeSetUnsetEvents(EObject eObject, ChangeEvent<?> event, int eventNumber, Object value) {
 		EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
 		boolean x = objectHistoryMap.containsValue(eObject);
 		Map<EObject, AttributeHistory> attributeList = objectHistoryMap.get(eObject).getAttributes();
@@ -273,8 +222,8 @@ public class ModelHistory extends ObjectHistory {
 			Map<String, EventHistory> eventLinesMap = attributeList.get(eAttribute).getEventHistoryMap();
 			String setAttributeName = SetEAttributeEvent.class.getSimpleName();
 			String unsetAttributeName = UnsetEAttributeEvent.class.getSimpleName();
-			long setAttributeLastLine = -1L;
-			long unsetAttributeLastLine = -1L;
+			int setAttributeLastLine = -1;
+			int unsetAttributeLastLine = -1;
 
 			EventHistory setAttributeLines = null;
 			EventHistory unsetAttributeLines = null;
@@ -303,7 +252,7 @@ public class ModelHistory extends ObjectHistory {
 		}
 	}
 
-	private void handleAttributeAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, long eventNumber,
+	private void handleAttributeAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, int eventNumber,
 			Object value) {
 		EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
 		Map<EObject, AttributeHistory> attributeList = objectHistoryMap.get(eObject).getAttributes();
@@ -377,8 +326,8 @@ public class ModelHistory extends ObjectHistory {
 			}
 			if (delta != 0 && delta != 1) {
 				if (eAttributeHistory.isMoved() == false) {
-					long addAttributeLastLine = -1L;
-					long removeAttributeLastLine = -1L;
+					int addAttributeLastLine = -1;
+					int removeAttributeLastLine = -1;
 					EventHistory valueAddAttributeLines = new EventHistory(event);
 					EventHistory valueRemoveAttributeLines = new EventHistory(event);
 
@@ -420,7 +369,7 @@ public class ModelHistory extends ObjectHistory {
 		}
 	}
 
-	private void handleReferenceSetUnsetEvents(EObject eObject, ChangeEvent<?> event, long eventNumber, EObject value) {
+	private void handleReferenceSetUnsetEvents(EObject eObject, ChangeEvent<?> event, int eventNumber, EObject value) {
 		EReference eReferenceTarget = ((EReferenceEvent) event).getEReference();
 		Map<EObject, ReferenceHistory> referenceList = objectHistoryMap.get(eObject).getReferences();
 		if (!referenceList.containsKey(eReferenceTarget)) {
@@ -436,8 +385,8 @@ public class ModelHistory extends ObjectHistory {
 			Map<String, EventHistory> eventLinesMap = referenceList.get(eReferenceTarget).getEventHistoryMap();
 			String seReferenceName = SetEReferenceEvent.class.getSimpleName();
 			String unsetReferenceName = UnsetEReferenceEvent.class.getSimpleName();
-			long setReferenceLastLine = -1L;
-			long unsetReferenceLastLine = -1L;
+			int setReferenceLastLine = -1;
+			int unsetReferenceLastLine = -1;
 
 			EventHistory setReferenceLines = null;
 			EventHistory unsetReferenceLines = null;
@@ -465,7 +414,7 @@ public class ModelHistory extends ObjectHistory {
 		}
 	}
 
-	private void handleReferenceAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, long eventNumber,
+	private void handleReferenceAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, int eventNumber,
 			EObject value) {
 		EReference eReferenceTarget = ((EReferenceEvent) event).getEReference();
 		Map<EObject, ReferenceHistory> referenceList = objectHistoryMap.get(eObject).getReferences();
@@ -586,10 +535,10 @@ public class ModelHistory extends ObjectHistory {
 
 			else if (delta != 0 && delta != 1) {
 				if (valueHistory.isMoved() == false) {
-					long addReferenceLastLine = -1L;
-					long removeReferenceLastLine = -1L;
-					long addResourceLastLine = -1L;
-					long removeResourceLastLine = -1L;
+					int addReferenceLastLine = -1;
+					int removeReferenceLastLine = -1;
+					int addResourceLastLine = -1;
+					int removeResourceLastLine = -1;
 
 					Map<String, EventHistory> valueEventLinesMap = objectHistoryMap.get(value).getEventHistoryMap();
 
@@ -598,6 +547,9 @@ public class ModelHistory extends ObjectHistory {
 
 					EventHistory addResourceLines = null;
 					EventHistory removeResourceLines = null;
+					moveWithinReferenceLines = null;
+					addReferenceLines = null;
+					removeReferenceLines = null;
 
 					if (valueEventLinesMap.containsKey(addReferenceName)) {
 						addReferenceLines = valueEventLinesMap.get(addReferenceName);
@@ -655,10 +607,12 @@ public class ModelHistory extends ObjectHistory {
 		}
 	}
 
-	private void handleEObjectDeletion(EObject eObject, ChangeEvent<?> event, long eventNumber, boolean childDeletion) {
+	private void handleEObjectDeletion(EObject eObject, ChangeEvent<?> event, int eventNumber) {
 
-		ObjectHistory deletedEObjectHistory = objectHistoryMap.get(eObject);
-		if (childDeletion == true || deletedEObjectHistory.isMoved() == false) {
+		ObjectHistory eObjectHistory = objectHistoryMap.get(eObject);
+		eObjectHistory.addEventLine(event, eventNumber);
+		if (eObjectHistory.isMoved() == false) {
+			ObjectHistory deletedEObjectHistory = objectHistoryMap.get(eObject);
 
 			// get all current object's references' lines
 			Map<EObject, ReferenceHistory> references = deletedEObjectHistory.getReferences();
@@ -720,6 +674,7 @@ public class ModelHistory extends ObjectHistory {
 	}
 
 	public void printStructure() {
+		int x = 1;
 		for (Entry<EObject, ObjectHistory> entry1 : this.geteObjectHistoryMap().entrySet()) {
 			EObject eObject = entry1.getKey();
 			ObjectHistory eObjectEventLineHistory = entry1.getValue();

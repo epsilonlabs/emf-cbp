@@ -97,10 +97,10 @@ public abstract class LoadingEquivalenceTests {
 		cbpResource1.save(cbpSos, null);
 		long afterSaveCBP = System.currentTimeMillis();
 
-		List<Long> ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
+		Set<Integer> ignoreList = ((CBPResource) cbpResource1).getIgnoreSet();
 
-		long actualTotalLines = 0;
-		long count2 = 0;
+		int actualTotalLines = 0;
+		int count2 = 0;
 		if (debug) {
 			System.out.println("");
 			System.out.println("DATA STRUCTURE");
@@ -109,7 +109,7 @@ public abstract class LoadingEquivalenceTests {
 			System.out.println("");
 			System.out.println("XML BEFORE REMOVED");
 			String[] list1 = cbpSos.toString().split(System.getProperty("line.separator"));
-			long count1 = 0;
+			int count1 = 0;
 			for (String line : list1) {
 				System.out.println(String.valueOf(count1) + "\t" + line);
 				count1 += 1;
@@ -147,7 +147,7 @@ public abstract class LoadingEquivalenceTests {
 		final String sCBP = cbpSos.toString();
 
 		// get ignoreList from cbpResource1 and apply it cbpResource2
-		((CBPResource) cbpResource2).setIgnoreList(ignoreList);
+		((CBPResource) cbpResource2).setIgnoreSet(ignoreList);
 		
 		long beforeLoadCBP = System.currentTimeMillis();
 		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);

@@ -107,7 +107,7 @@ public abstract class ComparePerformanceTests {
 		initialModule.execute();
 
 		initialResource.save(initialOutput, null);
-		initialResource.saveIgnoreList(initialIgnoreListOutput);
+		initialResource.saveIgnoreSet(initialIgnoreListOutput);
 
 //		// Configure EMF Compare
 //		IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.NEVER);
@@ -137,7 +137,7 @@ public abstract class ComparePerformanceTests {
 
 		// modifiedResource.getContents().addAll(initialResource.getContents());
 
-		modifiedResource.loadIgnoreList(new ByteArrayInputStream(initialIgnoreListOutput.toByteArray()));
+		modifiedResource.loadIgnoreSet(new ByteArrayInputStream(initialIgnoreListOutput.toByteArray()));
 		modifiedResource.load(new ByteArrayInputStream(initialOutput.toString().getBytes()), null);
 
 		InMemoryEmfModel modifiedModel = new InMemoryEmfModel("M", modifiedResource, getEPackage());
@@ -155,7 +155,7 @@ public abstract class ComparePerformanceTests {
 		modifiedResource.startNewSession();
 		modifierModule.execute();
 		modifiedResource.save(modifiedOutput, null);
-		modifiedResource.saveIgnoreList(modifiedIgnoreListOutput);
+		modifiedResource.saveIgnoreSet(modifiedIgnoreListOutput);
 
 		// Compare the two models
 		// ----EMF Compare

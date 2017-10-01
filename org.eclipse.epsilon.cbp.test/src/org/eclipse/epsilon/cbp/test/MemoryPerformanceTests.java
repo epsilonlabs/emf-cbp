@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -28,8 +27,6 @@ import org.github.jamm.MemoryMeter;
 
 import com.javamex.classmexer.MemoryUtil;
 
-import objectexplorer.MemoryMeasurer;
-
 public abstract class MemoryPerformanceTests {
 
 	private final String extension;
@@ -52,7 +49,7 @@ public abstract class MemoryPerformanceTests {
 	protected long cbpSize = 0;
 	protected long xmiSize = 0;
 
-	protected List<Long> ignoreList = null;
+	protected Set<Integer> ignoreList = null;
 	
 	MemoryMeter memoryMeter = new MemoryMeter();
 
@@ -113,7 +110,7 @@ public abstract class MemoryPerformanceTests {
 			moduleCbp.getContext().getModelRepository().addModel(modelCbp);
 			moduleCbp.execute();
 
-			ignoreList = ((CBPResource) cbpResource1).getIgnoreList();
+			ignoreList = ((CBPResource) cbpResource1).getIgnoreSet();
 			cbpOutputStream = new StringOutputStream();
 			
 			
@@ -134,7 +131,7 @@ public abstract class MemoryPerformanceTests {
 //			modelHistorySize = memoryMeter.measureDeep(((CBPResource) cbpResource1).getModelHistory());
 //			ignoreListSize = memoryMeter.measureDeep(((CBPResource) cbpResource1).getIgnoreList());
 			modelHistorySize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getModelHistory());
-			ignoreListSize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getIgnoreList());
+			ignoreListSize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getIgnoreSet());
 		
 //			cbpXml = cbpOutputStream.toString();
 		} catch (Exception e) {

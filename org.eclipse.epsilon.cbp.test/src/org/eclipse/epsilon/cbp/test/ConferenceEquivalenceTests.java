@@ -37,30 +37,30 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 		super(extension);
 	}
 
-	@Test
-	public void unsetAttributeTest() throws Exception {
-		StringBuilder eolCode = new StringBuilder();
-		eolCode.append("var p = new Person;\n");
-		eolCode.append("p.fullName = \"Old Name!\";\n");
-		eolCode.append("p.fullName = null;\n");
-		eolCode.append("p.fullName = \"New Name!\";\n");
-		eolCode.append("p.fullName = null;\n");
-		System.out.println(eolCode);
-		run(eolCode.toString(), true);
-
-	}
-
-	@Test
-	public void setAttributeTest() throws Exception {
-		StringBuilder eolCode = new StringBuilder();
-		eolCode.append("var p = new Person;\n");
-		eolCode.append("p.fullName = \"Old Name!\";\n");
-		eolCode.append("p.fullName = null;\n");
-		eolCode.append("p.fullName = \"New Name!\";\n");
-		System.out.println(eolCode);
-		run(eolCode.toString(), true);
-	}
-
+//	@Test
+//	public void unsetAttributeTest() throws Exception {
+//		StringBuilder eolCode = new StringBuilder();
+//		eolCode.append("var p = new Person;\n");
+//		eolCode.append("p.fullName = \"Old Name!\";\n");
+//		eolCode.append("p.fullName = null;\n");
+//		eolCode.append("p.fullName = \"New Name!\";\n");
+//		eolCode.append("p.fullName = null;\n");
+//		System.out.println(eolCode);
+//		run(eolCode.toString(), true);
+//
+//	}
+//
+//	@Test
+//	public void setAttributeTest() throws Exception {
+//		StringBuilder eolCode = new StringBuilder();
+//		eolCode.append("var p = new Person;\n");
+//		eolCode.append("p.fullName = \"Old Name!\";\n");
+//		eolCode.append("p.fullName = null;\n");
+//		eolCode.append("p.fullName = \"New Name!\";\n");
+//		System.out.println(eolCode);
+//		run(eolCode.toString(), true);
+//	}
+//
 	@Test
 	public void testFromFile() throws Exception {
 		String eolCode = new String(Files.readAllBytes(Paths.get("data/conference.eol")));
@@ -71,13 +71,13 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 	@Test
 	public void testRandomModel() throws Exception {
 
-		objectCounters.put("Conference", 1);
-		objectCounters.put("Person", 1);
-		objectCounters.put("Day", 1);
-		objectCounters.put("Room", 1);
-		objectCounters.put("Break", 1);
-		objectCounters.put("Track", 1);
-		objectCounters.put("Talk", 1);
+		objectCounters.put("Conference", 0);
+		objectCounters.put("Person", 0);
+		objectCounters.put("Day", 0);
+		objectCounters.put("Room", 0);
+		objectCounters.put("Break", 0);
+		objectCounters.put("Track", 0);
+		objectCounters.put("Talk", 0);
 
 		Map<String, Integer> objTypes = new HashMap<>();
 		objTypes.put("Conference", 1);
@@ -85,7 +85,7 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 		objTypes.put("Day", 3);
 		objTypes.put("Room", 3);
 		objTypes.put("Break", 9);
-		objTypes.put("Track", 6);
+		objTypes.put("Track", 12);
 		objTypes.put("Talk", 36);
 
 		List<String> objectSeeds = new ArrayList<>();
@@ -95,16 +95,56 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 			}
 		}
 
+		Map<String, Integer> opTypes = new HashMap<>();
+		opTypes.put("CREATE", 40);
+		opTypes.put("EDIT", 300);
+		opTypes.put("DELETE", 1);
+
+		List<String> opSeeds = new ArrayList<>();
+		for (Entry<String, Integer> entry : opTypes.entrySet()) {
+			for (int i = 0; i < entry.getValue(); i++) {
+				opSeeds.add(entry.getKey());
+			}
+		}
+
 		// initial
 		codeList.add(createObjectCode("Conference", "c"));
-
+//		codeList.add(createObjectCode("Conference", "c"));
+//		codeList.add(createObjectCode("Conference", "c"));
+//		codeList.add(createObjectCode("Conference", "c"));
+//		for (String item : objectSeeds){
+//			if (item.equals("Conference")){
+//				codeList.add(createObjectCode(item, "c"));
+//			}else if (item.equals("Person")){
+//				codeList.add(createObjectCode(item, "p"));
+//			}else if (item.equals("Day")){
+//				codeList.add(createObjectCode(item, "d"));
+//			}else if (item.equals("Room")){
+//				codeList.add(createObjectCode(item, "r"));
+//			}
+//			else if (item.equals("Break")){
+//				codeList.add(createObjectCode(item, "b"));
+//			}
+//			else if (item.equals("Track")){
+//				codeList.add(createObjectCode(item, "tr"));
+//			}else if (item.equals("Talk")){
+//				codeList.add(createObjectCode(item, "ta"));
+//			}
+//		}
+	
 		// create objects
-		for (int i = 0; i < 300; i++) {
-			createObjects(codeList, objectSeeds);
-		}
-		// delete objects
-		for (int i = 0; i < 100; i++) {
-			deleteObjects();
+		for (int i = 0; i < 2000; i++) {
+			int opIndex = ThreadLocalRandom.current().nextInt(opSeeds.size());
+			String opType = opSeeds.get(opIndex);
+			if (opType.equals("CREATE")) {
+				createObjects(codeList, objectSeeds);
+			}
+			else if (opType.equals("EDIT")) {
+				editObjects(codeList, objectSeeds);
+			} 
+			else if (opType.equals("DELETE")) {
+				deleteObjects();
+			}
 		}
 
 		String eolCode = String.join("\n", codeList);
@@ -116,15 +156,227 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 	private void deleteObjects() {
 		if (objectTotalCount > 0) {
 			code.setLength(0);
-			int index = ThreadLocalRandom.current().nextInt(objectTotalCount);
+			int seed = objectCounters.get("Conference");
+			seed = (seed == 0) ? 1 : seed;
+			int index = ThreadLocalRandom.current().nextInt(seed);
 			StringBuilder temp = new StringBuilder();
 			temp.append("var c = M.allContents.selectOne(item | item.index == \"%1$s\");\n");
 			temp.append("if (c <> null and M.owns(c)){\n");
-			temp.append("    delete c;\n");
+			temp.append("	if(c.isKindOf(Conference)){\n");			
+			temp.append("		if (c.key <> \"c0\" and c.key <> \"c1\"){\n");
+			temp.append("			for (d in c.days){\n");			
+			temp.append("				for(s in d.slots){\n");
+			temp.append("					if (s.isTypeOf(Track)){\n");			
+			temp.append("						delete s.talks;\n");
+			temp.append("					}\n");
+			temp.append("				}\n");
+			temp.append("				delete d.slots;\n");
+			temp.append("			}\n");
+			temp.append("			delete c.days;\n");
+			temp.append("			delete c.participants;\n");
+			temp.append("			delete c.rooms;\n");			
+			temp.append("			delete c;\n");
+			temp.append("		}\n");
+			temp.append("	}else if(c.isKindOf(Day)) {\n");
+			temp.append("			\"AAAA\".println();\n");
+			temp.append("			for(s in c.slots){\n");
+			temp.append("				if (s.isTypeOf(Track)){\n");			
+			temp.append("					delete s.talks;\n");
+			temp.append("				}\n");
+			temp.append("			}\n");
+			temp.append("			delete c.slots;\n");
+			temp.append("			delete c;\n");			
+			temp.append("		\n");
+			temp.append("	}else{\n");
+			temp.append("		delete c;\n");
+			temp.append("	}\n");
 			temp.append("}\n");
 			code.append(String.format(temp.toString(), index));
 			codeList.add(code.toString());
 		}
+	}
+	
+	private void editObjects(List<String> codeList, List<String> opSeeds) {
+		code.setLength(0);
+		int index = ThreadLocalRandom.current().nextInt(opSeeds.size());
+		String objectType = opSeeds.get(index);
+		if (objectType.equals("Conference")) {
+			objectType = "Person";
+		} 
+		if (objectType.equals("Person")) {
+			if (objectCounters.get("Person") > 0) {
+				int seed = objectCounters.get("Person");
+				seed = (seed == 0) ? 1 : seed;
+				int number = ThreadLocalRandom.current().nextInt(seed);
+				StringBuilder temp = new StringBuilder();
+				String key = "p" + number;
+				temp.append("var p = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (p ==  null){\n");
+				temp.append("    p = Person.allInstances().first();\n");
+				temp.append("}\n");
+				temp.append("if (p <>  null){\n");
+				int opt = ThreadLocalRandom.current().nextInt(3);
+				String newFullName = this.randomString(6);;
+				String newAffiliation = this.randomString(6);
+				if(opt == 0){
+					temp.append("    p.fullName = \"%2$s\";\n");
+				}else if(opt == 1) {
+					temp.append("    p.affiliation = \"%3$s\";\n");
+				}else if(opt == 2){
+					temp.append("    p.fullName = null;\n");
+				}else if(opt == 3) {
+					temp.append("    p.affiliation = null;\n");
+				}
+				temp.append("}\n");
+				code.append(String.format(temp.toString(), key, newFullName, newAffiliation));
+			}
+		} 
+		else if (objectType.equals("Day")) {
+			if (objectCounters.get("Day") > 0) {
+				int seed = objectCounters.get("Day");
+				seed = (seed == 0) ? 1 : seed;
+				int number = ThreadLocalRandom.current().nextInt(seed);
+				StringBuilder temp = new StringBuilder();
+				String key = "d" + number;
+				temp.append("var d = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (d ==  null){\n");
+				temp.append("    d = Day.allInstances().first();\n");
+				temp.append("}\n");
+				temp.append("if (d <>  null){\n");
+				int opt = ThreadLocalRandom.current().nextInt(4);
+				String newName = this.randomString(6);
+				if(opt == 0){
+					temp.append("    d.name = \"%2$s\";\n");
+				} else if(opt == 1) {
+					temp.append("    d.name = null;\n");
+				} 
+				else if(opt == 2) {
+					temp.append("    if (d.slots.size() > 1){\n");
+					temp.append("    	d.slots.move(0,1);\n");
+					temp.append("    }\n");
+				} else if(opt == 3) {
+					temp.append("    var s = Slot.allInstances().first();\n");
+					temp.append("    if (s <> null){\n");
+					temp.append("    	d.slots.add(s);\n");
+					temp.append("    }\n");
+				}
+				temp.append("}\n");
+				code.append(String.format(temp.toString(), key, newName));
+			}
+		} 
+		else if (objectType.equals("Room")) {
+			if (objectCounters.get("Room") > 0) {
+				int seed = objectCounters.get("Room");
+				seed = (seed == 0) ? 1 : seed;
+				int number = ThreadLocalRandom.current().nextInt(seed);
+				StringBuilder temp = new StringBuilder();
+				String key = "r" + number;
+				temp.append("var r = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (r ==  null){\n");
+				temp.append("    r = Room.allInstances().first();\n");
+				temp.append("}\n");
+				temp.append("if (r <>  null){\n");
+				int opt = ThreadLocalRandom.current().nextInt(1);
+				String newName = this.randomString(6);
+				if(opt == 0){
+					temp.append("    r.name = \"%2$s\";\n");
+				}else if(opt == 1) {
+					temp.append("    r.name = null;\n");
+				}
+				temp.append("}\n");
+				code.append(String.format(temp.toString(), key, newName));
+			}
+		} 
+			else if (objectType.equals("Break")) {
+			if (objectCounters.get("Break") > 0) {
+				int seed = objectCounters.get("Break");
+				seed = (seed == 0) ? 1 : seed;
+				int number = ThreadLocalRandom.current().nextInt(seed);
+				StringBuilder temp = new StringBuilder();
+				String key = "b" + number;
+				temp.append("var b = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (b ==  null){\n");
+				temp.append("    b = Break.allInstances().first();\n");
+				temp.append("}\n");
+				temp.append("if (b <>  null){\n");
+				int opt = ThreadLocalRandom.current().nextInt(1);
+				String newReason = this.randomString(6);
+				if(opt == 0){
+					temp.append("    b.reason = \"%2$s\";\n");
+				}else if(opt == 1) {
+					temp.append("    b.reason = null;\n");
+				}
+				temp.append("}\n");
+				code.append(String.format(temp.toString(), key, newReason));
+			}
+		} 
+		
+		
+//		else if (objectType.equals("Track")) {
+//			if (objectCounters.get("Day") > 0) {
+//				code.append(createObjectCode(objectType, "tr"));
+//				StringBuilder temp = new StringBuilder();
+//
+//				int seed = objectCounters.get("Day");
+//				seed = (seed == 0) ? 1 : seed;
+//				int dayNumber = ThreadLocalRandom.current().nextInt(seed);
+//				String dayName = "d" + dayNumber;
+//				temp.append("var d = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+//				temp.append("if (d <> null){\n");
+//				temp.append("    d.slots.add(x);\n");
+//				temp.append("}\n");
+//
+//				seed = objectCounters.get("Room");
+//				seed = (seed == 0) ? 1 : seed;
+//				int roomNumber = ThreadLocalRandom.current().nextInt(seed);
+//				String roomName = "r" + roomNumber;
+//				if (objectCounters.get("Room") > 0) {
+//					temp.append("var r = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+//					temp.append("if (r <> null){\n");
+//					temp.append("    x.room = r;\n");
+//					temp.append("}\n");
+//				}
+//
+//				code.append(String.format(temp.toString(), dayName, roomName));
+//			}
+//		} else if (objectType.equals("Talk")) {
+//			if (objectCounters.get("Track") > 0) {
+//				code.append(createObjectCode(objectType, "ta"));
+//				StringBuilder temp = new StringBuilder();
+//
+//				int seed = objectCounters.get("Track");
+//				seed = (seed == 0) ? 1 : seed;
+//				int trackNumber = ThreadLocalRandom.current().nextInt(seed);
+//				String trackKey = "tr" + trackNumber;
+//				temp.append("var tr = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+//				temp.append("if (tr <> null){\n");
+//				temp.append("    tr.talks.add(x);\n");
+//				temp.append("}\n");
+//
+//				seed = objectCounters.get("Person");
+//				seed = (seed == 0) ? 1 : seed;
+//				int personNumber1 = ThreadLocalRandom.current().nextInt(seed);
+//				String personKey1 = "p" + personNumber1;
+//
+//				seed = objectCounters.get("Person");
+//				seed = (seed == 0) ? 1 : seed;
+//				int personNumber2 = ThreadLocalRandom.current().nextInt(seed);
+//				String personKey2 = "p" + personNumber2;
+//				if (objectCounters.get("Person") > 0) {
+//					temp.append("var p1 = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+//					temp.append("if (p1 <> null){\n");
+//					temp.append("    x.speaker = p1;\n");
+//					temp.append("}\n");
+//					temp.append("var p2 = M.allContents.selectOne(item | item.key == \"%3$s\");\n");
+//					temp.append("if (p2 <> null){\n");
+//					temp.append("    x.discussant = p2;\n");
+//					temp.append("}\n");
+//				}
+//
+//				code.append(String.format(temp.toString(), trackKey, personKey1, personKey2));
+//			}
+//		}
+		codeList.add(code.toString());
 	}
 
 	private void createObjects(List<String> codeList, List<String> objectSeeds) {
@@ -136,113 +388,182 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 		} else if (objectType.equals("Person")) {
 			if (objectCounters.get("Conference") > 0) {
 				code.append(createObjectCode(objectType, "p"));
-				int number = ThreadLocalRandom.current().nextInt(objectCounters.get("Conference"));
+				int seed = objectCounters.get("Conference");
+				seed = (seed == 0) ? 1 : seed;
+				int number = ThreadLocalRandom.current().nextInt(seed);
 				StringBuilder temp = new StringBuilder();
-				String name = "c" + number;
+				String key = "c" + number;
+				String fullName = this.randomString(3);
+				String affiliation = this.randomString(3);
+				temp.append("    x.fullName = \"%2$s\";\n");
+				temp.append("    x.affiliation = \"%3$s\";\n");
 				temp.append("var c = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (c ==  null){\n");
+				temp.append("    c = Conference.allInstances().first();\n");
+				temp.append("}\n");
 				temp.append("if (c <>  null){\n");
 				temp.append("    c.participants.add(x);\n");
 				temp.append("}\n");
-				code.append(String.format(temp.toString(), name));
+				code.append(String.format(temp.toString(), key, fullName, affiliation));
 			}
-		} else if (objectType.equals("Day")) {
+		}
+		else if (objectType.equals("Day")) {
 			if (objectCounters.get("Conference") > 0) {
 				code.append(createObjectCode(objectType, "d"));
-				int number = ThreadLocalRandom.current().nextInt(objectCounters.get("Conference"));
+				int seed = objectCounters.get("Conference");
+				seed = (seed == 0) ? 1 : seed;
+				int number = ThreadLocalRandom.current().nextInt(seed);
 				StringBuilder temp = new StringBuilder();
-				String name = "c" + number;
+				String key = "c" + number;
+				String name= this.randomString(3);
+				temp.append("    x.name = \"%2$s\";\n");
 				temp.append("var c = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (c ==  null){\n");
+				temp.append("    c = Conference.allInstances().first();\n");
+				temp.append("}\n");
 				temp.append("if (c <>  null){\n");
 				temp.append("    c.days.add(x);\n");
 				temp.append("}\n");
-				code.append(String.format(temp.toString(), name));
+				code.append(String.format(temp.toString(), key, name));
 			}
-		} else if (objectType.equals("Room")) {
+		} 
+		else if (objectType.equals("Room")) {
 			if (objectCounters.get("Conference") > 0) {
 				code.append(createObjectCode(objectType, "r"));
-				int number = ThreadLocalRandom.current().nextInt(objectCounters.get("Conference"));
+				int seed = objectCounters.get("Conference");
+				seed = (seed == 0) ? 1 : seed;
+				int number = ThreadLocalRandom.current().nextInt(seed);
 				StringBuilder temp = new StringBuilder();
-				String name = "c" + number;
+				String key = "c" + number;
+				String name= this.randomString(3);
+				temp.append("    x.name = \"%2$s\";\n");
 				temp.append("var c = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (c ==  null){\n");
+				temp.append("    c = Conference.allInstances().first();\n");
+				temp.append("}\n");
 				temp.append("if (c <> null){\n");
 				temp.append("    c.rooms.add(x);\n");
 				temp.append("}\n");
-				code.append(String.format(temp.toString(), name));
+				code.append(String.format(temp.toString(), key, name));
 			}
 		} else if (objectType.equals("Break")) {
 			if (objectCounters.get("Day") > 0) {
 				code.append(createObjectCode(objectType, "b"));
 				StringBuilder temp = new StringBuilder();
 
-				int dayNumber = ThreadLocalRandom.current().nextInt(objectCounters.get("Day"));
-				String dayName = "d" + dayNumber;
+				int seed = objectCounters.get("Day");
+				seed = (seed == 0) ? 1 : seed;
+				int dayNumber = ThreadLocalRandom.current().nextInt(seed);
+				String key = "d" + dayNumber;
+				String reason = this.randomString(3);
+				temp.append("    x.reason = \"%3$s\";\n");
 				temp.append("var d = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (d ==  null){\n");
+				temp.append("    d = Day.allInstances().first();\n");
+				temp.append("}\n");
 				temp.append("if (d <> null){\n");
 				temp.append("    d.slots.add(x);\n");
-				temp.append("}\n");
-
-				int roomNumber = ThreadLocalRandom.current().nextInt(objectCounters.get("Room"));
+				
+				seed = objectCounters.get("Room");
+				seed = (seed == 0) ? 1 : seed;
+				int roomNumber = ThreadLocalRandom.current().nextInt(seed);
 				String roomName = "r" + roomNumber;
 				if (objectCounters.get("Room") > 0) {
-					temp.append("var r = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
-					temp.append("if (r <> null){\n");
-					temp.append("    x.room = r;\n");
-					temp.append("}\n");
+					temp.append("	var r = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+					temp.append("	if (r ==  null){\n");
+					temp.append("   	r = Room.allInstances().first();\n");
+					temp.append("	}\n");
+					temp.append("	if (r <> null){\n");
+					temp.append("  		x.room = r;\n");
+					temp.append("	}\n");
 				}
+				temp.append("}\n");
 
-				code.append(String.format(temp.toString(), dayName, roomName));
+				code.append(String.format(temp.toString(), key, roomName, reason));
 			}
 		} else if (objectType.equals("Track")) {
 			if (objectCounters.get("Day") > 0) {
 				code.append(createObjectCode(objectType, "tr"));
 				StringBuilder temp = new StringBuilder();
 
-				int dayNumber = ThreadLocalRandom.current().nextInt(objectCounters.get("Day"));
-				String dayName = "d" + dayNumber;
+				int seed = objectCounters.get("Day");
+				seed = (seed == 0) ? 1 : seed;
+				int dayNumber = ThreadLocalRandom.current().nextInt(seed);
+				String key = "d" + dayNumber;
+				String title = this.randomString(3);
+				temp.append("    x.title = \"%3$s\";\n");
 				temp.append("var d = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (d ==  null){\n");
+				temp.append("    d = Day.allInstances().first();\n");
+				temp.append("}\n");
 				temp.append("if (d <> null){\n");
 				temp.append("    d.slots.add(x);\n");
-				temp.append("}\n");
-
-				int roomNumber = ThreadLocalRandom.current().nextInt(objectCounters.get("Room"));
+				
+				seed = objectCounters.get("Room");
+				seed = (seed == 0) ? 1 : seed;
+				int roomNumber = ThreadLocalRandom.current().nextInt(seed);
 				String roomName = "r" + roomNumber;
 				if (objectCounters.get("Room") > 0) {
-					temp.append("var r = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
-					temp.append("if (r <> null){\n");
-					temp.append("    x.room = r;\n");
-					temp.append("}\n");
+					temp.append("	var r = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+					temp.append("	if (r ==  null){\n");
+					temp.append("   	r = Room.allInstances().first();\n");
+					temp.append("	}\n");
+					temp.append("	if (r <> null){\n");
+					temp.append("  		x.room = r;\n");
+					temp.append("	}\n");
 				}
+				temp.append("}\n");
 
-				code.append(String.format(temp.toString(), dayName, roomName));
+				code.append(String.format(temp.toString(), key, roomName, title));
 			}
 		} else if (objectType.equals("Talk")) {
 			if (objectCounters.get("Track") > 0) {
 				code.append(createObjectCode(objectType, "ta"));
 				StringBuilder temp = new StringBuilder();
 
-				int trackNumber = ThreadLocalRandom.current().nextInt(objectCounters.get("Track"));
+				int seed = objectCounters.get("Track");
+				seed = (seed == 0) ? 1 : seed;
+				int trackNumber = ThreadLocalRandom.current().nextInt(seed);
 				String trackKey = "tr" + trackNumber;
+				String title = this.randomString(3);
+				int duration = ThreadLocalRandom.current().nextInt(20);
+				temp.append("x.title = \"%4$s\";\n");
+				temp.append("x.duration = %5$s;\n");
 				temp.append("var tr = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+				temp.append("if (tr ==  null){\n");
+				temp.append("    tr = Track.allInstances().first();\n");
+				temp.append("}\n");
 				temp.append("if (tr <> null){\n");
 				temp.append("    tr.talks.add(x);\n");
-				temp.append("}\n");
 
-				int personNumber1 = ThreadLocalRandom.current().nextInt(objectCounters.get("Person"));
+				seed = objectCounters.get("Person");
+				seed = (seed == 0) ? 1 : seed;
+				int personNumber1 = ThreadLocalRandom.current().nextInt(seed);
 				String personKey1 = "p" + personNumber1;
-				int personNumber2 = ThreadLocalRandom.current().nextInt(objectCounters.get("Person"));
+
+				seed = objectCounters.get("Person");
+				seed = (seed == 0) ? 1 : seed;
+				int personNumber2 = ThreadLocalRandom.current().nextInt(seed);
 				String personKey2 = "p" + personNumber2;
 				if (objectCounters.get("Person") > 0) {
-					temp.append("var p1 = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
-					temp.append("if (p1 <> null){\n");
-					temp.append("    x.speaker = p1;\n");
-					temp.append("}\n");
-					temp.append("var p2 = M.allContents.selectOne(item | item.key == \"%3$s\");\n");
-					temp.append("if (p2 <> null){\n");
-					temp.append("    x.discussant = p2;\n");
-					temp.append("}\n");
+					temp.append("	var p1 = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+					temp.append("	if (p1 ==  null){\n");
+					temp.append(" 	   p1 = Person.allInstances().first();\n");
+					temp.append("	}\n");
+					temp.append("	if (p1 <> null){\n");
+					temp.append("	    x.speaker = p1;\n");
+					temp.append("	}\n");
+					temp.append("	var p2 = M.allContents.selectOne(item | item.key == \"%3$s\");\n");
+					temp.append("	if (p2 ==  null){\n");
+					temp.append("	    p2 = Person.allInstances().last();\n");
+					temp.append("	}\n");
+					temp.append("	if (p2 <> null){\n");
+					temp.append("	    x.discussant = p2;\n");
+					temp.append("	}\n");
 				}
+				temp.append("}\n");
 
-				code.append(String.format(temp.toString(), trackKey, personKey1, personKey2));
+				code.append(String.format(temp.toString(), trackKey, personKey1, personKey2, title, duration));
 			}
 		}
 		codeList.add(code.toString());

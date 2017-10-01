@@ -21,7 +21,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 
-	private static final int ITERATION = 2000;
+	private static final int ITERATION = 5000;
 	private static final String ADD_ATTRIBUTE = "ADD_ATTRIBUTE";
 	private static final String REMOVE_ATTRIBUTE = "REMOVE_ATTRIBUTE";
 	private static final String MOVE_WITHIN_ATTRIBUTE = "MOVE_WITHIN_ATTRIBUTE";
@@ -70,20 +70,20 @@ public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 
 	}
 
-	@Test
-	public void simpleTest() throws Exception {
-		String eolCode = new String(Files.readAllBytes(Paths.get("data/test.eol")));
-		run(eolCode, true);
-	}
-	
-	@Test
-	public void nodeTestFromFile() throws Exception {
-		String eolCode = new String(Files.readAllBytes(Paths.get("data/node.eol")));
-		run(eolCode, true);
-	}
+//	@Test
+//	public void simpleTest() throws Exception {
+//		String eolCode = new String(Files.readAllBytes(Paths.get("data/test.eol")));
+//		run(eolCode, true);
+//	}
+//	
+//	@Test
+//	public void nodeTestFromFile() throws Exception {
+//		String eolCode = new String(Files.readAllBytes(Paths.get("data/node.eol")));
+//		run(eolCode, true);
+//	}
 
 	@Test
-	public void nodeTest() throws Exception {
+	public void randomModelTest() throws Exception {
 		StringBuilder codeBuilder = new StringBuilder();
 		String eolCode = "";
 		int nameIncrement = 0;
@@ -91,8 +91,8 @@ public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 		List<String> deletedObjects = new ArrayList<>();
 		Map<String, Integer> eventProbabilityMap = new HashMap<>();
 		eventProbabilityMap.put(CREATE, 1);
-//		eventProbabilityMap.put(SET_ATTRIBUTE, 1);
-//		eventProbabilityMap.put(UNSET_ATTRIBUTE, 1);
+		eventProbabilityMap.put(SET_ATTRIBUTE, 1);
+		eventProbabilityMap.put(UNSET_ATTRIBUTE, 1);
 		eventProbabilityMap.put(ADD_ATTRIBUTE, 1);
 		eventProbabilityMap.put(REMOVE_ATTRIBUTE, 1);
 		eventProbabilityMap.put(MOVE_WITHIN_ATTRIBUTE, 1);
