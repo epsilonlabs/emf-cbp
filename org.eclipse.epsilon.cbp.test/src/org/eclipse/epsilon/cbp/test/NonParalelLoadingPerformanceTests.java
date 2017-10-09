@@ -27,6 +27,8 @@ import org.eclipse.epsilon.eol.EolModule;
 
 public abstract class NonParalelLoadingPerformanceTests {
 
+	private static final int MAX_NUM_OF_NODES = 60000;
+
 	private final String extension;
 
 	protected int topLimit = 0;
@@ -98,30 +100,15 @@ public abstract class NonParalelLoadingPerformanceTests {
 		modelXmi = new InMemoryEmfModel("M", xmiResource1, getEPackage());
 		moduleXmi.getContext().getModelRepository().addModel(modelXmi);
 
-		xmiResourceSet2 = createResourceSet();
-		xmiResourceSet2.setPackageRegistry(EPackage.Registry.INSTANCE);
-		xmiFactory = new XMIResourceFactoryImpl();
-		xmiResourceSet2.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", xmiFactory);
-		xmiResource2 = xmiResourceSet2.createResource(URI.createURI("foo.xmi"));
+		
 
 		moduleCbp = new EolModule();
 		cbpResourceSet1 = createResourceSet();
-		cbpResource1 = cbpResourceSet1.createResource(URI.createURI("foo3." + extension));
+		cbpResource1 = cbpResourceSet1.createResource(URI.createURI("foo." + extension));
 		modelCbp = new InMemoryEmfModel("M", cbpResource1, getEPackage());
 		moduleCbp.getContext().getModelRepository().addModel(modelCbp);
 		cbpOutputStream = new StringOutputStream();
 
-		cbpResourceSet2 = createResourceSet();
-		cbpResourceSet2.setPackageRegistry(EPackage.Registry.INSTANCE);
-		cbpFactory2 = new CBPXMLResourceFactory();
-		cbpResourceSet2.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", cbpFactory2);
-		cbpResource2 = cbpResourceSet2.createResource(URI.createURI("foo5." + extension));
-
-		cbpResourceSet3 = createResourceSet();
-		cbpResourceSet3.setPackageRegistry(EPackage.Registry.INSTANCE);
-		factory3 = new CBPXMLResourceFactory();
-		cbpResourceSet3.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", factory3);
-		cbpResource3 = cbpResourceSet3.createResource(URI.createURI("foo4." + extension));
 	}
 
 	// Save XMI -------------------------------------------
@@ -158,6 +145,12 @@ public abstract class NonParalelLoadingPerformanceTests {
 
 	public void testLoadXMI(String eol, String extension, boolean debug) throws Exception {
 		try {
+			xmiResourceSet2 = createResourceSet();
+			xmiResourceSet2.setPackageRegistry(EPackage.Registry.INSTANCE);
+			xmiFactory = new XMIResourceFactoryImpl();
+			xmiResourceSet2.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", xmiFactory);
+			xmiResource2 = xmiResourceSet2.createResource(URI.createURI("foo.xmi"));
+			
 			String sXMI = xmiOutputStream.toString();
 			beforeLoadXMI = System.currentTimeMillis();
 			xmiResource2.load(new ByteArrayInputStream(sXMI.getBytes()), null);
@@ -192,6 +185,12 @@ public abstract class NonParalelLoadingPerformanceTests {
 
 	public void testLoadOptimisedCBP(String eol, String extension, boolean debug) throws Exception {
 		try {
+			cbpResourceSet2 = createResourceSet();
+			cbpResourceSet2.setPackageRegistry(EPackage.Registry.INSTANCE);
+			cbpFactory2 = new CBPXMLResourceFactory();
+			cbpResourceSet2.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", cbpFactory2);
+			cbpResource2 = cbpResourceSet2.createResource(URI.createURI("foo." + extension));
+			
 			String sCBP1 = cbpOutputStream.toString();
 
 			numOfLineCBP = 0;
@@ -209,6 +208,12 @@ public abstract class NonParalelLoadingPerformanceTests {
 
 	public void testLoadCBP(String eol, String extension, boolean debug) throws Exception {
 		try {
+			cbpResourceSet3 = createResourceSet();
+			cbpResourceSet3.setPackageRegistry(EPackage.Registry.INSTANCE);
+			factory3 = new CBPXMLResourceFactory();
+			cbpResourceSet3.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", factory3);
+			cbpResource3 = cbpResourceSet3.createResource(URI.createURI("foo." + extension));
+			
 			String sCBP2 = cbpOutputStream.toString();
 			((CBPResource) cbpResource3).setIgnoreSet(ignoreList);
 			Map<Object, Object> options = new HashMap<>();
@@ -240,7 +245,17 @@ public abstract class NonParalelLoadingPerformanceTests {
 			double sumDelete = 0;
 
 			this.initialiseAll();
-			for (String eolOperation : eolOperations) {
+			ConferenceModelGenerator.initialise();
+			String initialCode = ConferenceModelGenerator.generateInitialCode();
+			this.testSaveXMI(initialCode, extension, debug);
+			this.testLoadXMI(initialCode, extension, debug);
+			this.testSaveCBP(initialCode, extension, debug);
+			this.testLoadCBP(initialCode, extension, debug);
+			this.testLoadOptimisedCBP(initialCode, extension, debug);
+
+			String eolOperation = null;
+			while (numberOfNodes <= MAX_NUM_OF_NODES) {
+				eolOperation = ConferenceModelGenerator.generateRandomOperationCode();
 				this.testSaveXMI(eolOperation, extension, debug);
 				this.testLoadXMI(eolOperation, extension, debug);
 				this.testSaveCBP(eolOperation, extension, debug);

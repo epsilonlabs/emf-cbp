@@ -76,11 +76,11 @@ public class NodeEquivalenceTests extends LoadingEquivalenceTests {
 //		run(eolCode, true);
 //	}
 //	
-//	@Test
-//	public void nodeTestFromFile() throws Exception {
-//		String eolCode = new String(Files.readAllBytes(Paths.get("data/node.eol")));
-//		run(eolCode, true);
-//	}
+	@Test
+	public void nodeTestFromFile() throws Exception {
+		String eolCode = new String(Files.readAllBytes(Paths.get("data/node.eol")));
+		run(eolCode, true);
+	}
 
 	@Test
 	public void randomModelTest() throws Exception {

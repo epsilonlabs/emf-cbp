@@ -7,7 +7,6 @@ import java.util.Map;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 
-
 public class ObjectHistory {
 
 	private EObject eObject = null;
@@ -15,7 +14,7 @@ public class ObjectHistory {
 	private Map<EObject, AttributeHistory> attributeHistoryMap = new HashMap<EObject, AttributeHistory>();
 	private Map<EObject, ReferenceHistory> referencesHistoryMap = new HashMap<EObject, ReferenceHistory>();
 	private Map<String, EventHistory> getEventHistoryMap = new HashMap<String, EventHistory>();
-	
+
 	public boolean isMoved() {
 		return isMoved;
 	}
@@ -31,7 +30,7 @@ public class ObjectHistory {
 	public void setEObject(EObject eObject) {
 		this.eObject = eObject;
 	}
-	
+
 	public EObject getEObject() {
 		return eObject;
 	}

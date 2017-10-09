@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.cbp.test;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -26,6 +27,8 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.github.jamm.MemoryMeter;
 
 import com.javamex.classmexer.MemoryUtil;
+
+import objectexplorer.MemoryMeasurer;
 
 public abstract class MemoryPerformanceTests {
 
@@ -90,9 +93,9 @@ public abstract class MemoryPerformanceTests {
 			}
 			xmiResource1.save(xmiOutputStream, null);
 			
-//			xmiSize = MemoryMeasurer.measureBytes(((XMIResource) xmiResource1));
+			xmiSize = MemoryMeasurer.measureBytes(((XMIResource) xmiResource1));
 //		    xmiSize = memoryMeter.measureDeep(((XMIResource) xmiResource1));
-			xmiSize = MemoryUtil.deepMemoryUsageOf(((XMIResource) xmiResource1));
+//			xmiSize = MemoryUtil.deepMemoryUsageOf(((XMIResource) xmiResource1));
 
 		} catch (Exception e) {
 			errorMessage.append(e.toString() + "\n");
@@ -116,22 +119,24 @@ public abstract class MemoryPerformanceTests {
 			
 			List<ChangeEvent<?>> oldList = ((CBPResource) cbpResource1).getChangeEventAdapter().getChangeEvents();
 			
-//			changeEventsSize = MemoryMeasurer.measureBytes(oldList);
-//			cbpSize = MemoryMeasurer.measureBytes((CBPResource) cbpResource1);
+			changeEventsSize = MemoryMeasurer.measureBytes(oldList);
+			cbpSize = MemoryMeasurer.measureBytes((CBPResource) cbpResource1);
 			
 //			changeEventsSize = memoryMeter.measureDeep(oldList);
 //			cbpSize = memoryMeter.measureDeep((CBPResource) cbpResource1);
-			changeEventsSize = MemoryUtil.deepMemoryUsageOf(oldList);
-			cbpSize = MemoryUtil.deepMemoryUsageOf((CBPResource) cbpResource1);
+//			changeEventsSize = MemoryUtil.deepMemoryUsageOf(oldList);
+//			cbpSize = MemoryUtil.deepMemoryUsageOf((CBPResource) cbpResource1);
 					
 			cbpResource1.save(cbpOutputStream, null);
-//			modelHistorySize = MemoryMeasurer.measureBytes(((CBPResource) cbpResource1).getModelHistory());
-//			ignoreListSize = MemoryMeasurer.measureBytes(((CBPResource) cbpResource1).getIgnoreList());
+			
+			cbpResource1.load(new ByteArrayInputStream(cbpOutputStream.toString().getBytes()), null);
+			modelHistorySize = MemoryMeasurer.measureBytes(((CBPResource) cbpResource1).getModelHistory());
+			ignoreListSize = MemoryMeasurer.measureBytes(((CBPResource) cbpResource1).getIgnoreSet());
 			
 //			modelHistorySize = memoryMeter.measureDeep(((CBPResource) cbpResource1).getModelHistory());
 //			ignoreListSize = memoryMeter.measureDeep(((CBPResource) cbpResource1).getIgnoreList());
-			modelHistorySize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getModelHistory());
-			ignoreListSize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getIgnoreSet());
+//			modelHistorySize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getModelHistory());
+//			ignoreListSize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getIgnoreSet());
 		
 //			cbpXml = cbpOutputStream.toString();
 		} catch (Exception e) {

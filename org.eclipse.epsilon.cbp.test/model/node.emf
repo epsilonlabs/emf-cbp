@@ -2,15 +2,9 @@
 package node;
 
 class Node {
-	attr Integer deep = 0;
 	ref  Node parent;
 	attr String name;
-	attr String defName = "Foo";
-	attr Integer[*] values;
-	!unique attr Integer[*] listValues;
-	ref Node refNode;
-	val Node valNode;
-	val Node[*] valNodes;
-	ref Node[*] refNodes;  
+	attr int[*] values;
+	val Node[*] children;
 }
 

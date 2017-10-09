@@ -66,7 +66,8 @@ public class ConferenceEquivalenceTests extends LoadingEquivalenceTests {
 	@Test
 	public void testRandomModel() throws Exception {
 		
-		List<String> codeList = ConferenceModelGenerator.generateEolCode();
+		ConferenceModelGenerator.initialise();
+		List<String> codeList = ConferenceModelGenerator.generateCompleteCode();
 		String eolCode = String.join("\n", codeList);
 		System.out.println(eolCode);
 		System.out.println("Running...");

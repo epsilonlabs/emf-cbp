@@ -63,6 +63,87 @@ public class ModelHistory extends ObjectHistory {
 	protected long totalTimeReferenceAddRemoveMove = 0;
 	protected long totalTimeDelete = 0;
 
+	protected int ignoredSetAttCount = 0;
+	protected int ignoredUnsetAttCount = 0;
+	protected int ignoredAddAttCount = 0;
+	protected int ignoredRemoveAttCount = 0;
+	protected int ignoredMoveAttCount = 0;
+	protected int ignoredSetRefCount = 0;
+	protected int ignoredUnsetRefCount = 0;
+	protected int ignoredAddRefCount = 0;
+	protected int ignoredRemoveRefCount = 0;
+	protected int ignoredMoveRefCount = 0;
+	protected int ignoredDeleteCount = 0;
+	protected int ignoredAddResCount = 0;
+	protected int ignoredRemoveResCount = 0;
+	protected int ignoredPackageCount = 0;
+	protected int ignoredSessionCount = 0;
+	protected int ignoredCreateCount = 0;
+
+	public int getIgnoredSetAttCount() {
+		return ignoredSetAttCount;
+	}
+
+	public int getIgnoredUnsetAttCount() {
+		return ignoredUnsetAttCount;
+	}
+
+	public int getIgnoredAddAttCount() {
+		return ignoredAddAttCount;
+	}
+
+	public int getIgnoredRemoveAttCount() {
+		return ignoredRemoveAttCount;
+	}
+
+	public int getIgnoredMoveAttCount() {
+		return ignoredMoveAttCount;
+	}
+
+	public int getIgnoredSetRefCount() {
+		return ignoredSetRefCount;
+	}
+
+	public int getIgnoredUnsetRefCount() {
+		return ignoredUnsetRefCount;
+	}
+
+	public int getIgnoredAddRefCount() {
+		return ignoredAddRefCount;
+	}
+
+	public int getIgnoredRemoveRefCount() {
+		return ignoredRemoveRefCount;
+	}
+
+	public int getIgnoredMoveRefCount() {
+		return ignoredMoveRefCount;
+	}
+
+	public int getIgnoredDeleteCount() {
+		return ignoredDeleteCount;
+	}
+
+	public int getIgnoredAddResCount() {
+		return ignoredAddResCount;
+	}
+
+	public int getIgnoredRemoveResCount() {
+		return ignoredRemoveResCount;
+	}
+
+	public int getIgnoredPackageCount() {
+		return ignoredPackageCount;
+	}
+
+	public int getIgnoredSessionCount() {
+		return ignoredSessionCount;
+	}
+
+	public int getIgnoredCreateCount() {
+		return ignoredCreateCount;
+	}
+
 	protected Map<EObject, ObjectHistory> objectHistoryMap = new HashMap<>();
 	protected Set<Integer> ignoreSet;
 	protected List<Integer> ignoreList;
@@ -207,47 +288,62 @@ public class ModelHistory extends ObjectHistory {
 
 	private void handleAttributeSetUnsetEvents(EObject eObject, ChangeEvent<?> event, int eventNumber, Object value) {
 		EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
-		boolean x = objectHistoryMap.containsValue(eObject);
-		Map<EObject, AttributeHistory> attributeList = objectHistoryMap.get(eObject).getAttributes();
-		if (!attributeList.containsKey(eAttribute)) {
-			AttributeHistory eAttributeHistory = new AttributeHistory(eObject);
-			eAttributeHistory.addEventLine(event, eventNumber, value);
-			attributeList.put(eAttribute, eAttributeHistory);
-		} else {
-			attributeList.get(eAttribute).addEventLine(event, eventNumber, value);
-		}
-
-		// ignoring Set and Unset Attribute
-		if (event instanceof SetEAttributeEvent || event instanceof UnsetEAttributeEvent) {
-			Map<String, EventHistory> eventLinesMap = attributeList.get(eAttribute).getEventHistoryMap();
-			String setAttributeName = SetEAttributeEvent.class.getSimpleName();
-			String unsetAttributeName = UnsetEAttributeEvent.class.getSimpleName();
-			int setAttributeLastLine = -1;
-			int unsetAttributeLastLine = -1;
-
-			EventHistory setAttributeLines = null;
-			EventHistory unsetAttributeLines = null;
-
-			if (eventLinesMap.containsKey(setAttributeName)) {
-				setAttributeLines = eventLinesMap.get(setAttributeName);
-				setAttributeLastLine = setAttributeLines.get(setAttributeLines.size() - 1).getEventNumber();
-			}
-			if (eventLinesMap.containsKey(unsetAttributeName)) {
-				unsetAttributeLines = eventLinesMap.get(unsetAttributeName);
-				unsetAttributeLastLine = unsetAttributeLines.get(unsetAttributeLines.size() - 1).getEventNumber();
+		if (objectHistoryMap.get(eObject) != null) {
+			Map<EObject, AttributeHistory> attributeList = objectHistoryMap.get(eObject).getAttributes();
+			if (!attributeList.containsKey(eAttribute)) {
+				AttributeHistory eAttributeHistory = new AttributeHistory(eObject);
+				eAttributeHistory.addEventLine(event, eventNumber, value);
+				attributeList.put(eAttribute, eAttributeHistory);
+			} else {
+				attributeList.get(eAttribute).addEventLine(event, eventNumber, value);
 			}
 
-			if (unsetAttributeLastLine > setAttributeLastLine) {
-				if (setAttributeLines != null)
-					this.addLinesToIgnoreList(setAttributeLines);
-				if (unsetAttributeLines != null)
-					this.addLinesToIgnoreList(unsetAttributeLines);
-			} else if (setAttributeLastLine > unsetAttributeLastLine) {
-				if (setAttributeLines != null && setAttributeLines.size() > 1) {
-					this.addLinesToIgnoreList(setAttributeLines.subList(0, setAttributeLines.size() - 1));
+			// ignoring Set and Unset Attribute
+			if (event instanceof SetEAttributeEvent || event instanceof UnsetEAttributeEvent) {
+				Map<String, EventHistory> eventLinesMap = attributeList.get(eAttribute).getEventHistoryMap();
+				String setAttributeName = SetEAttributeEvent.class.getSimpleName();
+				String unsetAttributeName = UnsetEAttributeEvent.class.getSimpleName();
+				int setAttributeLastLine = -1;
+				int unsetAttributeLastLine = -1;
+
+				EventHistory setAttributeLines = null;
+				EventHistory unsetAttributeLines = null;
+
+				if (eventLinesMap.containsKey(setAttributeName)) {
+					setAttributeLines = eventLinesMap.get(setAttributeName);
+					setAttributeLastLine = setAttributeLines.get(setAttributeLines.size() - 1).getEventNumber();
 				}
-				if (unsetAttributeLines != null)
-					this.addLinesToIgnoreList(unsetAttributeLines);
+				if (eventLinesMap.containsKey(unsetAttributeName)) {
+					unsetAttributeLines = eventLinesMap.get(unsetAttributeName);
+					unsetAttributeLastLine = unsetAttributeLines.get(unsetAttributeLines.size() - 1).getEventNumber();
+				}
+
+				if (unsetAttributeLastLine > setAttributeLastLine) {
+					if (setAttributeLines != null) {
+						this.addLinesToIgnoreList(setAttributeLines);
+						ignoredSetAttCount += setAttributeLines.size();
+						setAttributeLines.clear();
+						eventLinesMap.remove(setAttributeName);
+					}
+					if (unsetAttributeLines != null) {
+						this.addLinesToIgnoreList(unsetAttributeLines);
+						ignoredUnsetAttCount += unsetAttributeLines.size();
+						unsetAttributeLines.clear();
+						eventLinesMap.remove(unsetAttributeName);
+					}
+				} else if (setAttributeLastLine > unsetAttributeLastLine) {
+					if (setAttributeLines != null && setAttributeLines.size() > 1) {
+						this.addLinesToIgnoreList(setAttributeLines.subList(0, setAttributeLines.size() - 1));
+						ignoredSetAttCount += setAttributeLines.subList(0, setAttributeLines.size() - 1).size();
+						setAttributeLines.removeAll(setAttributeLines.subList(0, setAttributeLines.size() - 1));
+					}
+					if (unsetAttributeLines != null) {
+						this.addLinesToIgnoreList(unsetAttributeLines);
+						ignoredUnsetAttCount += unsetAttributeLines.size();
+						unsetAttributeLines.clear();
+						eventLinesMap.remove(unsetAttributeName);
+					}
+				}
 			}
 		}
 	}
@@ -255,114 +351,153 @@ public class ModelHistory extends ObjectHistory {
 	private void handleAttributeAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, int eventNumber,
 			Object value) {
 		EAttribute eAttribute = ((EAttributeEvent) event).getEAttribute();
-		Map<EObject, AttributeHistory> attributeList = objectHistoryMap.get(eObject).getAttributes();
-		if (!attributeList.containsKey(eAttribute)) {
-			AttributeHistory eAttributeHistory = new AttributeHistory(eObject);
-			eAttributeHistory.addEventLine(event, eventNumber, value);
-			attributeList.put(eAttribute, eAttributeHistory);
-		} else {
-			attributeList.get(eAttribute).addEventLine(event, eventNumber, value);
-		}
-
-		// ignoring Add To and Remove EAttribute
-		if (value != null && (event instanceof AddToEAttributeEvent || event instanceof RemoveFromEAttributeEvent
-				|| event instanceof MoveWithinEAttributeEvent)) {
-			ObjectHistory eAttributeHistory = attributeList.get(eAttribute);
-			if (event instanceof MoveWithinEAttributeEvent) {
-				eAttributeHistory.setMoved(true);
-			}
-			Map<String, EventHistory> eventLinesMap = eAttributeHistory.getEventHistoryMap();
-			String addAttributeName = AddToEAttributeEvent.class.getSimpleName();
-			String removeAttributeName = RemoveFromEAttributeEvent.class.getSimpleName();
-			String moveAttributeName = MoveWithinEAttributeEvent.class.getSimpleName();
-
-			EventHistory addAttributeLines = null;
-			EventHistory removeAttributeLines = null;
-			EventHistory moveWithinAttributeLines = null;
-
-			if (eventLinesMap.containsKey(addAttributeName)) {
-				addAttributeLines = eventLinesMap.get(addAttributeName);
-			}
-			if (eventLinesMap.containsKey(removeAttributeName)) {
-				removeAttributeLines = eventLinesMap.get(removeAttributeName);
-			}
-			if (eventLinesMap.containsKey(moveAttributeName)) {
-				moveWithinAttributeLines = eventLinesMap.get(moveAttributeName);
+		if (objectHistoryMap.get(eObject) != null) {
+			Map<EObject, AttributeHistory> attributeList = objectHistoryMap.get(eObject).getAttributes();
+			if (!attributeList.containsKey(eAttribute)) {
+				AttributeHistory eAttributeHistory = new AttributeHistory(eObject);
+				eAttributeHistory.addEventLine(event, eventNumber, value);
+				attributeList.put(eAttribute, eAttributeHistory);
+			} else {
+				attributeList.get(eAttribute).addEventLine(event, eventNumber, value);
 			}
 
-			int delta = -1;
-			if (addAttributeLines != null && removeAttributeLines != null) {
-				if (addAttributeLines.size() > 0 && removeAttributeLines.size() > 0) {
-					delta = addAttributeLines.size() - removeAttributeLines.size();
+			// ignoring Add To and Remove EAttribute
+			if (value != null && (event instanceof AddToEAttributeEvent || event instanceof RemoveFromEAttributeEvent
+					|| event instanceof MoveWithinEAttributeEvent)) {
+				ObjectHistory eAttributeHistory = attributeList.get(eAttribute);
+				if (event instanceof MoveWithinEAttributeEvent) {
+					eAttributeHistory.setMoved(true);
 				}
-			}
+				Map<String, EventHistory> eventLinesMap = eAttributeHistory.getEventHistoryMap();
+				String addAttributeName = AddToEAttributeEvent.class.getSimpleName();
+				String removeAttributeName = RemoveFromEAttributeEvent.class.getSimpleName();
+				String moveAttributeName = MoveWithinEAttributeEvent.class.getSimpleName();
 
-			if (delta == 0) {
-				eAttributeHistory.setMoved(false);
-				if (addAttributeLines != null)
-					this.addLinesToIgnoreList(addAttributeLines);
-				if (removeAttributeLines != null)
-					this.addLinesToIgnoreList(removeAttributeLines);
-				if (moveWithinAttributeLines != null)
-					this.addLinesToIgnoreList(moveWithinAttributeLines);
-			}
-			if (delta == 1) {
-				eAttributeHistory.setMoved(false);
-				if (addAttributeLines != null) {
-					EventHistory temp = new EventHistory(event);
-					for (Line lAdd : addAttributeLines) {
-						for (Line lRem : removeAttributeLines) {
-							if (lAdd.getValue().equals(lRem.getValue())) {
-								temp.add(lAdd);
-							}
-						}
-					}
-					this.addLinesToIgnoreList(temp);
+				EventHistory addAttributeLines = null;
+				EventHistory removeAttributeLines = null;
+				EventHistory moveWithinAttributeLines = null;
+
+				if (eventLinesMap.containsKey(addAttributeName)) {
+					addAttributeLines = eventLinesMap.get(addAttributeName);
 				}
-				if (removeAttributeLines != null)
-					this.addLinesToIgnoreList(removeAttributeLines);
-				if (moveWithinAttributeLines != null)
-					this.addLinesToIgnoreList(moveWithinAttributeLines);
-			}
-			if (delta != 0 && delta != 1) {
-				if (eAttributeHistory.isMoved() == false) {
-					int addAttributeLastLine = -1;
-					int removeAttributeLastLine = -1;
-					EventHistory valueAddAttributeLines = new EventHistory(event);
-					EventHistory valueRemoveAttributeLines = new EventHistory(event);
+				if (eventLinesMap.containsKey(removeAttributeName)) {
+					removeAttributeLines = eventLinesMap.get(removeAttributeName);
+				}
+				if (eventLinesMap.containsKey(moveAttributeName)) {
+					moveWithinAttributeLines = eventLinesMap.get(moveAttributeName);
+				}
 
-					if (eventLinesMap.containsKey(addAttributeName)) {
-						for (Line line : eventLinesMap.get(addAttributeName)) {
-							if (line.getValue().equals(value)) {
-								valueAddAttributeLines.add(line);
+				int delta = -1;
+				if (addAttributeLines != null && removeAttributeLines != null) {
+					if (addAttributeLines.size() > 0 && removeAttributeLines.size() > 0) {
+						delta = addAttributeLines.size() - removeAttributeLines.size();
+					}
+				}
+
+				if (delta == 0) {
+					eAttributeHistory.setMoved(false);
+					if (addAttributeLines != null) {
+						this.addLinesToIgnoreList(addAttributeLines);
+						ignoredAddAttCount += addAttributeLines.size();
+						addAttributeLines.clear();
+						eventLinesMap.remove(addAttributeName);
+					}
+					if (removeAttributeLines != null) {
+						this.addLinesToIgnoreList(removeAttributeLines);
+						ignoredRemoveAttCount += removeAttributeLines.size();
+						removeAttributeLines.clear();
+						eventLinesMap.remove(removeAttributeName);
+					}
+					if (moveWithinAttributeLines != null) {
+						this.addLinesToIgnoreList(moveWithinAttributeLines);
+						ignoredMoveAttCount += moveWithinAttributeLines.size();
+						moveWithinAttributeLines.clear();
+						eventLinesMap.remove(moveAttributeName);
+					}
+				}
+				if (delta == 1) {
+					eAttributeHistory.setMoved(false);
+					if (addAttributeLines != null) {
+						EventHistory temp = new EventHistory(event);
+						for (Line lAdd : addAttributeLines) {
+							for (Line lRem : removeAttributeLines) {
+								if (lAdd.getValue().equals(lRem.getValue())) {
+									temp.add(lAdd);
+								}
 							}
 						}
-						if (valueAddAttributeLines.size() > 0)
-							addAttributeLastLine = valueAddAttributeLines.get(valueAddAttributeLines.size() - 1)
-									.getEventNumber();
+						this.addLinesToIgnoreList(temp);
+						ignoredAddAttCount += temp.size();
+						addAttributeLines.removeAll(temp);
 					}
-					if (eventLinesMap.containsKey(removeAttributeName)) {
-						for (Line line : eventLinesMap.get(removeAttributeName)) {
-							if (line.getValue().equals(value)) {
-								valueRemoveAttributeLines.add(line);
+					if (removeAttributeLines != null) {
+						this.addLinesToIgnoreList(removeAttributeLines);
+						ignoredRemoveAttCount += removeAttributeLines.size();
+						removeAttributeLines.clear();
+						eventLinesMap.remove(removeAttributeName);
+					}
+					if (moveWithinAttributeLines != null) {
+						this.addLinesToIgnoreList(moveWithinAttributeLines);
+						ignoredMoveAttCount += moveWithinAttributeLines.size();
+						moveWithinAttributeLines.clear();
+						eventLinesMap.remove(moveAttributeName);
+					}
+				}
+				if (delta != 0 && delta != 1) {
+					if (eAttributeHistory.isMoved() == false) {
+						int addAttributeLastLine = -1;
+						int removeAttributeLastLine = -1;
+						EventHistory valueAddAttributeLines = new EventHistory(event);
+						EventHistory valueRemoveAttributeLines = new EventHistory(event);
+
+						if (eventLinesMap.containsKey(addAttributeName)) {
+							for (Line line : eventLinesMap.get(addAttributeName)) {
+								if (line.getValue().equals(value)) {
+									valueAddAttributeLines.add(line);
+								}
+							}
+							if (valueAddAttributeLines.size() > 0)
+								addAttributeLastLine = valueAddAttributeLines.get(valueAddAttributeLines.size() - 1)
+										.getEventNumber();
+						}
+						if (eventLinesMap.containsKey(removeAttributeName)) {
+							for (Line line : eventLinesMap.get(removeAttributeName)) {
+								if (line.getValue().equals(value)) {
+									valueRemoveAttributeLines.add(line);
+								}
+							}
+							if (valueRemoveAttributeLines.size() > 0)
+								removeAttributeLastLine = valueRemoveAttributeLines
+										.get(valueRemoveAttributeLines.size() - 1).getEventNumber();
+						}
+
+						if (addAttributeLastLine > removeAttributeLastLine) {
+							if (valueAddAttributeLines != null) {
+								this.addLinesToIgnoreList(
+										valueAddAttributeLines.subList(0, valueAddAttributeLines.size() - 1));
+								ignoredAddAttCount += valueAddAttributeLines
+										.subList(0, valueAddAttributeLines.size() - 1).size();
+								eventLinesMap.get(addAttributeName).removeAll(
+										valueAddAttributeLines.subList(0, valueAddAttributeLines.size() - 1));
+							}
+							if (valueRemoveAttributeLines != null) {
+								this.addLinesToIgnoreList(valueRemoveAttributeLines);
+								ignoredRemoveAttCount += valueRemoveAttributeLines.size();
+								// this cannot be removed
+								// eventLinesMap.get(removeAttributeName).removeAll(valueRemoveAttributeLines);
+							}
+						} else if (addAttributeLastLine < removeAttributeLastLine) {
+							if (valueAddAttributeLines != null) {
+								this.addLinesToIgnoreList(valueAddAttributeLines);
+								ignoredAddAttCount += valueAddAttributeLines.size();
+								eventLinesMap.get(addAttributeName).removeAll(valueAddAttributeLines);
+							}
+							if (valueRemoveAttributeLines != null) {
+								this.addLinesToIgnoreList(valueRemoveAttributeLines);
+								ignoredRemoveAttCount += valueRemoveAttributeLines.size();
+								eventLinesMap.get(removeAttributeName).removeAll(valueRemoveAttributeLines);
 							}
 						}
-						if (valueRemoveAttributeLines.size() > 0)
-							removeAttributeLastLine = valueRemoveAttributeLines
-									.get(valueRemoveAttributeLines.size() - 1).getEventNumber();
-					}
-
-					if (addAttributeLastLine > removeAttributeLastLine) {
-						if (valueAddAttributeLines != null)
-							this.addLinesToIgnoreList(
-									valueAddAttributeLines.subList(0, valueAddAttributeLines.size() - 1));
-						if (valueRemoveAttributeLines != null)
-							this.addLinesToIgnoreList(valueRemoveAttributeLines);
-					} else if (addAttributeLastLine < removeAttributeLastLine) {
-						if (valueAddAttributeLines != null)
-							this.addLinesToIgnoreList(valueAddAttributeLines);
-						if (valueRemoveAttributeLines != null)
-							this.addLinesToIgnoreList(valueRemoveAttributeLines);
 					}
 				}
 			}
@@ -371,45 +506,62 @@ public class ModelHistory extends ObjectHistory {
 
 	private void handleReferenceSetUnsetEvents(EObject eObject, ChangeEvent<?> event, int eventNumber, EObject value) {
 		EReference eReferenceTarget = ((EReferenceEvent) event).getEReference();
-		Map<EObject, ReferenceHistory> referenceList = objectHistoryMap.get(eObject).getReferences();
-		if (!referenceList.containsKey(eReferenceTarget)) {
-			ReferenceHistory eReferenceHistory = new ReferenceHistory(eObject);
-			eReferenceHistory.addEventLine(event, eventNumber, value);
-			referenceList.put(eReferenceTarget, eReferenceHistory);
-		} else {
-			referenceList.get(eReferenceTarget).addEventLine(event, eventNumber, value);
-		}
-
-		// ignoring Set and Unset Reference
-		if (event instanceof SetEReferenceEvent || event instanceof UnsetEReferenceEvent) {
-			Map<String, EventHistory> eventLinesMap = referenceList.get(eReferenceTarget).getEventHistoryMap();
-			String seReferenceName = SetEReferenceEvent.class.getSimpleName();
-			String unsetReferenceName = UnsetEReferenceEvent.class.getSimpleName();
-			int setReferenceLastLine = -1;
-			int unsetReferenceLastLine = -1;
-
-			EventHistory setReferenceLines = null;
-			EventHistory unsetReferenceLines = null;
-
-			if (eventLinesMap.containsKey(seReferenceName)) {
-				setReferenceLines = eventLinesMap.get(seReferenceName);
-				setReferenceLastLine = setReferenceLines.get(setReferenceLines.size() - 1).getEventNumber();
-			}
-			if (eventLinesMap.containsKey(unsetReferenceName)) {
-				unsetReferenceLines = eventLinesMap.get(unsetReferenceName);
-				unsetReferenceLastLine = unsetReferenceLines.get(unsetReferenceLines.size() - 1).getEventNumber();
+		if (objectHistoryMap.get(eObject) != null) {
+			Map<EObject, ReferenceHistory> referenceList = objectHistoryMap.get(eObject).getReferences();
+			if (!referenceList.containsKey(eReferenceTarget)) {
+				ReferenceHistory eReferenceHistory = new ReferenceHistory(eObject);
+				eReferenceHistory.addEventLine(event, eventNumber, value);
+				referenceList.put(eReferenceTarget, eReferenceHistory);
+			} else {
+				referenceList.get(eReferenceTarget).addEventLine(event, eventNumber, value);
 			}
 
-			if (unsetReferenceLastLine > setReferenceLastLine) {
-				if (setReferenceLines != null)
-					this.addLinesToIgnoreList(setReferenceLines);
-				if (unsetReferenceLines != null)
-					this.addLinesToIgnoreList(unsetReferenceLines);
-			} else if (setReferenceLastLine > unsetReferenceLastLine) {
-				if (setReferenceLines != null && setReferenceLines.size() > 1)
-					this.addLinesToIgnoreList(setReferenceLines.subList(0, setReferenceLines.size() - 1));
-				if (unsetReferenceLines != null)
-					this.addLinesToIgnoreList(unsetReferenceLines);
+			// ignoring Set and Unset Reference
+			if (event instanceof SetEReferenceEvent || event instanceof UnsetEReferenceEvent) {
+				Map<String, EventHistory> eventLinesMap = referenceList.get(eReferenceTarget).getEventHistoryMap();
+				String setReferenceName = SetEReferenceEvent.class.getSimpleName();
+				String unsetReferenceName = UnsetEReferenceEvent.class.getSimpleName();
+				int setReferenceLastLine = -1;
+				int unsetReferenceLastLine = -1;
+
+				EventHistory setReferenceLines = null;
+				EventHistory unsetReferenceLines = null;
+
+				if (eventLinesMap.containsKey(setReferenceName)) {
+					setReferenceLines = eventLinesMap.get(setReferenceName);
+					setReferenceLastLine = setReferenceLines.get(setReferenceLines.size() - 1).getEventNumber();
+				}
+				if (eventLinesMap.containsKey(unsetReferenceName)) {
+					unsetReferenceLines = eventLinesMap.get(unsetReferenceName);
+					unsetReferenceLastLine = unsetReferenceLines.get(unsetReferenceLines.size() - 1).getEventNumber();
+				}
+
+				if (unsetReferenceLastLine > setReferenceLastLine) {
+					if (setReferenceLines != null) {
+						this.addLinesToIgnoreList(setReferenceLines);
+						ignoredAddRefCount += setReferenceLines.size();
+						setReferenceLines.clear();
+						eventLinesMap.remove(setReferenceName);
+					}
+					if (unsetReferenceLines != null) {
+						this.addLinesToIgnoreList(unsetReferenceLines);
+						ignoredUnsetRefCount += unsetReferenceLines.size();
+						unsetReferenceLines.clear();
+						eventLinesMap.remove(unsetReferenceName);
+					}
+				} else if (setReferenceLastLine > unsetReferenceLastLine) {
+					if (setReferenceLines != null && setReferenceLines.size() > 1) {
+						this.addLinesToIgnoreList(setReferenceLines.subList(0, setReferenceLines.size() - 1));
+						ignoredSetRefCount += setReferenceLines.subList(0, setReferenceLines.size() - 1).size();
+						setReferenceLines.removeAll(setReferenceLines.subList(0, setReferenceLines.size() - 1));
+					}
+					if (unsetReferenceLines != null) {
+						this.addLinesToIgnoreList(unsetReferenceLines);
+						ignoredUnsetRefCount += unsetReferenceLines.size();
+						unsetReferenceLines.clear();
+						eventLinesMap.remove(unsetReferenceName);
+					}
+				}
 			}
 		}
 	}
@@ -417,247 +569,362 @@ public class ModelHistory extends ObjectHistory {
 	private void handleReferenceAddRemoveMoveEvents(EObject eObject, ChangeEvent<?> event, int eventNumber,
 			EObject value) {
 		EReference eReferenceTarget = ((EReferenceEvent) event).getEReference();
-		Map<EObject, ReferenceHistory> referenceList = objectHistoryMap.get(eObject).getReferences();
-		if (!referenceList.containsKey(eReferenceTarget)) {
-			ReferenceHistory eReferenceHistory = new ReferenceHistory(eObject);
-			eReferenceHistory.addEventLine(event, eventNumber, value);
-			referenceList.put(eReferenceTarget, eReferenceHistory);
-		} else {
-			referenceList.get(eReferenceTarget).addEventLine(event, eventNumber, value);
-		}
-
-		// ignoring Add To and Remove From Reference
-		if (value != null && (event instanceof AddToEReferenceEvent || event instanceof RemoveFromEReferenceEvent
-				|| event instanceof MoveWithinEReferenceEvent)) {
-
-			// also add these AddTo/RemoveFromReference events to the value
-			// object (not only the target
-			// object)
-			if (!objectHistoryMap.containsKey(value)) {
-				ObjectHistory eReferenceObjectHistory = new ObjectHistory(value);
-				eReferenceObjectHistory.addEventLine(event, eventNumber);
-				objectHistoryMap.put(eReferenceTarget, eReferenceObjectHistory);
+		if (objectHistoryMap.get(eObject) != null) {
+			Map<EObject, ReferenceHistory> referenceList = objectHistoryMap.get(eObject).getReferences();
+			if (!referenceList.containsKey(eReferenceTarget)) {
+				ReferenceHistory eReferenceHistory = new ReferenceHistory(eObject);
+				eReferenceHistory.addEventLine(event, eventNumber, value);
+				referenceList.put(eReferenceTarget, eReferenceHistory);
 			} else {
-				objectHistoryMap.get(value).addEventLine(event, eventNumber);
+				referenceList.get(eReferenceTarget).addEventLine(event, eventNumber, value);
 			}
 
-			ObjectHistory eReferenceHistory = referenceList.get(eReferenceTarget);
-			ObjectHistory valueHistory = objectHistoryMap.get(value);
-			if (event instanceof MoveWithinEReferenceEvent) {
-				eReferenceHistory.setMoved(true);
-				EventHistory lines = eReferenceHistory.getEventHistoryMap()
-						.get(AddToEReferenceEvent.class.getSimpleName());
-				Set<EObject> eObjectList = new HashSet<>();
-				for (Line line : lines) {
-					eObjectList.add((EObject) line.getValue());
-				}
-				for (EObject item : eObjectList) {
-					objectHistoryMap.get(item).setMoved(true);
-				}
-			}
+			// ignoring Add To and Remove From Reference
+			if (value != null && (event instanceof AddToEReferenceEvent || event instanceof RemoveFromEReferenceEvent
+					|| event instanceof MoveWithinEReferenceEvent)) {
 
-			Map<String, EventHistory> targetEventLinesMap = referenceList.get(eReferenceTarget).getEventHistoryMap();
-			String addReferenceName = AddToEReferenceEvent.class.getSimpleName();
-			String removeReferenceName = RemoveFromEReferenceEvent.class.getSimpleName();
-			String moveWithinReferenceName = MoveWithinEReferenceEvent.class.getSimpleName();
-
-			EventHistory addReferenceLines = null;
-			EventHistory removeReferenceLines = null;
-			EventHistory moveWithinReferenceLines = null;
-
-			// TARGET OBJECT
-			if (targetEventLinesMap.containsKey(addReferenceName)) {
-				addReferenceLines = targetEventLinesMap.get(addReferenceName);
-			}
-			if (targetEventLinesMap.containsKey(removeReferenceName)) {
-				removeReferenceLines = targetEventLinesMap.get(removeReferenceName);
-			}
-			if (targetEventLinesMap.containsKey(moveWithinReferenceName)) {
-				moveWithinReferenceLines = targetEventLinesMap.get(moveWithinReferenceName);
-			}
-
-			int delta = -1;
-			if (addReferenceLines != null && removeReferenceLines != null) {
-				if (addReferenceLines.size() > 0 && removeReferenceLines.size() > 0) {
-					delta = addReferenceLines.size() - removeReferenceLines.size();
-				}
-			}
-
-			if (delta == 0) {
-
-				eReferenceHistory.setMoved(false);
-				EventHistory lines = eReferenceHistory.getEventHistoryMap()
-						.get(AddToEReferenceEvent.class.getSimpleName());
-				Set<EObject> eObjectList = new HashSet<>();
-				for (Line line : lines) {
-					eObjectList.add((EObject) line.getValue());
-				}
-				for (EObject item : eObjectList) {
-					objectHistoryMap.get(item).setMoved(false);
+				// also add these AddTo/RemoveFromReference events to the value
+				// object (not only the target
+				// object)
+				if (!objectHistoryMap.containsKey(value)) {
+					ObjectHistory eReferenceObjectHistory = new ObjectHistory(value);
+					eReferenceObjectHistory.addEventLine(event, eventNumber);
+					objectHistoryMap.put(eReferenceTarget, eReferenceObjectHistory);
+				} else {
+					objectHistoryMap.get(value).addEventLine(event, eventNumber);
 				}
 
-				if (addReferenceLines != null)
-					this.addLinesToIgnoreList(addReferenceLines);
-				if (removeReferenceLines != null)
-					this.addLinesToIgnoreList(removeReferenceLines);
-				if (moveWithinReferenceLines != null)
-					this.addLinesToIgnoreList(moveWithinReferenceLines);
-
-			} 
-//			else if (delta == 1) {
-//				eReferenceHistory.setMoved(false);
-//
-//				EventHistory lines = eReferenceHistory.getEventHistoryMap()
-//						.get(AddToEReferenceEvent.class.getSimpleName());
-//				Set<EObject> eObjectList = new HashSet<>();
-//				for (Line line : lines) {
-//					eObjectList.add((EObject) line.getValue());
-//				}
-//				for (EObject item : eObjectList) {
-//					objectHistoryMap.get(item).setMoved(false);
-//				}
-//
-//				if (addReferenceLines != null) {
-//					EventHistory temp = new EventHistory(event);
-//					
-//					
-//					
-//					
-//					for (Line lAdd : addReferenceLines) {
-//						for (Line lRem : removeReferenceLines) {
-//							if (lAdd.getValue().equals(lRem.getValue())) {
-//								temp.add(lAdd);
-//							}
-//						}
-//					}
-//					this.addLinesToIgnoreList(temp);
-//					if (ignoreSet.contains(100)){
-//						System.out.println();
-//					}
-//				}
-//				if (removeReferenceLines != null)
-//					this.addLinesToIgnoreList(removeReferenceLines);
-//				if (moveWithinReferenceLines != null)
-//					this.addLinesToIgnoreList(moveWithinReferenceLines);
-//			}
-
-			else if (delta != 0/* && delta != 1*/) {
-				if (valueHistory.isMoved() == false) {
-					int addReferenceLastLine = -1;
-					int removeReferenceLastLine = -1;
-					int addResourceLastLine = -1;
-					int removeResourceLastLine = -1;
-
-					Map<String, EventHistory> valueEventLinesMap = objectHistoryMap.get(value).getEventHistoryMap();
-
-					String addResourceName = AddToResourceEvent.class.getSimpleName();
-					String removeResourceName = RemoveFromResourceEvent.class.getSimpleName();
-
-					EventHistory addResourceLines = null;
-					EventHistory removeResourceLines = null;
-					moveWithinReferenceLines = null;
-					addReferenceLines = null;
-					removeReferenceLines = null;
-
-					if (valueEventLinesMap.containsKey(addReferenceName)) {
-						addReferenceLines = valueEventLinesMap.get(addReferenceName);
-						addReferenceLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getEventNumber();
+				ObjectHistory eReferenceHistory = referenceList.get(eReferenceTarget);
+				ObjectHistory valueHistory = objectHistoryMap.get(value);
+				if (event instanceof MoveWithinEReferenceEvent) {
+					eReferenceHistory.setMoved(true);
+					EventHistory lines = eReferenceHistory.getEventHistoryMap()
+							.get(AddToEReferenceEvent.class.getSimpleName());
+					Set<EObject> eObjectList = new HashSet<>();
+					for (Line line : lines) {
+						eObjectList.add((EObject) line.getValue());
 					}
-					if (valueEventLinesMap.containsKey(removeReferenceName)) {
-						removeReferenceLines = valueEventLinesMap.get(removeReferenceName);
-						removeReferenceLastLine = removeReferenceLines.get(removeReferenceLines.size() - 1)
-								.getEventNumber();
+					for (EObject item : eObjectList) {
+						ObjectHistory temp = objectHistoryMap.get(item);
+						if (temp != null) {
+							objectHistoryMap.get(item).setMoved(true);
+						}
 					}
-					if (valueEventLinesMap.containsKey(addResourceName)) {
-						addResourceLines = valueEventLinesMap.get(addResourceName);
-						addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getEventNumber();
+				}
+
+				Map<String, EventHistory> targetEventLinesMap = referenceList.get(eReferenceTarget)
+						.getEventHistoryMap();
+				String addReferenceName = AddToEReferenceEvent.class.getSimpleName();
+				String removeReferenceName = RemoveFromEReferenceEvent.class.getSimpleName();
+				String moveWithinReferenceName = MoveWithinEReferenceEvent.class.getSimpleName();
+
+				EventHistory addReferenceLines = null;
+				EventHistory removeReferenceLines = null;
+				EventHistory moveWithinReferenceLines = null;
+
+				// TARGET OBJECT
+				if (targetEventLinesMap.containsKey(addReferenceName)) {
+					addReferenceLines = targetEventLinesMap.get(addReferenceName);
+				}
+				if (targetEventLinesMap.containsKey(removeReferenceName)) {
+					removeReferenceLines = targetEventLinesMap.get(removeReferenceName);
+				}
+				if (targetEventLinesMap.containsKey(moveWithinReferenceName)) {
+					moveWithinReferenceLines = targetEventLinesMap.get(moveWithinReferenceName);
+				}
+
+				int delta = -1;
+				if (addReferenceLines != null && removeReferenceLines != null) {
+					if (addReferenceLines.size() > 0 && removeReferenceLines.size() > 0) {
+						delta = addReferenceLines.size() - removeReferenceLines.size();
 					}
-					if (valueEventLinesMap.containsKey(removeResourceName)) {
-						removeResourceLines = valueEventLinesMap.get(removeResourceName);
-						removeResourceLastLine = removeResourceLines.get(removeResourceLines.size() - 1)
-								.getEventNumber();
-					}
-					if (valueEventLinesMap.containsKey(moveWithinReferenceName)) {
-						moveWithinReferenceLines = valueEventLinesMap.get(moveWithinReferenceName);
+				}
+
+				if (delta == 0) {
+
+					eReferenceHistory.setMoved(false);
+					EventHistory lines = eReferenceHistory.getEventHistoryMap()
+							.get(AddToEReferenceEvent.class.getSimpleName());
+					Set<EObject> eObjectList = new HashSet<>();
+					for (Line line : lines) {
+						eObjectList.add((EObject) line.getValue());
 					}
 
-					if (removeReferenceLastLine > addReferenceLastLine) {
-						if (addReferenceLines != null && eReferenceTarget.isContainment() == true){			
-							this.addLinesToIgnoreList(addReferenceLines);
-						}if (removeReferenceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(removeReferenceLines);
-						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(addResourceLines);
-						if (removeResourceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(removeResourceLines);
-						if (moveWithinReferenceLines != null)
-							this.addLinesToIgnoreList(moveWithinReferenceLines);
-					} else if (addReferenceLastLine > removeReferenceLastLine) {
-						if (addReferenceLines != null && addReferenceLines.size() > 1
-								&& eReferenceTarget.isContainment() == true){
-							this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1));
-						}	
-						if (removeReferenceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(removeReferenceLines);
-						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(addResourceLines);
-						if (removeResourceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(removeResourceLines);
-					} else if (removeResourceLastLine > addResourceLastLine) {
-						if (addResourceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(addResourceLines);
-						if (removeResourceLines != null && eReferenceTarget.isContainment() == true)
-							this.addLinesToIgnoreList(removeResourceLines);
+					for (EObject item : eObjectList) {
+						ObjectHistory temp = objectHistoryMap.get(item);
+						if (temp != null) {
+							temp.setMoved(false);
+						}
+					}
+
+					if (addReferenceLines != null) {
+						this.addLinesToIgnoreList(addReferenceLines);
+						ignoredAddRefCount += addReferenceLines.size();
+						addReferenceLines.clear();
+						targetEventLinesMap.remove(addReferenceName);
+					}
+					if (removeReferenceLines != null) {
+						this.addLinesToIgnoreList(removeReferenceLines);
+						ignoredRemoveRefCount += removeReferenceLines.size();
+						removeReferenceLines.clear();
+						targetEventLinesMap.remove(removeReferenceName);
+					}
+					if (moveWithinReferenceLines != null) {
+						this.addLinesToIgnoreList(moveWithinReferenceLines);
+						ignoredMoveRefCount += moveWithinReferenceLines.size();
+						targetEventLinesMap.remove(moveWithinReferenceName);
+					}
+
+				}
+				// else if (delta == 1) {
+				// eReferenceHistory.setMoved(false);
+				//
+				// EventHistory lines = eReferenceHistory.getEventHistoryMap()
+				// .get(AddToEReferenceEvent.class.getSimpleName());
+				// Set<EObject> eObjectList = new HashSet<>();
+				// for (Line line : lines) {
+				// eObjectList.add((EObject) line.getValue());
+				// }
+				// for (EObject item : eObjectList) {
+				// objectHistoryMap.get(item).setMoved(false);
+				// }
+				//
+				// if (addReferenceLines != null) {
+				// EventHistory temp = new EventHistory(event);
+				//
+				//
+				//
+				//
+				// for (Line lAdd : addReferenceLines) {
+				// for (Line lRem : removeReferenceLines) {
+				// if (lAdd.getValue().equals(lRem.getValue())) {
+				// temp.add(lAdd);
+				// }
+				// }
+				// }
+				// this.addLinesToIgnoreList(temp);
+				// if (ignoreSet.contains(100)){
+				// System.out.println();
+				// }
+				// }
+				// if (removeReferenceLines != null)
+				// this.addLinesToIgnoreList(removeReferenceLines);
+				// if (moveWithinReferenceLines != null)
+				// this.addLinesToIgnoreList(moveWithinReferenceLines);
+				// }
+
+				else if (delta != 0/* && delta != 1 */) {
+					if (valueHistory != null && valueHistory.isMoved() == false) {
+						int addReferenceLastLine = -1;
+						int removeReferenceLastLine = -1;
+						int addResourceLastLine = -1;
+						int removeResourceLastLine = -1;
+
+						Map<String, EventHistory> valueEventLinesMap = objectHistoryMap.get(value).getEventHistoryMap();
+
+						String addResourceName = AddToResourceEvent.class.getSimpleName();
+						String removeResourceName = RemoveFromResourceEvent.class.getSimpleName();
+
+						EventHistory addResourceLines = null;
+						EventHistory removeResourceLines = null;
+						moveWithinReferenceLines = null;
+						addReferenceLines = null;
+						removeReferenceLines = null;
+
+						if (valueEventLinesMap.containsKey(addReferenceName)) {
+							addReferenceLines = valueEventLinesMap.get(addReferenceName);
+							addReferenceLastLine = addReferenceLines.get(addReferenceLines.size() - 1).getEventNumber();
+						}
+						if (valueEventLinesMap.containsKey(removeReferenceName)) {
+							removeReferenceLines = valueEventLinesMap.get(removeReferenceName);
+							if (removeReferenceLines != null && removeReferenceLines.size() > 0)
+								removeReferenceLastLine = removeReferenceLines.get(removeReferenceLines.size() - 1)
+										.getEventNumber();
+						}
+						if (valueEventLinesMap.containsKey(addResourceName)) {
+							addResourceLines = valueEventLinesMap.get(addResourceName);
+							addResourceLastLine = addResourceLines.get(addResourceLines.size() - 1).getEventNumber();
+						}
+						if (valueEventLinesMap.containsKey(removeResourceName)) {
+							removeResourceLines = valueEventLinesMap.get(removeResourceName);
+							removeResourceLastLine = removeResourceLines.get(removeResourceLines.size() - 1)
+									.getEventNumber();
+						}
+						if (valueEventLinesMap.containsKey(moveWithinReferenceName)) {
+							moveWithinReferenceLines = valueEventLinesMap.get(moveWithinReferenceName);
+						}
+
+						if (removeReferenceLastLine > addReferenceLastLine) {
+							if (addReferenceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(addReferenceLines);
+								ignoredAddRefCount += addReferenceLines.size();
+								addReferenceLines.clear();
+								valueEventLinesMap.remove(addReferenceName);
+							}
+							if (removeReferenceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(removeReferenceLines);
+								// this cannot be deleted can cause error
+								// removeReferenceLines.clear();
+								// valueEventLinesMap.remove(removeReferenceLines);
+							}
+							if (addResourceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(addResourceLines);
+								ignoredAddResCount += addResourceLines.size();
+								addResourceLines.clear();
+								valueEventLinesMap.remove(addResourceName);
+							}
+							if (removeResourceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(removeResourceLines);
+								ignoredRemoveResCount += removeResourceLines.size();
+								removeResourceLines.clear();
+								valueEventLinesMap.remove(removeResourceName);
+							}
+							if (moveWithinReferenceLines != null) {
+								this.addLinesToIgnoreList(moveWithinReferenceLines);
+								ignoredRemoveRefCount += moveWithinReferenceLines.size();
+								moveWithinReferenceLines.clear();
+								valueEventLinesMap.remove(moveWithinReferenceName);
+							}
+						} else if (addReferenceLastLine > removeReferenceLastLine) {
+							if (addReferenceLines != null && addReferenceLines.size() > 1
+									&& eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(addReferenceLines.subList(0, addReferenceLines.size() - 1));
+								ignoredAddRefCount += addReferenceLines.subList(0, addReferenceLines.size() - 1).size();
+								addReferenceLines.removeAll(addReferenceLines.subList(0, addReferenceLines.size() - 1));
+							}
+							if (removeReferenceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(removeReferenceLines);
+								ignoredRemoveRefCount += removeReferenceLines.size();
+								removeReferenceLines.clear();
+								valueEventLinesMap.remove(removeReferenceLines);
+							}
+							if (addResourceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(addResourceLines);
+								ignoredAddResCount += addResourceLines.size();
+								addResourceLines.clear();
+								valueEventLinesMap.remove(addResourceName);
+							}
+							if (removeResourceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(removeResourceLines);
+								ignoredRemoveResCount += removeResourceLines.size();
+								removeResourceLines.clear();
+								valueEventLinesMap.remove(removeResourceName);
+							}
+						} else if (removeResourceLastLine > addResourceLastLine) {
+							if (addResourceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(addResourceLines);
+								ignoredAddResCount += addResourceLines.size();
+								addResourceLines.clear();
+								valueEventLinesMap.remove(addResourceName);
+							}
+							if (removeResourceLines != null && eReferenceTarget.isContainment() == true) {
+								this.addLinesToIgnoreList(removeResourceLines);
+								ignoredRemoveResCount += removeResourceLines.size();
+								removeResourceLines.clear();
+								valueEventLinesMap.remove(removeResourceName);
+							}
+						}
 					}
 				}
 			}
-			// ---------------------------------------------
-
 		}
 	}
 
 	private void handleEObjectDeletion(EObject eObject, ChangeEvent<?> event, int eventNumber) {
 
 		ObjectHistory eObjectHistory = objectHistoryMap.get(eObject);
-		eObjectHistory.addEventLine(event, eventNumber);
-		if (eObjectHistory.isMoved() == false) {
-			ObjectHistory deletedEObjectHistory = objectHistoryMap.get(eObject);
+		if (eObjectHistory != null) {
+			eObjectHistory.addEventLine(event, eventNumber);
+			if (eObjectHistory.isMoved() == false) {
+				ObjectHistory deletedEObjectHistory = objectHistoryMap.get(eObject);
 
-			// get all current object's references' lines
-			Map<EObject, ReferenceHistory> references = deletedEObjectHistory.getReferences();
-			for (Entry<EObject, ReferenceHistory> referenceEntry : references.entrySet()) {
-				ReferenceHistory referenceHistory = referenceEntry.getValue();
+				// get all current object's references' lines
+				Map<EObject, ReferenceHistory> references = deletedEObjectHistory.getReferences();
+				for (Entry<EObject, ReferenceHistory> referenceEntry : references.entrySet()) {
+					ReferenceHistory referenceHistory = referenceEntry.getValue();
+					for (Entry<String, EventHistory> entry : referenceHistory.getEventHistoryMap().entrySet()) {
+						EventHistory lines = entry.getValue();
+						this.addLinesToIgnoreList(lines);
 
-				for (Entry<String, EventHistory> eventLines : referenceHistory.getEventHistoryMap().entrySet()) {
-					EventHistory lines = eventLines.getValue();
+						if (entry.getKey().equals(SetEReferenceEvent.class.getSimpleName())) {
+							ignoredSetRefCount += entry.getValue().size();
+						} else if (entry.getKey().equals(UnsetEReferenceEvent.class.getSimpleName())) {
+							ignoredUnsetRefCount += entry.getValue().size();
+						} else if (entry.getKey().equals(AddToEReferenceEvent.class.getSimpleName())) {
+							ignoredAddRefCount += entry.getValue().size();
+						} else if (entry.getKey().equals(RemoveFromEReferenceEvent.class.getSimpleName())) {
+							ignoredRemoveRefCount += entry.getValue().size();
+						} else if (entry.getKey().equals(MoveWithinEReferenceEvent.class.getSimpleName())) {
+							ignoredMoveRefCount += entry.getValue().size();
+						}
 
-					this.addLinesToIgnoreList(lines);
+						entry.getValue().clear();
+					}
+					referenceHistory.getEventHistoryMap().clear();
 				}
-			}
+				references.clear();
 
-			// get all current object's attributes' lines
-			Map<EObject, AttributeHistory> attributes = deletedEObjectHistory.getAttributes();
-			for (Entry<EObject, AttributeHistory> attributeEntry : attributes.entrySet()) {
-				AttributeHistory attributeHistory = attributeEntry.getValue();
-				for (Entry<String, EventHistory> eventLines : attributeHistory.getEventHistoryMap().entrySet()) {
-					EventHistory lines = eventLines.getValue();
-					this.addLinesToIgnoreList(lines);
-				}
-			}
+				// get all current object's attributes' lines
+				Map<EObject, AttributeHistory> attributes = deletedEObjectHistory.getAttributes();
+				for (Entry<EObject, AttributeHistory> attributeEntry : attributes.entrySet()) {
+					AttributeHistory attributeHistory = attributeEntry.getValue();
+					for (Entry<String, EventHistory> entry : attributeHistory.getEventHistoryMap().entrySet()) {
+						EventHistory lines = entry.getValue();
+						this.addLinesToIgnoreList(lines);
 
-			// get all current object's lines
-			for (Entry<String, EventHistory> eventLines : deletedEObjectHistory.getEventHistoryMap().entrySet()) {
-				String key = eventLines.getKey();
-				if (key.equals(RemoveFromResourceEvent.class.getSimpleName())
-						|| key.equals(AddToResourceEvent.class.getSimpleName())
-						|| key.equals(AddToEReferenceEvent.class.getSimpleName())
-						|| key.equals(RemoveFromEReferenceEvent.class.getSimpleName())
-						|| key.equals(MoveWithinEReferenceEvent.class.getSimpleName())
-						|| key.equals(DeleteEObjectEvent.class.getSimpleName())
-						|| key.equals(CreateEObjectEvent.class.getSimpleName())) {
-					EventHistory lines = eventLines.getValue();
-					this.addLinesToIgnoreList(lines);
+						if (entry.getKey().equals(SetEAttributeEvent.class.getSimpleName())) {
+							ignoredSetAttCount += entry.getValue().size();
+						} else if (entry.getKey().equals(UnsetEAttributeEvent.class.getSimpleName())) {
+							ignoredUnsetAttCount += entry.getValue().size();
+						} else if (entry.getKey().equals(AddToEAttributeEvent.class.getSimpleName())) {
+							ignoredAddAttCount += entry.getValue().size();
+						} else if (entry.getKey().equals(RemoveFromEAttributeEvent.class.getSimpleName())) {
+							ignoredRemoveAttCount += entry.getValue().size();
+						} else if (entry.getKey().equals(MoveWithinEAttributeEvent.class.getSimpleName())) {
+							ignoredMoveAttCount += entry.getValue().size();
+						}
+
+						entry.getValue().clear();
+					}
+					attributeHistory.getEventHistoryMap().clear();
 				}
+				attributes.clear();
+
+				// get all current object's lines
+				for (Entry<String, EventHistory> entry : deletedEObjectHistory.getEventHistoryMap().entrySet()) {
+					String key = entry.getKey();
+					if (key.equals(RemoveFromResourceEvent.class.getSimpleName())
+							|| key.equals(AddToResourceEvent.class.getSimpleName())
+							|| key.equals(AddToEReferenceEvent.class.getSimpleName())
+							|| key.equals(RemoveFromEReferenceEvent.class.getSimpleName())
+							|| key.equals(MoveWithinEReferenceEvent.class.getSimpleName())
+							|| key.equals(DeleteEObjectEvent.class.getSimpleName())
+							|| key.equals(CreateEObjectEvent.class.getSimpleName())) {
+						EventHistory lines = entry.getValue();
+
+						if (entry.getKey().equals(DeleteEObjectEvent.class.getSimpleName())) {
+							ignoredDeleteCount += entry.getValue().size();
+						} else if (entry.getKey().equals(CreateEObjectEvent.class.getSimpleName())) {
+							ignoredCreateCount += entry.getValue().size();
+						} else if (entry.getKey().equals(RemoveFromResourceEvent.class.getSimpleName())) {
+							ignoredRemoveResCount += entry.getValue().size();
+						} else if (entry.getKey().equals(AddToResourceEvent.class.getSimpleName())) {
+							ignoredAddResCount += entry.getValue().size();
+						} else if (entry.getKey().equals(AddToEReferenceEvent.class.getSimpleName())) {
+							ignoredAddRefCount += entry.getValue().size();
+						} else if (entry.getKey().equals(RemoveFromEReferenceEvent.class.getSimpleName())) {
+							ignoredRemoveRefCount += entry.getValue().size();
+						} else if (entry.getKey().equals(MoveWithinEReferenceEvent.class.getSimpleName())) {
+							ignoredMoveRefCount += entry.getValue().size();
+						}
+
+						this.addLinesToIgnoreList(lines);
+					}
+				}
+				deletedEObjectHistory.getEventHistoryMap().clear();
+
+				this.geteObjectHistoryMap().remove(eObject);
+				ignoredDeleteCount += 1;
 			}
 		}
 	}
@@ -683,7 +950,8 @@ public class ModelHistory extends ObjectHistory {
 	}
 
 	public void printStructure() {
-		int x = 1;
+		System.out.println("MODEL HISTORY");
+		System.out.println(this.getEObject());
 		for (Entry<EObject, ObjectHistory> entry1 : this.geteObjectHistoryMap().entrySet()) {
 			EObject eObject = entry1.getKey();
 			ObjectHistory eObjectEventLineHistory = entry1.getValue();

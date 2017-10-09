@@ -103,7 +103,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
 			//// alfa
-			int eventNumber = 0;
+			int eventNumber = persistedEvents;
 
 			// Ignore the first #eventsAfterMostRecentLoad events
 			for (ChangeEvent<?> event : getChangeEvents().subList(persistedEvents, getChangeEvents().size())) {
@@ -119,40 +119,75 @@ public class CBPXMLResourceImpl extends CBPResource {
 					RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
 					e = document.createElement("register");
 					e.setAttribute("epackage", r.getEPackage().getNsURI());
+					modelHistory.addObjectHistoryLine(r.getEPackage(), event, eventNumber);
 				} else if (event instanceof CreateEObjectEvent) {
 					e = document.createElement("create");
 					e.setAttribute("epackage", ((CreateEObjectEvent) event).getEClass().getEPackage().getNsURI());
 					e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
 					e.setAttribute("id", ((CreateEObjectEvent) event).getId());
+					EObject eObject = ((CreateEObjectEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof DeleteEObjectEvent) {
 					e = document.createElement("delete");
 					e.setAttribute("epackage", ((DeleteEObjectEvent) event).getEClass().getEPackage().getNsURI());
 					e.setAttribute("eclass", ((DeleteEObjectEvent) event).getEClass().getName());
 					e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
+					EObject eObject = ((DeleteEObjectEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof AddToResourceEvent) {
 					e = document.createElement("add-to-resource");
+					EObject eObject = ((AddToResourceEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof RemoveFromResourceEvent) {
 					e = document.createElement("remove-from-resource");
+					EObject eObject = ((RemoveFromResourceEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof AddToEReferenceEvent) {
 					e = document.createElement("add-to-ereference");
+					EObject eObject = ((AddToEReferenceEvent) event).getTarget();
+					EObject value = ((AddToEReferenceEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 				} else if (event instanceof RemoveFromEReferenceEvent) {
 					e = document.createElement("remove-from-ereference");
+					EObject eObject = ((RemoveFromEReferenceEvent) event).getTarget();
+					EObject value = ((RemoveFromEReferenceEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 				} else if (event instanceof SetEAttributeEvent) {
 					e = document.createElement("set-eattribute");
+					EObject eObject = ((SetEAttributeEvent) event).getTarget();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof SetEReferenceEvent) {
 					e = document.createElement("set-ereference");
+					EObject eObject = ((SetEReferenceEvent) event).getTarget();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof UnsetEReferenceEvent) {
 					e = document.createElement("unset-ereference");
+					EObject eObject = ((UnsetEReferenceEvent) event).getTarget();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof UnsetEAttributeEvent) {
 					e = document.createElement("unset-eattribute");
+					EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 				} else if (event instanceof AddToEAttributeEvent) {
 					e = document.createElement("add-to-eattribute");
+					EObject eObject = ((AddToEAttributeEvent) event).getTarget();
+					Object value = ((AddToEAttributeEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 				} else if (event instanceof RemoveFromEAttributeEvent) {
 					e = document.createElement("remove-from-eattribute");
+					EObject eObject = ((RemoveFromEAttributeEvent) event).getTarget();
+					Object value = ((RemoveFromEAttributeEvent) event).getValue();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 				} else if (event instanceof MoveWithinEReferenceEvent) {
 					e = document.createElement("move-in-ereference");
+					EObject eObject = ((MoveWithinEReferenceEvent) event).getTarget();
+					Object values = ((MoveWithinEReferenceEvent) event).getValues();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber, values);
 				} else if (event instanceof MoveWithinEAttributeEvent) {
 					e = document.createElement("move-in-eattribute");
+					EObject eObject = ((MoveWithinEAttributeEvent) event).getTarget();
+					Object values = ((MoveWithinEAttributeEvent) event).getValues();
+					modelHistory.addObjectHistoryLine(eObject, event, eventNumber, values);
 				} else {
 					throw new RuntimeException("Unexpected event:" + event);
 				}
@@ -192,6 +227,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 				StreamResult result = new StreamResult(out);
 				transformer.transform(source, result);
 				out.write(System.getProperty("line.separator").getBytes());
+
+				eventNumber += 1;
 			}
 			documentBuilder.reset();
 			persistedEvents = getChangeEvents().size();
@@ -205,6 +242,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 	@Override
 	public void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+		// changeEventAdapter.setEnabled(true);
 		changeEventAdapter.setEnabled(false);
 		eObjectToIdMap.clear();
 		getChangeEvents().clear();
@@ -239,9 +277,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 					}
 
 					if (!name.equals("value")) {
-						if (ignoreSet.contains(eventNumber) && optimised == true) {
-							ignore = true;
-							// ignoreList.remove(eventNumber);
+						if (optimised == true) {
+							if (ignoreSet.remove(eventNumber)) {
+								ignore = true;
+								// if (ignoreSet.size() > 0)
+								// ignoreSet.remove(o);
+							}
 						}
 
 						if (ignore == false) {
@@ -261,7 +302,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
 								String className = e.getAttributeByName(new QName("eclass")).getValue();
 								String id = e.getAttributeByName(new QName("id")).getValue();
-								errorMessage = errorMessage + ", package: " + packageName + ", class: " + className + ", id: " + id;
+								errorMessage = errorMessage + ", package: " + packageName + ", class: " + className
+										+ ", id: " + id;
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								EClass eClass = (EClass) ePackage.getEClassifier(className);
 								event = new CreateEObjectEvent(eClass, this, id);
@@ -307,7 +349,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
 								String className = e.getAttributeByName(new QName("eclass")).getValue();
 								String id = e.getAttributeByName(new QName("id")).getValue();
-								errorMessage = errorMessage + ", package: " + packageName + ", class: " + className + ", id: " + id;
+								errorMessage = errorMessage + ", package: " + packageName + ", class: " + className
+										+ ", id: " + id;
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								EClass eClass = (EClass) ePackage.getEClassifier(className);
 								event = new DeleteEObjectEvent(eClass, this, id);
@@ -372,6 +415,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 							getChangeEvents().add(event);
 							errorMessage = "";
 						} else {
+							// if (ignore == true && ignoreList.size() > 0){
+							// ignoreList.remove(eventNumber);
+							// }
 							ignore = false;
 						}
 						eventNumber += 1;

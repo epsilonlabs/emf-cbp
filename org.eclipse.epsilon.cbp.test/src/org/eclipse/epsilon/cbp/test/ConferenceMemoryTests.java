@@ -3,12 +3,9 @@ package org.eclipse.epsilon.cbp.test;
 import static org.junit.Assert.assertEquals;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.cbp.test.conference.ConferencePackage;
@@ -19,7 +16,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class ConferencePerformanceTests extends LoadingPerformanceTests {
+public class ConferenceMemoryTests extends MemoryPerformanceTests {
 
 	@Parameters
 	public static Collection<Object[]> data() {
@@ -27,7 +24,7 @@ public class ConferencePerformanceTests extends LoadingPerformanceTests {
 
 	}
 
-	public ConferencePerformanceTests(String extension) {
+	public ConferenceMemoryTests(String extension) {
 		super(extension);
 	}
 
@@ -36,24 +33,22 @@ public class ConferencePerformanceTests extends LoadingPerformanceTests {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// dd/MM/yyyy
 		appendLineToOutputText("Start: " + sdf.format(new Date()) + "\n");
 
-		List<String> codeList = new ArrayList<>();
-		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP"
-				+ "\tTAtSU\tTReSU\tTAtARM\tTReARM\tTiDel");
-		for (int i = 0; i <= 10000; i += 500) {
-			int first = (i == 0) ? 1 : i;
-			appendToOutputText(String.valueOf(first) + "\t");
+		StringBuilder eolCode = new StringBuilder();
+		appendLineToOutputText("No\tNuNodes\tObjHistory\tIgnoreLst\tChgeEvent\tCBPSize   \tXMISize");
+		// for (int i = 3200; i <= 3200; i += 200) {
+		for (int i = 0; i <= 100000; i += 500) {
+			eolCode.setLength(0);
+			appendToOutputText(String.valueOf(i) + "\t");
 
-			codeList.clear();
 			ConferenceModelGenerator.initialise();
-			for (int j = 0; j < i-1; j++) {
-				codeList.add(ConferenceModelGenerator.createObjects());
+			for (int j = 0; j < i; j++) {
+				eolCode.append(ConferenceModelGenerator.createObjects());
 			}
-			ConferenceModelGenerator.setNumberOfOperation(i*1);
-			codeList.addAll(ConferenceModelGenerator.generateCompleteCode());
-			//String eolCode = String.join("\n", codeList);
-
-			run("", true, codeList);
-
+			ConferenceModelGenerator.setNumberOfOperation(i);
+			for (String line : ConferenceModelGenerator.generateCompleteCode()) {
+				eolCode.append(line);
+			}
+			run(eolCode.toString(), true);
 			// appendLineToOutputText(eolCode);
 		}
 
@@ -71,16 +66,6 @@ public class ConferencePerformanceTests extends LoadingPerformanceTests {
 	@Override
 	public Class<?> getNodeClass() {
 		return Node.class;
-	}
-
-	public String randomString(int length) {
-		String alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		String result = "";
-		for (int i = 0; i < length; i++) {
-			int index = ThreadLocalRandom.current().nextInt(alphabets.length());
-			result = result + alphabets.charAt(index);
-		}
-		return result;
 	}
 
 }

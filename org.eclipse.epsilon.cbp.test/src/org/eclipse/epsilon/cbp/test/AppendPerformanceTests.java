@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -21,6 +22,8 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.test.conference.ConferencePackage;
+import org.eclipse.epsilon.cbp.test.node.NodePackage;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
@@ -95,9 +98,19 @@ public abstract class AppendPerformanceTests {
 			numberOfNodes = 0;
 			while (iterator.hasNext()) {
 				EObject eObject = iterator.next();
-				if (getNodeClass().isInstance(eObject)) {
-					numberOfNodes += 1;
+
+				if (getEPackage().equals(NodePackage.eINSTANCE)) {
+					if (getNodeClass().isInstance(eObject)) {
+						numberOfNodes += 1;
+					}
+				} else if (getEPackage().equals(ConferencePackage.eINSTANCE)) {
+					EClassifier eClassifier = ConferencePackage.eINSTANCE
+							.getEClassifier(getNodeClass().getSimpleName());
+					if (eObject.eClass().getEAllSuperTypes().contains(eClassifier)) {
+						numberOfNodes += 1;
+					}
 				}
+
 			}
 			
 			// print time

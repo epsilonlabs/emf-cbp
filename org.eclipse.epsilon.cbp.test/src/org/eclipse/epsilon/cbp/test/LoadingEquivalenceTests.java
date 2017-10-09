@@ -78,7 +78,7 @@ public abstract class LoadingEquivalenceTests {
 		xmiResource.load(new ByteArrayInputStream(sXMI.getBytes()), null);
 		long afterLoadXMI = System.currentTimeMillis();
 
-		// Run the code against a change-based resource
+		// Save CBP
 		System.out.println("SAVE CBP");
 		module = new EolModule();
 		module.parse(eol);
@@ -141,17 +141,19 @@ public abstract class LoadingEquivalenceTests {
 		System.out.println("LOAD OPTIMISED CBP");
 		cbpResourceSet = createResourceSet();
 		cbpResourceSet.setPackageRegistry(EPackage.Registry.INSTANCE);
-		CBPXMLResourceFactory factory = new CBPXMLResourceFactory();
-		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", factory);
+//		CBPXMLResourceFactory factory = new CBPXMLResourceFactory();
+//		cbpResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", factory);
 		Resource cbpResource2 = cbpResourceSet.createResource(URI.createURI("foo." + extension));
 		final String sCBP = cbpSos.toString();
 
 		// get ignoreList from cbpResource1 and apply it cbpResource2
 		((CBPResource) cbpResource2).setIgnoreSet(ignoreList);
+		ModelHistory mh = ((CBPResource) cbpResource2).getModelHistory();
 		
 		long beforeLoadCBP = System.currentTimeMillis();
 		cbpResource2.load(new ByteArrayInputStream(sCBP.getBytes()), null);
 		long afterLoadCBP = System.currentTimeMillis();
+		mh.printStructure();
 
 		xmiResourceSet = createResourceSet();
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());

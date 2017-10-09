@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -183,6 +185,20 @@ public abstract class CBPResource extends ResourceImpl {
 	public void loadIgnoreSet(ByteArrayInputStream inputStream) throws IOException {
 		DataInputStream dis = new DataInputStream(inputStream);
 		ignoreSet.clear();
+		ignoreList.clear();
+		while (dis.available() > 0) {
+			int value = dis.readInt();
+			if (ignoreSet.add(value)){
+				ignoreList.add(value);
+			}
+		}
+		persistedIgnoredEvents = ignoreList.size();
+	}
+	
+	public void loadIgnoreSet(FileInputStream inputStream) throws IOException {
+		DataInputStream dis = new DataInputStream(inputStream);
+		ignoreSet.clear();
+		ignoreList.clear();
 		while (dis.available() > 0) {
 			int value = dis.readInt();
 			if (ignoreSet.add(value)){
@@ -197,6 +213,17 @@ public abstract class CBPResource extends ResourceImpl {
 		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
 			dos.writeInt(item);
 		}
+		dos.flush();
+		dos.close();
+		persistedIgnoredEvents = ignoreList.size();
+	}
+	
+	public void saveIgnoreSet(FileOutputStream outputStream) throws IOException {
+		DataOutputStream dos = new DataOutputStream(outputStream);
+		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
+			dos.writeInt(item);
+		}
+		dos.flush();
 		dos.close();
 		persistedIgnoredEvents = ignoreList.size();
 	}
