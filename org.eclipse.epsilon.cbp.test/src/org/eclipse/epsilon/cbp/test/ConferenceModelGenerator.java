@@ -45,13 +45,13 @@ public class ConferenceModelGenerator {
 		objectCounters.put("Talk", 0);
 
 		objTypes = new HashMap<>();
-		objTypes.put("Conference", 1);
-		objTypes.put("Person", 1);//1230
-		objTypes.put("Day", 1); //3
-		objTypes.put("Room", 1);//3
-		objTypes.put("Break", 1);//9
-		objTypes.put("Track", 1);//12
-		objTypes.put("Talk", 1);//36
+		objTypes.put("Conference", 0);
+		objTypes.put("Person", 40);// 1230
+		objTypes.put("Day", 1); // 3
+		objTypes.put("Room", 3);// 3
+		objTypes.put("Break", 6);// 9
+		objTypes.put("Track", 8);// 12
+		objTypes.put("Talk", 24);// 36
 
 		objectSeeds = new ArrayList<>();
 		for (Entry<String, Integer> entry : objTypes.entrySet()) {
@@ -61,9 +61,9 @@ public class ConferenceModelGenerator {
 		}
 
 		eventProbabilityMap = new HashMap<>();
-		// eventProbabilityMap.put("CREATE", 1);
-		eventProbabilityMap.put("SET_ATTRIBUTE", 1);
-		eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
+		eventProbabilityMap.put("CREATE", 10);
+		// eventProbabilityMap.put("SET_ATTRIBUTE", 1);
+		// eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
 		// eventProbabilityMap.put("SET_REFERENCE", 1);
 		// eventProbabilityMap.put("UNSET_REFERENCE", 1);
 		// eventProbabilityMap.put("ADD_ATTRIBUTE", 1);
@@ -71,9 +71,10 @@ public class ConferenceModelGenerator {
 		// eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
 		// eventProbabilityMap.put("ADD_REFERENCE_REF", 1);
 		// eventProbabilityMap.put("MOVE_REFERENCE_REF", 1);
-		 eventProbabilityMap.put("ADD_REFERENCE_VAL", 1);
-		 eventProbabilityMap.put("MOVE_REFERENCE_VAL", 1);
-		// eventProbabilityMap.put("DELETE", 1);
+		eventProbabilityMap.put("ADD_REFERENCE_VAL", 1);
+		// eventProbabilityMap.put("MOVE_REFERENCE_VAL", 15);
+		 eventProbabilityMap.put("EDIT", 1);
+		 eventProbabilityMap.put("DELETE", 1);
 
 		opSeeds = new ArrayList<>();
 		for (Entry<String, Integer> entry : eventProbabilityMap.entrySet()) {
@@ -85,7 +86,21 @@ public class ConferenceModelGenerator {
 
 	public static String generateInitialCode() {
 		StringBuilder eolCode = new StringBuilder();
-		eolCode.append(createObjectCode("Conference", "c"));
+		eolCode.append("var c = new Conference;\n");
+		eolCode.append("var p = new Person;\n");
+		eolCode.append("var d = new Day;\n");
+		eolCode.append("var r = new Room;\n");
+		eolCode.append("var b = new Break;\n");
+		eolCode.append("var tr = new Track;\n");
+		eolCode.append("var ta = new Talk;\n");
+		eolCode.append("c.participants.add(p);\n");
+		eolCode.append("c.days.add(d);\n");
+		eolCode.append("c.rooms.add(r);\n");
+		eolCode.append("d.slots.add(tr);\n");
+		eolCode.append("d.slots.add(b);\n");
+		eolCode.append("tr.talks.add(ta);\n");
+
+		// eolCode.append(createObjectCode("Conference", "c"));
 		// eolCode.append(createObjectCode("Person", "p"));
 		// eolCode.append(createObjectCode("Day", "d"));
 		// eolCode.append(createObjectCode("Room", "r"));
@@ -108,8 +123,8 @@ public class ConferenceModelGenerator {
 			outputCode = unsetAttribute();
 		} else if (opType.equals("ADD_REFERENCE_VAL")) {
 			outputCode = addReference();
-		} else if (opType.equals("MOVE_REFERENCE_VAL")) {
-			outputCode = addReference();
+			// } else if (opType.equals("MOVE_REFERENCE_VAL")) {
+			// outputCode = addReference();
 		} else if (opType.equals("EDIT")) {
 			outputCode = editObjects();
 		} else if (opType.equals("DELETE")) {
@@ -178,34 +193,75 @@ public class ConferenceModelGenerator {
 		code.setLength(0);
 		int index = ThreadLocalRandom.current().nextInt(objectSeeds.size());
 		String objectType = objectSeeds.get(index);
-		if (objectType.equals("Conference")) {
-			int seed = objectCounters.get("Conference");
+		if (objectType.equals("Track") || objectType.equals("Break")) {
+			int seed = objectCounters.get("Day");
 			seed = (seed == 0) ? 1 : seed;
 			int number = ThreadLocalRandom.current().nextInt(seed);
 			StringBuilder temp = new StringBuilder();
-			String keyConference = "c" + number;
-			temp.append("var c = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
-			temp.append("if (c ==  null){\n");
-			temp.append("    c = c.allInstances().last();\n");
+			String keyDay = "d" + number;
+			temp.append("var d = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+			temp.append("if (d ==  null){\n");
+			temp.append("    d = Day.allInstances().last();\n");
 			temp.append("}\n");
-			
-			seed = objectCounters.get("Person");
+
+			if (objectType.equals("Track")) {
+				seed = objectCounters.get("Track");
+				seed = (seed == 0) ? 1 : seed;
+				number = ThreadLocalRandom.current().nextInt(seed);
+				String keyTrack = "t" + number;
+				temp.append("var t = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+				temp.append("if (t ==  null){\n");
+				temp.append("    t = Track.allInstances().first();\n");
+				temp.append("}\n");
+				temp.append("if (t <> null and t <>  null){\n");
+				temp.append("	d.slots.add(t);\n");
+				temp.append("}\n");
+				code.append(String.format(temp.toString(), keyDay, keyTrack));
+			}
+
+			if (objectType.equals("Break")) {
+				seed = objectCounters.get("Break");
+				seed = (seed == 0) ? 1 : seed;
+				number = ThreadLocalRandom.current().nextInt(seed);
+				String keyBreak = "b" + number;
+				temp.append("var b = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+				temp.append("if (b ==  null){\n");
+				temp.append("    b = Break.allInstances().first();\n");
+				temp.append("}\n");
+				temp.append("if (b <> null and b <>  null){\n");
+				temp.append("	d.slots.add(b);\n");
+				temp.append("}\n");
+				code.append(String.format(temp.toString(), keyDay, keyBreak));
+			}
+		} else if (objectType.equals("Talk")) {
+			int seed = objectCounters.get("Track");
 			seed = (seed == 0) ? 1 : seed;
-			number = ThreadLocalRandom.current().nextInt(seed);
-			String keyPerson = "p" + number;
-			temp.append("var p = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
-			temp.append("if (p ==  null){\n");
-			temp.append("    p = Person.allInstances().first();\n");
+			int number = ThreadLocalRandom.current().nextInt(seed);
+			StringBuilder temp = new StringBuilder();
+			String keyTrack = "tr" + number;
+			temp.append("var tr = M.allContents.selectOne(item | item.key == \"%1$s\");\n");
+			temp.append("if (tr ==  null){\n");
+			temp.append("    tr = Track.allInstances().last();\n");
 			temp.append("}\n");
-			
-			temp.append("if (c <> null and p <>  null){\n");			
-			temp.append("	c.participants.add(p);\n");
-			temp.append("}\n");
-			code.append(String.format(temp.toString(), keyConference, keyPerson));
+
+			if (objectType.equals("Talk")) {
+				seed = objectCounters.get("Talk");
+				seed = (seed == 0) ? 1 : seed;
+				number = ThreadLocalRandom.current().nextInt(seed);
+				String keyTalk = "t" + number;
+				temp.append("var ta = M.allContents.selectOne(item | item.key == \"%2$s\");\n");
+				temp.append("if (ta ==  null){\n");
+				temp.append("    ta = Talk.allInstances().first();\n");
+				temp.append("}\n");
+				temp.append("if (ta <> null and ta <>  null){\n");
+				temp.append("	tr.talks.add(ta);\n");
+				temp.append("}\n");
+				code.append(String.format(temp.toString(), keyTrack, keyTalk));
+			}
 		}
 		return code.toString();
 	}
-	
+
 	public static String unsetAttribute() {
 		code.setLength(0);
 		int index = ThreadLocalRandom.current().nextInt(objectSeeds.size());

@@ -39,7 +39,7 @@ public class ConferenceAppendTests extends AppendPerformanceTests {
 		List<String> list = new ArrayList<>();
 
 		ConferenceModelGenerator.initialise();
-		ConferenceModelGenerator.setNumberOfOperation(30000000);
+		ConferenceModelGenerator.setNumberOfOperation(100000);
 		list = ConferenceModelGenerator.generateCompleteCode();
 		run(list.toArray(new String[list.size()]));
 		// debug(list.toArray(new String[list.size()]));

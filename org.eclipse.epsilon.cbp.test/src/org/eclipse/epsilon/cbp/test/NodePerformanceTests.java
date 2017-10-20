@@ -47,33 +47,38 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 				+ "\tDelete\tAddRes\tRemRes\tPackage\tSession\tCreate"
 
 				+ "\tiSetAtt\tiUnsAtt\tiAddAtt\tiRemAtt\tiMovAtt" + "\tiSetRef\tiUnsRef\tiAddRef\tiRemRef\tiMovRef"
-				+ "\tiDelete\tiAddRes\tiRemRes\tiPackg\tiSessio\tiCreate");
+				+ "\tiDelete\tiAddRes\tiRemRes\tiPackg\tiSessio\tiCreate"
 
-		for (int i = 0; i <= 10000; i += 100) {
+				+ "\taSetAtt\taUnsAtt\taAddAtt\taRemAtt\taMovAtt" + "\taSetRef\taUnsRef\taAddRef\taRemRef\taMovRef"
+				+ "\taDelete\taAddRes\taRemRes\taPackg\taSessio\taCreate");
+
+		for (int i = 0; i <= 100000; i += 500) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
 
 			int nameIndex = 0;
+			eolCode.append(String.format("var root = new Node;\n", nameIndex));
 			for (nameIndex = 0; nameIndex < i; nameIndex++) {
 				eolCode.append(String.format("var e%1$s = new Node;\n", nameIndex));
 				eolCode.append(String.format("e%1$s.name = \"e%1$s\";\n", nameIndex));
+				eolCode.append(String.format("root.valNodes.add(e%1$s);\n", nameIndex));
 			}
 
 			// Random operation
 			Map<String, Integer> eventProbabilityMap = new HashMap<>();
-			 eventProbabilityMap.put("CREATE", 1);
+			eventProbabilityMap.put("CREATE", 1);
 			eventProbabilityMap.put("SET_ATTRIBUTE", 1);
 			eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
-			 eventProbabilityMap.put("SET_REFERENCE", 1);
-			 eventProbabilityMap.put("UNSET_REFERENCE", 1);
-			 eventProbabilityMap.put("ADD_ATTRIBUTE", 1);
-			 eventProbabilityMap.put("MOVE_ATTRIBUTE", 1);
-			 eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
-			 eventProbabilityMap.put("ADD_REFERENCE_REF", 1);
-			 eventProbabilityMap.put("MOVE_REFERENCE_REF", 1);
-			eventProbabilityMap.put("ADD_REFERENCE_VAL", 1);
-			 eventProbabilityMap.put("MOVE_REFERENCE_VAL", 1);
-			 eventProbabilityMap.put("DELETE", 1);
+			eventProbabilityMap.put("SET_REFERENCE", 1);
+			eventProbabilityMap.put("UNSET_REFERENCE", 1);
+			eventProbabilityMap.put("ADD_ATTRIBUTE", 10);
+			eventProbabilityMap.put("MOVE_ATTRIBUTE", 5);
+			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
+			eventProbabilityMap.put("ADD_REFERENCE_REF", 10);
+			eventProbabilityMap.put("MOVE_REFERENCE_REF", 5);
+			eventProbabilityMap.put("ADD_REFERENCE_VAL", 10);
+			eventProbabilityMap.put("MOVE_REFERENCE_VAL", 5);
+			eventProbabilityMap.put("DELETE", 1);
 
 			List<String> operations = new ArrayList<>();
 			for (Entry<String, Integer> entry : eventProbabilityMap.entrySet()) {
@@ -87,6 +92,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 				if (operation.equals("CREATE")) {
 					eolCode.append(String.format("var e%1$s = new Node;\n", nameIndex));
 					eolCode.append(String.format("e%1$s.name = \"e%1$s\";\n", nameIndex));
+					eolCode.append(String.format("root.valNodes.add(e%1$s);\n", nameIndex));
 					nameIndex += 1;
 				} else if (operation.equals("SET_ATTRIBUTE")) {
 					String value = this.randomString(4);
@@ -171,7 +177,7 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 					code.append("var n2 = M.allContents.selectOne(item | item.name == \"%2$s\");");
 					code.append("if (M.owns(n1) and M.owns(n2) and n1 <> n2 ");
 					code.append("    and isCircular(n1, n2) == false){\n");
-					code.append("    if (n1.deep + 1 > 2){\n");
+					code.append("    if (n1.deep + 1 > 300){\n");
 					code.append("        n2.deep = n1.parent.deep + 1;\n");
 					code.append("        n2.parent = n1.parent;\n");
 					code.append("        n1.parent.valNodes.add(n2);\n");
@@ -207,52 +213,60 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 				// }
 				else if (operation.equals("MOVE_ATTRIBUTE")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					int toIndex = ThreadLocalRandom.current().nextInt(3);
-					int fromIndex = ThreadLocalRandom.current().nextInt(3);
+					int toIndex = 0;
+					int fromIndex = 1;
 					StringBuilder code = new StringBuilder();
 					code.append("if (M.owns(%1$s) and %1$s.values.size() > 1){\n");
 					code.append("    var toIndex = %2$s;\n");
 					code.append("    var fromIndex = %3$s;\n");
-					code.append("    if (toIndex >= %1$s.values.size()){\n");
-					code.append("        toIndex = %1$s.values.size() - 1;\n");
-					code.append("    }\n");
-					code.append("    if (fromIndex >= %1$s.values.size()){\n");
-					code.append("        fromIndex = %1$s.values.size() - 1;\n");
-					code.append("    }\n");
+					// code.append(" if (toIndex >= %1$s.values.size()){\n");
+					// code.append(" toIndex = %1$s.values.size() - 1;\n");
+					// code.append(" }\n");
+					// code.append(" if (fromIndex >= %1$s.values.size()){\n");
+					// code.append(" fromIndex = %1$s.values.size() - 1;\n");
+					// code.append(" }\n");
+					code.append("    %1$s.values.move(toIndex, fromIndex);\n");
+					code.append("    %1$s.values.move(toIndex, fromIndex);\n");
 					code.append("    %1$s.values.move(toIndex, fromIndex);\n");
 					code.append("}\n");
 					eolCode.append(String.format(code.toString(), target, toIndex, fromIndex));
 				} else if (operation.equals("MOVE_REFERENCE_REF")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					int toIndex = ThreadLocalRandom.current().nextInt(3);
-					int fromIndex = ThreadLocalRandom.current().nextInt(3);
+					int toIndex = 0;
+					int fromIndex = 1;
 					StringBuilder code = new StringBuilder();
 					code.append("if (M.owns(%1$s) and %1$s.refNodes.size() > 1){\n");
 					code.append("    var toIndex = %2$s;\n");
 					code.append("    var fromIndex = %3$s;\n");
-					code.append("    if (toIndex >= %1$s.refNodes.size()){\n");
-					code.append("        toIndex = %1$s.refNodes.size() - 1;\n");
-					code.append("    }\n");
-					code.append("    if (fromIndex >= %1$s.refNodes.size()){\n");
-					code.append("        fromIndex = %1$s.refNodes.size() - 1;\n");
-					code.append("    }\n");
+					// code.append(" if (toIndex >= %1$s.refNodes.size()){\n");
+					// code.append(" toIndex = %1$s.refNodes.size() - 1;\n");
+					// code.append(" }\n");
+					// code.append(" if (fromIndex >=
+					// %1$s.refNodes.size()){\n");
+					// code.append(" fromIndex = %1$s.refNodes.size() - 1;\n");
+					// code.append(" }\n");
+					code.append("    %1$s.refNodes.move(toIndex, fromIndex);\n");
+					code.append("    %1$s.refNodes.move(toIndex, fromIndex);\n");
 					code.append("    %1$s.refNodes.move(toIndex, fromIndex);\n");
 					code.append("}\n");
 					eolCode.append(String.format(code.toString(), target, toIndex, fromIndex));
 				} else if (operation.equals("MOVE_REFERENCE_VAL")) {
 					String target = "e" + ThreadLocalRandom.current().nextInt(nameIndex);
-					int toIndex = ThreadLocalRandom.current().nextInt(3);
-					int fromIndex = ThreadLocalRandom.current().nextInt(3);
+					int toIndex = 0;
+					int fromIndex = 1;
 					StringBuilder code = new StringBuilder();
 					code.append("if (M.owns(%1$s) and %1$s.valNodes.size() > 1){\n");
 					code.append("    var toIndex = %2$s;\n");
 					code.append("    var fromIndex = %3$s;\n");
-					code.append("    if (toIndex >= %1$s.valNodes.size()){\n");
-					code.append("        toIndex = %1$s.valNodes.size() - 1;\n");
-					code.append("    }\n");
-					code.append("    if (fromIndex >= %1$s.valNodes.size()){\n");
-					code.append("        fromIndex = %1$s.valNodes.size() - 1;\n");
-					code.append("    }\n");
+					// code.append(" if (toIndex >= %1$s.valNodes.size()){\n");
+					// code.append(" toIndex = %1$s.valNodes.size() - 1;\n");
+					// code.append(" }\n");
+					// code.append(" if (fromIndex >=
+					// %1$s.valNodes.size()){\n");
+					// code.append(" fromIndex = %1$s.valNodes.size() - 1;\n");
+					// code.append(" }\n");
+					code.append("    %1$s.valNodes.move(toIndex, fromIndex);\n");
+					code.append("    %1$s.valNodes.move(toIndex, fromIndex);\n");
 					code.append("    %1$s.valNodes.move(toIndex, fromIndex);\n");
 					code.append("}\n");
 					eolCode.append(String.format(code.toString(), target, toIndex, fromIndex));
@@ -472,6 +486,95 @@ public class NodePerformanceTests extends LoadingPerformanceTests {
 			code.append("}\n");
 			eolCode.append(String.format(code.toString(), i));
 			// System.out.println(eolCode);
+			run(eolCode.toString(), true);
+		}
+
+		saveOutputText();
+		saveErrorMessages();
+		assertEquals(true, true);
+	}
+
+	@Test
+	public void testRemoveResourceAddToOneRootPerformance() throws Exception {
+		StringBuilder eolCode = new StringBuilder();
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP"
+				+ "\tTAtSU\tTReSU\tTAtARM\tTReARM\tTiDel"
+
+				+ "\tSetAtt\tUnsAtt\tAddAtt\tRemAtt\tMovAtt" + "\tSetRef\tUnsRef\tAddRef\tRemRef\tMovRef"
+				+ "\tDelete\tAddRes\tRemRes\tPackage\tSession\tCreate"
+
+				+ "\tiSetAtt\tiUnsAtt\tiAddAtt\tiRemAtt\tiMovAtt" + "\tiSetRef\tiUnsRef\tiAddRef\tiRemRef\tiMovRef"
+				+ "\tiDelete\tiAddRes\tiRemRes\tiPackg\tiSessio\tiCreate"
+
+				+ "\taSetAtt\taUnsAtt\taAddAtt\taRemAtt\taMovAtt" + "\taSetRef\taUnsRef\taAddRef\taRemRef\taMovRef"
+				+ "\taDelete\taAddRes\taRemRes\taPackg\taSessio\taCreate");
+		for (int i = 0; i <= 100000; i += 500) {
+			eolCode.setLength(0);
+			appendToOutputText(String.valueOf(i) + "\t");
+			StringBuilder code = new StringBuilder();
+			code.append("var eRoot = new Node;\n");
+			code.append("for(i in Sequence{1..%1$d}){\n");
+			code.append("    var node = new Node;\n");
+			code.append("    eRoot.valNodes.add(node);\n");
+			code.append("}\n");
+			code.append("for(i in Sequence{1..%1$d}){\n");
+//			code.append("    delete eRoot.valNodes.last();\n");
+			code.append("    delete Node.allInstances().last();\n");
+			code.append("}\n");
+			eolCode.append(String.format(code.toString(), i));
+			// System.out.println(eolCode);
+			run(eolCode.toString(), true);
+		}
+
+		saveOutputText();
+		saveErrorMessages();
+		assertEquals(true, true);
+	}
+
+	@Test
+	public void testRemoveResourceAddToRandomRootPerformance() throws Exception {
+		StringBuilder eolCode = new StringBuilder();
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP"
+				+ "\tTAtSU\tTReSU\tTAtARM\tTReARM\tTiDel"
+
+				+ "\tSetAtt\tUnsAtt\tAddAtt\tRemAtt\tMovAtt" + "\tSetRef\tUnsRef\tAddRef\tRemRef\tMovRef"
+				+ "\tDelete\tAddRes\tRemRes\tPackage\tSession\tCreate"
+
+				+ "\tiSetAtt\tiUnsAtt\tiAddAtt\tiRemAtt\tiMovAtt" + "\tiSetRef\tiUnsRef\tiAddRef\tiRemRef\tiMovRef"
+				+ "\tiDelete\tiAddRes\tiRemRes\tiPackg\tiSessio\tiCreate"
+
+				+ "\taSetAtt\taUnsAtt\taAddAtt\taRemAtt\taMovAtt" + "\taSetRef\taUnsRef\taAddRef\taRemRef\taMovRef"
+				+ "\taDelete\taAddRes\taRemRes\taPackg\taSessio\taCreate");
+		for (int i = 1; i <= 100000; i += 500) {
+			eolCode.setLength(0);
+			appendToOutputText(String.valueOf(i) + "\t");
+			StringBuilder code = new StringBuilder();
+			code.append("    var root = new Node;\n");
+			code.append("for(i in Sequence{1..%1$d}){\n");
+			code.append("    var node3 = new Node;\n");
+			code.append("    root.valNodes.add(node3);\n");
+			code.append("}\n");
+			code.append("for(i in Sequence{1..%1$d}){\n");
+			code.append("    delete Node.allInstances.last();\n");
+			code.append("}\n");
+//			code.append("var eRoot = new Node;\n");
+//			code.append("    var node1 = new Node;\n");
+//			code.append("    var node2 = new Node;\n");
+//			code.append("for(i in Sequence{1..%1$d}){\n");
+//			code.append("    var node3 = new Node;\n");
+//			code.append("    node1.valNodes.add(node3);\n");
+//			code.append("    node2.valNodes.add(node3);\n");
+//			code.append("}\n");
+//			code.append("eRoot.valNodes.clear();\n");
+//			code.append("var eRoot = new Node;\n");
+//			code.append("for(i in Sequence{1..%1$d}){\n");
+//			code.append("    var node1 = new Node;\n");
+//			code.append("    eRoot.valNodes.add(node1);\n");
+//			code.append("    var node2 = new Node;\n");
+//			code.append("    eRoot.valNodes.add(node2);\n");
+//			code.append("    node2.valNodes.add(node1);\n");
+//			code.append("}\n");
+			eolCode.append(String.format(code.toString(), i));
 			run(eolCode.toString(), true);
 		}
 

@@ -2,11 +2,17 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="node" nsURI="node" nsPrefix="">
   <eClassifiers xsi:type="ecore:EClass" name="Node">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" eType="#//Node"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="values" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="children" upperBound="-1"
         eType="#//Node" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EventType">
+    <eLiterals name="CREATE"/>
+    <eLiterals name="SET" value="1"/>
+    <eLiterals name="UNSET" value="2"/>
+    <eLiterals name="ADD" value="3"/>
+    <eLiterals name="MOVE" value="4"/>
+    <eLiterals name="REMOVE" value="5"/>
+    <eLiterals name="DELETE" value="6"/>
   </eClassifiers>
 </ecore:EPackage>

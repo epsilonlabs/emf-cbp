@@ -2,9 +2,17 @@
 package node;
 
 class Node {
-	ref  Node parent;
 	attr String name;
-	attr int[*] values;
 	val Node[*] children;
+}
+
+enum EventType{
+	CREATE;
+	SET;
+	UNSET;
+	ADD;
+	MOVE;
+	REMOVE;
+	DELETE;
 }
 

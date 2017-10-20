@@ -6,7 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.TreeIterator;
@@ -18,17 +19,12 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
 import org.github.jamm.MemoryMeter;
-
-import com.javamex.classmexer.MemoryUtil;
-
-import objectexplorer.MemoryMeasurer;
 
 public abstract class MemoryPerformanceTests {
 
@@ -39,7 +35,7 @@ public abstract class MemoryPerformanceTests {
 	protected StringBuilder errorMessage = new StringBuilder();
 	protected StringBuilder outputText = new StringBuilder();
 	protected StringOutputStream xmiOutputStream = null;
-	protected StringOutputStream cbpOutputStream = null;
+
 	protected long beforeSaveXMI = 0;
 	protected long afterSaveXMI = 0;
 	protected long beforeSaveCBP = 0;
@@ -48,13 +44,19 @@ public abstract class MemoryPerformanceTests {
 
 	protected long ignoreListSize = 0;
 	protected long changeEventsSize = 0;
-	protected long modelHistorySize = 0;
-	protected long cbpSize = 0;
+
+	protected long optimisedCbpSize = 0;
 	protected long xmiSize = 0;
 
-	protected Set<Integer> ignoreList = null;
-	
-	MemoryMeter memoryMeter = new MemoryMeter();
+	protected Set<Integer> optimisedIgnoreList = null;
+	protected StringOutputStream optimisedCbpOutputStream = null;
+	protected MemoryMeter optimisedMemoryMeter = new MemoryMeter();
+	protected long optimisedModelHistorySize = 0;
+
+	protected Set<Integer> nonOptimisedIgnoreList = null;
+	protected StringOutputStream nonOptimisedCbpOutputStream = null;
+	protected MemoryMeter nonOptimisedMemoryMeter = new MemoryMeter();
+	protected long nonOptimisedCbpSize = 0;
 
 	public MemoryPerformanceTests(String extension) {
 		this.extension = extension;
@@ -65,7 +67,7 @@ public abstract class MemoryPerformanceTests {
 	public abstract Class<?> getNodeClass();
 
 	// Save XMI -------------------------------------------
-	public void testSaveXMI(String eol, String extension, boolean debug) {
+	public void testSaveAndLoadXMI(String eol, String extension, boolean debug) {
 		try {
 			EolModule moduleXmi = new EolModule();
 			moduleXmi.parse(eol);
@@ -92,96 +94,93 @@ public abstract class MemoryPerformanceTests {
 				}
 			}
 			xmiResource1.save(xmiOutputStream, null);
-			
-			xmiSize = MemoryMeasurer.measureBytes(((XMIResource) xmiResource1));
-//		    xmiSize = memoryMeter.measureDeep(((XMIResource) xmiResource1));
-//			xmiSize = MemoryUtil.deepMemoryUsageOf(((XMIResource) xmiResource1));
+			xmiResource1.getContents().clear();
+			System.gc();
+			long before = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			xmiResource1.load(new ByteArrayInputStream(xmiOutputStream.toString().getBytes()), null);
+			long after = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			xmiSize = after - before;
+//			xmiSize = optimisedMemoryMeter.measureDeep(((XMIResource) xmiResource1));
 
 		} catch (Exception e) {
 			errorMessage.append(e.toString() + "\n");
 			e.printStackTrace();
 		}
 	}
-
-	public void testSaveCBP(String eol, String extension, boolean debug) {
+	
+	public void testSaveAndLoadCBP(String eol, String extension, boolean debug) {
 		try {
 			EolModule moduleCbp = new EolModule();
 			moduleCbp.parse(eol);
 			ResourceSet cbpResourceSet1 = createResourceSet();
-			Resource cbpResource1 = cbpResourceSet1.createResource(URI.createURI("foo3." + extension));
-			InMemoryEmfModel modelCbp = new InMemoryEmfModel("M", cbpResource1, getEPackage());
+			Resource optimisedCbpResource = cbpResourceSet1.createResource(URI.createURI("foo3." + extension));
+			InMemoryEmfModel modelCbp = new InMemoryEmfModel("M", optimisedCbpResource, getEPackage());
 			moduleCbp.getContext().getModelRepository().addModel(modelCbp);
 			moduleCbp.execute();
 
-			ignoreList = ((CBPResource) cbpResource1).getIgnoreSet();
-			cbpOutputStream = new StringOutputStream();
+			optimisedIgnoreList = ((CBPResource) optimisedCbpResource).getIgnoreSet();
+			optimisedCbpOutputStream = new StringOutputStream();
+
+			optimisedCbpResource.save(optimisedCbpOutputStream, null);
+			
+			optimisedCbpResource.getContents().clear();
+			((CBPResource) optimisedCbpResource).getModelHistory().clear();
+			System.gc();
+			long before = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			optimisedCbpResource.load(new ByteArrayInputStream(optimisedCbpOutputStream.toString().getBytes()), null);
+			long after = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			optimisedCbpSize = after - before;
+//			optimisedCbpSize = optimisedMemoryMeter.measureDeep(((CBPResource) optimisedCbpResource));
 			
 			
-			List<ChangeEvent<?>> oldList = ((CBPResource) cbpResource1).getChangeEventAdapter().getChangeEvents();
-			
-			changeEventsSize = MemoryMeasurer.measureBytes(oldList);
-			cbpSize = MemoryMeasurer.measureBytes((CBPResource) cbpResource1);
-			
-//			changeEventsSize = memoryMeter.measureDeep(oldList);
-//			cbpSize = memoryMeter.measureDeep((CBPResource) cbpResource1);
-//			changeEventsSize = MemoryUtil.deepMemoryUsageOf(oldList);
-//			cbpSize = MemoryUtil.deepMemoryUsageOf((CBPResource) cbpResource1);
-					
-			cbpResource1.save(cbpOutputStream, null);
-			
-			cbpResource1.load(new ByteArrayInputStream(cbpOutputStream.toString().getBytes()), null);
-			modelHistorySize = MemoryMeasurer.measureBytes(((CBPResource) cbpResource1).getModelHistory());
-			ignoreListSize = MemoryMeasurer.measureBytes(((CBPResource) cbpResource1).getIgnoreSet());
-			
-//			modelHistorySize = memoryMeter.measureDeep(((CBPResource) cbpResource1).getModelHistory());
-//			ignoreListSize = memoryMeter.measureDeep(((CBPResource) cbpResource1).getIgnoreList());
-//			modelHistorySize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getModelHistory());
-//			ignoreListSize = MemoryUtil.deepMemoryUsageOf(((CBPResource) cbpResource1).getIgnoreSet());
-		
-//			cbpXml = cbpOutputStream.toString();
+			optimisedCbpResource.getContents().clear();
+			((CBPResource) optimisedCbpResource).getModelHistory().clear();
+			((CBPResource) optimisedCbpResource).clearIgnoreSet();
+			System.gc();
+			before = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			optimisedCbpResource.load(new ByteArrayInputStream(optimisedCbpOutputStream.toString().getBytes()), null);
+			after = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			nonOptimisedCbpSize = after - before;
+//			nonOptimisedCbpSize = optimisedMemoryMeter.measureDeep(((CBPResource) optimisedCbpResource));
+
 		} catch (Exception e) {
 			errorMessage.append(e.toString() + "\n");
 			e.printStackTrace();
 		}
 	}
+
 
 	public void run(String eol, String extension, boolean debug) throws Exception {
 
 		try {
 			this.eol = eol;
-			int iteration = 1;
+			int iteration = 3;
 			double sumNumOfNodes = 0;
-			double sumModelMemorySize = 0;
-			double sumCbpSize = 0;
+			double sumNonOptimiseCbpSize = 0;
+			double sumOptimiseCbpSize = 0;
 			double sumXmiSize = 0;
-			double sumIgnoreListSize = 0;
-			double sumChangeEventsSize = 0;
+
 
 			for (int i = 0; i < iteration; i++) {
-
-				this.testSaveCBP(eol, extension, debug);
-				this.testSaveXMI(eol, extension, debug);
+				
+				this.testSaveAndLoadCBP(eol, extension, debug);
+				this.testSaveAndLoadXMI(eol, extension, debug);
 
 				sumNumOfNodes = sumNumOfNodes + numberOfNodes;
-				sumModelMemorySize = sumModelMemorySize + ((double) modelHistorySize / (1000000));
-				sumCbpSize = sumCbpSize + ((double) cbpSize / (1000000));
+				sumNonOptimiseCbpSize = sumNonOptimiseCbpSize + ((double) nonOptimisedCbpSize / (1000000));
+				sumOptimiseCbpSize = sumOptimiseCbpSize + ((double) optimisedCbpSize / (1000000));
 				sumXmiSize = sumXmiSize + ((double) xmiSize / (1000000));
-				sumIgnoreListSize = sumIgnoreListSize + ((double) ignoreListSize / (1000000));
-				sumChangeEventsSize = sumChangeEventsSize + ((double) changeEventsSize / (1000000));
-
 				xmiOutputStream.reset();
-				cbpOutputStream.reset();
+				optimisedCbpOutputStream.reset();
 			}
 
 			sumNumOfNodes = sumNumOfNodes / iteration;
-			sumModelMemorySize = sumModelMemorySize / iteration;
+			sumNonOptimiseCbpSize = sumNonOptimiseCbpSize / iteration;
 			sumXmiSize = sumXmiSize / iteration;
-			sumCbpSize = sumCbpSize / iteration;
-			sumIgnoreListSize = sumIgnoreListSize / iteration;
-			sumChangeEventsSize = sumChangeEventsSize / iteration;
+			sumOptimiseCbpSize = sumOptimiseCbpSize / iteration;
 
-			appendLineToOutputText(String.format("%1$.0f\t%2$.6f\t%3$.6f\t%4$.6f\t%5$.6f\t%6$.6f", sumNumOfNodes, sumModelMemorySize,
-					sumIgnoreListSize, sumChangeEventsSize, sumCbpSize, sumXmiSize));
+			appendLineToOutputText(String.format("%1$.0f\t%2$.6f\t%3$.6f\t%4$.6f", sumNumOfNodes, sumOptimiseCbpSize,
+					sumNonOptimiseCbpSize, sumXmiSize));
 
 		} catch (Exception e) {
 			errorMessage.append("\n" + eol);
@@ -196,8 +195,6 @@ public abstract class MemoryPerformanceTests {
 		ResourceSet xmiResourceSet = new ResourceSetImpl();
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpxml",
 				new CBPXMLResourceFactory());
-		// xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpthrift",
-		// new CBPThriftResourceFactory());
 		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
 		return xmiResourceSet;
 	}

@@ -38,19 +38,28 @@ public class ConferencePerformanceTests extends LoadingPerformanceTests {
 
 		List<String> codeList = new ArrayList<>();
 		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP"
-				+ "\tTAtSU\tTReSU\tTAtARM\tTReARM\tTiDel");
-		for (int i = 0; i <= 10000; i += 500) {
+				+ "\tTAtSU\tTReSU\tTAtARM\tTReARM\tTiDel"
+
+				+ "\tSetAtt\tUnsAtt\tAddAtt\tRemAtt\tMovAtt" + "\tSetRef\tUnsRef\tAddRef\tRemRef\tMovRef"
+				+ "\tDelete\tAddRes\tRemRes\tPackage\tSession\tCreate"
+
+				+ "\tiSetAtt\tiUnsAtt\tiAddAtt\tiRemAtt\tiMovAtt" + "\tiSetRef\tiUnsRef\tiAddRef\tiRemRef\tiMovRef"
+				+ "\tiDelete\tiAddRes\tiRemRes\tiPackg\tiSessio\tiCreate"
+
+				+ "\taSetAtt\taUnsAtt\taAddAtt\taRemAtt\taMovAtt" + "\taSetRef\taUnsRef\taAddRef\taRemRef\taMovRef"
+				+ "\taDelete\taAddRes\taRemRes\taPackg\taSessio\taCreate");
+		for (int i = 0; i <= 1000000; i += 500) {
 			int first = (i == 0) ? 1 : i;
 			appendToOutputText(String.valueOf(first) + "\t");
 
 			codeList.clear();
 			ConferenceModelGenerator.initialise();
-			for (int j = 0; j < i-1; j++) {
+			for (int j = 0; j < i - 1; j++) {
 				codeList.add(ConferenceModelGenerator.createObjects());
 			}
-			ConferenceModelGenerator.setNumberOfOperation(i*1);
+			ConferenceModelGenerator.setNumberOfOperation(i * 1);
 			codeList.addAll(ConferenceModelGenerator.generateCompleteCode());
-			//String eolCode = String.join("\n", codeList);
+			// String eolCode = String.join("\n", codeList);
 
 			run("", true, codeList);
 
@@ -63,6 +72,59 @@ public class ConferencePerformanceTests extends LoadingPerformanceTests {
 		assertEquals(true, true);
 	}
 
+	@Test
+	public void testRemoveResourceAddToOneRootPerformance() throws Exception {
+		StringBuilder eolCode = new StringBuilder();
+		appendLineToOutputText("No\tSavXMI\tSavCBP\tLoaXMI\tLoOCBP\tLoaCBP\tNuNodes\tNLOCBP\tNLCBP"
+				+ "\tTAtSU\tTReSU\tTAtARM\tTReARM\tTiDel"
+
+				+ "\tSetAtt\tUnsAtt\tAddAtt\tRemAtt\tMovAtt" + "\tSetRef\tUnsRef\tAddRef\tRemRef\tMovRef"
+				+ "\tDelete\tAddRes\tRemRes\tPackage\tSession\tCreate"
+
+				+ "\tiSetAtt\tiUnsAtt\tiAddAtt\tiRemAtt\tiMovAtt" + "\tiSetRef\tiUnsRef\tiAddRef\tiRemRef\tiMovRef"
+				+ "\tiDelete\tiAddRes\tiRemRes\tiPackg\tiSessio\tiCreate"
+
+				+ "\taSetAtt\taUnsAtt\taAddAtt\taRemAtt\taMovAtt" + "\taSetRef\taUnsRef\taAddRef\taRemRef\taMovRef"
+				+ "\taDelete\taAddRes\taRemRes\taPackg\taSessio\taCreate");
+		for (int i = 0; i <= 100000; i += 500) {
+			eolCode.setLength(0);
+			appendToOutputText(String.valueOf(i) + "\t");
+			StringBuilder code = new StringBuilder();
+			code.append("var conf = new Conference;\n");
+			code.append("var day1 = new Day;\n");
+			code.append("var day2 = new Day;\n");
+			code.append("conf.days.add(day1);\n");
+			code.append("conf.days.add(day2);\n");
+			code.append("for(i in Sequence{1..1000}){\n");
+			code.append("    var track = new Track;\n");
+			code.append("    day1.slots.add(track);\n");
+			code.append("}\n");
+			code.append("for(i in Sequence{1..%1$d}){\n");
+			code.append("    delete day1.slots.last();\n");
+			code.append("    day1.slots.add(new Track);\n");
+			code.append("}\n");
+//			code.append("var conf = new Conference;\n");
+//			code.append("var day1 = new Day;\n");
+//			code.append("var day2 = new Day;\n");
+//			code.append("conf.days.add(day1);\n");
+//			code.append("conf.days.add(day2);\n");
+//			code.append("for(i in Sequence{1..%1$d}){\n");
+//			code.append("    var track = new Track;\n");
+//			code.append("    day1.slots.add(track);\n");
+//			code.append("}\n");
+//			code.append("for(i in Sequence{1..%1$d}){\n");
+//			code.append("    day2.slots.add(day1.slots.last());\n");
+//			code.append("}\n");
+			eolCode.append(String.format(code.toString(), i));
+			// System.out.println(eolCode);
+			run(eolCode.toString(), true);
+		}
+
+		saveOutputText();
+		saveErrorMessages();
+		assertEquals(true, true);
+	}
+	
 	@Override
 	public EPackage getEPackage() {
 		return ConferencePackage.eINSTANCE;

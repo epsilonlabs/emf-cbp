@@ -27,6 +27,7 @@ import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
 import org.eclipse.epsilon.cbp.history.ModelHistory;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.epsilon.cbp.test.conference.ConferencePackage;
 import org.eclipse.epsilon.cbp.test.node.NodePackage;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
@@ -100,6 +101,23 @@ public abstract class LoadingPerformanceTests {
 	protected int ignoredPackageCount = 0;
 	protected int ignoredSessionCount = 0;
 	protected int ignoredCreateCount = 0;
+
+	protected double setAttAvg = 0;
+	protected double unsetAttAvg = 0;
+	protected double addAttAvg = 0;
+	protected double removeAttAvg = 0;
+	protected double moveAttAvg = 0;
+	protected double setRefAvg = 0;
+	protected double unsetRefAvg = 0;
+	protected double addRefAvg = 0;
+	protected double removeRefAvg = 0;
+	protected double moveRefAvg = 0;
+	protected double deleteAvg = 0;
+	protected double addResAvg = 0;
+	protected double removeResAvg = 0;
+	protected double packageAvg = 0;
+	protected double sessionAvg = 0;
+	protected double createAvg = 0;
 
 	protected Set<Integer> ignoreList = null;
 
@@ -257,7 +275,6 @@ public abstract class LoadingPerformanceTests {
 			ignoredSessionCount = modelHistory.getIgnoredSessionCount();
 			ignoredCreateCount = modelHistory.getIgnoredCreateCount();
 
-			
 			cbpXml = cbpOutputStream.toString();
 		} catch (Exception e) {
 			errorMessage.append(e.toString() + "\n");
@@ -281,6 +298,43 @@ public abstract class LoadingPerformanceTests {
 			beforeLoadCBP = System.currentTimeMillis();
 			cbpResource3.load(new ByteArrayInputStream(sCBP2.getBytes()), options);
 			afterLoadCBP = System.currentTimeMillis();
+
+			setAttAvg = 0;
+			unsetAttAvg = 0;
+			addAttAvg = 0;
+			removeAttAvg = 0;
+			moveAttAvg = 0;
+			setRefAvg = 0;
+			unsetRefAvg = 0;
+			addRefAvg = 0;
+			removeRefAvg = 0;
+			moveRefAvg = 0;
+			deleteAvg = 0;
+			addResAvg = 0;
+			removeResAvg = 0;
+			packageAvg = 0;
+			sessionAvg = 0;
+			createAvg = 0;
+
+			CBPXMLResourceImpl cbpx = (CBPXMLResourceImpl) cbpResource3;
+
+			setAttAvg = cbpx.getSetAttAvg();
+			unsetAttAvg = cbpx.getUnsetAttAvg();
+			addAttAvg = cbpx.getAddAttAvg();
+			removeAttAvg = cbpx.getRemoveAttAvg();
+			moveAttAvg = cbpx.getMoveAttAvg();
+			setRefAvg = cbpx.getSetRefAvg();
+			unsetRefAvg = cbpx.getUnsetRefAvg();
+			addRefAvg = cbpx.getAddRefAvg();
+			removeRefAvg = cbpx.getRemoveRefAvg();
+			moveRefAvg = cbpx.getMoveRefAvg();
+			deleteAvg = cbpx.getDeleteAvg();
+			addResAvg = cbpx.getAddResAvg();
+			removeResAvg = cbpx.getRemoveResAvg();
+			packageAvg = cbpx.getPackageAvg();
+			sessionAvg = cbpx.getSessionAvg();
+			createAvg = cbpx.getCreateAvg();
+
 		} catch (IOException e) {
 			errorMessage.append(e.toString() + "\n");
 			e.printStackTrace();
@@ -455,20 +509,18 @@ public abstract class LoadingPerformanceTests {
 			sumReferenceAddRemoveMove = sumReferenceAddRemoveMove / iteration;
 			sumDelete = sumDelete / iteration;
 
-			appendLineToOutputText(String.format(
-					"%1$.4f\t%2$.4f\t%3$.4f\t%4$.4f\t%5$.4f\t%6$.0f\t%7$.0f"
-							+ "\t%8$.0f\t%9$.0f\t%10$.0f\t%11$.0f\t%12$.0f\t%13$.0f"
-							
-							+ "\t%14$.0f\t%15$.0f\t%16$.0f\t%17$.0f"
-							+ "\t%18$.0f\t%19$.0f\t%20$.0f\t%21$.0f"
-							+ "\t%22$.0f\t%23$.0f\t%24$.0f\t%25$.0f"
-							+ "\t%26$.0f\t%27$.0f\t%28$.0f\t%29$.0f"
-							
-							+ "\t%30$.0f\t%31$.0f\t%32$.0f\t%33$.0f"
-							+ "\t%34$.0f\t%35$.0f\t%36$.0f\t%37$.0f"
-							+ "\t%38$.0f\t%39$.0f\t%40$.0f\t%41$.0f"
-							+ "\t%42$.0f\t%43$.0f\t%44$.0f\t%45$.0f",							
-							
+			appendLineToOutputText(String.format("%1$.4f\t%2$.4f\t%3$.4f\t%4$.4f\t%5$.4f\t%6$.0f\t%7$.0f"
+					+ "\t%8$.0f\t%9$.0f\t%10$.0f\t%11$.0f\t%12$.0f\t%13$.0f"
+
+					+ "\t%14$.0f\t%15$.0f\t%16$.0f\t%17$.0f" + "\t%18$.0f\t%19$.0f\t%20$.0f\t%21$.0f"
+					+ "\t%22$.0f\t%23$.0f\t%24$.0f\t%25$.0f" + "\t%26$.0f\t%27$.0f\t%28$.0f\t%29$.0f"
+
+					+ "\t%30$.0f\t%31$.0f\t%32$.0f\t%33$.0f" + "\t%34$.0f\t%35$.0f\t%36$.0f\t%37$.0f"
+					+ "\t%38$.0f\t%39$.0f\t%40$.0f\t%41$.0f" + "\t%42$.0f\t%43$.0f\t%44$.0f\t%45$.0f"
+					
+					+ "\t%46$.0f\t%47$.0f\t%48$.0f\t%49$.0f" + "\t%50$.0f\t%51$.0f\t%52$.0f\t%53$.0f"
+					+ "\t%54$.0f\t%55$.0f\t%56$.0f\t%57$.0f" + "\t%58$.0f\t%59$.0f\t%60$.0f\t%61$.0f",
+
 					deltaSaveXMI, deltaSaveCBP, deltaLoadXMI, deltaLoadOCBP, deltaLoadCBP, sumNumOfNodes,
 					sumNumOfLineOptCBP, sumNumOfLineCBP,
 
@@ -482,7 +534,10 @@ public abstract class LoadingPerformanceTests {
 					, sumIgnoredSetAttCount, sumIgnoredUnsetAttCount, sumIgnoredAddAttCount, sumIgnoredRemoveAttCount,
 					sumIgnoredMoveAttCount, sumIgnoredSetRefCount, sumIgnoredUnsetRefCount, sumIgnoredAddRefCount,
 					sumIgnoredRemoveRefCount, sumIgnoredMoveRefCount, sumIgnoredMeleteCount, sumIgnoredAddResCount,
-					sumIgnoredRemoveResCount, sumIgnoredPackageCount, sumIgnoredSessionCount, sumIgnoredCreateCount));
+					sumIgnoredRemoveResCount, sumIgnoredPackageCount, sumIgnoredSessionCount, sumIgnoredCreateCount
+
+					, setAttAvg, unsetAttAvg, addAttAvg, removeAttAvg, moveAttAvg, setRefAvg, unsetRefAvg, addRefAvg,
+					removeRefAvg, moveRefAvg, deleteAvg, addResAvg, removeResAvg, packageAvg, sessionAvg, createAvg));
 
 		} catch (Exception e) {
 			errorMessage.append("\n" + eol);

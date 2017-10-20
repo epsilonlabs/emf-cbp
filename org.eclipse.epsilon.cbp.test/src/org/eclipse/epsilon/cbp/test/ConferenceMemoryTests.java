@@ -34,9 +34,9 @@ public class ConferenceMemoryTests extends MemoryPerformanceTests {
 		appendLineToOutputText("Start: " + sdf.format(new Date()) + "\n");
 
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tNuNodes\tObjHistory\tIgnoreLst\tChgeEvent\tCBPSize   \tXMISize");
+		appendLineToOutputText("No\tNuNodes\tOptimiCBP\tNonOpCBP\tXMISize");
 		// for (int i = 3200; i <= 3200; i += 200) {
-		for (int i = 0; i <= 100000; i += 500) {
+		for (int i = 0; i <= 20000; i += 100) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
 

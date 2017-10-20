@@ -40,9 +40,9 @@ public class NodeMemoryTests extends MemoryPerformanceTests {
 		appendLineToOutputText("Start: " + sdf.format(new Date()) + "\n");
 
 		StringBuilder eolCode = new StringBuilder();
-		appendLineToOutputText("No\tNuNodes\tObjHistory\tIgnoreLst\tChgeEvent\tCBPSize   \tXMISize");
+		appendLineToOutputText("No\tNuNodes\tOptimiCBP\tNonOpCBP\tXMISize\n");
 		// for (int i = 3200; i <= 3200; i += 200) {
-		for (int i = 0; i <= 100000; i += 500) {
+		for (int i = 0; i <= 10000; i += 100) {
 			eolCode.setLength(0);
 			appendToOutputText(String.valueOf(i) + "\t");
 
@@ -57,16 +57,16 @@ public class NodeMemoryTests extends MemoryPerformanceTests {
 			eventProbabilityMap.put("CREATE", 1);
 			eventProbabilityMap.put("SET_ATTRIBUTE", 1);
 			eventProbabilityMap.put("UNSET_ATTRIBUTE", 1);
-			eventProbabilityMap.put("SET_REFERENCE", 1);
-			eventProbabilityMap.put("UNSET_REFERENCE", 1);
-			eventProbabilityMap.put("ADD_ATTRIBUTE", 3);
-			eventProbabilityMap.put("MOVE_ATTRIBUTE", 2);
-			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
-			eventProbabilityMap.put("ADD_REFERENCE_REF", 3);
-			eventProbabilityMap.put("MOVE_REFERENCE_REF", 2);
-			eventProbabilityMap.put("ADD_REFERENCE_VAL", 3);
-			eventProbabilityMap.put("MOVE_REFERENCE_VAL", 2);
-			eventProbabilityMap.put("DELETE", 2);
+//			eventProbabilityMap.put("SET_REFERENCE", 1);
+//			eventProbabilityMap.put("UNSET_REFERENCE", 1);
+//			eventProbabilityMap.put("ADD_ATTRIBUTE", 1);
+//			eventProbabilityMap.put("MOVE_ATTRIBUTE", 1);
+//			eventProbabilityMap.put("REMOVE_ATTRIBUTE", 1);
+//			eventProbabilityMap.put("ADD_REFERENCE_REF", 15);
+//			eventProbabilityMap.put("MOVE_REFERENCE_REF", 10);
+			eventProbabilityMap.put("ADD_REFERENCE_VAL", 10);
+			eventProbabilityMap.put("MOVE_REFERENCE_VAL", 5);
+			eventProbabilityMap.put("DELETE", 1);
 
 			List<String> operations = new ArrayList<>();
 			for (Entry<String, Integer> entry : eventProbabilityMap.entrySet()) {

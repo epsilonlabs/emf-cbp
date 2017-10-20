@@ -949,6 +949,42 @@ public class ModelHistory extends ObjectHistory {
 		return avgTimeReferenceAddRemoveMove;
 	}
 
+	public void clear() {
+		//model events
+		for (Entry<String, EventHistory> item : this.getEventHistoryMap().entrySet()) {
+			item.getValue().clear();
+		}
+		this.getEventHistoryMap().clear();
+
+		//----attributes
+		for (Entry<EObject, ObjectHistory> item : this.geteObjectHistoryMap().entrySet()) {
+			for (Entry<EObject, AttributeHistory> attr : item.getValue().getAttributes().entrySet()) {
+				for (Entry<String, EventHistory> events : attr.getValue().getEventHistoryMap().entrySet()){
+					events.getValue().clear();
+				}
+				attr.getValue().getEventHistoryMap().clear();
+			}
+			item.getValue().getAttributes().clear();
+
+			//----refs
+			for (Entry<EObject, ReferenceHistory> refs : item.getValue().getReferences().entrySet()) {
+				for (Entry<String, EventHistory> events : refs.getValue().getEventHistoryMap().entrySet()){
+					events.getValue().clear();
+				}
+				refs.getValue().getEventHistoryMap().clear();
+			}
+			item.getValue().getReferences().clear();
+			
+			//-----------events
+			for (Entry<String, EventHistory> events : item.getValue().getEventHistoryMap().entrySet()){
+				events.getValue().clear();
+			}
+			item.getValue().getEventHistoryMap().clear();
+
+		}
+		this.geteObjectHistoryMap().clear();
+	}
+
 	public void printStructure() {
 		System.out.println("MODEL HISTORY");
 		System.out.println(this.getEObject());

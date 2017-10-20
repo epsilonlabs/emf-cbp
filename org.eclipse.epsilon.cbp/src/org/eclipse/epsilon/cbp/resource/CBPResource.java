@@ -227,6 +227,11 @@ public abstract class CBPResource extends ResourceImpl {
 		dos.close();
 		persistedIgnoredEvents = ignoreList.size();
 	}
+	
+	public void clearIgnoreSet(){
+		this.ignoreSet.clear();
+		this.ignoreList.clear();
+	}
 
 	public void startNewSession() {
 		changeEventAdapter.handleStartNewSession();
