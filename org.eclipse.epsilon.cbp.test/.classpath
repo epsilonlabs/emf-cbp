@@ -15,8 +15,6 @@
 	<classpathentry kind="lib" path="lib/jamm-0.3.3-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/classmexer.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.emf.compare_3.4.0.201611041634.jar" sourcepath="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.emf.compare.source_3.4.0.201611041634.jar"/>
-	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.eclipse.emf.compare.source_3.4.0.201611041634.jar"/>
 	<classpathentry kind="lib" path="D:/A-DATA/GoogleDriveYork/Change-based Model Programs/eclipse/plugins/org.apache.log4j_1.2.15.v201012070815.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

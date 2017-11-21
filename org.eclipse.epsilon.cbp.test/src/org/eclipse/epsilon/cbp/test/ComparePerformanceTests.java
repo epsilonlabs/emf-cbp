@@ -255,7 +255,7 @@ public abstract class ComparePerformanceTests {
 	public List<ChangeEvent<?>> identifyChanges(CBPResource initialResource, CBPResource modifiedResource) {
 		List<ChangeEvent<?>> changeEvents = modifiedResource.getChangeEvents();
 		int pos = 0;
-		for(pos = changeEvents.size(); pos >= 0; pos--){
+		for(pos = changeEvents.size(); pos > 0; pos--){
 			if (changeEvents.get(pos-1) instanceof StartNewSessionEvent){
 				break;
 			}
