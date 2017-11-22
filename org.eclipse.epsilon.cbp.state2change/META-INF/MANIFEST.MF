@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: State2change
+Bundle-SymbolicName: org.eclipse.epsilon.cbp.state2change;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.equinox.registry,
+ org.eclipse.modisco.java.discoverer,
+ org.eclipse.modisco.infra.discovery.core,
+ org.eclipse.gmt.modisco.java,
+ org.eclipse.epsilon.cbp
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.commons.io;resolution:=optional
+Bundle-ClassPath: libs/commons-io-2.6.jar,
+ .

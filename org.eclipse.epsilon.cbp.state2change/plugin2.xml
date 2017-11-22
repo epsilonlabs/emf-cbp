@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            name="Sample Category"
+            id="org.eclipse.epsilon.cbp.state2change.commands.category">
+      </category>
+      <command
+            name="Load Projects"
+            categoryId="org.eclipse.epsilon.cbp.state2change.commands.category"
+            id="org.eclipse.epsilon.cbp.state2change.commands.loadProjectsCommand">
+      </command>
+      <command
+            categoryId="org.eclipse.epsilon.cbp.state2change.commands.category"
+            id="org.eclipse.epsilon.cbp.state2change.commands.sampleCommand"
+            name="Generate XMIs">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.epsilon.cbp.state2change.commands.loadProjectsCommand"
+            class="org.eclipse.epsilon.cbp.state2change.handlers.LoadProjectsHandler">
+      </handler>
+      <handler
+            class="org.eclipse.epsilon.cbp.state2change.handlers.GenerateHandler"
+            commandId="org.eclipse.epsilon.cbp.state2change.commands.sampleCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.eclipse.epsilon.cbp.state2change.commands.loadProjectsCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+6">
+      </key>
+      <key
+            commandId="org.eclipse.epsilon.cbp.state2change.commands.sampleCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M1+6"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               label="Extension Menu"
+               mnemonic="M"
+               id="org.eclipse.epsilon.cbp.state2change.menus.sampleMenu">
+            <command
+                  commandId="org.eclipse.epsilon.cbp.state2change.commands.loadProjectsCommand"
+                  mnemonic="L"
+                  id="org.eclipse.epsilon.cbp.state2change.menus.loadProjectsCommand">
+            </command>
+            <command
+                  commandId="org.eclipse.epsilon.cbp.state2change.commands.sampleCommand"
+                  id="org.eclipse.epsilon.cbp.state2change.menus.sampleCommand"
+                  mnemonic="S">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.eclipse.epsilon.cbp.state2change.toolbars.loadProjectsToolbar">
+            <command
+                  commandId="org.eclipse.epsilon.cbp.state2change.commands.loadProjectsCommand"
+                  icon="icons/sample.gif"
+                  tooltip="Load Projects"
+                  id="org.eclipse.epsilon.cbp.state2change.toolbars.loadProjectsCommand">
+            </command>
+         </toolbar>
+         <toolbar
+               id="org.eclipse.epsilon.cbp.state2change.toolbars.sampleToolbar">
+            <command
+                  commandId="org.eclipse.epsilon.cbp.state2change.commands.sampleCommand"
+                  icon="icons/sample.gif"
+                  id="org.eclipse.epsilon.cbp.state2change.toolbars.sampleCommand"
+                  tooltip="Generate XMIs">
+            </command>
+         </toolbar>
+      </menuContribution>-->
+   </extension>
+
+</plugin>

@@ -40,9 +40,10 @@ public class GitCommitExtractorTest {
 	
 	@Test
 	public void copyAllCommitsToCommitsDirectoryTest() throws IOException{
+		String code = "MoDisco";
 		gitCommitsExtractor.getCommitHashes();
 		gitCommitsExtractor.copyTargetProjectToCommitsDirectory
-			(gitCommitsDirectory,targetProjectName);
+			(gitCommitsDirectory,targetProjectName, code);
 		assertNotEquals(gitCommitsDirectory.list().length, 0);
 	}
 	

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            name="Extension Category"
+            id="org.eclipse.epsilon.cbp.state2change.commands.category">
+      </category>
+      <command
+            categoryId="org.eclipse.epsilon.cbp.state2change.commands.category"
+            id="org.eclipse.epsilon.cbp.state2change.commands.generateXmiCommand"
+            name="Generate XMIs">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.eclipse.epsilon.cbp.state2change.handlers.GenerateHandler"
+            commandId="org.eclipse.epsilon.cbp.state2change.commands.generateXmiCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.eclipse.epsilon.cbp.state2change.commands.generateXmiCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M1+6"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               label="Extension Menu"
+               mnemonic="M"
+               id="org.eclipse.epsilon.cbp.state2change.menus.sampleMenu">
+            <command
+                  commandId="org.eclipse.epsilon.cbp.state2change.commands.generateXmiCommand"
+                  id="org.eclipse.epsilon.cbp.state2change.menus.generateXmiCommand"
+                  mnemonic="S">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.eclipse.epsilon.cbp.state2change.toolbars.sampleToolbar">
+            <command
+                  commandId="org.eclipse.epsilon.cbp.state2change.commands.generateXmiCommand"
+                  icon="icons/sample.gif"
+                  id="org.eclipse.epsilon.cbp.state2change.toolbars.generateXmiCommand"
+                  tooltip="Generate XMIs">
+            </command>
+         </toolbar>
+      </menuContribution>-->
+   </extension>
+
+</plugin>

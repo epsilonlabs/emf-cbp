@@ -13,7 +13,6 @@ import org.apache.commons.io.FileUtils;
 
 public class GitCommitExtractor {
 
-	private File commitsDirectory;
 	private File gitDirectory;
 	private String getHashesCommand = "git rev-list --all";
 	private List<String> hashList;
@@ -25,11 +24,11 @@ public class GitCommitExtractor {
 		this.gitDirectory = gitDirectory;
 	}
 
-	public void copyTargetProjectToCommitsDirectory(File commitsDirectory) throws IOException {
-		this.copyTargetProjectToCommitsDirectory(commitsDirectory, null);
+	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String code) throws IOException {
+		this.copyTargetProjectToCommitsDirectory(commitsDirectory, null, code);
 	}
 	
-	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String directoryName) throws IOException {
+	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String directoryName, String code) throws IOException {
 		if (commitsDirectory == null) {
 			throw new NullPointerException("Target directory is null");
 		}
@@ -56,7 +55,7 @@ public class GitCommitExtractor {
 			while (strNum.length() <= 6) {
 				strNum = "0" + strNum;
 			}
-			dirName = strNum + "-" + hash;
+			dirName = code + "-" + strNum + "-" + hash;
 			System.out.println("Copying to " + dirName);
 			hashPath = strPath + File.separator + dirName;
 			hashDirectory = new File(hashPath);
