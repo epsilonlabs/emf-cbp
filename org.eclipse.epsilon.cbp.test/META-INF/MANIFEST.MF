@@ -23,9 +23,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.epsilon.cbp,
  org.junit,
- org.eclipse.epsilon.eol.engine;bundle-version="1.3.0",
- org.eclipse.epsilon.emc.emf;bundle-version="1.3.0",
- org.eclipse.emf.compare;bundle-version="3.1.2",
+ org.eclipse.epsilon.eol.engine,
+ org.eclipse.epsilon.emc.emf,
+ org.eclipse.emf.compare,
  org.eclipse.epsilon.cbp.test,
- org.eclipse.emf.compare.source;bundle-version="3.5.1"
+ org.eclipse.emf.compare.source
 Bundle-ActivationPolicy: lazy
