@@ -13,13 +13,32 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
 import org.eclipse.modisco.java.discoverer.DiscoverJavaModelFromJavaProject;
 
-public class JavaXmiGenerator {
+public class JavaXmiGenerator implements IApplication {
+
+	@Override
+	public Object start(IApplicationContext context) throws Exception {
+
+		File gitCommitsDirectory = new File("D:/TEMP/target/".replace("/", File.separator));
+		File targetXmiDirectory = new File("D:/TEMP/target-xmi/".replace("/", File.separator));
+
+		this.generateXmi(gitCommitsDirectory, targetXmiDirectory);
+
+		System.out.println("Finished!");
+		return IApplication.EXIT_OK;
+	}
+
+	@Override
+	public void stop() {
+		// nothing to do
+	}
 
 	public void generateXmi(File javaProjectsDirectory, File targetXmiDirectory) {
 		IJavaProject javaProject;
@@ -31,30 +50,38 @@ public class JavaXmiGenerator {
 			File[] fileList = javaProjectsDirectory.listFiles();
 			for (File file : fileList) {
 				System.out.println("Exporting the XMI of " + file.getName());
-				
+
 				// initialise project description, create one if none existed
 				String projectFile = file.getAbsolutePath() + File.separator + ".project";
 				Path path = new Path(projectFile);
 				if (path.toFile().exists()) {
 					description = ResourcesPlugin.getWorkspace().loadProjectDescription(path);
-					description.setName(file.getName());
+					description.setName(file.getName().split("-")[0]);
 				} else {
 					description = ResourcesPlugin.getWorkspace().newProjectDescription(file.getName());
 					path = new Path(file.getAbsolutePath());
 					description.setLocation(path);
 					description.setNatureIds(new String[] { JavaCore.NATURE_ID });
+					description.setName(file.getName().split("-")[0]);
 				}
-				
-				//create eclipse project
+
+				// create eclipse project
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(description.getName());
 				if (!project.exists()) {
 					project.create(description, new NullProgressMonitor());
 					project.open(new NullProgressMonitor());
 				} else {
+					try {
+						project.close(new NullProgressMonitor());
+						project.delete(false, new NullProgressMonitor());
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+					project.create(description, new NullProgressMonitor());
 					project.open(new NullProgressMonitor());
 				}
 
-				//create java project
+				// create java project
 				javaProject = JavaCore.create(project);
 				try {
 					javaProject.open(null);
@@ -62,7 +89,7 @@ public class JavaXmiGenerator {
 					e1.printStackTrace();
 				}
 
-				//discover java elements
+				// discover java elements
 				javaDiscoverer = new DiscoverJavaModelFromJavaProject();
 				try {
 					javaDiscoverer.discoverElement(javaProject, new NullProgressMonitor());
@@ -70,21 +97,23 @@ public class JavaXmiGenerator {
 					e.printStackTrace();
 				}
 
-				//get and save the model in xmi
+				// get and save the model in xmi
 				javaResource = javaDiscoverer.getTargetModel();
 				output = new StringOutputStream();
 				try {
 					javaResource.save(output, null);
-					String filePath = targetXmiDirectory.getAbsolutePath() + File.separator + project.getName()
-							+ ".xmi";
+					String filePath = targetXmiDirectory.getAbsolutePath() + File.separator + file.getName() + ".xmi";
 					File fileXmi = new File(filePath);
 					FileUtils.writeStringToFile(fileXmi, output.toString(), Charset.defaultCharset(), false);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
-				project.close(new NullProgressMonitor());
-				project.delete(false, new NullProgressMonitor());
+				try {
+					project.close(new NullProgressMonitor());
+					project.delete(false, new NullProgressMonitor());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 
 			}
 			System.out.println("Finished!");

@@ -1,0 +1,455 @@
+<session id="20171126083313367"/>
+<register epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java"/>
+<create eclass="Model" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="0"/>
+<set-eattribute name="name" target="0"><value literal="Hello"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="1"/>
+<set-eattribute name="name" target="1"><value literal="state2change"/></set-eattribute>
+<create eclass="ClassDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="2"/>
+<set-eattribute name="name" target="2"><value literal="Main"/></set-eattribute>
+<create eclass="CompilationUnit" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="3"/>
+<set-eattribute name="name" target="3"><value literal="Main.java"/></set-eattribute>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000001-73847d0b4d1e0d0ae1a5c7f4c8a596a8eecc2a13\src\state2change\Main.java"/></set-eattribute>
+<create eclass="LineComment" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="4"/>
+<set-eattribute name="content" target="4"><value literal="// TODO Auto-generated method stub"/></set-eattribute>
+<set-eattribute name="enclosedByParent" target="4"><value literal="true"/></set-eattribute>
+<set-ereference name="originalCompilationUnit" target="4"><value eobject="3"/></set-ereference>
+<add-to-ereference name="commentList" position="0" target="3"><value eobject="4"/></add-to-ereference>
+<set-ereference name="package" target="3"><value eobject="1"/></set-ereference>
+<add-to-ereference name="types" position="0" target="3"><value eobject="2"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="2"><value eobject="3"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="5"/>
+<set-eattribute name="visibility" target="5"><value literal="public"/></set-eattribute>
+<set-ereference name="bodyDeclaration" target="5"><value eobject="2"/></set-ereference>
+<set-ereference name="modifier" target="2"><value eobject="5"/></set-ereference>
+<create eclass="MethodDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="6"/>
+<set-eattribute name="name" target="6"><value literal="main"/></set-eattribute>
+<set-ereference name="originalCompilationUnit" target="6"><value eobject="3"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="7"/>
+<set-eattribute name="visibility" target="7"><value literal="public"/></set-eattribute>
+<set-eattribute name="static" target="7"><value literal="true"/></set-eattribute>
+<set-ereference name="bodyDeclaration" target="7"><value eobject="6"/></set-ereference>
+<set-ereference name="modifier" target="6"><value eobject="7"/></set-ereference>
+<create eclass="Block" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="8"/>
+<add-to-ereference name="comments" position="0" target="8"><value eobject="4"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="8"><value eobject="3"/></set-ereference>
+<set-ereference name="body" target="6"><value eobject="8"/></set-ereference>
+<create eclass="SingleVariableDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="9"/>
+<set-eattribute name="name" target="9"><value literal="args"/></set-eattribute>
+<set-ereference name="originalCompilationUnit" target="9"><value eobject="3"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="10"/>
+<set-ereference name="singleVariableDeclaration" target="10"><value eobject="9"/></set-ereference>
+<set-ereference name="modifier" target="9"><value eobject="10"/></set-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="11"/>
+<set-ereference name="type" target="9"><value eobject="11"/></set-ereference>
+<add-to-ereference name="parameters" position="0" target="6"><value eobject="9"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="12"/>
+<set-ereference name="returnType" target="6"><value eobject="12"/></set-ereference>
+<add-to-ereference name="bodyDeclarations" position="0" target="2"><value eobject="6"/></add-to-ereference>
+<add-to-ereference name="ownedElements" position="0" target="1"><value eobject="2"/></add-to-ereference>
+<add-to-ereference name="ownedElements" position="0" target="0"><value eobject="1"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="13"/>
+<set-eattribute name="name" target="13"><value literal="java"/></set-eattribute>
+<set-eattribute name="proxy" target="13"><value literal="true"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="14"/>
+<set-eattribute name="name" target="14"><value literal="lang"/></set-eattribute>
+<set-eattribute name="proxy" target="14"><value literal="true"/></set-eattribute>
+<create eclass="ClassDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="15"/>
+<set-eattribute name="name" target="15"><value literal="String"/></set-eattribute>
+<set-eattribute name="proxy" target="15"><value literal="true"/></set-eattribute>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="16"/>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="15"><value eobject="16"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="17"/>
+<add-to-ereference name="superInterfaces" position="0" target="15"><value eobject="17"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="18"/>
+<add-to-ereference name="superInterfaces" position="1" target="15"><value eobject="18"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="19"/>
+<add-to-ereference name="superInterfaces" position="2" target="15"><value eobject="19"/></add-to-ereference>
+<add-to-ereference name="ownedElements" position="0" target="14"><value eobject="15"/></add-to-ereference>
+<create eclass="InterfaceDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="20"/>
+<set-eattribute name="name" target="20"><value literal="Comparable"/></set-eattribute>
+<set-eattribute name="proxy" target="20"><value literal="true"/></set-eattribute>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="20"><value eobject="18"/></add-to-ereference>
+<create eclass="TypeParameter" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="21"/>
+<set-eattribute name="name" target="21"><value literal="T"/></set-eattribute>
+<set-eattribute name="proxy" target="21"><value literal="true"/></set-eattribute>
+<add-to-ereference name="typeParameters" position="0" target="20"><value eobject="21"/></add-to-ereference>
+<add-to-ereference name="ownedElements" position="1" target="14"><value eobject="20"/></add-to-ereference>
+<create eclass="InterfaceDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="22"/>
+<set-eattribute name="name" target="22"><value literal="CharSequence"/></set-eattribute>
+<set-eattribute name="proxy" target="22"><value literal="true"/></set-eattribute>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="22"><value eobject="19"/></add-to-ereference>
+<add-to-ereference name="ownedElements" position="2" target="14"><value eobject="22"/></add-to-ereference>
+<add-to-ereference name="ownedPackages" position="0" target="13"><value eobject="14"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="23"/>
+<set-eattribute name="name" target="23"><value literal="io"/></set-eattribute>
+<set-eattribute name="proxy" target="23"><value literal="true"/></set-eattribute>
+<create eclass="InterfaceDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="24"/>
+<set-eattribute name="name" target="24"><value literal="Serializable"/></set-eattribute>
+<set-eattribute name="proxy" target="24"><value literal="true"/></set-eattribute>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="24"><value eobject="17"/></add-to-ereference>
+<add-to-ereference name="ownedElements" position="0" target="23"><value eobject="24"/></add-to-ereference>
+<add-to-ereference name="ownedPackages" position="1" target="13"><value eobject="23"/></add-to-ereference>
+<add-to-ereference name="ownedElements" position="1" target="0"><value eobject="13"/></add-to-ereference>
+<create eclass="PrimitiveTypeInt" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="25"/>
+<set-eattribute name="name" target="25"><value literal="int"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="0" target="0"><value eobject="25"/></add-to-ereference>
+<create eclass="PrimitiveTypeLong" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="26"/>
+<set-eattribute name="name" target="26"><value literal="long"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="1" target="0"><value eobject="26"/></add-to-ereference>
+<create eclass="PrimitiveTypeFloat" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="27"/>
+<set-eattribute name="name" target="27"><value literal="float"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="2" target="0"><value eobject="27"/></add-to-ereference>
+<create eclass="PrimitiveTypeDouble" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="28"/>
+<set-eattribute name="name" target="28"><value literal="double"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="3" target="0"><value eobject="28"/></add-to-ereference>
+<create eclass="PrimitiveTypeBoolean" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="29"/>
+<set-eattribute name="name" target="29"><value literal="boolean"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="4" target="0"><value eobject="29"/></add-to-ereference>
+<create eclass="PrimitiveTypeVoid" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="30"/>
+<set-eattribute name="name" target="30"><value literal="void"/></set-eattribute>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="30"><value eobject="12"/></add-to-ereference>
+<add-to-ereference name="orphanTypes" position="5" target="0"><value eobject="30"/></add-to-ereference>
+<create eclass="PrimitiveTypeChar" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="31"/>
+<set-eattribute name="name" target="31"><value literal="char"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="6" target="0"><value eobject="31"/></add-to-ereference>
+<create eclass="PrimitiveTypeShort" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="32"/>
+<set-eattribute name="name" target="32"><value literal="short"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="7" target="0"><value eobject="32"/></add-to-ereference>
+<create eclass="PrimitiveTypeByte" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="33"/>
+<set-eattribute name="name" target="33"><value literal="byte"/></set-eattribute>
+<add-to-ereference name="orphanTypes" position="8" target="0"><value eobject="33"/></add-to-ereference>
+<create eclass="ArrayType" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="34"/>
+<set-eattribute name="name" target="34"><value literal="java.lang.String[]"/></set-eattribute>
+<set-eattribute name="dimensions" target="34"><value literal="1"/></set-eattribute>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="34"><value eobject="11"/></add-to-ereference>
+<set-ereference name="elementType" target="34"><value eobject="16"/></set-ereference>
+<add-to-ereference name="orphanTypes" position="9" target="0"><value eobject="34"/></add-to-ereference>
+<add-to-ereference name="compilationUnits" position="0" target="0"><value eobject="3"/></add-to-ereference>
+<add-to-resource position="0"><value eobject="0"/></add-to-resource>
+<session id="20171126083313695"/>
+<create eclass="ExpressionStatement" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="35"/>
+<add-to-ereference name="statements" position="0" target="8"><value eobject="35"/></add-to-ereference>
+<create eclass="MethodInvocation" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="36"/>
+<set-ereference name="expression" target="35"><value eobject="36"/></set-ereference>
+<create eclass="SingleVariableAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="37"/>
+<set-ereference name="expression" target="36"><value eobject="37"/></set-ereference>
+<create eclass="ClassDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="38"/>
+<set-eattribute name="name" target="38"><value literal="System"/></set-eattribute>
+<set-eattribute name="proxy" target="38"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="3" target="14"><value eobject="38"/></add-to-ereference>
+<create eclass="FieldDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="39"/>
+<set-eattribute name="proxy" target="39"><value literal="true"/></set-eattribute>
+<add-to-ereference name="bodyDeclarations" position="0" target="38"><value eobject="39"/></add-to-ereference>
+<create eclass="VariableDeclarationFragment" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="40"/>
+<set-eattribute name="name" target="40"><value literal="out"/></set-eattribute>
+<set-eattribute name="proxy" target="40"><value literal="true"/></set-eattribute>
+<add-to-ereference name="fragments" position="0" target="39"><value eobject="40"/></add-to-ereference>
+<add-to-ereference name="usageInVariableAccess" position="0" target="40"><value eobject="37"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="41"/>
+<set-ereference name="qualifier" target="37"><value eobject="41"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="38"><value eobject="41"/></add-to-ereference>
+<create eclass="InterfaceDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="42"/>
+<set-eattribute name="name" target="42"><value literal="Closeable"/></set-eattribute>
+<set-eattribute name="proxy" target="42"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="1" target="23"><value eobject="42"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="43"/>
+<add-to-ereference name="superInterfaces" position="0" target="42"><value eobject="43"/></add-to-ereference>
+<create eclass="InterfaceDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="44"/>
+<set-eattribute name="name" target="44"><value literal="AutoCloseable"/></set-eattribute>
+<set-eattribute name="proxy" target="44"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="4" target="14"><value eobject="44"/></add-to-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="44"><value eobject="43"/></add-to-ereference>
+<create eclass="ClassDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="45"/>
+<set-eattribute name="name" target="45"><value literal="PrintStream"/></set-eattribute>
+<set-eattribute name="proxy" target="45"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="1" target="23"><value eobject="45"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="46"/>
+<add-to-ereference name="superInterfaces" position="0" target="45"><value eobject="46"/></add-to-ereference>
+<create eclass="InterfaceDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="47"/>
+<set-eattribute name="name" target="47"><value literal="Appendable"/></set-eattribute>
+<set-eattribute name="proxy" target="47"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="5" target="14"><value eobject="47"/></add-to-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="47"><value eobject="46"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="48"/>
+<add-to-ereference name="superInterfaces" position="1" target="45"><value eobject="48"/></add-to-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="42"><value eobject="48"/></add-to-ereference>
+<create eclass="ClassDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="49"/>
+<set-eattribute name="name" target="49"><value literal="FilterOutputStream"/></set-eattribute>
+<set-eattribute name="proxy" target="49"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="2" target="23"><value eobject="49"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="50"/>
+<set-ereference name="superClass" target="45"><value eobject="50"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="49"><value eobject="50"/></add-to-ereference>
+<create eclass="MethodDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="51"/>
+<set-eattribute name="name" target="51"><value literal="println"/></set-eattribute>
+<set-eattribute name="proxy" target="51"><value literal="true"/></set-eattribute>
+<add-to-ereference name="bodyDeclarations" position="0" target="45"><value eobject="51"/></add-to-ereference>
+<add-to-ereference name="usages" position="0" target="51"><value eobject="36"/></add-to-ereference>
+<create eclass="ClassDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="52"/>
+<set-eattribute name="name" target="52"><value literal="OutputStream"/></set-eattribute>
+<set-eattribute name="proxy" target="52"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="3" target="23"><value eobject="52"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="53"/>
+<add-to-ereference name="superInterfaces" position="0" target="52"><value eobject="53"/></add-to-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="42"><value eobject="53"/></add-to-ereference>
+<create eclass="InterfaceDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="54"/>
+<set-eattribute name="name" target="54"><value literal="Flushable"/></set-eattribute>
+<set-eattribute name="proxy" target="54"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="5" target="23"><value eobject="54"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="55"/>
+<add-to-ereference name="superInterfaces" position="1" target="52"><value eobject="55"/></add-to-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="54"><value eobject="55"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="56"/>
+<set-ereference name="superClass" target="49"><value eobject="56"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="52"><value eobject="56"/></add-to-ereference>
+<unset-ereference name="originalCompilationUnit" target="4"/>
+<set-ereference name="originalCompilationUnit" target="36"><value eobject="3"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="35"><value eobject="3"/></set-ereference>
+<remove-from-ereference name="commentList" target="3"><value eobject="4"/></remove-from-ereference>
+<remove-from-ereference name="comments" target="8"><value eobject="4"/></remove-from-ereference>
+<delete eclass="LineComment" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="4"/>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000002-77562dee1d0d83e7309be22afa96e141994ca7f3\src\state2change\Main.java"/></set-eattribute>
+<session id="20171126083313784"/>
+<create eclass="SingleVariableDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="57"/>
+<set-eattribute name="name" target="57"><value literal="arg0"/></set-eattribute>
+<set-eattribute name="proxy" target="57"><value literal="true"/></set-eattribute>
+<add-to-ereference name="parameters" position="0" target="51"><value eobject="57"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="58"/>
+<set-ereference name="type" target="57"><value eobject="58"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="1" target="15"><value eobject="58"/></add-to-ereference>
+<create eclass="StringLiteral" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="59"/>
+<set-eattribute name="escapedValue" target="59"><value literal="&quot;Hello!&quot;"/></set-eattribute>
+<add-to-ereference name="arguments" position="0" target="36"><value eobject="59"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="59"><value eobject="3"/></set-ereference>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000003-d62fd4e38ea54a4d8fac10457b1bdd6a5553252c\src\state2change\Main.java"/></set-eattribute>
+<session id="20171126083313829"/>
+<create eclass="VariableDeclarationStatement" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="60"/>
+<add-to-ereference name="statements" position="0" target="8"><value eobject="60"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="61"/>
+<set-ereference name="type" target="60"><value eobject="61"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="1" target="15"><value eobject="61"/></add-to-ereference>
+<create eclass="VariableDeclarationFragment" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="62"/>
+<set-eattribute name="name" target="62"><value literal="name"/></set-eattribute>
+<add-to-ereference name="fragments" position="0" target="60"><value eobject="62"/></add-to-ereference>
+<create eclass="StringLiteral" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="63"/>
+<set-eattribute name="escapedValue" target="63"><value literal="&quot;World&quot;"/></set-eattribute>
+<set-ereference name="initializer" target="62"><value eobject="63"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="63"><value eobject="3"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="62"><value eobject="3"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="60"><value eobject="3"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="64"/>
+<set-ereference name="variableDeclarationStatement" target="64"><value eobject="60"/></set-ereference>
+<set-ereference name="modifier" target="60"><value eobject="64"/></set-ereference>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000004-b3a597d71588f28867a651d80326bf2aa841bb0b\src\state2change\Main.java"/></set-eattribute>
+<session id="20171126083313868"/>
+<set-eattribute name="escapedValue" target="59"><value literal="&quot;Hello &quot;"/></set-eattribute>
+<create eclass="InfixExpression" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="65"/>
+<set-eattribute name="operator" target="65"><value literal="+"/></set-eattribute>
+<add-to-ereference name="arguments" position="1" target="36"><value eobject="65"/></add-to-ereference>
+<create eclass="StringLiteral" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="66"/>
+<set-eattribute name="escapedValue" target="66"><value literal="&quot;!&quot;"/></set-eattribute>
+<add-to-ereference name="extendedOperands" position="0" target="65"><value eobject="66"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="66"><value eobject="3"/></set-ereference>
+<create eclass="SingleVariableAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="67"/>
+<set-ereference name="rightOperand" target="65"><value eobject="67"/></set-ereference>
+<add-to-ereference name="usageInVariableAccess" position="0" target="62"><value eobject="67"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="65"><value eobject="3"/></set-ereference>
+<remove-from-ereference name="arguments" target="36"><value eobject="59"/></remove-from-ereference>
+<set-ereference name="leftOperand" target="65"><value eobject="59"/></set-ereference>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000005-3b37208de9a27f1ae1fb9f23ba3850f4b3d8e1f9\src\state2change\Main.java"/></set-eattribute>
+<session id="20171126083313903"/>
+<set-eattribute name="escapedValue" target="59"><value literal="&quot;Hello World!&quot;"/></set-eattribute>
+<unset-ereference name="originalCompilationUnit" target="66"/>
+<remove-from-ereference name="usageInVariableAccess" target="62"><value eobject="67"/></remove-from-ereference>
+<unset-ereference name="variable" target="67"/>
+<unset-ereference name="originalCompilationUnit" target="65"/>
+<unset-ereference name="rightOperand" target="65"/>
+<delete eclass="SingleVariableAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="67"/>
+<unset-ereference name="leftOperand" target="65"/>
+<add-to-ereference name="arguments" position="1" target="36"><value eobject="59"/></add-to-ereference>
+<remove-from-ereference name="extendedOperands" target="65"><value eobject="66"/></remove-from-ereference>
+<delete eclass="StringLiteral" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="66"/>
+<remove-from-ereference name="arguments" target="36"><value eobject="65"/></remove-from-ereference>
+<delete eclass="InfixExpression" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="65"/>
+<create eclass="MethodInvocation" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="68"/>
+<set-ereference name="expression" target="35"><value eobject="68"/></set-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="69"/>
+<set-ereference name="expression" target="68"><value eobject="69"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="2"><value eobject="69"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="68"><value eobject="3"/></set-ereference>
+<create eclass="MethodDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="70"/>
+<set-eattribute name="name" target="70"><value literal="greet"/></set-eattribute>
+<add-to-ereference name="bodyDeclarations" position="1" target="2"><value eobject="70"/></add-to-ereference>
+<add-to-ereference name="usages" position="0" target="70"><value eobject="68"/></add-to-ereference>
+<create eclass="Block" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="71"/>
+<set-ereference name="body" target="70"><value eobject="71"/></set-ereference>
+<create eclass="ExpressionStatement" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="72"/>
+<add-to-ereference name="statements" position="0" target="71"><value eobject="72"/></add-to-ereference>
+<set-ereference name="expression" target="72"><value eobject="36"/></set-ereference>
+<unset-ereference name="originalCompilationUnit" target="63"/>
+<unset-ereference name="originalCompilationUnit" target="62"/>
+<unset-ereference name="initializer" target="62"/>
+<delete eclass="StringLiteral" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="63"/>
+<remove-from-ereference name="usagesInTypeAccess" target="15"><value eobject="61"/></remove-from-ereference>
+<unset-ereference name="type" target="61"/>
+<unset-ereference name="originalCompilationUnit" target="60"/>
+<unset-ereference name="type" target="60"/>
+<delete eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="61"/>
+<unset-ereference name="variablesContainer" target="62"/>
+<remove-from-ereference name="fragments" target="60"><value eobject="62"/></remove-from-ereference>
+<delete eclass="VariableDeclarationFragment" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="62"/>
+<unset-ereference name="variableDeclarationStatement" target="64"/>
+<unset-ereference name="modifier" target="60"/>
+<delete eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="64"/>
+<remove-from-ereference name="statements" target="8"><value eobject="60"/></remove-from-ereference>
+<delete eclass="VariableDeclarationStatement" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="60"/>
+<set-ereference name="originalCompilationUnit" target="72"><value eobject="3"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="71"><value eobject="3"/></set-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="73"/>
+<set-ereference name="returnType" target="70"><value eobject="73"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="1" target="30"><value eobject="73"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="70"><value eobject="3"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="74"/>
+<set-eattribute name="visibility" target="74"><value literal="public"/></set-eattribute>
+<set-eattribute name="static" target="74"><value literal="true"/></set-eattribute>
+<set-ereference name="bodyDeclaration" target="74"><value eobject="70"/></set-ereference>
+<set-ereference name="modifier" target="70"><value eobject="74"/></set-ereference>
+<remove-from-ereference name="usagesInTypeAccess" target="49"><value eobject="50"/></remove-from-ereference>
+<unset-ereference name="type" target="50"/>
+<unset-ereference name="superClass" target="45"/>
+<delete eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="50"/>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="75"/>
+<set-ereference name="superClass" target="45"><value eobject="75"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="49"><value eobject="75"/></add-to-ereference>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000006-3e13411854f302083d59523aa04d1e1ea080b133\src\state2change\Main.java"/></set-eattribute>
+<session id="20171126083313942"/>
+<create eclass="SingleVariableDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="76"/>
+<set-eattribute name="name" target="76"><value literal="name"/></set-eattribute>
+<add-to-ereference name="parameters" position="0" target="70"><value eobject="76"/></add-to-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="77"/>
+<set-ereference name="type" target="76"><value eobject="77"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="1" target="15"><value eobject="77"/></add-to-ereference>
+<set-eattribute name="escapedValue" target="59"><value literal="&quot;Hello &quot;"/></set-eattribute>
+<create eclass="InfixExpression" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="78"/>
+<set-eattribute name="operator" target="78"><value literal="+"/></set-eattribute>
+<add-to-ereference name="arguments" position="1" target="36"><value eobject="78"/></add-to-ereference>
+<create eclass="StringLiteral" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="79"/>
+<set-eattribute name="escapedValue" target="79"><value literal="&quot;!&quot;"/></set-eattribute>
+<add-to-ereference name="extendedOperands" position="0" target="78"><value eobject="79"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="79"><value eobject="3"/></set-ereference>
+<create eclass="SingleVariableAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="80"/>
+<set-ereference name="rightOperand" target="78"><value eobject="80"/></set-ereference>
+<add-to-ereference name="usageInVariableAccess" position="0" target="76"><value eobject="80"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="78"><value eobject="3"/></set-ereference>
+<remove-from-ereference name="arguments" target="36"><value eobject="59"/></remove-from-ereference>
+<set-ereference name="leftOperand" target="78"><value eobject="59"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="76"><value eobject="3"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="81"/>
+<set-ereference name="singleVariableDeclaration" target="81"><value eobject="76"/></set-ereference>
+<set-ereference name="modifier" target="76"><value eobject="81"/></set-ereference>
+<create eclass="StringLiteral" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="82"/>
+<set-eattribute name="escapedValue" target="82"><value literal="&quot;Vladimir&quot;"/></set-eattribute>
+<add-to-ereference name="arguments" position="0" target="68"><value eobject="82"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="82"><value eobject="3"/></set-ereference>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000007-62f483f078d68b76cf6eb5faacd4bba897a9eed4\src\state2change\Main.java"/></set-eattribute>
+<session id="20171126083313974"/>
+<create eclass="CompilationUnit" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="83"/>
+<set-eattribute name="name" target="83"><value literal="Greet.java"/></set-eattribute>
+<set-eattribute name="originalFilePath" target="83"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000008-b8ebba70ab51b6a818c69c5de9aafccd0ba25180\src\state2change\Greet.java"/></set-eattribute>
+<add-to-ereference name="compilationUnits" position="0" target="0"><value eobject="83"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="59"><value eobject="83"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="79"><value eobject="83"/></set-ereference>
+<remove-from-ereference name="usageInVariableAccess" target="76"><value eobject="80"/></remove-from-ereference>
+<unset-ereference name="variable" target="80"/>
+<unset-ereference name="rightOperand" target="78"/>
+<delete eclass="SingleVariableAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="80"/>
+<create eclass="SingleVariableAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="84"/>
+<set-ereference name="rightOperand" target="78"><value eobject="84"/></set-ereference>
+<add-to-ereference name="usageInVariableAccess" position="0" target="76"><value eobject="84"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="78"><value eobject="83"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="36"><value eobject="83"/></set-ereference>
+<unset-ereference name="originalCompilationUnit" target="72"/>
+<unset-ereference name="expression" target="72"/>
+<set-ereference name="expression" target="35"><value eobject="36"/></set-ereference>
+<unset-ereference name="originalCompilationUnit" target="71"/>
+<remove-from-ereference name="statements" target="71"><value eobject="72"/></remove-from-ereference>
+<delete eclass="ExpressionStatement" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="72"/>
+<set-ereference name="originalCompilationUnit" target="76"><value eobject="83"/></set-ereference>
+<set-eattribute name="static" target="74"><value literal="false"/></set-eattribute>
+<unset-ereference name="originalCompilationUnit" target="70"/>
+<create eclass="ClassDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="85"/>
+<set-eattribute name="name" target="85"><value literal="Greet"/></set-eattribute>
+<add-to-ereference name="ownedElements" position="0" target="1"><value eobject="85"/></add-to-ereference>
+<create eclass="MethodDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="86"/>
+<set-eattribute name="name" target="86"><value literal="hello"/></set-eattribute>
+<add-to-ereference name="bodyDeclarations" position="0" target="85"><value eobject="86"/></add-to-ereference>
+<unset-ereference name="modifier" target="70"/>
+<set-ereference name="modifier" target="86"><value eobject="74"/></set-ereference>
+<unset-ereference name="body" target="70"/>
+<delete eclass="Block" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="71"/>
+<remove-from-ereference name="parameters" target="70"><value eobject="76"/></remove-from-ereference>
+<add-to-ereference name="parameters" position="0" target="86"><value eobject="76"/></add-to-ereference>
+<remove-from-ereference name="usages" target="70"><value eobject="68"/></remove-from-ereference>
+<delete eclass="MethodInvocation" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="68"/>
+<unset-ereference name="returnType" target="70"/>
+<set-ereference name="returnType" target="86"><value eobject="73"/></set-ereference>
+<remove-from-ereference name="usagesInTypeAccess" target="2"><value eobject="69"/></remove-from-ereference>
+<delete eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="69"/>
+<create eclass="Block" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="87"/>
+<set-ereference name="body" target="6"><value eobject="87"/></set-ereference>
+<create eclass="ExpressionStatement" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="88"/>
+<add-to-ereference name="statements" position="0" target="87"><value eobject="88"/></add-to-ereference>
+<create eclass="MethodInvocation" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="89"/>
+<set-ereference name="expression" target="88"><value eobject="89"/></set-ereference>
+<add-to-ereference name="arguments" position="0" target="89"><value eobject="82"/></add-to-ereference>
+<create eclass="VariableDeclarationStatement" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="90"/>
+<add-to-ereference name="statements" position="0" target="87"><value eobject="90"/></add-to-ereference>
+<create eclass="VariableDeclarationFragment" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="91"/>
+<set-eattribute name="name" target="91"><value literal="greet"/></set-eattribute>
+<add-to-ereference name="fragments" position="0" target="90"><value eobject="91"/></add-to-ereference>
+<create eclass="SingleVariableAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="92"/>
+<set-ereference name="expression" target="89"><value eobject="92"/></set-ereference>
+<add-to-ereference name="usageInVariableAccess" position="0" target="91"><value eobject="92"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="89"><value eobject="3"/></set-ereference>
+<add-to-ereference name="usages" position="0" target="86"><value eobject="89"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="88"><value eobject="3"/></set-ereference>
+<create eclass="ClassInstanceCreation" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="93"/>
+<set-ereference name="initializer" target="91"><value eobject="93"/></set-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="94"/>
+<set-ereference name="type" target="93"><value eobject="94"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="85"><value eobject="94"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="93"><value eobject="3"/></set-ereference>
+<create eclass="ConstructorDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="95"/>
+<set-eattribute name="name" target="95"><value literal="Greet"/></set-eattribute>
+<set-eattribute name="proxy" target="95"><value literal="true"/></set-eattribute>
+<add-to-ereference name="bodyDeclarations" position="1" target="85"><value eobject="95"/></add-to-ereference>
+<add-to-ereference name="usages" position="0" target="95"><value eobject="93"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="91"><value eobject="3"/></set-ereference>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="96"/>
+<set-ereference name="type" target="90"><value eobject="96"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="85"><value eobject="96"/></add-to-ereference>
+<set-ereference name="originalCompilationUnit" target="90"><value eobject="3"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="97"/>
+<set-ereference name="variableDeclarationStatement" target="97"><value eobject="90"/></set-ereference>
+<set-ereference name="modifier" target="90"><value eobject="97"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="87"><value eobject="3"/></set-ereference>
+<set-ereference name="body" target="86"><value eobject="8"/></set-ereference>
+<unset-ereference name="abstractTypeDeclaration" target="70"/>
+<remove-from-ereference name="bodyDeclarations" target="2"><value eobject="70"/></remove-from-ereference>
+<delete eclass="MethodDeclaration" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="70"/>
+<set-ereference name="originalCompilationUnit" target="86"><value eobject="83"/></set-ereference>
+<set-ereference name="originalCompilationUnit" target="85"><value eobject="83"/></set-ereference>
+<create eclass="Modifier" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="98"/>
+<set-eattribute name="visibility" target="98"><value literal="public"/></set-eattribute>
+<set-ereference name="bodyDeclaration" target="98"><value eobject="85"/></set-ereference>
+<set-ereference name="modifier" target="85"><value eobject="98"/></set-ereference>
+<remove-from-ereference name="usagesInTypeAccess" target="49"><value eobject="75"/></remove-from-ereference>
+<unset-ereference name="type" target="75"/>
+<unset-ereference name="superClass" target="45"/>
+<delete eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="75"/>
+<create eclass="TypeAccess" epackage="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" id="99"/>
+<set-ereference name="superClass" target="45"><value eobject="99"/></set-ereference>
+<add-to-ereference name="usagesInTypeAccess" position="0" target="49"><value eobject="99"/></add-to-ereference>
+<set-eattribute name="originalFilePath" target="3"><value literal="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000008-b8ebba70ab51b6a818c69c5de9aafccd0ba25180\src\state2change\Main.java"/></set-eattribute>
+<set-ereference name="package" target="83"><value eobject="1"/></set-ereference>
+<add-to-ereference name="types" position="0" target="83"><value eobject="85"/></add-to-ereference>

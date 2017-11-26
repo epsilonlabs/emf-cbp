@@ -13,9 +13,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.epsilon.cbp,
  org.eclipse.emf.ecore.xmi,
  org.eclipse.emf.compare,
- org.apache.log4j
+ org.apache.log4j,
+ org.eclipse.equinox.app
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.apache.commons.io;resolution:=optional
+Import-Package: org.apache.commons.io;resolution:=optional,
+ org.junit;version="4.12.0"
 Bundle-ClassPath: libs/commons-io-2.6.jar,
  .
 Export-Package: org.eclipse.epsilon.cbp.state2change

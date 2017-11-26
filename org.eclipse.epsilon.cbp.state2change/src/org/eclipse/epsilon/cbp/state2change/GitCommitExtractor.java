@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.state2change;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 
 public class GitCommitExtractor {
 
@@ -27,8 +30,9 @@ public class GitCommitExtractor {
 	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String code) throws IOException {
 		this.copyTargetProjectToCommitsDirectory(commitsDirectory, null, code);
 	}
-	
-	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String directoryName, String code) throws IOException {
+
+	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String directoryName, String code)
+			throws IOException {
 		if (commitsDirectory == null) {
 			throw new NullPointerException("Target directory is null");
 		}
@@ -62,12 +66,22 @@ public class GitCommitExtractor {
 
 			hashDirectory.mkdir();
 			this.executeCommand("git checkout " + hash, gitDirectory);
+			
+			IOFileFilter nameFilter1 = FileFilterUtils.and(FileFilterUtils.directoryFileFilter(),
+					FileFilterUtils.nameFileFilter(".git"));
+			IOFileFilter nameFilter2 = FileFilterUtils.and(FileFilterUtils.fileFileFilter(),
+					FileFilterUtils.nameFileFilter(".gitattributes"));
+			IOFileFilter nameFilter3 = FileFilterUtils.and(FileFilterUtils.fileFileFilter(),
+					FileFilterUtils.nameFileFilter(".gitignore"));
+			IOFileFilter orFilter = FileFilterUtils.or(nameFilter1, nameFilter2, nameFilter3);
+			IOFileFilter filter = FileFilterUtils.notFileFilter(orFilter);
+			
 			if (directoryName == null || directoryName.trim() == "") {
-				FileUtils.copyDirectory(gitDirectory, hashDirectory);
+				FileUtils.copyDirectory(gitDirectory, hashDirectory, filter);
 			} else {
 				File searchDir = searchDirectory(gitDirectory, directoryName);
 				if (searchDir != null) {
-					FileUtils.copyDirectory(searchDir, hashDirectory);
+					FileUtils.copyDirectory(searchDir, hashDirectory, filter);
 				}
 			}
 		}

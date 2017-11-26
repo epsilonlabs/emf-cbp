@@ -40,7 +40,6 @@ import org.eclipse.gmt.modisco.java.emf.JavaPackage;
 public class State2ChangeConverter {
 
 	private File sourceDirectory;
-	private Set<Diff> mergedDiffs;
 
 	public State2ChangeConverter(File xmiDirectory) throws FileNotFoundException {
 		if (!xmiDirectory.exists()) {
@@ -59,8 +58,6 @@ public class State2ChangeConverter {
 		URI commonXmiURI = URI.createURI("javamodel.xmi");
 		URI commonCbpxmlURI = URI.createURI("javamodel.cbpxml");
 
-		mergedDiffs = new HashSet<>();
-
 		JavaPackage.eINSTANCE.eClass();
 
 		ResourceSet cbpResourceSet = new ResourceSetImpl();
@@ -71,13 +68,13 @@ public class State2ChangeConverter {
 
 		File[] sourceFiles = sourceDirectory.listFiles();
 		System.out.println("Converting " + sourceFiles.length + " file(s) to CBP");
-		
+
 		for (int i = 0; i < sourceFiles.length; i++) {
-			
+
 			System.out.println("Converting file " + sourceFiles[i].getName() + " to CBP");
-			
+
 			if (i == 0) {
-				
+
 				rootXmiFile = sourceFiles[i];
 				rootXmiResourceSet = new ResourceSetImpl();
 				rootXmiFilePath = rootXmiFile.getAbsolutePath();
@@ -110,19 +107,32 @@ public class State2ChangeConverter {
 				EList<Diff> diffs = comparison.getDifferences();
 				final IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
 
-				//copy all right to left
+				// copy all right to left
 				((CBPXMLResourceImpl) cbpResource).startNewSession();
-				 IBatchMerger merger = new BatchMerger(registry);
-				 merger.copyAllRightToLeft(diffs, null);
+
+				Set<Diff> mergedDiffs = new HashSet<>();
 				
-//				//after merging to check if there are no more differences
-//				scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
-//				comparator = EMFCompare.builder().build();
-//				comparison = comparator.compare(scope);
-//				diffs = comparison.getDifferences();
-//				if (diffs.size() > 0){
-//					throw new Exception("There are still differences between the CBP and the XMI.");
+//				for (Diff diff : diffs) {
+//					System.out.println(diff);
 //				}
+//				System.out.println();
+//				System.out.println();
+				for (Diff diff : diffs) {
+//					System.out.println(diff);
+					merge(diff, true, registry, mergedDiffs);
+				}
+
+				// IBatchMerger merger = new BatchMerger(registry);
+				// merger.copyAllRightToLeft(diffs, null);
+
+				// after merging, to check if there are no more differences
+				scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
+				comparator = EMFCompare.builder().build();
+				comparison = comparator.compare(scope);
+				diffs = comparison.getDifferences();
+				if (diffs.size() > 0) {
+					throw new Exception("There are still differences between the CBP and the XMI.");
+				}
 				cbpResource.save(outputStream, null);
 			}
 		}
@@ -131,24 +141,24 @@ public class State2ChangeConverter {
 		return outputStream.toString();
 	}
 
-	private void merge(Diff diff, boolean mergeRightToLeft, Registry registry) {
-		if (!mergedDiffs.contains(diff)) {
+	private void merge(Diff diff, boolean mergeRightToLeft, Registry registry, Set<Diff> handledDiffs) {
+		if (!handledDiffs.contains(diff)) {
 			IMerger merger = registry.getHighestRankingMerger(diff);
 			IMerger2 merger2 = (IMerger2) merger;
 			Set<Diff> parentDiffs = merger2.getDirectMergeDependencies(diff, mergeRightToLeft);
 
 			for (Diff itemDiff : parentDiffs) {
-				if (!itemDiff.equals(diff) && !mergedDiffs.contains(itemDiff)) {
-					this.merge(itemDiff, mergeRightToLeft, registry);
+				if (!itemDiff.equals(diff) && !handledDiffs.contains(itemDiff)) {
+					this.merge(itemDiff, mergeRightToLeft, registry, handledDiffs);
 				}
+				handledDiffs.add(diff);
 			}
 
 			Set<Diff> rejectedDiffs = merger2.getDirectResultingRejections(diff, mergeRightToLeft);
-			mergedDiffs.addAll(rejectedDiffs);
+			handledDiffs.addAll(rejectedDiffs);
 			merger2.copyRightToLeft(diff, null);
-			mergedDiffs.add(diff);
-			
-			
+			handledDiffs.add(diff);
+
 		}
 		// Set<Diff> a = merger2.getDirectMergeDependencies(diff, true);
 		// Set<Diff> b = merger2.getDirectResultingMerges(diff, true);

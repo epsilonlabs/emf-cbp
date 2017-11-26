@@ -2,6 +2,17 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+	<extension
+       id="JavaXmiGenerator"
+       name="JavaXmiGenerator"
+       point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.eclipse.epsilon.cbp.state2change.JavaXmiGenerator">
+         </run>
+      </application>
+   </extension>
+
    <extension
          point="org.eclipse.ui.commands">
       <category
