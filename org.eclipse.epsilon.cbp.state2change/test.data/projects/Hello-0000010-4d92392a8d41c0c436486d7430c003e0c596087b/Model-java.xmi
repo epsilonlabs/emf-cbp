@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="ASCII"?>
+<java:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:java="http://www.eclipse.org/MoDisco/Java/0.2.incubation/java" name="Model">
+  <ownedElements name="state2change">
+    <ownedElements xsi:type="java:ClassDeclaration" originalCompilationUnit="//@compilationUnits.0" name="Student">
+      <modifier visibility="public"/>
+      <bodyDeclarations xsi:type="java:FieldDeclaration" originalCompilationUnit="//@compilationUnits.0">
+        <modifier visibility="private"/>
+        <type type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+        <fragments originalCompilationUnit="//@compilationUnits.0" name="studentId"/>
+      </bodyDeclarations>
+      <bodyDeclarations xsi:type="java:ConstructorDeclaration" originalCompilationUnit="//@compilationUnits.0" name="Student">
+        <comments xsi:type="java:LineComment" originalCompilationUnit="//@compilationUnits.0" content="// TODO Auto-generated constructor stub" enclosedByParent="true"/>
+        <modifier visibility="public"/>
+        <parameters originalCompilationUnit="//@compilationUnits.0" name="name">
+          <modifier/>
+          <type type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+        </parameters>
+      </bodyDeclarations>
+      <superClass type="//@ownedElements.0/@ownedElements.4"/>
+    </ownedElements>
+    <ownedElements xsi:type="java:ClassDeclaration" originalCompilationUnit="//@compilationUnits.1" name="Lecturer">
+      <modifier visibility="public"/>
+      <bodyDeclarations xsi:type="java:FieldDeclaration" originalCompilationUnit="//@compilationUnits.1">
+        <modifier visibility="private"/>
+        <type type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+        <fragments originalCompilationUnit="//@compilationUnits.1" name="title"/>
+      </bodyDeclarations>
+      <bodyDeclarations xsi:type="java:ConstructorDeclaration" originalCompilationUnit="//@compilationUnits.1" name="Lecturer">
+        <comments xsi:type="java:LineComment" originalCompilationUnit="//@compilationUnits.1" content="// TODO Auto-generated constructor stub" enclosedByParent="true"/>
+        <modifier visibility="public"/>
+        <parameters originalCompilationUnit="//@compilationUnits.1" name="name">
+          <modifier/>
+          <type type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+        </parameters>
+      </bodyDeclarations>
+      <superClass type="//@ownedElements.0/@ownedElements.4"/>
+    </ownedElements>
+    <ownedElements xsi:type="java:ClassDeclaration" originalCompilationUnit="//@compilationUnits.2" name="Greet" usagesInTypeAccess="//@ownedElements.0/@ownedElements.4/@bodyDeclarations.0/@type">
+      <modifier visibility="public"/>
+      <bodyDeclarations xsi:type="java:MethodDeclaration" originalCompilationUnit="//@compilationUnits.2" name="hello">
+        <modifier visibility="public"/>
+        <parameters originalCompilationUnit="//@compilationUnits.2" name="name">
+          <modifier/>
+          <type type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+        </parameters>
+        <returnType type="//@orphanTypes.5"/>
+      </bodyDeclarations>
+    </ownedElements>
+    <ownedElements xsi:type="java:ClassDeclaration" originalCompilationUnit="//@compilationUnits.3" name="Main">
+      <modifier visibility="public"/>
+      <bodyDeclarations xsi:type="java:MethodDeclaration" originalCompilationUnit="//@compilationUnits.3" name="main">
+        <modifier visibility="public" static="true"/>
+        <parameters originalCompilationUnit="//@compilationUnits.3" name="args">
+          <modifier/>
+          <type type="//@orphanTypes.9"/>
+        </parameters>
+        <returnType type="//@orphanTypes.5"/>
+      </bodyDeclarations>
+    </ownedElements>
+    <ownedElements xsi:type="java:ClassDeclaration" originalCompilationUnit="//@compilationUnits.4" name="Person" usagesInTypeAccess="//@ownedElements.0/@ownedElements.0/@superClass //@ownedElements.0/@ownedElements.1/@superClass //@ownedElements.0/@ownedElements.4/@bodyDeclarations.3/@parameters.0/@type">
+      <modifier visibility="public"/>
+      <bodyDeclarations xsi:type="java:FieldDeclaration" originalCompilationUnit="//@compilationUnits.4">
+        <modifier visibility="private"/>
+        <type type="//@ownedElements.0/@ownedElements.2"/>
+        <fragments originalCompilationUnit="//@compilationUnits.4" name="greet"/>
+      </bodyDeclarations>
+      <bodyDeclarations xsi:type="java:FieldDeclaration" originalCompilationUnit="//@compilationUnits.4">
+        <modifier visibility="private"/>
+        <type type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+        <fragments originalCompilationUnit="//@compilationUnits.4" name="name"/>
+      </bodyDeclarations>
+      <bodyDeclarations xsi:type="java:ConstructorDeclaration" originalCompilationUnit="//@compilationUnits.4" name="Person">
+        <modifier visibility="public"/>
+        <parameters originalCompilationUnit="//@compilationUnits.4" name="name">
+          <modifier/>
+          <type type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+        </parameters>
+      </bodyDeclarations>
+      <bodyDeclarations xsi:type="java:MethodDeclaration" originalCompilationUnit="//@compilationUnits.4" name="greet">
+        <modifier visibility="public"/>
+        <parameters originalCompilationUnit="//@compilationUnits.4" name="person">
+          <modifier/>
+          <type type="//@ownedElements.0/@ownedElements.4"/>
+        </parameters>
+        <returnType type="//@orphanTypes.5"/>
+      </bodyDeclarations>
+    </ownedElements>
+  </ownedElements>
+  <ownedElements name="java" proxy="true">
+    <ownedPackages name="lang" proxy="true">
+      <ownedElements xsi:type="java:ClassDeclaration" name="String" proxy="true" usagesInTypeAccess="//@ownedElements.0/@ownedElements.0/@bodyDeclarations.0/@type //@ownedElements.0/@ownedElements.0/@bodyDeclarations.1/@parameters.0/@type //@ownedElements.0/@ownedElements.1/@bodyDeclarations.0/@type //@ownedElements.0/@ownedElements.1/@bodyDeclarations.1/@parameters.0/@type //@ownedElements.0/@ownedElements.2/@bodyDeclarations.0/@parameters.0/@type //@orphanTypes.9/@elementType //@ownedElements.0/@ownedElements.4/@bodyDeclarations.1/@type //@ownedElements.0/@ownedElements.4/@bodyDeclarations.2/@parameters.0/@type">
+        <superInterfaces type="//@ownedElements.1/@ownedPackages.1/@ownedElements.0"/>
+        <superInterfaces type="//@ownedElements.1/@ownedPackages.0/@ownedElements.1"/>
+        <superInterfaces type="//@ownedElements.1/@ownedPackages.0/@ownedElements.2"/>
+      </ownedElements>
+      <ownedElements xsi:type="java:InterfaceDeclaration" name="Comparable" proxy="true" usagesInTypeAccess="//@ownedElements.1/@ownedPackages.0/@ownedElements.0/@superInterfaces.1">
+        <typeParameters name="T" proxy="true"/>
+      </ownedElements>
+      <ownedElements xsi:type="java:InterfaceDeclaration" name="CharSequence" proxy="true" usagesInTypeAccess="//@ownedElements.1/@ownedPackages.0/@ownedElements.0/@superInterfaces.2"/>
+    </ownedPackages>
+    <ownedPackages name="io" proxy="true">
+      <ownedElements xsi:type="java:InterfaceDeclaration" name="Serializable" proxy="true" usagesInTypeAccess="//@ownedElements.1/@ownedPackages.0/@ownedElements.0/@superInterfaces.0"/>
+    </ownedPackages>
+  </ownedElements>
+  <orphanTypes xsi:type="java:PrimitiveTypeInt" name="int"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeLong" name="long"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeFloat" name="float"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeDouble" name="double"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeBoolean" name="boolean"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeVoid" name="void" usagesInTypeAccess="//@ownedElements.0/@ownedElements.2/@bodyDeclarations.0/@returnType //@ownedElements.0/@ownedElements.3/@bodyDeclarations.0/@returnType //@ownedElements.0/@ownedElements.4/@bodyDeclarations.3/@returnType"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeChar" name="char"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeShort" name="short"/>
+  <orphanTypes xsi:type="java:PrimitiveTypeByte" name="byte"/>
+  <orphanTypes xsi:type="java:ArrayType" name="java.lang.String[]" usagesInTypeAccess="//@ownedElements.0/@ownedElements.3/@bodyDeclarations.0/@parameters.0/@type" dimensions="1">
+    <elementType type="//@ownedElements.1/@ownedPackages.0/@ownedElements.0"/>
+  </orphanTypes>
+  <compilationUnits name="Student.java" originalFilePath="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000010-4d92392a8d41c0c436486d7430c003e0c596087b\src\state2change\Student.java" commentList="//@ownedElements.0/@ownedElements.0/@bodyDeclarations.1/@comments.0" package="//@ownedElements.0" types="//@ownedElements.0/@ownedElements.0"/>
+  <compilationUnits name="Lecturer.java" originalFilePath="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000010-4d92392a8d41c0c436486d7430c003e0c596087b\src\state2change\Lecturer.java" commentList="//@ownedElements.0/@ownedElements.1/@bodyDeclarations.1/@comments.0" package="//@ownedElements.0" types="//@ownedElements.0/@ownedElements.1"/>
+  <compilationUnits name="Greet.java" originalFilePath="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000010-4d92392a8d41c0c436486d7430c003e0c596087b\src\state2change\Greet.java" package="//@ownedElements.0" types="//@ownedElements.0/@ownedElements.2"/>
+  <compilationUnits name="Main.java" originalFilePath="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000010-4d92392a8d41c0c436486d7430c003e0c596087b\src\state2change\Main.java" package="//@ownedElements.0" types="//@ownedElements.0/@ownedElements.3"/>
+  <compilationUnits name="Person.java" originalFilePath="D:\A-DATA\GoogleDriveYork\Change-based Model Workspace\emf-cbp\org.eclipse.epsilon.cbp.state2change\test.data\projects\Hello-0000010-4d92392a8d41c0c436486d7430c003e0c596087b\src\state2change\Person.java" package="//@ownedElements.0" types="//@ownedElements.0/@ownedElements.4"/>
+</java:Model>

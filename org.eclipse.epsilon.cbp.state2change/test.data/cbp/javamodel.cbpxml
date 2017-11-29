@@ -1,4 +1,4 @@
-<session id="20171129162234087"/>
+<session id="20171129192405750"/>
 <register epackage="http://www.eclipse.org/uml2/5.0.0/UML"/>
 <create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="0"/>
 <set-eattribute name="name" target="0"><value literal="root model"/></set-eattribute>
@@ -48,103 +48,194 @@
 <create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="13"/>
 <set-eattribute name="name" target="13"><value literal="Main"/></set-eattribute>
 <set-eattribute name="visibility" target="13"><value literal="public"/></set-eattribute>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="14"/>
+<set-eattribute name="name" target="14"><value literal="main"/></set-eattribute>
+<set-eattribute name="visibility" target="14"><value literal="public"/></set-eattribute>
+<set-eattribute name="isStatic" target="14"><value literal="true"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="15"/>
+<set-eattribute name="direction" target="15"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="15"><value eobject="8"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="14"><value eobject="15"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="16"/>
+<set-eattribute name="name" target="16"><value literal="args"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="17"/>
+<set-eattribute name="name" target="17"><value literal="String[]"/></set-eattribute>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="18"/>
+<set-eattribute name="name" target="18"><value literal="type"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="19"/>
+<set-eattribute name="name" target="19"><value literal="String"/></set-eattribute>
+<set-eattribute name="visibility" target="19"><value literal="package"/></set-eattribute>
+<set-ereference name="type" target="18"><value eobject="19"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="17"><value eobject="18"/></add-to-ereference>
+<set-ereference name="type" target="16"><value eobject="17"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="14"><value eobject="16"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="13"><value eobject="14"/></add-to-ereference>
 <add-to-ereference name="ownedType" position="0" target="12"><value eobject="13"/></add-to-ereference>
 <add-to-ereference name="packagedElement" position="0" target="12"><value eobject="13"/></add-to-ereference>
 <add-to-ereference name="nestedPackage" position="1" target="1"><value eobject="12"/></add-to-ereference>
 <add-to-ereference name="packagedElement" position="0" target="1"><value eobject="2"/></add-to-ereference>
 <add-to-ereference name="packagedElement" position="1" target="1"><value eobject="12"/></add-to-ereference>
 <add-to-ereference name="nestedPackage" position="0" target="0"><value eobject="1"/></add-to-ereference>
-<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="14"/>
-<set-eattribute name="name" target="14"><value literal="externals"/></set-eattribute>
-<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="15"/>
-<set-eattribute name="name" target="15"><value literal="java"/></set-eattribute>
-<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="16"/>
-<set-eattribute name="name" target="16"><value literal="lang"/></set-eattribute>
-<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="17"/>
-<set-eattribute name="name" target="17"><value literal="String"/></set-eattribute>
-<set-eattribute name="visibility" target="17"><value literal="package"/></set-eattribute>
-<create eclass="InterfaceRealization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="18"/>
-<set-eattribute name="name" target="18"><value literal="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1b22ae3 (name: String, proxy: true)"/></set-eattribute>
-<add-to-ereference name="client" position="0" target="18"><value eobject="17"/></add-to-ereference>
-<add-to-ereference name="client" position="1" target="18"><value eobject="17"/></add-to-ereference>
-<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="19"/>
-<set-eattribute name="name" target="19"><value literal="Serializable"/></set-eattribute>
-<set-eattribute name="visibility" target="19"><value literal="package"/></set-eattribute>
-<add-to-ereference name="supplier" position="0" target="18"><value eobject="19"/></add-to-ereference>
-<set-ereference name="contract" target="18"><value eobject="19"/></set-ereference>
-<add-to-ereference name="interfaceRealization" position="0" target="17"><value eobject="18"/></add-to-ereference>
-<create eclass="InterfaceRealization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="20"/>
-<set-eattribute name="name" target="20"><value literal="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1b22ae3 (name: String, proxy: true)"/></set-eattribute>
-<add-to-ereference name="client" position="0" target="20"><value eobject="17"/></add-to-ereference>
-<add-to-ereference name="client" position="1" target="20"><value eobject="17"/></add-to-ereference>
-<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="21"/>
-<set-eattribute name="name" target="21"><value literal="Comparable"/></set-eattribute>
-<set-eattribute name="visibility" target="21"><value literal="package"/></set-eattribute>
-<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="22"/>
-<set-eattribute name="name" target="22"><value literal="T"/></set-eattribute>
-<add-to-ereference name="nestedClassifier" position="0" target="21"><value eobject="22"/></add-to-ereference>
-<add-to-ereference name="supplier" position="0" target="20"><value eobject="21"/></add-to-ereference>
-<set-ereference name="contract" target="20"><value eobject="21"/></set-ereference>
-<add-to-ereference name="interfaceRealization" position="1" target="17"><value eobject="20"/></add-to-ereference>
-<create eclass="InterfaceRealization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="23"/>
-<set-eattribute name="name" target="23"><value literal="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1b22ae3 (name: String, proxy: true)"/></set-eattribute>
-<add-to-ereference name="client" position="0" target="23"><value eobject="17"/></add-to-ereference>
-<add-to-ereference name="client" position="1" target="23"><value eobject="17"/></add-to-ereference>
-<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="24"/>
-<set-eattribute name="name" target="24"><value literal="CharSequence"/></set-eattribute>
-<set-eattribute name="visibility" target="24"><value literal="package"/></set-eattribute>
-<add-to-ereference name="supplier" position="0" target="23"><value eobject="24"/></add-to-ereference>
-<set-ereference name="contract" target="23"><value eobject="24"/></set-ereference>
-<add-to-ereference name="interfaceRealization" position="2" target="17"><value eobject="23"/></add-to-ereference>
-<add-to-ereference name="ownedType" position="0" target="16"><value eobject="17"/></add-to-ereference>
-<add-to-ereference name="ownedType" position="1" target="16"><value eobject="21"/></add-to-ereference>
-<add-to-ereference name="ownedType" position="2" target="16"><value eobject="24"/></add-to-ereference>
-<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="25"/>
-<set-eattribute name="name" target="25"><value literal="String[]"/></set-eattribute>
-<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="26"/>
-<set-eattribute name="name" target="26"><value literal="type"/></set-eattribute>
-<set-ereference name="type" target="26"><value eobject="17"/></set-ereference>
-<add-to-ereference name="ownedAttribute" position="0" target="25"><value eobject="26"/></add-to-ereference>
-<add-to-ereference name="ownedType" position="3" target="16"><value eobject="25"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="0" target="16"><value eobject="17"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="1" target="16"><value eobject="21"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="2" target="16"><value eobject="24"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="3" target="16"><value eobject="25"/></add-to-ereference>
-<add-to-ereference name="nestedPackage" position="0" target="15"><value eobject="16"/></add-to-ereference>
-<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="27"/>
-<set-eattribute name="name" target="27"><value literal="io"/></set-eattribute>
-<add-to-ereference name="ownedType" position="0" target="27"><value eobject="19"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="0" target="27"><value eobject="19"/></add-to-ereference>
-<add-to-ereference name="nestedPackage" position="1" target="15"><value eobject="27"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="0" target="15"><value eobject="16"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="1" target="15"><value eobject="27"/></add-to-ereference>
-<add-to-ereference name="nestedPackage" position="0" target="14"><value eobject="15"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="0" target="14"><value eobject="15"/></add-to-ereference>
-<add-to-ereference name="nestedPackage" position="1" target="0"><value eobject="14"/></add-to-ereference>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="20"/>
+<set-eattribute name="name" target="20"><value literal="externals"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="21"/>
+<set-eattribute name="name" target="21"><value literal="java"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="22"/>
+<set-eattribute name="name" target="22"><value literal="lang"/></set-eattribute>
+<add-to-ereference name="ownedType" position="0" target="22"><value eobject="19"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="23"/>
+<set-eattribute name="name" target="23"><value literal="Comparable"/></set-eattribute>
+<set-eattribute name="visibility" target="23"><value literal="package"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="24"/>
+<set-eattribute name="name" target="24"><value literal="T"/></set-eattribute>
+<add-to-ereference name="nestedClassifier" position="0" target="23"><value eobject="24"/></add-to-ereference>
+<add-to-ereference name="ownedType" position="1" target="22"><value eobject="23"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="25"/>
+<set-eattribute name="name" target="25"><value literal="CharSequence"/></set-eattribute>
+<set-eattribute name="visibility" target="25"><value literal="package"/></set-eattribute>
+<add-to-ereference name="ownedType" position="2" target="22"><value eobject="25"/></add-to-ereference>
+<add-to-ereference name="ownedType" position="3" target="22"><value eobject="17"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="22"><value eobject="19"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="22"><value eobject="23"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="2" target="22"><value eobject="25"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="3" target="22"><value eobject="17"/></add-to-ereference>
+<add-to-ereference name="nestedPackage" position="0" target="21"><value eobject="22"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="26"/>
+<set-eattribute name="name" target="26"><value literal="io"/></set-eattribute>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="27"/>
+<set-eattribute name="name" target="27"><value literal="Serializable"/></set-eattribute>
+<set-eattribute name="visibility" target="27"><value literal="package"/></set-eattribute>
+<add-to-ereference name="ownedType" position="0" target="26"><value eobject="27"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="26"><value eobject="27"/></add-to-ereference>
+<add-to-ereference name="nestedPackage" position="1" target="21"><value eobject="26"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="21"><value eobject="22"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="21"><value eobject="26"/></add-to-ereference>
+<add-to-ereference name="nestedPackage" position="0" target="20"><value eobject="21"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="20"><value eobject="21"/></add-to-ereference>
+<add-to-ereference name="nestedPackage" position="1" target="0"><value eobject="20"/></add-to-ereference>
 <add-to-ereference name="packagedElement" position="0" target="0"><value eobject="1"/></add-to-ereference>
-<add-to-ereference name="packagedElement" position="1" target="0"><value eobject="14"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="0"><value eobject="20"/></add-to-ereference>
 <add-to-resource position="0"><value eobject="0"/></add-to-resource>
-<session id="20171129162234411"/>
-<set-eattribute name="name" target="18"><value literal="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@122b575 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="20"><value literal="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@122b575 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="23"><value literal="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@122b575 (name: String, proxy: true)"/></set-eattribute>
-<session id="20171129162234441"/>
-<set-eattribute name="name" target="18"><value literal="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1944fc0 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="20"><value literal="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1944fc0 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="23"><value literal="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1944fc0 (name: String, proxy: true)"/></set-eattribute>
-<session id="20171129162234458"/>
-<set-eattribute name="name" target="18"><value literal="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1b74615 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="20"><value literal="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1b74615 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="23"><value literal="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1b74615 (name: String, proxy: true)"/></set-eattribute>
-<session id="20171129162234475"/>
-<set-eattribute name="name" target="18"><value literal="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1f50d2c (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="20"><value literal="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1f50d2c (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="23"><value literal="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1f50d2c (name: String, proxy: true)"/></set-eattribute>
-<session id="20171129162234494"/>
-<set-eattribute name="name" target="18"><value literal="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1c96f2c (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="20"><value literal="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1c96f2c (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="23"><value literal="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1c96f2c (name: String, proxy: true)"/></set-eattribute>
-<session id="20171129162234508"/>
-<set-eattribute name="name" target="18"><value literal="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1423a17 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="20"><value literal="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1423a17 (name: String, proxy: true)"/></set-eattribute>
-<set-eattribute name="name" target="23"><value literal="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1423a17 (name: String, proxy: true)"/></set-eattribute>
+<session id="20171129192406068"/>
+<session id="20171129192406091"/>
+<session id="20171129192406109"/>
+<session id="20171129192406122"/>
+<session id="20171129192406147"/>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="28"/>
+<set-eattribute name="name" target="28"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="28"><value literal="public"/></set-eattribute>
+<set-eattribute name="isStatic" target="28"><value literal="true"/></set-eattribute>
+<add-to-ereference name="ownedOperation" position="1" target="13"><value eobject="28"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="29"/>
+<set-eattribute name="direction" target="29"><value literal="return"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="0" target="28"><value eobject="29"/></add-to-ereference>
+<set-ereference name="type" target="29"><value eobject="8"/></set-ereference>
+<session id="20171129192406170"/>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="30"/>
+<set-eattribute name="name" target="30"><value literal="name"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="1" target="28"><value eobject="30"/></add-to-ereference>
+<set-ereference name="type" target="30"><value eobject="19"/></set-ereference>
+<session id="20171129192406187"/>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="31"/>
+<set-eattribute name="name" target="31"><value literal="Greet"/></set-eattribute>
+<set-eattribute name="visibility" target="31"><value literal="public"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="12"><value eobject="31"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="32"/>
+<set-eattribute name="name" target="32"><value literal="hello"/></set-eattribute>
+<set-eattribute name="visibility" target="32"><value literal="public"/></set-eattribute>
+<add-to-ereference name="ownedOperation" position="0" target="31"><value eobject="32"/></add-to-ereference>
+<remove-from-ereference name="ownedParameter" target="28"><value eobject="29"/></remove-from-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="32"><value eobject="29"/></add-to-ereference>
+<remove-from-ereference name="ownedParameter" target="28"><value eobject="30"/></remove-from-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="32"><value eobject="30"/></add-to-ereference>
+<unset-ereference name="class" target="28"/>
+<remove-from-ereference name="ownedOperation" target="13"><value eobject="28"/></remove-from-ereference>
+<delete eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="28"/>
+<session id="20171129192406206"/>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="33"/>
+<set-eattribute name="name" target="33"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="33"><value literal="public"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="2" target="12"><value eobject="33"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="34"/>
+<set-eattribute name="name" target="34"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="34"><value literal="public"/></set-eattribute>
+<add-to-ereference name="ownedOperation" position="0" target="33"><value eobject="34"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="35"/>
+<set-eattribute name="direction" target="35"><value literal="return"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="0" target="34"><value eobject="35"/></add-to-ereference>
+<set-ereference name="type" target="35"><value eobject="8"/></set-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="36"/>
+<set-eattribute name="name" target="36"><value literal="person"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="1" target="34"><value eobject="36"/></add-to-ereference>
+<set-ereference name="type" target="36"><value eobject="33"/></set-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="37"/>
+<set-eattribute name="name" target="37"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="37"><value literal="public"/></set-eattribute>
+<add-to-ereference name="ownedOperation" position="0" target="33"><value eobject="37"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="38"/>
+<set-eattribute name="direction" target="38"><value literal="return"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="0" target="37"><value eobject="38"/></add-to-ereference>
+<set-ereference name="type" target="38"><value eobject="33"/></set-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="39"/>
+<set-eattribute name="name" target="39"><value literal="name"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="1" target="37"><value eobject="39"/></add-to-ereference>
+<set-ereference name="type" target="39"><value eobject="19"/></set-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="40"/>
+<set-eattribute name="name" target="40"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="40"><value literal="private"/></set-eattribute>
+<add-to-ereference name="ownedAttribute" position="0" target="33"><value eobject="40"/></add-to-ereference>
+<set-ereference name="type" target="40"><value eobject="31"/></set-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="41"/>
+<set-eattribute name="name" target="41"><value literal="name"/></set-eattribute>
+<set-eattribute name="visibility" target="41"><value literal="private"/></set-eattribute>
+<add-to-ereference name="ownedAttribute" position="1" target="33"><value eobject="41"/></add-to-ereference>
+<set-ereference name="type" target="41"><value eobject="19"/></set-ereference>
+<session id="20171129192406243"/>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="42"/>
+<set-eattribute name="name" target="42"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="42"><value literal="public"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="12"><value eobject="42"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="43"/>
+<set-eattribute name="name" target="43"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="43"><value literal="public"/></set-eattribute>
+<add-to-ereference name="ownedOperation" position="0" target="42"><value eobject="43"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="44"/>
+<set-eattribute name="direction" target="44"><value literal="return"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="0" target="43"><value eobject="44"/></add-to-ereference>
+<set-ereference name="type" target="44"><value eobject="42"/></set-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="45"/>
+<set-eattribute name="name" target="45"><value literal="name"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="1" target="43"><value eobject="45"/></add-to-ereference>
+<set-ereference name="type" target="45"><value eobject="19"/></set-ereference>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="46"/>
+<add-to-ereference name="generalization" position="0" target="42"><value eobject="46"/></add-to-ereference>
+<set-ereference name="general" target="46"><value eobject="33"/></set-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="47"/>
+<set-eattribute name="name" target="47"><value literal="title"/></set-eattribute>
+<set-eattribute name="visibility" target="47"><value literal="private"/></set-eattribute>
+<add-to-ereference name="ownedAttribute" position="0" target="42"><value eobject="47"/></add-to-ereference>
+<set-ereference name="type" target="47"><value eobject="19"/></set-ereference>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="48"/>
+<set-eattribute name="name" target="48"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="48"><value literal="public"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="12"><value eobject="48"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="49"/>
+<set-eattribute name="name" target="49"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="49"><value literal="public"/></set-eattribute>
+<add-to-ereference name="ownedOperation" position="0" target="48"><value eobject="49"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="50"/>
+<set-eattribute name="direction" target="50"><value literal="return"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="0" target="49"><value eobject="50"/></add-to-ereference>
+<set-ereference name="type" target="50"><value eobject="48"/></set-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="51"/>
+<set-eattribute name="name" target="51"><value literal="name"/></set-eattribute>
+<add-to-ereference name="ownedParameter" position="1" target="49"><value eobject="51"/></add-to-ereference>
+<set-ereference name="type" target="51"><value eobject="19"/></set-ereference>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="52"/>
+<add-to-ereference name="generalization" position="0" target="48"><value eobject="52"/></add-to-ereference>
+<set-ereference name="general" target="52"><value eobject="33"/></set-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="53"/>
+<set-eattribute name="name" target="53"><value literal="studentId"/></set-eattribute>
+<set-eattribute name="visibility" target="53"><value literal="private"/></set-eattribute>
+<add-to-ereference name="ownedAttribute" position="0" target="48"><value eobject="53"/></add-to-ereference>
+<set-ereference name="type" target="53"><value eobject="19"/></set-ereference>

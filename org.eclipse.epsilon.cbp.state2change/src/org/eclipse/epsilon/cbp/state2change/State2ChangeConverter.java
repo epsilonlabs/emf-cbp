@@ -26,12 +26,11 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.uml2.uml.UMLPackage;
+import org.eclipse.uml2.uml.internal.resource.UMLResourceImpl;
 
 public class State2ChangeConverter {
 
 	private File sourceDirectory;
-	private int copyCounter = 0;
-
 	public State2ChangeConverter(File xmiDirectory) throws FileNotFoundException {
 		if (!xmiDirectory.exists()) {
 			throw new FileNotFoundException();
@@ -59,14 +58,11 @@ public class State2ChangeConverter {
 		cbpResourceSet.getResources().add(cbpResource);
 
 		File[] sourceFiles = sourceDirectory.listFiles();
-		System.out.println("\nConverting " + sourceFiles.length + " file(s) to CBP\n");
+		System.out.println("\nConverting " + sourceFiles.length + " file(s) to CBP");
 
 		for (int i = 0; i < sourceFiles.length; i++) {
-
-			System.out.println("\nConverting file " + sourceFiles[i].getName() + " to CBP\n");
-
+			System.out.println("\nConverting file " + sourceFiles[i].getName() + " to CBP");
 			if (i == 0) {
-
 				rootXmiFile = sourceFiles[i];
 				rootXmiResourceSet = new ResourceSetImpl();
 				rootXmiFilePath = rootXmiFile.getAbsolutePath();
@@ -95,16 +91,6 @@ public class State2ChangeConverter {
 
 				IComparisonScope scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
 
-				// IMatchEngine.Factory.Registry matchRegistry =
-				// MatchEngineFactoryRegistryImpl.createStandaloneInstance();
-				// MatchEngineFactoryImpl matchEngineFactory = new
-				// MatchEngineFactoryImpl(UseIdentifiers.NEVER);
-				// matchEngineFactory.setRanking(20); // default engine ranking
-				// is 10, must be higher to override.
-				// matchRegistry.add(matchEngineFactory);
-				// EMFCompare comparator =
-				// EMFCompare.builder().setMatchEngineFactoryRegistry(matchRegistry).build();
-
 				EMFCompare comparator = EMFCompare.builder().build();
 				Comparison comparison = comparator.compare(scope);
 				EList<Diff> diffs = comparison.getDifferences();
@@ -113,7 +99,11 @@ public class State2ChangeConverter {
 				// copy all right to left
 				((CBPXMLResourceImpl) cbpResource).startNewSession();
 
-				System.out.println("Size Diffs = " + diffs.size());
+				System.out.println("Before Merge:");
+				for (Diff diff : diffs) {
+					System.out.println(diff);
+				}
+				
 				Set<Diff> mergedDiffs = new HashSet<>();
 				try {
 					customMerge(diffs, mergerRegistry, mergedDiffs);
@@ -129,6 +119,18 @@ public class State2ChangeConverter {
 				comparator = EMFCompare.builder().build();
 				comparison = comparator.compare(scope);
 				diffs = comparison.getDifferences();
+				
+//				mergedDiffs = new HashSet<>();
+//				try {
+//					customMerge(diffs, mergerRegistry, mergedDiffs);
+//				} catch (Exception ex) {
+//					ex.printStackTrace();
+//				}
+				
+				System.out.println("After Merge:");
+				for (Diff diff : diffs) {
+					System.out.println(diff);
+				}
 				if (diffs.size() > 0) {
 					throw new Exception("There are still differences between the CBP and the XMI.");
 				}
@@ -141,13 +143,7 @@ public class State2ChangeConverter {
 	}
 
 	private void customMerge(EList<Diff> diffs, final IMerger.Registry mergerRegistry, Set<Diff> mergedDiffs) {
-		System.out.println("Before Merge:");
 		for (Diff diff : diffs) {
-			System.out.println(diff);
-		}
-		System.out.println("On Merging:");
-		for (Diff diff : diffs) {
-			System.out.println(diff);
 			merge(diff, true, mergerRegistry, mergedDiffs);
 		}
 	}
@@ -158,10 +154,7 @@ public class State2ChangeConverter {
 			IMerger2 merger2 = (IMerger2) merger;
 			Set<Diff> parentDiffs = merger2.getDirectMergeDependencies(diff, mergeRightToLeft);
 			
-			
-			
 			for (Diff itemDiff : parentDiffs) {
-				System.out.println("+--"+itemDiff);
 				if (!itemDiff.equals(diff) && !handledDiffs.contains(itemDiff)) {
 					this.merge(itemDiff, mergeRightToLeft, registry, handledDiffs);
 				}
@@ -170,19 +163,8 @@ public class State2ChangeConverter {
 
 			Set<Diff> rejectedDiffs = merger2.getDirectResultingRejections(diff, mergeRightToLeft);
 			handledDiffs.addAll(rejectedDiffs);
-			if (copyCounter == 21){
-				System.out.println();
-			}
 			merger2.copyRightToLeft(diff, null);
-			copyCounter += 1;
-			System.out.println("Copy Counter = " + copyCounter);
 			handledDiffs.add(diff);
-			
-//			Set<Diff> resultingDiffs = merger2.getDirectResultingMerges(diff, mergeRightToLeft);
-//			for (Diff resultingDiff : resultingDiffs){
-//				merger2.copyRightToLeft(resultingDiff, null);
-//				handledDiffs.add(resultingDiff);
-//			}
 		}
 	}
 

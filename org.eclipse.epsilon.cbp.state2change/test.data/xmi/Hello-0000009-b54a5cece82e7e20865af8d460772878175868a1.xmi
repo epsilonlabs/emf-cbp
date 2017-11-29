@@ -13,13 +13,28 @@
       <packagedElement xmi:type="uml:PrimitiveType" name="byte"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Package" name="state2change">
+      <packagedElement xmi:type="uml:Class" name="Greet" visibility="public">
+        <ownedOperation name="hello" visibility="public">
+          <ownedParameter type="//Model/Common%20java%20data%20types/void" direction="return"/>
+          <ownedParameter name="name" type="//externals/java/lang/String"/>
+        </ownedOperation>
+      </packagedElement>
       <packagedElement xmi:type="uml:Class" name="Main" visibility="public">
         <ownedOperation name="main" visibility="public" isStatic="true">
           <ownedParameter type="//Model/Common%20java%20data%20types/void" direction="return"/>
           <ownedParameter name="args" type="//externals/java/lang/String%5B%5D"/>
         </ownedOperation>
-        <ownedOperation name="greet" visibility="public" isStatic="true">
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="Person" visibility="public">
+        <ownedAttribute name="greet" visibility="private" type="//Model/state2change/Greet"/>
+        <ownedAttribute name="name" visibility="private" type="//externals/java/lang/String"/>
+        <ownedOperation name="Person" visibility="public">
+          <ownedParameter type="//Model/state2change/Person" direction="return"/>
+          <ownedParameter name="name" type="//externals/java/lang/String"/>
+        </ownedOperation>
+        <ownedOperation name="greet" visibility="public">
           <ownedParameter type="//Model/Common%20java%20data%20types/void" direction="return"/>
+          <ownedParameter name="person" type="//Model/state2change/Person"/>
         </ownedOperation>
       </packagedElement>
     </packagedElement>
@@ -27,15 +42,8 @@
   <packagedElement xmi:type="uml:Model" name="externals">
     <packagedElement xmi:type="uml:Package" name="java">
       <packagedElement xmi:type="uml:Package" name="lang">
-        <packagedElement xmi:type="uml:Class" name="String" visibility="package">
-          <interfaceRealization name="Serializable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1a34eb0 (name: String, proxy: true)" client="//externals/java/lang/String" supplier="//externals/java/io/Serializable" contract="//externals/java/io/Serializable"/>
-          <interfaceRealization name="Comparable__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1a34eb0 (name: String, proxy: true)" client="//externals/java/lang/String" supplier="//externals/java/lang/Comparable" contract="//externals/java/lang/Comparable"/>
-          <interfaceRealization name="CharSequence__org.eclipse.gmt.modisco.java.emf.impl.ClassDeclarationImpl@1a34eb0 (name: String, proxy: true)" client="//externals/java/lang/String" supplier="//externals/java/lang/CharSequence" contract="//externals/java/lang/CharSequence"/>
-        </packagedElement>
+        <packagedElement xmi:type="uml:Class" name="String" visibility="package"/>
         <packagedElement xmi:type="uml:Interface" name="Comparable" visibility="package">
-          <ownedTemplateSignature xmi:type="uml:RedefinableTemplateSignature" parameter="//externals/java/lang/Comparable/@ownedTemplateSignature/@ownedParameter.0">
-            <ownedParameter xmi:type="uml:ClassifierTemplateParameter" constrainingClassifier="//externals/java/lang/Comparable/T"/>
-          </ownedTemplateSignature>
           <nestedClassifier xmi:type="uml:Class" name="T"/>
         </packagedElement>
         <packagedElement xmi:type="uml:Interface" name="CharSequence" visibility="package"/>

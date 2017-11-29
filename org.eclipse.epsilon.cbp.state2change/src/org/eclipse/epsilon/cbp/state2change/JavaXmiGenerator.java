@@ -7,6 +7,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -148,36 +150,52 @@ public class JavaXmiGenerator implements IApplication {
 				Resource umlResource = umlDiscoverer.getTargetModel();
 				output = new ByteArrayOutputStream();
 
-				// nullify all ids and remove sourcesReferences
+				// nullify all ids and remove unnecessary elements
 				EClassifier modelClassifier = UMLPackage.eINSTANCE.getEClassifier("Model");
 				EClass modelClass = (EClass) modelClassifier;
 				EStructuralFeature feature = modelClass.getEStructuralFeature("name");
-				
+
 				EClassifier rtsClassifier = UMLPackage.eINSTANCE.getEClassifier("RedefinableTemplateSignature");
 				EClass rtsClass = (EClass) rtsClassifier;
-				
+
 				EClassifier operationClassifier = UMLPackage.eINSTANCE.getEClassifier("Operation");
 				EClass operationClass = (EClass) operationClassifier;
-				
+
+				EClassifier iterfaceRealizationClassifier = UMLPackage.eINSTANCE.getEClassifier("InterfaceRealization");
+				EClass iterfaceRealizationClass = (EClass) iterfaceRealizationClassifier;
+
 				XMIResource xmiResource = (XMIResource) umlResource;
 				TreeIterator<EObject> elements = umlResource.getAllContents();
+
+				List<EObject> toBeDeletedObjects = new ArrayList();
 				while (elements.hasNext()) {
 					EObject element = elements.next();
 					xmiResource.setID(element, null);
-	
-					if (element.eClass().equals(modelClass)){
+
+					if (element.eClass().equals(modelClass)) {
 						String name = (String) element.eGet(feature);
-						if (name.equals("sourcesReferences")){
-							EcoreUtil.delete(element, true);
+						if (name.equals("sourcesReferences")) {
+							toBeDeletedObjects.add(element);
 						}
-					}else if(element.eClass().equals(rtsClass)){
-						EcoreUtil.delete(element, true);
-					}else if(element.eClass().equals(operationClass)){
-						EcoreUtil.delete(element, true);
+					} 
+					else if (element.eClass().equals(rtsClass)) {
+						toBeDeletedObjects.add(element);
+					} 
+//					else if (element.eClass().equals(operationClass)) {
+//						toBeDeletedObjects.add(element);
+//					} 
+					else if (element.eClass().equals(iterfaceRealizationClass)) {
+						toBeDeletedObjects.add(element);
 					}
 				}
+				for (EObject eObject : toBeDeletedObjects) {
+					EcoreUtil.delete(eObject, true);
+				}
+				toBeDeletedObjects.clear();
 
+				
 				try {
+					//save uml model
 					umlResource.save(output, null);
 					String filePath = targetXmiDirectory.getAbsolutePath() + File.separator + file.getName() + ".xmi";
 					File fileXmi = new File(filePath);

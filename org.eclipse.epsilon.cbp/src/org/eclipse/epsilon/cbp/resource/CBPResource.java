@@ -41,7 +41,7 @@ public abstract class CBPResource extends ResourceImpl {
 	protected ChangeEventAdapter changeEventAdapter;
 	protected BiMap<EObject, String> eObjectToIdMap;
 	protected Set<Integer> ignoreSet;
-	protected List<Integer> ignoreList; 
+	protected List<Integer> ignoreList;
 	protected ModelHistory modelHistory;
 	protected int persistedIgnoredEvents = 0;
 	protected int idCounter = 0;
@@ -103,10 +103,19 @@ public abstract class CBPResource extends ResourceImpl {
 
 	@Override
 	public String getURIFragment(EObject eObject) {
-		String uriFragment = eObjectToIdMap.get(eObject);
-		if (uriFragment == null) {
-			uriFragment = EcoreUtil.getURI(eObject).toString();
+		String uriFragment = null;
+		if (eObjectToIdMap == null) {
+			uriFragment = null;
+		} else {
+			uriFragment = eObjectToIdMap.get(eObject);
 		}
+		if (uriFragment == null) {
+			uriFragment = super.getURIFragment(eObject);
+		}
+		// String uriFragment = eObjectToIdMap.get(eObject);
+		// if (uriFragment == null) {
+		// uriFragment = EcoreUtil.getURI(eObject).toString();
+		// }
 		return uriFragment;
 	}
 
@@ -188,20 +197,20 @@ public abstract class CBPResource extends ResourceImpl {
 		ignoreList.clear();
 		while (dis.available() > 0) {
 			int value = dis.readInt();
-			if (ignoreSet.add(value)){
+			if (ignoreSet.add(value)) {
 				ignoreList.add(value);
 			}
 		}
 		persistedIgnoredEvents = ignoreList.size();
 	}
-	
+
 	public void loadIgnoreSet(FileInputStream inputStream) throws IOException {
 		DataInputStream dis = new DataInputStream(inputStream);
 		ignoreSet.clear();
 		ignoreList.clear();
 		while (dis.available() > 0) {
 			int value = dis.readInt();
-			if (ignoreSet.add(value)){
+			if (ignoreSet.add(value)) {
 				ignoreList.add(value);
 			}
 		}
@@ -217,7 +226,7 @@ public abstract class CBPResource extends ResourceImpl {
 		dos.close();
 		persistedIgnoredEvents = ignoreList.size();
 	}
-	
+
 	public void saveIgnoreSet(FileOutputStream outputStream) throws IOException {
 		DataOutputStream dos = new DataOutputStream(outputStream);
 		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
@@ -227,8 +236,8 @@ public abstract class CBPResource extends ResourceImpl {
 		dos.close();
 		persistedIgnoredEvents = ignoreList.size();
 	}
-	
-	public void clearIgnoreSet(){
+
+	public void clearIgnoreSet() {
 		this.ignoreSet.clear();
 		this.ignoreList.clear();
 	}
