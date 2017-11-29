@@ -7,6 +7,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.epsilon.cbp.state2change.JavaXmiGenerator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
@@ -35,7 +36,12 @@ public class GenerateHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		JavaXmiGenerator generator = new JavaXmiGenerator();
-		generator.generateXmi(gitCommitsDirectory, targetXmiDirectory);
+		try {
+			generator.generateXmi(gitCommitsDirectory, targetXmiDirectory);
+		} catch (DiscoveryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		MessageDialog.openInformation(window.getShell(), "State2change", "Generating XMIs finished!");

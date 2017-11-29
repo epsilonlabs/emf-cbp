@@ -14,10 +14,16 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.emf.ecore.xmi,
  org.eclipse.emf.compare,
  org.apache.log4j,
- org.eclipse.equinox.app
+ org.eclipse.equinox.app,
+ eu.artist.migration.mdt.javaee.java.umlclass,
+ org.eclipse.m2m.atl.core,
+ org.eclipse.m2m.atl.core.emf,
+ org.eclipse.m2m.atl.engine.emfvm,
+ org.eclipse.uml2.uml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;resolution:=optional,
  org.junit;version="4.12.0"
 Bundle-ClassPath: libs/commons-io-2.6.jar,
- .
+ .,
+ libs/eu.artist.migration.mdt.javaee.java.umlclass_1.0.0.201711282131.jar
 Export-Package: org.eclipse.epsilon.cbp.state2change
