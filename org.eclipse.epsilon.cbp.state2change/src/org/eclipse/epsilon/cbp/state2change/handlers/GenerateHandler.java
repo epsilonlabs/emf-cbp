@@ -5,7 +5,7 @@ import java.io.File;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.epsilon.cbp.state2change.JavaXmiGenerator;
+import org.eclipse.epsilon.cbp.state2change.UmlXmiGenerator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -35,7 +35,7 @@ public class GenerateHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		JavaXmiGenerator generator = new JavaXmiGenerator();
+		UmlXmiGenerator generator = new UmlXmiGenerator();
 		try {
 			generator.generateXmi(gitCommitsDirectory, targetXmiDirectory);
 		} catch (DiscoveryException e) {

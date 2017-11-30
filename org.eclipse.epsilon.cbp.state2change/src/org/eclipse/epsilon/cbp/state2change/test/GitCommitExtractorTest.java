@@ -6,32 +6,32 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.epsilon.cbp.state2change.GitCommitExtractor;
+import org.eclipse.epsilon.cbp.state2change.GitProjectsExtractor;
 import org.junit.Test;
 
 public class GitCommitExtractorTest {
 
-	private File gitDirectory = new File("./test.data/repository".replace("/", File.separator));
-	private GitCommitExtractor gitCommitsExtractor;
-	private File gitCommitsDirectory = new File("./test.data/projects/".replace("/", File.separator));
+	private File gitRepositoryDirectory = new File("./test.data/repository".replace("/", File.separator));
+	private GitProjectsExtractor gitProjectsExtractor;
+	private File gitProjectsDirectory = new File("./test.data/projects/".replace("/", File.separator));
 	private String targetProjectName = null;
 
 	public GitCommitExtractorTest() throws IOException {
-		this.gitCommitsExtractor = new GitCommitExtractor(gitDirectory);
+		this.gitProjectsExtractor = new GitProjectsExtractor(gitRepositoryDirectory);
 	}
 
 	@Test
 	public void listDirectoryTest() {
 		File dir = new File("C:/".replace("/", File.separator));
 		String command = "dir";
-		String output = this.gitCommitsExtractor.executeCommand(command, dir);
+		String output = this.gitProjectsExtractor.executeCommand(command, dir);
 		System.out.println(output);
 		assertNotEquals(output.length(), 0);
 	}
 
 	@Test
 	public void getCommitHashesTest() {
-		List<String> hashList = this.gitCommitsExtractor.getCommitHashes();
+		List<String> hashList = this.gitProjectsExtractor.getCommitHashes();
 		for (String hash : hashList) {
 			System.out.println(hash);
 		}
@@ -41,10 +41,10 @@ public class GitCommitExtractorTest {
 	@Test
 	public void copyAllCommitsToCommitsDirectoryTest() throws IOException{
 		String code = "Hello";
-		gitCommitsExtractor.getCommitHashes();
-		gitCommitsExtractor.copyTargetProjectToCommitsDirectory
-			(gitCommitsDirectory,targetProjectName, code);
-		assertNotEquals(gitCommitsDirectory.list().length, 0);
+		gitProjectsExtractor.getCommitHashes();
+		gitProjectsExtractor.copyTargetProjectToCommitsDirectory
+			(gitProjectsDirectory,targetProjectName, code);
+		assertNotEquals(gitProjectsDirectory.list().length, 0);
 	}
 	
 

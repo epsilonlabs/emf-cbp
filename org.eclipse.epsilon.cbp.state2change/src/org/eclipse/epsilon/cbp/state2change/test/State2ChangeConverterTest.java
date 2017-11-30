@@ -12,13 +12,14 @@ import org.junit.Test;
 public class State2ChangeConverterTest {
 
 	private File xmiDirectory = new File("./test.data/xmi/".replace("/", File.separator));
+	private File diffDirectory = new File("./test.data/diff/".replace("/", File.separator));
 	private File cbpFile = new File("./test.data/cbp/".replace("/", File.separator) + "javamodel.cbpxml");
 	
 	@Test
 	public void generateTest() throws Exception{
 		FileOutputStream fop = new FileOutputStream(cbpFile);	
 		State2ChangeConverter state2ChangeConverter = new State2ChangeConverter(xmiDirectory);
-		String cbpText = state2ChangeConverter.generate(fop);
+		String cbpText = state2ChangeConverter.generate(fop, diffDirectory);
 //		System.out.println(cbpText);
 		fop.flush();
 		fop.close();

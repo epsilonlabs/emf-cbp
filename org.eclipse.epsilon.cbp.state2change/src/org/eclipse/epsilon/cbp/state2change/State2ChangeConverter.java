@@ -1,11 +1,14 @@
 package org.eclipse.epsilon.cbp.state2change;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
@@ -18,6 +21,7 @@ import org.eclipse.emf.compare.merge.IMerger.Registry;
 import org.eclipse.emf.compare.merge.IMerger2;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -38,7 +42,7 @@ public class State2ChangeConverter {
 		this.sourceDirectory = xmiDirectory;
 	}
 
-	public String generate(OutputStream outputStream) throws Exception {
+	public String generate(OutputStream outputStream, File diffDirectory) throws Exception {
 		Resource cbpResource;
 		Resource rootXmiResource = null;
 		File rootXmiFile;
@@ -50,6 +54,7 @@ public class State2ChangeConverter {
 
 		UMLPackage.eINSTANCE.eClass();
 		// JavaPackage.eINSTANCE.eClass();
+		
 
 		ResourceSet cbpResourceSet = new ResourceSetImpl();
 		cbpResourceSet.getResourceFactoryRegistry().getContentTypeToFactoryMap().put("cbpxml",
@@ -58,10 +63,10 @@ public class State2ChangeConverter {
 		cbpResourceSet.getResources().add(cbpResource);
 
 		File[] sourceFiles = sourceDirectory.listFiles();
-		System.out.println("\nConverting " + sourceFiles.length + " file(s) to CBP");
+		System.out.println("Converting " + sourceFiles.length + " file(s) to CBP");
 
 		for (int i = 0; i < sourceFiles.length; i++) {
-			System.out.println("\nConverting file " + sourceFiles[i].getName() + " to CBP");
+			System.out.println("Converting file " + sourceFiles[i].getName() + " to CBP");
 			if (i == 0) {
 				rootXmiFile = sourceFiles[i];
 				rootXmiResourceSet = new ResourceSetImpl();
@@ -75,9 +80,27 @@ public class State2ChangeConverter {
 
 				cbpResource.setURI(commonCbpxmlURI);
 				((CBPXMLResourceImpl) cbpResource).startNewSession();
+
+				IComparisonScope scope = new DefaultComparisonScope(cbpResource, rootXmiResource, null);
+				EMFCompare comparator = EMFCompare.builder().build();
+				Comparison comparison = comparator.compare(scope);
+				EList<Diff> diffs = comparison.getDifferences();
+				final IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
+				
+				// persist diffs
+				ResourceSet comparisonResourceSet = new ResourceSetImpl();
+				comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
+						new XMIResourceFactoryImpl());
+				Resource comparisonResource = comparisonResourceSet.createResource(URI.createURI("diffs.xmi"));
+				comparisonResource.getContents().add(EcoreUtil.getRootContainer(comparison));
+				ByteArrayOutputStream diffOutputStream = new ByteArrayOutputStream();
+				comparisonResource.save(diffOutputStream, null);
+				String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + rootXmiFile.getName();
+				File diffFile = new File(diffFilePath);
+				FileUtils.writeStringToFile(diffFile, diffOutputStream.toString(), Charset.defaultCharset());
+				
 				cbpResource.getContents().addAll(EcoreUtil.copyAll(rootXmiResource.getContents()));
 				cbpResource.save(outputStream, null);
-
 			} else {
 				File xmiFile = sourceFiles[i];
 				ResourceSet xmiResourceSet = new ResourceSetImpl();
@@ -90,19 +113,30 @@ public class State2ChangeConverter {
 				xmiResource.setURI(commonXmiURI);
 
 				IComparisonScope scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
-
 				EMFCompare comparator = EMFCompare.builder().build();
 				Comparison comparison = comparator.compare(scope);
 				EList<Diff> diffs = comparison.getDifferences();
 				final IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
-
+				
+				// persist diffs
+				ResourceSet comparisonResourceSet = new ResourceSetImpl();
+				comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
+						new XMIResourceFactoryImpl());
+				Resource comparisonResource = comparisonResourceSet.createResource(URI.createURI("diffs.xmi"));
+				comparisonResource.getContents().add(EcoreUtil.getRootContainer(comparison));
+				ByteArrayOutputStream diffOutputStream = new ByteArrayOutputStream();
+				comparisonResource.save(diffOutputStream, null);
+				String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + xmiFile.getName();
+				File diffFile = new File(diffFilePath);
+				FileUtils.writeStringToFile(diffFile, diffOutputStream.toString(), Charset.defaultCharset());
+				
 				// copy all right to left
 				((CBPXMLResourceImpl) cbpResource).startNewSession();
 
-				System.out.println("Before Merge:");
-				for (Diff diff : diffs) {
-					System.out.println(diff);
-				}
+				//System.out.println("Before Merge:");
+//				for (Diff diff : diffs) {
+//					System.out.println(diff);
+//				}
 				
 				Set<Diff> mergedDiffs = new HashSet<>();
 				try {
@@ -114,11 +148,11 @@ public class State2ChangeConverter {
 //				 IBatchMerger merger = new BatchMerger(mergerRegistry);
 //				 merger.copyAllRightToLeft(diffs, null);
 
-				// after merging, to check if there are no more differences
-				scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
-				comparator = EMFCompare.builder().build();
-				comparison = comparator.compare(scope);
-				diffs = comparison.getDifferences();
+//				// after merging, to check if there are no more differences
+//				scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
+//				comparator = EMFCompare.builder().build();
+//				comparison = comparator.compare(scope);
+//				diffs = comparison.getDifferences();
 				
 //				mergedDiffs = new HashSet<>();
 //				try {
@@ -127,13 +161,13 @@ public class State2ChangeConverter {
 //					ex.printStackTrace();
 //				}
 				
-				System.out.println("After Merge:");
-				for (Diff diff : diffs) {
-					System.out.println(diff);
-				}
-				if (diffs.size() > 0) {
-					throw new Exception("There are still differences between the CBP and the XMI.");
-				}
+				//System.out.println("After Merge:");
+//				for (Diff diff : diffs) {
+//					System.out.println(diff);
+//				}
+//				if (diffs.size() > 0) {
+//					throw new Exception("There are still differences between the CBP and the XMI.");
+//				}
 				cbpResource.save(outputStream, null);
 			}
 		}

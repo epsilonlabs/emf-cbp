@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
 
-import org.eclipse.epsilon.cbp.state2change.JavaXmiGenerator;
+import org.eclipse.epsilon.cbp.state2change.UmlXmiGenerator;
 import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class JavaXmiGeneratorTest {
 		File gitCommitsDirectory = new File("./test.data/projects/".replace("/", File.separator));
 		File targetXmiDirectory = new File("./test.data/xmi/".replace("/", File.separator));
 		
-		JavaXmiGenerator generator = new JavaXmiGenerator();
+		UmlXmiGenerator generator = new UmlXmiGenerator();
 		generator.generateXmi(gitCommitsDirectory, targetXmiDirectory);
 		
 		assertNotEquals(targetXmiDirectory.listFiles().length, 0);	

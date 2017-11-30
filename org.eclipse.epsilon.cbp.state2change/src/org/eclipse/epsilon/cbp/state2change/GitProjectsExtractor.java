@@ -14,13 +14,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 
-public class GitCommitExtractor {
+public class GitProjectsExtractor {
 
 	private File gitDirectory;
 	private String getHashesCommand = "git rev-list --all";
 	private List<String> hashList;
 
-	public GitCommitExtractor(File gitDirectory) throws IOException {
+	public GitProjectsExtractor(File gitDirectory) throws IOException {
 		if (!gitDirectory.exists()) {
 			throw new FileNotFoundException("Git Directory does not exists: " + gitDirectory.getAbsolutePath());
 		}
@@ -51,6 +51,7 @@ public class GitCommitExtractor {
 		String strNum;
 		String dirName;
 		int num = 0;
+		System.out.println(hashList.size() + "version(s)");
 		for (int i = hashList.size() - 1; i >= 0; i--) {
 			num += 1;
 			hash = hashList.get(i);
