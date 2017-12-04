@@ -20,24 +20,33 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.impl.EPackageImpl;
+import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.gmt.modisco.omg.kdm.code.CodePackage;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
 import org.eclipse.modisco.java.discoverer.DiscoverJavaModelFromJavaProject;
+import org.eclipse.modisco.java.discoverer.DiscoverKDMModelFromJavaModel;
+import org.eclipse.modisco.kdm.uml2converter.DiscoverUmlModelFromKdmModel;
+import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.StructuralFeature;
 import org.eclipse.uml2.uml.UMLPackage;
+import org.eclipse.uml2.uml.internal.resource.UMLResourceFactoryImpl;
 import org.eclipse.uml2.uml.resource.UMLResource;
-
-import eu.artist.migration.mdt.javaee.java.umlclass.Java2UMLDiscoverer;
 
 public class UmlXmiGenerator implements IApplication {
 
@@ -59,57 +68,54 @@ public class UmlXmiGenerator implements IApplication {
 	}
 
 	public void generateXmi(File javaProjectsDirectory, File targetXmiDirectory) throws DiscoveryException {
-		IJavaProject javaProject;
 		Resource javaResource;
-		DiscoverJavaModelFromJavaProject javaDiscoverer;
-		Java2UMLDiscoverer umlDiscoverer;
-		ByteArrayOutputStream output;
-		IProjectDescription description;
-		IFile javaFile = null;
-		String projectName = "Model";
-		FileFilter filter;
-		File[] fileList;
-		String projectFile;
-		IProject project;
-		InputStream inputStream;
+		Resource kdmResource;
 		Resource umlResource;
-		String filePath;
+		DiscoverJavaModelFromJavaProject javaDiscoverer;
+		DiscoverUmlModelFromKdmModel umlDiscoverer;
+		DiscoverKDMModelFromJavaModel kdmDiscoverer;
+		IProjectDescription description;
+		IJavaProject javaProject;
+		IFile javaFile = null;
+		IFile kdmFile = null;
+		File[] fileList;
+		FileFilter filter;
+		IProject project;
+		ByteArrayOutputStream output;
+		InputStream inputStream;
 		String[] natureIds;
+		String projectFile;
+		String filePath;
+		String projectName = "Model";
+
 		try {
-			//initialise
+			// initialise
 			javaDiscoverer = new DiscoverJavaModelFromJavaProject();
-			umlDiscoverer = new Java2UMLDiscoverer();
+			umlDiscoverer = new DiscoverUmlModelFromKdmModel();
+			kdmDiscoverer = new DiscoverKDMModelFromJavaModel();
+
 			output = new ByteArrayOutputStream();
 			natureIds = new String[] { JavaCore.NATURE_ID };
-			
-			EClassifier modelClassifier = UMLPackage.eINSTANCE.getEClassifier("Model");
-			EClass modelClass = (EClass) modelClassifier;
-			EStructuralFeature feature = modelClass.getEStructuralFeature("name");
 
-			EClassifier rtsClassifier = UMLPackage.eINSTANCE.getEClassifier("RedefinableTemplateSignature");
-			EClass rtsClass = (EClass) rtsClassifier;
+			// EPackage p =
+			// EPackageRegistryImpl.INSTANCE.getEPackage("http://www.eclipse.org/uml2/5.0.0/UML");
 
-			EClassifier operationClassifier = UMLPackage.eINSTANCE.getEClassifier("Operation");
-			EClass operationClass = (EClass) operationClassifier;
+			//
+			EClassifier classUnitClassifier = CodePackage.eINSTANCE.getEClassifier("ClassUnit");
+			EClass classUnitClass = (EClass) classUnitClassifier;
+			EStructuralFeature nameFeature = classUnitClass.getEStructuralFeature("name");
 
-			EClassifier iterfaceRealizationClassifier = UMLPackage.eINSTANCE.getEClassifier("InterfaceRealization");
-			EClass iterfaceRealizationClass = (EClass) iterfaceRealizationClassifier;
-			
-			EClassifier commentClassifier = UMLPackage.eINSTANCE.getEClassifier("Comment");
-			EClass commentClass = (EClass) commentClassifier;
-			
-			EClassifier dependencyClassifier = UMLPackage.eINSTANCE.getEClassifier("Dependency");
-			EClass dependencyClass = (EClass) dependencyClassifier;
-			
 			List<EObject> toBeDeletedObjects = new ArrayList<EObject>();
-			
-			//----
+
+			// ----
 			filter = FileFilterUtils.directoryFileFilter();
 			fileList = javaProjectsDirectory.listFiles(filter);
 			System.out.println("Processing " + fileList.length + " files(s)");
 			for (File file : fileList) {
+				long before = System.currentTimeMillis();
+				
 				System.gc();
-				System.out.println("Exporting the XMI of " + file.getName());
+				System.out.print("Exporting the XMI of " + file.getName());
 
 				// initialise project description, create one if none existed
 				projectFile = file.getAbsolutePath() + File.separator + ".project";
@@ -126,7 +132,7 @@ public class UmlXmiGenerator implements IApplication {
 				}
 
 				// create eclipse project
-				 project = ResourcesPlugin.getWorkspace().getRoot().getProject(description.getName());
+				project = ResourcesPlugin.getWorkspace().getRoot().getProject(description.getName());
 				if (!project.exists()) {
 					project.create(description, null);
 					project.open(null);
@@ -150,20 +156,22 @@ public class UmlXmiGenerator implements IApplication {
 				}
 
 				// discover java elements
-				//System.out.println("Creating Java model ...");
+				// System.out.println("Creating Java model ...");
+
 				try {
 					javaDiscoverer.setDeepAnalysis(false);
-					javaDiscoverer.discoverElement(javaProject,  new NullProgressMonitor());
+					javaDiscoverer.discoverElement(javaProject, new NullProgressMonitor());
 				} catch (DiscoveryException e) {
 					e.printStackTrace();
 				}
-				
+
 				// get and save the model in xmi
 				javaResource = javaDiscoverer.getTargetModel();
-				output.reset();
 				try {
+					output.reset();
 					javaResource.save(output, null);
 					javaResource.getContents().clear();
+					javaResource.unload();
 					javaFile = project.getFile(project.getName() + "-java.xmi");
 					if (javaFile.exists()) {
 						javaFile.delete(true, null);
@@ -172,70 +180,129 @@ public class UmlXmiGenerator implements IApplication {
 					javaFile.create(inputStream, true, new NullProgressMonitor());
 					inputStream.reset();
 					inputStream.close();
-					
+
 					output.reset();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 
-				// discovery uml elements -- direct way
-				//System.out.println("Creating UML model ...");
-				umlDiscoverer.discoverElement(javaFile, new NullProgressMonitor());
-				umlResource = umlDiscoverer.getTargetModel();
-				output.reset();
+				// discover kdm elements
+				// System.out.println("Creating KDM model ...");
 
+				kdmDiscoverer.discoverElement(javaFile, new NullProgressMonitor());
+				kdmResource = kdmDiscoverer.getTargetModel();
+
+				// Clean unnecessary elements. Class units with Anonymous type
+				// have to be deleted to prevents bugs of MoDisco.
+				// It still cannot handle the conversion of Anonymous type of
+				// KDM model to UML model.
+				TreeIterator<EObject> iterator = kdmResource.getAllContents();
+				EObject element = null;
+				while (iterator.hasNext()) {
+					element = iterator.next();
+					if (element.eClass().equals(classUnitClass)) {
+						String name = (String) element.eGet(nameFeature);
+						if (name.equals("Anonymous type")) {
+							toBeDeletedObjects.add(element);
+						}
+					}
+				}
+				for (EObject eObject : toBeDeletedObjects) {
+					EcoreUtil.delete(eObject, true);
+				}
+				toBeDeletedObjects.clear();
+
+				try {
+					output.reset();
+					kdmResource.save(output, null);
+					kdmResource.getContents().clear();
+					kdmResource.unload();
+					// String kdmFilePath = targetXmiDirectory.getAbsolutePath()
+					// + File.separator + project.getName()
+					// + "-kdm.xmi";
+					// File kdmXmi = new File(kdmFilePath);
+					// FileUtils.writeStringToFile(kdmXmi, output.toString(),
+					// Charset.defaultCharset(), false);
+
+					kdmFile = project.getFile(project.getName() + "-kdm.xmi");
+					if (kdmFile.exists()) {
+						kdmFile.delete(true, null);
+					}
+					inputStream = new ByteArrayInputStream(output.toByteArray());
+					kdmFile.create(inputStream, true, new NullProgressMonitor());
+					inputStream.reset();
+					inputStream.close();
+					output.reset();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				// DISCOVER UML ELEMENTS
+				// -------------------------------------------------------------------------
+				// System.out.println("Creating UML model ...");
+				umlDiscoverer.discoverElement(kdmFile, new NullProgressMonitor());
+				umlResource = umlDiscoverer.getTargetModel();
+
+				
 				// nullify all ids and remove unnecessary elements
-				XMIResource xmiResource = (XMIResource) umlResource;
 				TreeIterator<EObject> elements = umlResource.getAllContents();
 
 				toBeDeletedObjects.clear();
-				EObject element = null;
+				element = null;
+
+				EPackage ePackage = umlResource.getContents().get(0).eClass().getEPackage();
+
+				EClassifier modelClassifier = ePackage.getEClassifier("Model");
+				EClass modelClass = (EClass) modelClassifier;
+				EStructuralFeature feature = modelClass.getEStructuralFeature("name");
+
+				EClassifier rtsClassifier = ePackage.getEClassifier("RedefinableTemplateSignature");
+				EClass rtsClass = (EClass) rtsClassifier;
+
+				EClassifier iterfaceRealizationClassifier = ePackage.getEClassifier("InterfaceRealization");
+				EClass iterfaceRealizationClass = (EClass) iterfaceRealizationClassifier;
+
+				EClassifier dependencyClassifier = ePackage.getEClassifier("Dependency");
+				EClass dependencyClass = (EClass) dependencyClassifier;
+
 				while (elements.hasNext()) {
 					element = elements.next();
-					xmiResource.setID(element, null);
-
 					if (element.eClass().equals(modelClass)) {
 						String name = (String) element.eGet(feature);
-						if (name.equals("sourcesReferences")) {
+						if (name.equals("source references")) {
 							toBeDeletedObjects.add(element);
 						}
-					} 
-					else if (element.eClass().equals(rtsClass)) {
+					} else if (element.eClass().equals(rtsClass)) {
 						toBeDeletedObjects.add(element);
-					} 
-//					else if (element.eClass().equals(operationClass)) {
-//						toBeDeletedObjects.add(element);
-//					} 
-					else if (element.eClass().equals(iterfaceRealizationClass)) {
+					} else if (element.eClass().equals(iterfaceRealizationClass)) {
 						toBeDeletedObjects.add(element);
-					}
-					else if (element.eClass().equals(commentClass)) {
-						toBeDeletedObjects.add(element);
-					}
-					else if (element.eClass().equals(dependencyClass)) {
+					} else if (element.eClass().equals(dependencyClass)) {
 						toBeDeletedObjects.add(element);
 					}
 				}
-//				System.out.println("Deleting " + toBeDeletedObjects.size() + " element(s)");
-//				int x = 0;
-				for (EObject eObject : toBeDeletedObjects) {
-//					System.out.println(x + ". Deleting " + eObject.toString());
-					EcoreUtil.remove(eObject);
-					//EcoreUtil.delete(eObject, false);
-//					x += 1;
-				}
-				toBeDeletedObjects.clear();
-
 				
+				for (EObject item : umlResource.getContents()){
+					if (!item.eClass().equals(modelClass)){
+						toBeDeletedObjects.add(item);
+					}
+				}
+
+				for (EObject eObject : toBeDeletedObjects) {
+					EcoreUtil.delete(eObject, true);
+				}
+				
+				toBeDeletedObjects.clear();
+			
 				try {
-					//save uml model
+					output.reset();
 					umlResource.save(output, null);
+					umlResource.getContents().clear();
 					umlResource.unload();
 					filePath = targetXmiDirectory.getAbsolutePath() + File.separator + file.getName() + ".xmi";
 					File fileXmi = new File(filePath);
 					FileUtils.writeStringToFile(fileXmi, output.toString(), Charset.defaultCharset(), false);
 					output.reset();
-					//output.close();
+					// output.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -246,10 +313,15 @@ public class UmlXmiGenerator implements IApplication {
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
-
+				
+				long after = System.currentTimeMillis();
+				System.out.println(" ... Required time = " + (after - before)/1000.0);
 			}
+			output.close();
 			System.out.println("Finished!");
 		} catch (CoreException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

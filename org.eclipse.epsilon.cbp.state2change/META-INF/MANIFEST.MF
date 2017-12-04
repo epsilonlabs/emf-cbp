@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.equinox.registry,
  org.eclipse.modisco.java.discoverer,
  org.eclipse.modisco.infra.discovery.core,
- org.eclipse.gmt.modisco.java,
  org.eclipse.epsilon.cbp,
  org.eclipse.emf.ecore.xmi,
  org.eclipse.emf.compare,
@@ -19,7 +18,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.m2m.atl.core,
  org.eclipse.m2m.atl.core.emf,
  org.eclipse.m2m.atl.engine.emfvm,
- org.eclipse.uml2.uml
+ org.eclipse.uml2.uml,
+ org.eclipse.gmt.modisco.java,
+ org.eclipse.modisco.kdm.uml2converter,
+ org.eclipse.emf.ecore
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;resolution:=optional,
  org.junit;version="4.12.0"

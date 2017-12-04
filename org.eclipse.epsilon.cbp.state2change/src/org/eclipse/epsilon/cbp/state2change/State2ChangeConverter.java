@@ -3,6 +3,7 @@ package org.eclipse.epsilon.cbp.state2change;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashSet;
@@ -11,9 +12,11 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.compare.CompareFactory;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.diff.IDiffEngine;
 import org.eclipse.emf.compare.merge.BatchMerger;
 import org.eclipse.emf.compare.merge.IBatchMerger;
 import org.eclipse.emf.compare.merge.IMerger;
@@ -50,7 +53,7 @@ public class State2ChangeConverter {
 		String rootXmiFilePath;
 		URI rootXmiFileUri;
 		URI commonXmiURI = URI.createURI("umlmodel.xmi");
-		URI commonCbpxmlURI = URI.createURI("umlamodel.cbpxml");
+		URI commonCbpxmlURI = URI.createURI("umlmodel.cbpxml");
 
 		UMLPackage.eINSTANCE.eClass();
 		// JavaPackage.eINSTANCE.eClass();
@@ -74,8 +77,8 @@ public class State2ChangeConverter {
 				rootXmiFileUri = URI.createFileURI(rootXmiFilePath);
 				rootXmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
 						new XMIResourceFactoryImpl());
-				rootXmiResourceSet.getResource(rootXmiFileUri, true);
-				rootXmiResource = rootXmiResourceSet.getResources().get(0);
+				rootXmiResource = rootXmiResourceSet.getResource(rootXmiFileUri, true);
+				//= rootXmiResourceSet.getResources().get(0);
 				rootXmiResource.setURI(commonXmiURI);
 
 				cbpResource.setURI(commonCbpxmlURI);
@@ -84,20 +87,19 @@ public class State2ChangeConverter {
 				IComparisonScope scope = new DefaultComparisonScope(cbpResource, rootXmiResource, null);
 				EMFCompare comparator = EMFCompare.builder().build();
 				Comparison comparison = comparator.compare(scope);
-				EList<Diff> diffs = comparison.getDifferences();
-				final IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
 				
-				// persist diffs
-				ResourceSet comparisonResourceSet = new ResourceSetImpl();
-				comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
-						new XMIResourceFactoryImpl());
-				Resource comparisonResource = comparisonResourceSet.createResource(URI.createURI("diffs.xmi"));
-				comparisonResource.getContents().add(EcoreUtil.getRootContainer(comparison));
-				ByteArrayOutputStream diffOutputStream = new ByteArrayOutputStream();
-				comparisonResource.save(diffOutputStream, null);
-				String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + rootXmiFile.getName();
-				File diffFile = new File(diffFilePath);
-				FileUtils.writeStringToFile(diffFile, diffOutputStream.toString(), Charset.defaultCharset());
+//				// persist diffs
+//				ResourceSet comparisonResourceSet = new ResourceSetImpl();
+//				comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
+//						new XMIResourceFactoryImpl());
+//				Resource comparisonResource = comparisonResourceSet.createResource(URI.createURI("diffs.xmi"));
+//				comparisonResource.getContents().add(comparison);
+//				String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + rootXmiFile.getName();
+//				File diffFile = new File(diffFilePath);
+//				FileOutputStream diffFileOutputStream = new FileOutputStream(diffFile);
+//				comparisonResource.save(diffFileOutputStream, null);
+//				diffFileOutputStream.flush();
+//				diffFileOutputStream.close();
 				
 				cbpResource.getContents().addAll(EcoreUtil.copyAll(rootXmiResource.getContents()));
 				cbpResource.save(outputStream, null);
@@ -118,18 +120,19 @@ public class State2ChangeConverter {
 				EList<Diff> diffs = comparison.getDifferences();
 				final IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
 				
-				// persist diffs
-				ResourceSet comparisonResourceSet = new ResourceSetImpl();
-				comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
-						new XMIResourceFactoryImpl());
-				Resource comparisonResource = comparisonResourceSet.createResource(URI.createURI("diffs.xmi"));
-				comparisonResource.getContents().add(EcoreUtil.getRootContainer(comparison));
-				ByteArrayOutputStream diffOutputStream = new ByteArrayOutputStream();
-				comparisonResource.save(diffOutputStream, null);
-				String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + xmiFile.getName();
-				File diffFile = new File(diffFilePath);
-				FileUtils.writeStringToFile(diffFile, diffOutputStream.toString(), Charset.defaultCharset());
-				
+//				// persist diffs
+//				ResourceSet comparisonResourceSet = new ResourceSetImpl();
+//				comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
+//						new XMIResourceFactoryImpl());
+//				Resource comparisonResource = comparisonResourceSet.createResource(URI.createURI("diffs.xmi"));
+//				comparisonResource.getContents().add(EcoreUtil.copy(comparison));	
+//				String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + xmiFile.getName();
+//				File diffFile = new File(diffFilePath);
+//				FileOutputStream diffFileOutputStream = new FileOutputStream(diffFile);
+//				comparisonResource.save(diffFileOutputStream, null);
+//				diffFileOutputStream.flush();
+//				diffFileOutputStream.close();
+			
 				// copy all right to left
 				((CBPXMLResourceImpl) cbpResource).startNewSession();
 
