@@ -39,10 +39,6 @@ public class GitProjectsExtractor {
 		if (!commitsDirectory.exists()) {
 			commitsDirectory.mkdir();
 		}
-		for (File file : commitsDirectory.listFiles()) {
-			System.out.println("Deleting " + file.getName());
-			this.deleteDirectory(file);
-		}
 
 		String strPath = commitsDirectory.getAbsolutePath();
 		String hash;
@@ -61,10 +57,15 @@ public class GitProjectsExtractor {
 				strNum = "0" + strNum;
 			}
 			dirName = code + "-" + strNum + "-" + hash;
-			System.out.println("Copying to " + dirName);
 			hashPath = strPath + File.separator + dirName;
 			hashDirectory = new File(hashPath);
 
+			if (hashDirectory.exists()){
+				System.out.println("Deleting " + hashDirectory.getName());
+				this.deleteDirectory(hashDirectory);
+			}
+			System.out.println("Copying to " + dirName);
+			
 			hashDirectory.mkdir();
 			this.executeCommand("git checkout " + hash, gitDirectory);
 			

@@ -23,16 +23,16 @@ public class Git2ChangeConverterTest {
 		File diffDirectory = new File("D:/TEMP/BigModel/diff/".replace("/", File.separator));
 		File cbpFile = new File("D:/TEMP/BigModel/cbp/".replace("/", File.separator) + "javamodel.cbpxml");
 		
-//		System.out.println("Repository to projects--------");
+		System.out.println("Repository to projects--------");
 		//Repository to projects--------
-		GitProjectsExtractor gitProjectsExtractor = new GitProjectsExtractor(gitRepositoryDirectory);	
-		gitProjectsExtractor.getCommitHashes();
-		gitProjectsExtractor.copyTargetProjectToCommitsDirectory(gitProjectsDirectory, targetProjectName, code);
+//		GitProjectsExtractor gitProjectsExtractor = new GitProjectsExtractor(gitRepositoryDirectory);	
+//		gitProjectsExtractor.getCommitHashes();
+//		gitProjectsExtractor.copyTargetProjectToCommitsDirectory(gitProjectsDirectory, targetProjectName, code);
 		
 		System.out.println("projects to xmis-------");
 		//projects to xmis-------
-		UmlXmiGenerator generator = new UmlXmiGenerator();
-		generator.generateXmi(gitProjectsDirectory, targetXmiDirectory);
+//		UmlXmiGenerator generator = new UmlXmiGenerator();
+//		generator.generateXmi(gitProjectsDirectory, targetXmiDirectory);
 		
 		System.out.println("xmis to cbp-----");
 		//xmis to cbp-----

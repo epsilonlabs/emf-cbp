@@ -30,8 +30,13 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.gmt.modisco.omg.kdm.code.CodePackage;
@@ -71,6 +76,7 @@ public class UmlXmiGenerator implements IApplication {
 		Resource javaResource;
 		Resource kdmResource;
 		Resource umlResource;
+		Resource cbpResource; 
 		DiscoverJavaModelFromJavaProject javaDiscoverer;
 		DiscoverUmlModelFromKdmModel umlDiscoverer;
 		DiscoverKDMModelFromJavaModel kdmDiscoverer;
@@ -93,14 +99,10 @@ public class UmlXmiGenerator implements IApplication {
 			javaDiscoverer = new DiscoverJavaModelFromJavaProject();
 			umlDiscoverer = new DiscoverUmlModelFromKdmModel();
 			kdmDiscoverer = new DiscoverKDMModelFromJavaModel();
-
+			
 			output = new ByteArrayOutputStream();
 			natureIds = new String[] { JavaCore.NATURE_ID };
-
-			// EPackage p =
-			// EPackageRegistryImpl.INSTANCE.getEPackage("http://www.eclipse.org/uml2/5.0.0/UML");
-
-			//
+			
 			EClassifier classUnitClassifier = CodePackage.eINSTANCE.getEClassifier("ClassUnit");
 			EClass classUnitClass = (EClass) classUnitClassifier;
 			EStructuralFeature nameFeature = classUnitClass.getEStructuralFeature("name");
@@ -217,13 +219,6 @@ public class UmlXmiGenerator implements IApplication {
 					kdmResource.save(output, null);
 					kdmResource.getContents().clear();
 					kdmResource.unload();
-					// String kdmFilePath = targetXmiDirectory.getAbsolutePath()
-					// + File.separator + project.getName()
-					// + "-kdm.xmi";
-					// File kdmXmi = new File(kdmFilePath);
-					// FileUtils.writeStringToFile(kdmXmi, output.toString(),
-					// Charset.defaultCharset(), false);
-
 					kdmFile = project.getFile(project.getName() + "-kdm.xmi");
 					if (kdmFile.exists()) {
 						kdmFile.delete(true, null);
@@ -272,7 +267,8 @@ public class UmlXmiGenerator implements IApplication {
 						if (name.equals("source references")) {
 							toBeDeletedObjects.add(element);
 						}
-					} else if (element.eClass().equals(rtsClass)) {
+					} 
+					else if (element.eClass().equals(rtsClass)) {
 						toBeDeletedObjects.add(element);
 					} else if (element.eClass().equals(iterfaceRealizationClass)) {
 						toBeDeletedObjects.add(element);
@@ -295,9 +291,21 @@ public class UmlXmiGenerator implements IApplication {
 			
 				try {
 					output.reset();
+
 					umlResource.save(output, null);
 					umlResource.getContents().clear();
 					umlResource.unload();
+					
+					ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+					umlResource.load(input,null);
+					input.reset();
+					input.close();
+					output.reset();
+					
+					umlResource.save(output,null);
+					umlResource.getContents().clear();
+					umlResource.unload();
+										
 					filePath = targetXmiDirectory.getAbsolutePath() + File.separator + file.getName() + ".xmi";
 					File fileXmi = new File(filePath);
 					FileUtils.writeStringToFile(fileXmi, output.toString(), Charset.defaultCharset(), false);
