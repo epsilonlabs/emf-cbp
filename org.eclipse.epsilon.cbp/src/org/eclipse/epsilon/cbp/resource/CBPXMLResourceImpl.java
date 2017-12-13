@@ -172,6 +172,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 					StartNewSessionEvent s = ((StartNewSessionEvent) event);
 					e = document.createElement("session");
 					e.setAttribute("id", s.getSessionId());
+					e.setAttribute("time", s.getTime());
 				} else if (event instanceof RegisterEPackageEvent) {
 					RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
 					e = document.createElement("register");
@@ -691,7 +692,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			return new DeleteEObjectEvent(eClass, this, e.getAttribute("id"));
 		}
 		case "session": {
-			return new StartNewSessionEvent(e.getAttribute("id"));
+			return new StartNewSessionEvent(e.getAttribute("id"), e.getAttribute("time"));
 		}
 		}
 

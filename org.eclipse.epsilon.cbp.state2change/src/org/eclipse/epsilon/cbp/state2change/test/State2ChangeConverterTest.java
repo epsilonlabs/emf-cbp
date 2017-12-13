@@ -17,12 +17,8 @@ public class State2ChangeConverterTest {
 	
 	@Test
 	public void generateTest() throws Exception{
-		FileOutputStream fop = new FileOutputStream(cbpFile);	
 		State2ChangeConverter state2ChangeConverter = new State2ChangeConverter(xmiDirectory);
-		String cbpText = state2ChangeConverter.generate(fop, diffDirectory);
-//		System.out.println(cbpText);
-		fop.flush();
-		fop.close();
-		assertNotEquals(cbpText.length(), 0);		
+		boolean result = state2ChangeConverter.generate(cbpFile, diffDirectory);
+		assertNotEquals(true, result);		
 	}
 }

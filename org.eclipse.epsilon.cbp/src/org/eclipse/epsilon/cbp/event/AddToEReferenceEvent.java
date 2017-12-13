@@ -1,13 +1,9 @@
 package org.eclipse.epsilon.cbp.event;
 
-import java.io.Console;
-import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 
+import org.eclipse.emf.common.util.BasicEList.UnmodifiableEList;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature;
 
 public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValuesEvent {
 
@@ -15,13 +11,11 @@ public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValu
 	@Override
 	public void replay() {
 		List<EObject> list = (List<EObject>) target.eGet(getEStructuralFeature());
+		if (list instanceof UnmodifiableEList){
+			return;
+		}
 		if (position > list.size()) {
 			position = list.size();
-		}
-
-		Collection<EObject> col = getValues();
-		if (col == null){
-			System.out.println("");
 		}
 		list.addAll(position, getValues());
 	}

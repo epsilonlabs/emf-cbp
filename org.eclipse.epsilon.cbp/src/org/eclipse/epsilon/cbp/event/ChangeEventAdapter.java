@@ -421,6 +421,11 @@ public class ChangeEventAdapter extends EContentAdapter {
 		enabled = bool;
 	}
 
+	public void handleStartNewSession(String id) {
+		changeEvents.add(new StartNewSessionEvent(id));
+		sessionCount++;
+	}
+	
 	public void handleStartNewSession() {
 		changeEvents.add(new StartNewSessionEvent());
 		sessionCount++;

@@ -36,11 +36,8 @@ public class Git2ChangeConverterTest {
 		
 		System.out.println("xmis to cbp-----");
 		//xmis to cbp-----
-		FileOutputStream fop = new FileOutputStream(cbpFile);	
 		State2ChangeConverter state2ChangeConverter = new State2ChangeConverter(targetXmiDirectory);
-		String cbpText = state2ChangeConverter.generate(fop, diffDirectory);
-		fop.flush();
-		fop.close();
-		assertNotEquals(cbpText.length(), 0);		
+		boolean result = state2ChangeConverter.generate(cbpFile, diffDirectory);
+		assertNotEquals(true, result);		
 	}
 }

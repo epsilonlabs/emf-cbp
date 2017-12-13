@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +25,6 @@ import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
 import org.eclipse.epsilon.cbp.history.ModelHistory;
@@ -242,6 +240,10 @@ public abstract class CBPResource extends ResourceImpl {
 		this.ignoreList.clear();
 	}
 
+	public void startNewSession(String id) {
+		changeEventAdapter.handleStartNewSession(id);
+	}
+	
 	public void startNewSession() {
 		changeEventAdapter.handleStartNewSession();
 	}

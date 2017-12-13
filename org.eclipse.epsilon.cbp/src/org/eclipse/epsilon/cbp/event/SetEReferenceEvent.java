@@ -4,6 +4,9 @@ public class SetEReferenceEvent extends EReferenceEvent implements EObjectValues
 	
 	@Override
 	public void replay() {
+		if (eStructuralFeature.getName().equals("opposite")){
+			return;
+		}
 		target.eSet(eStructuralFeature, getValue());
 	}
 
