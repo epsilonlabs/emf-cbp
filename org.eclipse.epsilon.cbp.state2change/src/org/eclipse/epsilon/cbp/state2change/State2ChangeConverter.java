@@ -39,6 +39,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
+import org.eclipse.epsilon.cbp.state2change.test.UMLPreChangeEventHandlerImpl;
 import org.eclipse.uml2.common.util.CacheAdapter;
 import org.eclipse.uml2.uml.UMLPackage;
 
@@ -228,6 +229,7 @@ public class State2ChangeConverter {
 			file.createNewFile();
 		}
 		cbpResource.setURI(cbpUri);
+		((CBPResource) cbpResource).getChangeEventAdapter().setPostChangeEventHandler(new UMLPreChangeEventHandlerImpl());
 		cbpResourceSet.getResources().add(cbpResource);
 //		cbpResource.load(null);
 
@@ -256,7 +258,6 @@ public class State2ChangeConverter {
 			task.setName(sourceFiles[i].getName());
 			task.start();
 			task.join();
-			System.out.println();
 		}
 		System.out.println("Finished!");
 		return true;

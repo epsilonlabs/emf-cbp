@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="libs/commons-io-2.6.jar"/>
-	<classpathentry kind="lib" path="libs/eu.artist.migration.mdt.javaee.java.umlclass_1.0.0.201711282131.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.epsilon.cbp"/>
 	<classpathentry kind="output" path="bin"/>

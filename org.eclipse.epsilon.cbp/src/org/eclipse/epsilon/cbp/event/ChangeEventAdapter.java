@@ -26,7 +26,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 	protected CBPResource resource = null;
 	protected ModelHistory modelHistory = null;
 	protected int eventNumber = 0;
-	
+	protected IPreChangeEventHandler preChangeEventHandler = null;
+
 	protected int setAttCount = 0;
 	protected int unsetAttCount = 0;
 	protected int addAttCount = 0;
@@ -43,7 +44,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 	protected int packageCount = 0;
 	protected int sessionCount = 0;
 	protected int createCount = 0;
-	
+
+	protected EObject monitoredObject;
+
+	public IPreChangeEventHandler getPostChangeEventHandler() {
+		return preChangeEventHandler;
+	}
+
+	public void setPostChangeEventHandler(IPreChangeEventHandler postChangeEventHandler) {
+		this.preChangeEventHandler = postChangeEventHandler;
+	}
+
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -155,6 +166,72 @@ public class ChangeEventAdapter extends EContentAdapter {
 			if (!feature.isChangeable() || feature.isDerived())
 				return;
 		}
+
+		// if (n.getEventType() == Notification.ADD) {
+		// System.out.println("ADD");
+		// } else if (n.getEventType() == Notification.ADD_MANY) {
+		// System.out.println("ADD MANY");
+		// } else if (n.getEventType() == Notification.CREATE) {
+		// System.out.println("CREATE");
+		// } else if (n.getEventType() == Notification.EVENT_TYPE_COUNT) {
+		// System.out.println("EVENT TYPE COUNT");
+		// } else if (n.getEventType() == Notification.MOVE) {
+		// System.out.println("MOVE");
+		// } else if (n.getEventType() == Notification.NO_FEATURE_ID) {
+		// System.out.println("NO FEATURE ID");
+		// } else if (n.getEventType() == Notification.NO_INDEX) {
+		// System.out.println("NO INDEX");
+		// } else if (n.getEventType() == Notification.REMOVE) {
+		// System.out.println("REMOVE");
+		// } else if (n.getEventType() == Notification.REMOVE_MANY) {
+		// System.out.println("REMOVE MANY");
+		// } else if (n.getEventType() == Notification.REMOVING_ADAPTER) {
+		// System.out.println("REMOVING ADAPTER");
+		// } else if (n.getEventType() == Notification.RESOLVE) {
+		// System.out.println("RESOLVE");
+		// } else if (n.getEventType() == Notification.SET) {
+		// System.out.println("SET");
+		// } else if (n.getEventType() == Notification.UNSET) {
+		// System.out.println("UNSET");
+		// }
+		//
+		// if (n.getNotifier() instanceof PropertyImpl) {
+		// EStructuralFeature sf = ((EObject)
+		// n.getNotifier()).eClass().getEStructuralFeature("opposite");
+		// EStructuralFeature sf2 = ((EObject)
+		// n.getNotifier()).eClass().getEStructuralFeature("name");
+		// System.out.println("+-- " + n.getNotifier());
+		// System.out.println("+-- " + n.getFeature());
+		// System.out.println("+-- " + n.getNewValue());
+		// System.out.println("+-- " + ((EObject) n.getNotifier()).eGet(sf));
+		//
+		// if (((EObject) n.getNotifier()).eGet(sf2) != null
+		// && ((EObject) n.getNotifier()).eGet(sf2).equals("class2")) {
+		// monitoredObject = (EObject) n.getNotifier();
+		// }
+		// }
+		//
+		// if (monitoredObject != null && monitoredObject instanceof
+		// PropertyImpl) {
+		// EStructuralFeature sf =
+		// monitoredObject.eClass().getEStructuralFeature("opposite");
+		// EReference ref = (EReference) sf;
+		// System.out.println("x---- " + monitoredObject);
+		// // System.out.println("x---- " + sf);
+		// System.out.println("x---- " + monitoredObject.eGet(sf));
+		// System.out.println("x---- " + ref);
+		//
+		// if (n.getNotifier() instanceof EObject) {
+		// EObject target = (EObject) n.getNotifier();
+		// EStructuralFeature sf2 = (EStructuralFeature) n.getFeature();
+		// EReference ref2 = (EReference) sf2;
+		// Object value = n.getNewValue();
+		// System.out.println("v------ " + target);
+		// System.out.println("v------ " + sf2);
+		// System.out.println("v------ " + value);
+		// System.out.println("v------ " + ref2);
+		// }
+		// }
 
 		ChangeEvent<?> event = null;
 
@@ -367,7 +444,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 				event.setPosition(n.getPosition());
 			}
 			changeEvents.add(event);
-			//this.addToModelHistory(event, position);
+			// this.addToModelHistory(event, position);
 		}
 
 		if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
@@ -389,7 +466,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			ChangeEvent<?> event = new RegisterEPackageEvent(ePackage, this);
 			packageCount++;
 			changeEvents.add(event);
-			//this.addToModelHistory(event, -1);
+			// this.addToModelHistory(event, -1);
 		}
 	}
 
@@ -413,7 +490,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
 			deleteCount++;
 			changeEvents.add(e);
-			//this.addToModelHistory(e, -1);
+			// this.addToModelHistory(e, -1);
 		}
 	}
 
@@ -425,7 +502,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		changeEvents.add(new StartNewSessionEvent(id));
 		sessionCount++;
 	}
-	
+
 	public void handleStartNewSession() {
 		changeEvents.add(new StartNewSessionEvent());
 		sessionCount++;
@@ -437,7 +514,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			ChangeEvent<?> event = new CreateEObjectEvent(obj, resource.register(obj));
 			createCount++;
 			changeEvents.add(event);
-			//this.addToModelHistory(event, -1);
+			// this.addToModelHistory(event, -1);
 
 			// Include prior attribute values into the resource
 			for (EAttribute eAttr : obj.eClass().getEAllAttributes()) {
@@ -453,7 +530,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 							e.setTarget(obj);
 							e.setPosition(i++);
 							changeEvents.add(e);
-							//this.addToModelHistory(e, -1);
+							// this.addToModelHistory(e, -1);
 						}
 					} else {
 						Object value = obj.eGet(eAttr);
@@ -464,13 +541,14 @@ public class ChangeEventAdapter extends EContentAdapter {
 						e.setValue(value);
 						e.setTarget(obj);
 						changeEvents.add(e);
-						//this.addToModelHistory(e, -1);
+						// this.addToModelHistory(e, -1);
 					}
 				}
 			}
 
 			// Include prior reference values into the resource
 			for (EReference eRef : obj.eClass().getEAllReferences()) {
+
 				if (eRef.isChangeable() && obj.eIsSet(eRef)) {
 					if (eRef.getEOpposite() != null && eRef.getEOpposite().isMany()
 							&& eRef.getEOpposite().isChangeable()) {
@@ -495,24 +573,38 @@ public class ChangeEventAdapter extends EContentAdapter {
 							e.setTarget(obj);
 							e.setPosition(i++);
 							changeEvents.add(e);
-							//this.addToModelHistory(e, -1);
+							// this.addToModelHistory(e, -1);
 						}
 					} else {
 						EObject value = (EObject) obj.eGet(eRef);
 						if (value.eResource() == obj.eResource()) {
 							handleCreateEObject(value);
 						}
-
 						SetEReferenceEvent e = new SetEReferenceEvent();
 						setRefCount++;
 						e.setEStructuralFeature(eRef);
 						e.setValue(value);
 						e.setTarget(obj);
+						if (handlePreChangeEvent(e) == false) {
+							return;
+						}
 						changeEvents.add(e);
-						//this.addToModelHistory(e, -1);
 					}
 				}
 			}
 		}
 	}
+
+	private boolean handlePreChangeEvent(ChangeEvent<?> changeEvent) {
+		boolean result = true;
+		if (preChangeEventHandler != null && changeEvent != null) {
+			if (preChangeEventHandler.isCancelled(changeEvent)) {
+				result = false;
+			} else {
+				result = true;
+			}
+		}
+		return result;
+	}
+
 }

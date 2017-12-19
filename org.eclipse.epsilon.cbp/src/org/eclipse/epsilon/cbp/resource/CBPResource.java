@@ -110,10 +110,6 @@ public abstract class CBPResource extends ResourceImpl {
 		if (uriFragment == null) {
 			uriFragment = super.getURIFragment(eObject);
 		}
-		// String uriFragment = eObjectToIdMap.get(eObject);
-		// if (uriFragment == null) {
-		// uriFragment = EcoreUtil.getURI(eObject).toString();
-		// }
 		return uriFragment;
 	}
 
