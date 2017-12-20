@@ -135,9 +135,6 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 
 	public String register(EObject eObject) {
-		// if (eObjectToIdMap.size() > idCounter){
-		// idCounter = eObjectToIdMap.size();
-		// }
 		while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
 			idCounter += 1;
 		}

@@ -1,4 +1,4 @@
-<session id="20171129192405750"/>
+<session id="20171207112551833"/>
 <register epackage="http://www.eclipse.org/uml2/5.0.0/UML"/>
 <create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="0"/>
 <set-eattribute name="name" target="0"><value literal="root model"/></set-eattribute>
@@ -116,11 +116,11 @@
 <add-to-ereference name="packagedElement" position="0" target="0"><value eobject="1"/></add-to-ereference>
 <add-to-ereference name="packagedElement" position="1" target="0"><value eobject="20"/></add-to-ereference>
 <add-to-resource position="0"><value eobject="0"/></add-to-resource>
-<session id="20171129192406068"/>
-<session id="20171129192406091"/>
-<session id="20171129192406109"/>
-<session id="20171129192406122"/>
-<session id="20171129192406147"/>
+<session id="20171207112552233"/>
+<session id="20171207112552256"/>
+<session id="20171207112552274"/>
+<session id="20171207112552293"/>
+<session id="20171207112552310"/>
 <create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="28"/>
 <set-eattribute name="name" target="28"><value literal="greet"/></set-eattribute>
 <set-eattribute name="visibility" target="28"><value literal="public"/></set-eattribute>
@@ -130,12 +130,12 @@
 <set-eattribute name="direction" target="29"><value literal="return"/></set-eattribute>
 <add-to-ereference name="ownedParameter" position="0" target="28"><value eobject="29"/></add-to-ereference>
 <set-ereference name="type" target="29"><value eobject="8"/></set-ereference>
-<session id="20171129192406170"/>
+<session id="20171207112552336"/>
 <create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="30"/>
 <set-eattribute name="name" target="30"><value literal="name"/></set-eattribute>
 <add-to-ereference name="ownedParameter" position="1" target="28"><value eobject="30"/></add-to-ereference>
 <set-ereference name="type" target="30"><value eobject="19"/></set-ereference>
-<session id="20171129192406187"/>
+<session id="20171207112552358"/>
 <create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="31"/>
 <set-eattribute name="name" target="31"><value literal="Greet"/></set-eattribute>
 <set-eattribute name="visibility" target="31"><value literal="public"/></set-eattribute>
@@ -151,7 +151,7 @@
 <unset-ereference name="class" target="28"/>
 <remove-from-ereference name="ownedOperation" target="13"><value eobject="28"/></remove-from-ereference>
 <delete eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="28"/>
-<session id="20171129192406206"/>
+<session id="20171207112552384"/>
 <create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="33"/>
 <set-eattribute name="name" target="33"><value literal="Person"/></set-eattribute>
 <set-eattribute name="visibility" target="33"><value literal="public"/></set-eattribute>
@@ -190,7 +190,7 @@
 <set-eattribute name="visibility" target="41"><value literal="private"/></set-eattribute>
 <add-to-ereference name="ownedAttribute" position="1" target="33"><value eobject="41"/></add-to-ereference>
 <set-ereference name="type" target="41"><value eobject="19"/></set-ereference>
-<session id="20171129192406243"/>
+<session id="20171207112552419"/>
 <create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="42"/>
 <set-eattribute name="name" target="42"><value literal="Lecturer"/></set-eattribute>
 <set-eattribute name="visibility" target="42"><value literal="public"/></set-eattribute>

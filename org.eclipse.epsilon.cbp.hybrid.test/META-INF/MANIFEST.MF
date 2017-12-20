@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test
+Bundle-SymbolicName: org.eclipse.epsilon.cbp.hybrid.test
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.junit,
+ org.eclipse.emf.ecore,
+ org.eclipse.epsilon.cbp.hybrid,
+ fr.inria.atlanmod.neoemf.core,
+ fr.inria.atlanmod.neoemf.data.blueprints.core,
+ fr.inria.atlanmod.neoemf.data.blueprints.neo4j,
+ fr.inria.atlanmod.neoemf.data.blueprints.neo4j.wrapper,
+ org.eclipse.epsilon.cbp
+Import-Package: graph

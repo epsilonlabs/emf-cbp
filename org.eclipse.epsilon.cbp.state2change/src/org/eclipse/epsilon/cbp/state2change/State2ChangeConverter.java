@@ -77,6 +77,63 @@ public class State2ChangeConverter {
 		this.sourceDirectory = xmiDirectory;
 	}
 
+	
+
+	public boolean generate(File cbpFile, File diffDirectory) throws Exception {
+
+		UMLPackage.eINSTANCE.eClass();
+		// JavaPackage.eINSTANCE.eClass();
+		saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
+		saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+
+		// -----
+		cbpResourceSet = new ResourceSetImpl();
+		cbpResourceSet.getResourceFactoryRegistry().getContentTypeToFactoryMap().put("cbpxml",
+				new CBPXMLResourceFactory());
+
+		cbpResource = new CBPXMLResourceImpl();
+		URI cbpUri = URI.createFileURI(cbpFile.getAbsolutePath());
+		File file = new File(cbpUri.toFileString());
+		if (file.exists()) {
+			file.delete();
+			file.createNewFile();
+		}
+		cbpResource.setURI(cbpUri);
+		((CBPResource) cbpResource).getChangeEventAdapter().setPostChangeEventHandler(new UMLPreChangeEventHandlerImpl());
+		cbpResourceSet.getResources().add(cbpResource);
+//		cbpResource.load(null);
+
+		xmiResourceSet = new ResourceSetImpl();
+		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+		resourceSetList.add(xmiResourceSet);
+
+		comparisonResourceSet = new ResourceSetImpl();
+		comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
+				new XMIResourceFactoryImpl());
+		resourceSetList.add(comparisonResourceSet);
+
+		cbpStateResourceSet = new ResourceSetImpl();
+		cbpStateResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
+				new XMIResourceFactoryImpl());
+		resourceSetList.add(cbpStateResourceSet);
+
+		cbpStatePath = "D:/TEMP/BigModel/cbp-state/";
+		cbpStateResource = cbpStateResourceSet.createResource(URI.createURI("cbp-state.xmi"));
+
+		File[] sourceFiles = sourceDirectory.listFiles();
+		System.out.println("Converting " + sourceFiles.length + " file(s) to CBP");
+		for (int i = 0; i < sourceFiles.length; i++) {
+			Task task = new Task(cbpFile, diffDirectory, sourceFiles[i]);
+			task.setDaemon(true);
+			task.setName(sourceFiles[i].getName());
+			task.start();
+			task.join();
+		}
+		System.out.println("Finished!");
+		return true;
+	}
+
+	
 	public class Task extends Thread {
 
 		protected File cbpFile;
@@ -208,61 +265,7 @@ public class State2ChangeConverter {
 			clearCacheAdapter(cbpResource);
 		}
 	}
-
-	public boolean generate(File cbpFile, File diffDirectory) throws Exception {
-
-		UMLPackage.eINSTANCE.eClass();
-		// JavaPackage.eINSTANCE.eClass();
-		saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
-		saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
-
-		// -----
-		cbpResourceSet = new ResourceSetImpl();
-		cbpResourceSet.getResourceFactoryRegistry().getContentTypeToFactoryMap().put("cbpxml",
-				new CBPXMLResourceFactory());
-
-		cbpResource = new CBPXMLResourceImpl();
-		URI cbpUri = URI.createFileURI(cbpFile.getAbsolutePath());
-		File file = new File(cbpUri.toFileString());
-		if (file.exists()) {
-			file.delete();
-			file.createNewFile();
-		}
-		cbpResource.setURI(cbpUri);
-		((CBPResource) cbpResource).getChangeEventAdapter().setPostChangeEventHandler(new UMLPreChangeEventHandlerImpl());
-		cbpResourceSet.getResources().add(cbpResource);
-//		cbpResource.load(null);
-
-		xmiResourceSet = new ResourceSetImpl();
-		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		resourceSetList.add(xmiResourceSet);
-
-		comparisonResourceSet = new ResourceSetImpl();
-		comparisonResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
-				new XMIResourceFactoryImpl());
-		resourceSetList.add(comparisonResourceSet);
-
-		cbpStateResourceSet = new ResourceSetImpl();
-		cbpStateResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
-				new XMIResourceFactoryImpl());
-		resourceSetList.add(cbpStateResourceSet);
-
-		cbpStatePath = "D:/TEMP/BigModel/cbp-state/";
-		cbpStateResource = cbpStateResourceSet.createResource(URI.createURI("cbp-state.xmi"));
-
-		File[] sourceFiles = sourceDirectory.listFiles();
-		System.out.println("Converting " + sourceFiles.length + " file(s) to CBP");
-		for (int i = 0; i < sourceFiles.length; i++) {
-			Task task = new Task(cbpFile, diffDirectory, sourceFiles[i]);
-			task.setDaemon(true);
-			task.setName(sourceFiles[i].getName());
-			task.start();
-			task.join();
-		}
-		System.out.println("Finished!");
-		return true;
-	}
-
+	
 	private IComparisonScope2 createComparisonScope(Resource cbpResource, Resource xmiResource) {
 		IComparisonScope2 scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
 		Set<ResourceSet> resourceSets = ImmutableSet.of(cbpResource.getResourceSet(), xmiResource.getResourceSet());
