@@ -10,5 +10,6 @@ Require-Bundle: org.junit,
  fr.inria.atlanmod.neoemf.data.blueprints.core,
  fr.inria.atlanmod.neoemf.data.blueprints.neo4j,
  fr.inria.atlanmod.neoemf.data.blueprints.neo4j.wrapper,
- org.eclipse.epsilon.cbp
+ org.eclipse.epsilon.cbp,
+ org.eclipse.emf.ecore.xmi
 Import-Package: graph

@@ -25,6 +25,7 @@ import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
 import org.eclipse.epsilon.cbp.history.ModelHistory;
@@ -140,6 +141,7 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		String id = String.valueOf(idCounter);
 		idCounter = idCounter + 1;
+		String x = EcoreUtil.getID(eObject);
 		adopt(eObject, id);
 		return id;
 	}

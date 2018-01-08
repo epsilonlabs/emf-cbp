@@ -26,8 +26,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	protected CBPResource resource = null;
 	protected ModelHistory modelHistory = null;
 	protected int eventNumber = 0;
-	protected IPreChangeEventHandler preChangeEventHandler = null;
-
+	
 	protected int setAttCount = 0;
 	protected int unsetAttCount = 0;
 	protected int addAttCount = 0;
@@ -46,14 +45,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 	protected int createCount = 0;
 
 	protected EObject monitoredObject;
-
-	public IPreChangeEventHandler getPostChangeEventHandler() {
-		return preChangeEventHandler;
-	}
-
-	public void setPostChangeEventHandler(IPreChangeEventHandler postChangeEventHandler) {
-		this.preChangeEventHandler = postChangeEventHandler;
-	}
 
 	public boolean isEnabled() {
 		return enabled;
@@ -167,71 +158,74 @@ public class ChangeEventAdapter extends EContentAdapter {
 				return;
 		}
 
-		// if (n.getEventType() == Notification.ADD) {
-		// System.out.println("ADD");
-		// } else if (n.getEventType() == Notification.ADD_MANY) {
-		// System.out.println("ADD MANY");
-		// } else if (n.getEventType() == Notification.CREATE) {
-		// System.out.println("CREATE");
-		// } else if (n.getEventType() == Notification.EVENT_TYPE_COUNT) {
-		// System.out.println("EVENT TYPE COUNT");
-		// } else if (n.getEventType() == Notification.MOVE) {
-		// System.out.println("MOVE");
-		// } else if (n.getEventType() == Notification.NO_FEATURE_ID) {
-		// System.out.println("NO FEATURE ID");
-		// } else if (n.getEventType() == Notification.NO_INDEX) {
-		// System.out.println("NO INDEX");
-		// } else if (n.getEventType() == Notification.REMOVE) {
-		// System.out.println("REMOVE");
-		// } else if (n.getEventType() == Notification.REMOVE_MANY) {
-		// System.out.println("REMOVE MANY");
-		// } else if (n.getEventType() == Notification.REMOVING_ADAPTER) {
-		// System.out.println("REMOVING ADAPTER");
-		// } else if (n.getEventType() == Notification.RESOLVE) {
-		// System.out.println("RESOLVE");
-		// } else if (n.getEventType() == Notification.SET) {
-		// System.out.println("SET");
-		// } else if (n.getEventType() == Notification.UNSET) {
-		// System.out.println("UNSET");
-		// }
-		//
-		// if (n.getNotifier() instanceof PropertyImpl) {
-		// EStructuralFeature sf = ((EObject)
-		// n.getNotifier()).eClass().getEStructuralFeature("opposite");
-		// EStructuralFeature sf2 = ((EObject)
-		// n.getNotifier()).eClass().getEStructuralFeature("name");
-		// System.out.println("+-- " + n.getNotifier());
-		// System.out.println("+-- " + n.getFeature());
-		// System.out.println("+-- " + n.getNewValue());
-		// System.out.println("+-- " + ((EObject) n.getNotifier()).eGet(sf));
-		//
-		// if (((EObject) n.getNotifier()).eGet(sf2) != null
-		// && ((EObject) n.getNotifier()).eGet(sf2).equals("class2")) {
-		// monitoredObject = (EObject) n.getNotifier();
-		// }
-		// }
-		//
-		// if (monitoredObject != null && monitoredObject instanceof
-		// PropertyImpl) {
-		// EStructuralFeature sf =
-		// monitoredObject.eClass().getEStructuralFeature("opposite");
-		// EReference ref = (EReference) sf;
-		// System.out.println("x---- " + monitoredObject);
-		// // System.out.println("x---- " + sf);
-		// System.out.println("x---- " + monitoredObject.eGet(sf));
-		// System.out.println("x---- " + ref);
-		//
-		// if (n.getNotifier() instanceof EObject) {
-		// EObject target = (EObject) n.getNotifier();
-		// EStructuralFeature sf2 = (EStructuralFeature) n.getFeature();
-		// EReference ref2 = (EReference) sf2;
-		// Object value = n.getNewValue();
-		// System.out.println("v------ " + target);
-		// System.out.println("v------ " + sf2);
-		// System.out.println("v------ " + value);
-		// System.out.println("v------ " + ref2);
-		// }
-		// }
+		/*
+		if (n.getEventType() == Notification.ADD) {
+			System.out.println("ADD");
+		} else if (n.getEventType() == Notification.ADD_MANY) {
+			System.out.println("ADD MANY");
+		} else if (n.getEventType() == Notification.CREATE) {
+			System.out.println("CREATE");
+		} else if (n.getEventType() == Notification.EVENT_TYPE_COUNT) {
+			System.out.println("EVENT TYPE COUNT");
+		} else if (n.getEventType() == Notification.MOVE) {
+			System.out.println("MOVE");
+		} else if (n.getEventType() == Notification.NO_FEATURE_ID) {
+			System.out.println("NO FEATURE ID");
+		} else if (n.getEventType() == Notification.NO_INDEX) {
+			System.out.println("NO INDEX");
+		} else if (n.getEventType() == Notification.REMOVE) {
+			System.out.println("REMOVE");
+		} else if (n.getEventType() == Notification.REMOVE_MANY) {
+			System.out.println("REMOVE MANY");
+		} else if (n.getEventType() == Notification.REMOVING_ADAPTER) {
+			System.out.println("REMOVING ADAPTER");
+		} else if (n.getEventType() == Notification.RESOLVE) {
+			System.out.println("RESOLVE");
+		} else if (n.getEventType() == Notification.SET) {
+			System.out.println("SET");
+		} else if (n.getEventType() == Notification.UNSET) {
+			System.out.println("UNSET");
+		}
+		
+		System.out.println(n.getNotifier());
+		System.out.println(n.getFeature());
+		System.out.println(n.getOldValue());
+		System.out.println(n.getNewValue());
+		*/
+//
+//		if (n.getNotifier() instanceof PropertyImpl) {
+//			EStructuralFeature sf = ((EObject) n.getNotifier()).eClass().getEStructuralFeature("opposite");
+//			EStructuralFeature sf2 = ((EObject) n.getNotifier()).eClass().getEStructuralFeature("name");
+//			System.out.println("+-- " + n.getNotifier());
+//			System.out.println("+-- " + n.getFeature());
+//			System.out.println("+-- " + n.getNewValue());
+//			System.out.println("+-- " + ((EObject) n.getNotifier()).eGet(sf));
+//
+//			if (((EObject) n.getNotifier()).eGet(sf2) != null
+//					&& ((EObject) n.getNotifier()).eGet(sf2).equals("class2")) {
+//				monitoredObject = (EObject) n.getNotifier();
+//			}
+//		}
+//
+//		if (monitoredObject != null && monitoredObject instanceof PropertyImpl) {
+//			EStructuralFeature sf = monitoredObject.eClass().getEStructuralFeature("opposite");
+//			EReference ref = (EReference) sf;
+//			System.out.println("x---- " + monitoredObject);
+//			// System.out.println("x---- " + sf);
+//			System.out.println("x---- " + monitoredObject.eGet(sf));
+//			System.out.println("x---- " + ref);
+//
+//			if (n.getNotifier() instanceof EObject) {
+//				EObject target = (EObject) n.getNotifier();
+//				EStructuralFeature sf2 = (EStructuralFeature) n.getFeature();
+//				EReference ref2 = (EReference) sf2;
+//				Object value = n.getNewValue();
+//				System.out.println("v------ " + target);
+//				System.out.println("v------ " + sf2);
+//				System.out.println("v------ " + value);
+//				System.out.println("v------ " + ref2);
+//			}
+//		}
 
 		ChangeEvent<?> event = null;
 
@@ -252,6 +246,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 						event = new AddToEReferenceEvent();
 						addRefCount++;
 					}
+				} else {
+					event = new AddToResourceEvent();
+					addResCount++;
 				}
 			}
 			event.setValues(n.getNewValue());
@@ -486,7 +483,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 
 		if (isDeleted == true) {
-			String id = resource.getEObjectId(removedObject);
+			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
 			deleteCount++;
 			changeEvents.add(e);
@@ -518,7 +515,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 			// Include prior attribute values into the resource
 			for (EAttribute eAttr : obj.eClass().getEAllAttributes()) {
-				if (eAttr.isChangeable() && obj.eIsSet(eAttr)) {
+				if (eAttr.isChangeable() && obj.eIsSet(eAttr) && !eAttr.isDerived()) {
 					if (eAttr.isMany()) {
 						Collection<?> values = (Collection<?>) obj.eGet(eAttr);
 						int i = 0;
@@ -549,7 +546,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			// Include prior reference values into the resource
 			for (EReference eRef : obj.eClass().getEAllReferences()) {
 
-				if (eRef.isChangeable() && obj.eIsSet(eRef)) {
+				if (eRef.isChangeable() && obj.eIsSet(eRef) && !eRef.isDerived()) {
 					if (eRef.getEOpposite() != null && eRef.getEOpposite().isMany()
 							&& eRef.getEOpposite().isChangeable()) {
 						// If this is the "1" side of an 1:N pair of references,
@@ -585,9 +582,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 						e.setEStructuralFeature(eRef);
 						e.setValue(value);
 						e.setTarget(obj);
-						if (handlePreChangeEvent(e) == false) {
-							return;
-						}
 						changeEvents.add(e);
 					}
 				}
@@ -595,16 +589,5 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 	}
 
-	private boolean handlePreChangeEvent(ChangeEvent<?> changeEvent) {
-		boolean result = true;
-		if (preChangeEventHandler != null && changeEvent != null) {
-			if (preChangeEventHandler.isCancelled(changeEvent)) {
-				result = false;
-			} else {
-				result = true;
-			}
-		}
-		return result;
-	}
 
 }
