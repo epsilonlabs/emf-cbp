@@ -32,7 +32,7 @@ import graph.GraphFactory;
 import graph.GraphPackage;
 import graph.Vertice;
 
-public class HybridTest {
+public class GraphHybridTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {

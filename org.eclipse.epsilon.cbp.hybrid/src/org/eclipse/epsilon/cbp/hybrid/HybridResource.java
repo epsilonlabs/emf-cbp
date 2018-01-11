@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.hybrid;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 	public HybridResource(URI uri) {
 		super(uri);
 	}
-	
+
 	public HybridResource(URI uri, PersistentResource persistenceResource) {
 		super(uri);
 		this.neoPersistentResource = persistenceResource;
@@ -104,12 +105,12 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 		String id = null;
 		if (eObject instanceof PersistentEObject) {
 			id = ((PersistentEObject) eObject).id().toString();
-		}else {
+		} else {
 			id = neoPersistentResource.getURIFragment(eObject);
 		}
-		return id; 
+		return id;
 	}
-	
+
 	@Override
 	public void save(Map<?, ?> options) throws IOException {
 		neoPersistentResource.save(options);
@@ -159,7 +160,6 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 
 	@Override
 	public TreeIterator<EObject> getAllContents() {
-		// TODO Auto-generated method stub
 		return neoPersistentResource.getAllContents();
 	}
 
@@ -377,6 +377,8 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 		public HybridResourceContentsEStoreEList(InternalEObject owner, EStructuralFeature eStructuralFeature,
 				EStore store) {
 			super(owner, eStructuralFeature, store);
+			
+			
 		}
 
 		@Override
@@ -386,6 +388,24 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 			eObject.eAdapters().add(neoChangeEventAdapter);
 
 			return neoPersistentResource.getContents().add(eObject);
+		}
+
+		@Override
+		public boolean addAll(Collection objects) {
+			for (Object object : objects) {
+				EObject eObject = (EObject) object;
+				eObject.eSetDeliver(true);
+				eObject.eAdapters().add(neoChangeEventAdapter);
+//				neoPersistentResource.getContents().add((EObject)object);
+			}
+//			return true;
+			return neoPersistentResource.getContents().addAll(objects);
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			// TODO Auto-generated method stub
+			return super.clone();
 		}
 
 		@Override

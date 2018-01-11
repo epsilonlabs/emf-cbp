@@ -1,0 +1,8 @@
+@namespace(uri="nodeUri", prefix="nodePrefix")
+package node;
+
+class Node {
+	attr String name;
+	val Node[*] children;
+}
+

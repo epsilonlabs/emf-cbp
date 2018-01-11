@@ -1,15 +1,26 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test
-Bundle-SymbolicName: org.eclipse.epsilon.cbp.hybrid.test
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.eclipse.epsilon.cbp.hybrid.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: node,
+ node.impl,
+ node.util
 Require-Bundle: org.junit,
- org.eclipse.emf.ecore,
+ org.eclipse.core.runtime,
+ org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.epsilon.cbp.hybrid,
  fr.inria.atlanmod.neoemf.core,
  fr.inria.atlanmod.neoemf.data.blueprints.core,
  fr.inria.atlanmod.neoemf.data.blueprints.neo4j,
  fr.inria.atlanmod.neoemf.data.blueprints.neo4j.wrapper,
  org.eclipse.epsilon.cbp,
- org.eclipse.emf.ecore.xmi
-Import-Package: graph
+ org.eclipse.emf.ecore.xmi,
+ org.eclipse.uml2.uml.source
+Bundle-ActivationPolicy: lazy
+Import-Package: graph,
+ org.eclipse.gmt.modisco.java
