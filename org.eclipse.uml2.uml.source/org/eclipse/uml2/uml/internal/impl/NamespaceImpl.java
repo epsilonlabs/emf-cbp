@@ -108,7 +108,7 @@ public abstract class NamespaceImpl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected NamespaceImpl() {
+	public NamespaceImpl() {
 		super();
 	}
 

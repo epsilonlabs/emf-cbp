@@ -55,6 +55,7 @@ import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EModelElement;
+//import org.eclipse.uml2.uml.bridge.EModelElement;
 import org.eclipse.emf.ecore.ENamedElement;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
@@ -4761,10 +4762,15 @@ public class UMLUtil
 		}
 
 		@Override
-		public Object caseEModelElement(EModelElement eModelElement) {
+		public Object caseEModelElement(org.eclipse.uml2.uml.bridge.EModelElement eModelElement) {
 			return eModelElement;
 		}
 
+//		@Override
+//		public Object caseEModelElement(EModelElement eModelElement) {
+//			return eModelElement;
+//		}
+		
 		@Override
 		public Object caseEnumeration(Enumeration enumeration) {
 			org.eclipse.uml2.uml.Package package_ = enumeration

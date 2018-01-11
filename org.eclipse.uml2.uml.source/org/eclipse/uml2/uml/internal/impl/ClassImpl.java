@@ -86,6 +86,8 @@ import org.eclipse.uml2.uml.VisibilityKind;
 import org.eclipse.uml2.uml.internal.operations.BehavioredClassifierOperations;
 import org.eclipse.uml2.uml.internal.operations.ClassOperations;
 
+import fr.inria.atlanmod.neoemf.core.Id;
+
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Class</b></em>'.
@@ -116,7 +118,7 @@ import org.eclipse.uml2.uml.internal.operations.ClassOperations;
 public class ClassImpl
 		extends EncapsulatedClassifierImpl
 		implements org.eclipse.uml2.uml.Class {
-
+	
 	/**
 	 * The cached value of the '{@link #getOwnedBehaviors() <em>Owned Behavior</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
@@ -202,10 +204,17 @@ public class ClassImpl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ClassImpl() {
+	public ClassImpl() {
 		super();
 	}
 
+	
+	@Override
+	public Id id() {
+		return super.id();
+	}
+	
+	
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

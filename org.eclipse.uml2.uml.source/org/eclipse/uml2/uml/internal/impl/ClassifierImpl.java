@@ -308,7 +308,7 @@ public abstract class ClassifierImpl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ClassifierImpl() {
+	public ClassifierImpl() {
 		super();
 	}
 

@@ -120,7 +120,7 @@ public abstract class StructuredClassifierImpl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected StructuredClassifierImpl() {
+	public StructuredClassifierImpl() {
 		super();
 	}
 

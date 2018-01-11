@@ -68,7 +68,7 @@ import org.eclipse.uml2.uml.internal.operations.ElementOperations;
  *
  * @generated
  */
-public abstract class ElementImpl
+public class ElementImpl
 		extends EModelElementImpl
 		implements Element {
 
@@ -87,7 +87,7 @@ public abstract class ElementImpl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ElementImpl() {
+	public ElementImpl() {
 		super();
 	}
 

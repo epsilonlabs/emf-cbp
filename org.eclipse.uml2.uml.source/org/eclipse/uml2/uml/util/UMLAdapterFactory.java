@@ -18,7 +18,7 @@ import org.eclipse.emf.common.notify.Notifier;
 
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
 
-import org.eclipse.emf.ecore.EModelElement;
+import org.eclipse.uml2.uml.bridge.EModelElement;
 import org.eclipse.emf.ecore.EObject;
 
 import org.eclipse.uml2.uml.Abstraction;

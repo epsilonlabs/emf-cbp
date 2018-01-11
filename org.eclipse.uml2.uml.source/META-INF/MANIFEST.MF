@@ -5,6 +5,7 @@ Bundle-SymbolicName: org.eclipse.uml2.uml.source
 Bundle-Version: 1.0.0.qualifier
 Export-Package: model,
  org.eclipse.uml2.uml,
+ org.eclipse.uml2.uml.bridge,
  org.eclipse.uml2.uml.internal.impl,
  org.eclipse.uml2.uml.internal.operations,
  org.eclipse.uml2.uml.internal.resource,

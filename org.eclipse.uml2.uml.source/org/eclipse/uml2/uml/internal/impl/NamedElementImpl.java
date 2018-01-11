@@ -193,7 +193,7 @@ public abstract class NamedElementImpl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected NamedElementImpl() {
+	public NamedElementImpl() {
 		super();
 	}
 

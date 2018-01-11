@@ -103,7 +103,7 @@ public abstract class EncapsulatedClassifierImpl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected EncapsulatedClassifierImpl() {
+	public EncapsulatedClassifierImpl() {
 		super();
 	}
 

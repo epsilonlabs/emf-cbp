@@ -2,36 +2,29 @@ package org.eclipse.epsilon.cbp.hybrid.test;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.epsilon.cbp.hybrid.HybridResource;
-import org.eclipse.gmt.modisco.java.Annotation;
-import org.eclipse.gmt.modisco.java.ClassDeclaration;
 import org.eclipse.gmt.modisco.java.JavaFactory;
 import org.eclipse.gmt.modisco.java.JavaPackage;
 import org.eclipse.gmt.modisco.java.Model;
-import org.eclipse.uml2.uml.Activity;
-import org.eclipse.uml2.uml.Association;
-import org.eclipse.uml2.uml.Package;
+import org.eclipse.uml2.uml.Class;
+import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
+import org.eclipse.uml2.uml.bridge.Dummy;
+import org.eclipse.uml2.uml.bridge.EModelElement;
+import org.eclipse.uml2.uml.internal.impl.ClassImpl;
+import org.eclipse.uml2.uml.internal.impl.ElementImpl;
 import org.junit.Test;
 
-import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
-import fr.inria.atlanmod.neoemf.core.PersistentEObject;
 import fr.inria.atlanmod.neoemf.data.PersistenceBackendFactoryRegistry;
 import fr.inria.atlanmod.neoemf.data.blueprints.BlueprintsPersistenceBackendFactory;
 import fr.inria.atlanmod.neoemf.data.blueprints.neo4j.option.BlueprintsNeo4jOptionsBuilder;
@@ -55,8 +48,15 @@ public class UMLHybridTest {
 			// initialise UML package
 			UMLPackage umlPackage = UMLPackage.eINSTANCE;
 			UMLFactory umlFactory = UMLFactory.eINSTANCE;
-			Package pkg = umlFactory.createPackage();
-			System.out.println(pkg.id());
+			Class pkg = umlFactory.createClass();
+			
+//			EModelElement x = new org.eclipse.uml2.uml.bridge.EModelElementImpl();
+			
+			Dummy d = new Dummy();
+			
+			Element e = new ElementImpl();
+			
+//			System.out.println(pkg.id());
 			
 			GraphPackage graphPackage = GraphPackage.eINSTANCE;
 			GraphFactory graphFactory = GraphFactory.eINSTANCE;

@@ -32,6 +32,7 @@ import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
+import fr.inria.atlanmod.neoemf.core.Id;
 
 
 
@@ -51,6 +52,11 @@ import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
 public abstract class EModelElementImpl extends DefaultPersistentEObject implements EModelElement
 {
 
+	@Override
+	public Id id() {
+		return super.id();
+	}
+	
 	private static final String [] ESCAPE =
 		   {
 		     "%00",
@@ -139,7 +145,7 @@ public abstract class EModelElementImpl extends DefaultPersistentEObject impleme
    * <!-- end-user-doc -->
    * @generated
    */
-  protected EModelElementImpl()
+  public EModelElementImpl()
   {
     super();
   }
