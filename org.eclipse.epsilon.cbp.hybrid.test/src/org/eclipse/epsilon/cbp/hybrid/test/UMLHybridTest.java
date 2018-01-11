@@ -82,7 +82,7 @@ public class UMLHybridTest {
 				
 				// copy from UML xmi resource to Neo resource
 				EList<EObject> objects = xmiResource.getContents();
-				hybridResource.getContents().addAll(object);
+				hybridResource.getContents().addAll(objects);
 				
 				hybridResource.save(saveOptions);
 			}
