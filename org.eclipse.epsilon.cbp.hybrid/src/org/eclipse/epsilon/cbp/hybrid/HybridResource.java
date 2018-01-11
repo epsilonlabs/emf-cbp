@@ -396,9 +396,7 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 				EObject eObject = (EObject) object;
 				eObject.eSetDeliver(true);
 				eObject.eAdapters().add(neoChangeEventAdapter);
-//				neoPersistentResource.getContents().add((EObject)object);
 			}
-//			return true;
 			return neoPersistentResource.getContents().addAll(objects);
 		}
 
