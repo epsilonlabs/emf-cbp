@@ -34,11 +34,12 @@ public class UMLHybridTest {
 
 		try {
 			// initialise UML package
-			UMLPackage umlPackage = UMLPackage.eINSTANCE;
+			UMLPackage.eINSTANCE.eClass();
 			UMLFactory umlFactory = UMLFactory.eINSTANCE;
 			Class myClass = umlFactory.createClass();
 			myClass.setName("Dummy");
-			
+			System.out.println(myClass);
+
 			// files
 			File databaseFile = new File("databases/import-uml.graphdb");
 			File cbpFile = new File("cbps/import-uml.cbpxml");
@@ -65,8 +66,8 @@ public class UMLHybridTest {
 					.createResource(BlueprintsURI.createFileURI(databaseUri));
 			FileOutputStream outputStream = new FileOutputStream(cbpFile, true);
 
-			PersistentResource hybridResource = persistentResource;
-//			HybridResource hybridResource = new HybridResource(persistentResource, outputStream);
+			// PersistentResource hybridResource = persistentResource;
+			HybridResource hybridResource = new HybridResource(persistentResource, outputStream);
 
 			Map<String, Object> saveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().weakCache().autocommit()
 					.asMap();
@@ -74,26 +75,27 @@ public class UMLHybridTest {
 			Map<String, Object> loadOptions = Collections.emptyMap();
 
 			if (databaseFile.exists() == false) {
-				hybridResource.save(saveOptions);
 				hybridResource.getContents().add(myClass);
 				hybridResource.save(saveOptions);
 			} else {
 				hybridResource.load(loadOptions);
-				
+
 				// copy from UML xmi resource to Neo resource
 				EList<EObject> objects = xmiResource.getContents();
 				hybridResource.getContents().addAll(objects);
-				
+
 				hybridResource.save(saveOptions);
 			}
 
 			// check if copy was successful
+			int i = 0;
 			TreeIterator<EObject> iterator2 = hybridResource.getAllContents();
 			while (iterator2.hasNext()) {
+				i += 1;
 				EObject eObject = iterator2.next();
-				System.out.println(eObject);
+				System.out.println(String.valueOf(i) + ": " + eObject);
 			}
-				
+
 			// shutdown resources
 			xmiResource.unload();
 			hybridResource.unload();

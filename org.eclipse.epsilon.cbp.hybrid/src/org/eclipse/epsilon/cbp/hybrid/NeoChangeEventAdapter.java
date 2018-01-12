@@ -1,6 +1,8 @@
 package org.eclipse.epsilon.cbp.hybrid;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.TreeIterator;
@@ -20,6 +22,8 @@ import org.eclipse.epsilon.cbp.resource.CBPResource;
 import fr.inria.atlanmod.neoemf.resource.PersistentResource;
 
 public class NeoChangeEventAdapter extends ChangeEventAdapter {
+
+	private List<String> createdEObjects = new ArrayList<>();
 
 	private PersistentResource resource;
 
@@ -57,6 +61,7 @@ public class NeoChangeEventAdapter extends ChangeEventAdapter {
 		if (isDeleted == true) {
 			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
+			createdEObjects.remove(id);
 			deleteCount++;
 			changeEvents.add(e);
 		}
@@ -64,83 +69,87 @@ public class NeoChangeEventAdapter extends ChangeEventAdapter {
 
 	@Override
 	public void handleEPackageOf(EObject eObject) {
-		
+
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public void handleCreateEObject(EObject obj) {
+	public void handleCreateEObject(EObject eObject) {
+		String objectId = resource.getURIFragment(eObject);
+		if (createdEObjects.contains(objectId) == false) {
+			ChangeEvent<?> event = new CreateEObjectEvent(eObject, objectId);
+			createdEObjects.add(objectId);
+			createCount++;
+			changeEvents.add(event);
 
-		ChangeEvent<?> event = new CreateEObjectEvent(obj, resource.getURIFragment(obj));
-		createCount++;
-		changeEvents.add(event);
+			// Include prior attribute values into the resource
+			for (EAttribute eAttr : eObject.eClass().getEAllAttributes()) {
+				if (eAttr.isChangeable() && eObject.eIsSet(eAttr) && !eAttr.isDerived()) {
+					if (eAttr.isMany()) {
+						Collection<?> values = (Collection<?>) eObject.eGet(eAttr);
+						int i = 0;
+						for (Object value : values) {
+							AddToEAttributeEvent e = new AddToEAttributeEvent();
+							addAttCount++;
+							e.setEStructuralFeature(eAttr);
+							e.setValue(value);
+							e.setTarget(eObject);
+							e.setPosition(i++);
+							changeEvents.add(e);
+						}
+					} else {
+						Object value = eObject.eGet(eAttr);
 
-		// Include prior attribute values into the resource
-		for (EAttribute eAttr : obj.eClass().getEAllAttributes()) {
-			if (eAttr.isChangeable() && obj.eIsSet(eAttr) && !eAttr.isDerived()) {
-				if (eAttr.isMany()) {
-					Collection<?> values = (Collection<?>) obj.eGet(eAttr);
-					int i = 0;
-					for (Object value : values) {
-						AddToEAttributeEvent e = new AddToEAttributeEvent();
-						addAttCount++;
+						SetEAttributeEvent e = new SetEAttributeEvent();
+						setAttCount++;
 						e.setEStructuralFeature(eAttr);
 						e.setValue(value);
-						e.setTarget(obj);
-						e.setPosition(i++);
+						e.setTarget(eObject);
 						changeEvents.add(e);
 					}
-				} else {
-					Object value = obj.eGet(eAttr);
-
-					SetEAttributeEvent e = new SetEAttributeEvent();
-					setAttCount++;
-					e.setEStructuralFeature(eAttr);
-					e.setValue(value);
-					e.setTarget(obj);
-					changeEvents.add(e);
 				}
 			}
-		}
 
-		// Include prior reference values into the resource
-		for (EReference eRef : obj.eClass().getEAllReferences()) {
+			// Include prior reference values into the resource
+			for (EReference eRef : eObject.eClass().getEAllReferences()) {
 
-			if (eRef.isChangeable() && obj.eIsSet(eRef) && !eRef.isDerived()) {
-				if (eRef.getEOpposite() != null && eRef.getEOpposite().isMany() && eRef.getEOpposite().isChangeable()) {
-					// If this is the "1" side of an 1:N pair of references,
-					// ignore it:
-					// the "N" side has more information.
-					continue;
-				}
+				if (eRef.isChangeable() && eObject.eIsSet(eRef) && !eRef.isDerived()) {
+					if (eRef.getEOpposite() != null && eRef.getEOpposite().isMany()
+							&& eRef.getEOpposite().isChangeable()) {
+						// If this is the "1" side of an 1:N pair of references,
+						// ignore it:
+						// the "N" side has more information.
+						continue;
+					}
 
-				if (eRef.isMany()) {
-					Collection<EObject> values = (Collection<EObject>) obj.eGet(eRef);
-					int i = 0;
-					for (EObject value : values) {
-						if (value.eResource() == obj.eResource()) {
+					if (eRef.isMany()) {
+						Collection<EObject> values = (Collection<EObject>) eObject.eGet(eRef);
+						int i = 0;
+						for (EObject value : values) {
+							if (value.eResource() == eObject.eResource()) {
+								handleCreateEObject(value);
+							}
+
+							AddToEReferenceEvent e = new AddToEReferenceEvent();
+							addRefCount++;
+							e.setEStructuralFeature(eRef);
+							e.setValue(value);
+							e.setTarget(eObject);
+							e.setPosition(i++);
+							changeEvents.add(e);
+						}
+					} else {
+						EObject value = (EObject) eObject.eGet(eRef);
+						if (value.eResource() == eObject.eResource()) {
 							handleCreateEObject(value);
 						}
-
-						AddToEReferenceEvent e = new AddToEReferenceEvent();
-						addRefCount++;
+						SetEReferenceEvent e = new SetEReferenceEvent();
+						setRefCount++;
 						e.setEStructuralFeature(eRef);
 						e.setValue(value);
-						e.setTarget(obj);
-						e.setPosition(i++);
+						e.setTarget(eObject);
 						changeEvents.add(e);
 					}
-				} else {
-					EObject value = (EObject) obj.eGet(eRef);
-					if (value.eResource() == obj.eResource()) {
-						handleCreateEObject(value);
-					}
-					SetEReferenceEvent e = new SetEReferenceEvent();
-					setRefCount++;
-					e.setEStructuralFeature(eRef);
-					e.setValue(value);
-					e.setTarget(obj);
-					changeEvents.add(e);
 				}
 			}
 		}
