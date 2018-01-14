@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ASCII"?>
+<uml:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" name="root model">
+  <packagedElement xsi:type="uml:Model" name="Model">
+    <packagedElement xsi:type="uml:Package" name="Common java data types">
+      <packagedElement xsi:type="uml:PrimitiveType" name="int"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="long"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="float"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="double"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="boolean"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="void"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="char"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="short"/>
+      <packagedElement xsi:type="uml:PrimitiveType" name="byte"/>
+    </packagedElement>
+    <packagedElement xsi:type="uml:Package" name="state2change">
+      <packagedElement xsi:type="uml:Class" name="Student" visibility="public">
+        <generalization general="//Model/state2change/Person"/>
+        <ownedAttribute name="studentId" visibility="private" type="//externals/java/lang/String"/>
+        <ownedOperation name="Student" visibility="public">
+          <ownedParameter type="//Model/state2change/Student" direction="return"/>
+          <ownedParameter name="name" type="//externals/java/lang/String"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xsi:type="uml:Class" name="Lecturer" visibility="public">
+        <generalization general="//Model/state2change/Person"/>
+        <ownedAttribute name="title" visibility="private" type="//externals/java/lang/String"/>
+        <ownedOperation name="Lecturer" visibility="public">
+          <ownedParameter type="//Model/state2change/Lecturer" direction="return"/>
+          <ownedParameter name="name" type="//externals/java/lang/String"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xsi:type="uml:Class" name="Greet" visibility="public">
+        <ownedOperation name="hello" visibility="public">
+          <ownedParameter type="//Model/Common%20java%20data%20types/void" direction="return"/>
+          <ownedParameter name="name" type="//externals/java/lang/String"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xsi:type="uml:Class" name="Main" visibility="public">
+        <ownedOperation name="main" visibility="public" isStatic="true">
+          <ownedParameter type="//Model/Common%20java%20data%20types/void" direction="return"/>
+          <ownedParameter name="args" type="//externals/java/lang/String%5B%5D"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xsi:type="uml:Class" name="Person" visibility="public">
+        <ownedAttribute name="greet" visibility="private" type="//Model/state2change/Greet"/>
+        <ownedAttribute name="name" visibility="private" type="//externals/java/lang/String"/>
+        <ownedOperation name="Person" visibility="public">
+          <ownedParameter type="//Model/state2change/Person" direction="return"/>
+          <ownedParameter name="name" type="//externals/java/lang/String"/>
+        </ownedOperation>
+        <ownedOperation name="greet" visibility="public">
+          <ownedParameter type="//Model/Common%20java%20data%20types/void" direction="return"/>
+          <ownedParameter name="person" type="//Model/state2change/Person"/>
+        </ownedOperation>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Model" name="externals">
+    <packagedElement xsi:type="uml:Package" name="java">
+      <packagedElement xsi:type="uml:Package" name="lang">
+        <packagedElement xsi:type="uml:Class" name="String" visibility="package"/>
+        <packagedElement xsi:type="uml:Interface" name="Comparable" visibility="package">
+          <nestedClassifier xsi:type="uml:Class" name="T"/>
+        </packagedElement>
+        <packagedElement xsi:type="uml:Interface" name="CharSequence" visibility="package"/>
+        <packagedElement xsi:type="uml:Class" name="String[]">
+          <ownedAttribute name="type" type="//externals/java/lang/String"/>
+        </packagedElement>
+      </packagedElement>
+      <packagedElement xsi:type="uml:Package" name="io">
+        <packagedElement xsi:type="uml:Interface" name="Serializable" visibility="package"/>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+</uml:Model>

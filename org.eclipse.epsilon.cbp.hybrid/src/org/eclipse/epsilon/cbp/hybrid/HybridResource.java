@@ -81,8 +81,7 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 
 		neoChangeEventAdapter = new NeoChangeEventAdapter(neoPersistentResource);
 
-		eStoreEList = (EStoreEList) this.neoPersistentResource.getContents();
-		rootObject = (DefaultPersistentEObject) eStoreEList.getEObject();
+		rootObject = (DefaultPersistentEObject) ((EStoreEList) this.neoPersistentResource.getContents()).getEObject();
 
 		neoPersistentResource.eSetDeliver(true);
 		neoPersistentResource.eAdapters().add(neoChangeEventAdapter);
@@ -120,8 +119,15 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 	@Override
 	public void load(Map<?, ?> options) throws IOException {
 		neoPersistentResource.load(options);
+		
+//		eStoreEList = (EStoreEList) neoPersistentResource.getContents();
+//		rootObject = (DefaultPersistentEObject) eStoreEList.getEObject();
+
 		neoPersistentResource.eSetDeliver(true);
 		neoPersistentResource.eAdapters().add(neoChangeEventAdapter);
+
+//		rootObject.eSetDeliver(true);
+//		rootObject.eAdapters().add(neoChangeEventAdapter);
 	}
 
 	@Override
@@ -299,7 +305,11 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 				}
 
 				if (event instanceof EStructuralFeatureEvent<?>) {
-					e.setAttribute("name", ((EStructuralFeatureEvent<?>) event).getEStructuralFeature().getName());
+					if (((EStructuralFeatureEvent<?>) event).getEStructuralFeature()!= null){
+						e.setAttribute("name", ((EStructuralFeatureEvent<?>) event).getEStructuralFeature().getName());
+					}else {
+						e.setAttribute("name", null);
+					}
 					e.setAttribute("target", getURIFragment(((EStructuralFeatureEvent<?>) event).getTarget()));
 				}
 

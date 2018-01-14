@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.cbp.hybrid.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Collections;
@@ -15,10 +17,13 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
-import org.eclipse.epsilon.cbp.hybrid.uml2.uml.Class;
-import org.eclipse.epsilon.cbp.hybrid.uml2.uml.UMLFactory;
-import org.eclipse.epsilon.cbp.hybrid.uml2.uml.UMLPackage;
+import org.eclipse.uml2.uml.Class;
+import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.UMLFactory;
+import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
+
+
 
 import fr.inria.atlanmod.neoemf.data.PersistenceBackendFactoryRegistry;
 import fr.inria.atlanmod.neoemf.data.blueprints.BlueprintsPersistenceBackendFactory;
@@ -30,15 +35,15 @@ import fr.inria.atlanmod.neoemf.resource.PersistentResourceFactory;
 public class UMLHybridTest {
 
 	@Test
-	public void importUMLModelTest() {
+	public void testImportUMLModel() {
 
 		try {
 			// initialise UML package
 			UMLPackage.eINSTANCE.eClass();
 			UMLFactory umlFactory = UMLFactory.eINSTANCE;
-			Class myClass = umlFactory.createClass();
-			myClass.setName("Dummy");
-			System.out.println(myClass);
+			Model dummyModel = umlFactory.createModel();
+			dummyModel.setName("Dummy");
+//			System.out.println(dummyModel.id());
 
 			// files
 			File databaseFile = new File("databases/import-uml.graphdb");
@@ -75,7 +80,10 @@ public class UMLHybridTest {
 			Map<String, Object> loadOptions = Collections.emptyMap();
 
 			if (databaseFile.exists() == false) {
-				hybridResource.getContents().add(myClass);
+				hybridResource.getContents().add(dummyModel);
+				hybridResource.save(saveOptions);
+				hybridResource.load(loadOptions);
+				hybridResource.getContents().clear();
 				hybridResource.save(saveOptions);
 			} else {
 				hybridResource.load(loadOptions);
@@ -100,6 +108,9 @@ public class UMLHybridTest {
 			xmiResource.unload();
 			hybridResource.unload();
 			hybridResource.close();
+			
+			
+			assertEquals(true, true);
 
 		} catch (Exception ex) {
 			ex.printStackTrace();

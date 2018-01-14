@@ -245,7 +245,7 @@ public class State2ChangeConverter {
 			for (Diff diff : diffs) {
 				System.out.println(diff);
 			}
-			if (diffs.size() > 2) {
+			if (diffs.size() > 0) {
 				System.out.println("There are still differences between the CBP and the XMI.");
 				return;
 			}

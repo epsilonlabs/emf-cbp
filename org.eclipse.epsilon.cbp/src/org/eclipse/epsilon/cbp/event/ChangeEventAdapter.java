@@ -363,6 +363,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 						removeRefCount++;
 					}
 				}
+				
 				evt.setValues(value);
 				addEventToList(evt, n, position++);
 			}

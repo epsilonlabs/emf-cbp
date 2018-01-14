@@ -1,16 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: V20170227-0935
+Bundle-Name: UML2 UML Model Source
 Bundle-SymbolicName: org.eclipse.uml2.uml.source
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.2.3.v20170227-0935
 Export-Package: model,
- org.eclipse.epsilon.cbp.hybrid.uml2.uml,
- org.eclipse.epsilon.cbp.hybrid.uml2.uml.bridge,
- org.eclipse.epsilon.cbp.hybrid.uml2.uml.internal.impl,
- org.eclipse.epsilon.cbp.hybrid.uml2.uml.internal.operations,
- org.eclipse.epsilon.cbp.hybrid.uml2.uml.internal.resource,
- org.eclipse.epsilon.cbp.hybrid.uml2.uml.resource,
- org.eclipse.epsilon.cbp.hybrid.uml2.uml.util
+ org.eclipse.uml2.uml,
+ org.eclipse.uml2.uml.bridge,
+ org.eclipse.uml2.uml.internal.impl,
+ org.eclipse.uml2.uml.internal.operations,
+ org.eclipse.uml2.uml.internal.resource,
+ org.eclipse.uml2.uml.resource,
+ org.eclipse.uml2.uml.util
 Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.core.runtime,
  org.eclipse.uml2.common,
@@ -18,3 +18,4 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.uml2.types,
  org.eclipse.emf.mapping.ecore2xml,
  fr.inria.atlanmod.neoemf.core
+Bundle-Vendor: Eclipse Modeling Project

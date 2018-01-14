@@ -43,7 +43,7 @@ public class GraphHybridTest {
 	}
 
 	@Test
-	public void HybridInitialisationTest() throws IOException {
+	public void testHybridInitialisation() throws IOException {
 
 		try {
 			EClass verticeClass = (EClass) GraphPackage.eINSTANCE.getEClassifier("Vertice");

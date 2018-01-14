@@ -10,7 +10,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: node,
  node.impl,
  node.util
-Require-Bundle: org.junit,
+Require-Bundle: org.eclipse.uml2.uml.source;bundle-version="5.2.3",
+ org.junit,
  org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.epsilon.cbp.hybrid,
@@ -20,7 +21,16 @@ Require-Bundle: org.junit,
  fr.inria.atlanmod.neoemf.data.blueprints.neo4j.wrapper,
  org.eclipse.epsilon.cbp,
  org.eclipse.emf.ecore.xmi,
- org.eclipse.uml2.uml.source
+ org.eclipse.emf.compare,
+ com.google.guava,
+ org.apache.log4j,
+ org.eclipse.emf.compare.uml2
 Bundle-ActivationPolicy: lazy
 Import-Package: graph,
- org.eclipse.gmt.modisco.java
+ org.eclipse.gmt.modisco.java,
+ org.eclipse.uml2.uml,
+ org.eclipse.uml2.uml.bridge,
+ org.eclipse.uml2.uml.internal.impl,
+ org.eclipse.uml2.uml.internal.operations,
+ org.eclipse.uml2.uml.internal.resource,
+ org.eclipse.uml2.uml.util

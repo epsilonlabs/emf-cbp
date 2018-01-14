@@ -1,0 +1,625 @@
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_ZHPR4Ph6EeehN4FDfw6vQQ"/>
+<set-eattribute name="name" target="_ZHPR4Ph6EeehN4FDfw6vQQ"><value literal="Dummy"/></set-eattribute>
+<add-to-resource position="0"><value eobject="_ZHPR4Ph6EeehN4FDfw6vQQ"/></add-to-resource>
+<remove-from-ereference name="" target="ROOT"><value eobject="_ZHPR4Ph6EeehN4FDfw6vQQ"/></remove-from-ereference>
+<delete eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_ZHPR4Ph6EeehN4FDfw6vQQ"/>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_gya04Ph6EeeqnZHvn8GnQg"/>
+<add-to-resource position="0"><value eobject="_gya04Ph6EeeqnZHvn8GnQg"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_owsBQPihEeegeKOlOmQmwA"/>
+<add-to-resource position="1"><value eobject="_owsBQPihEeegeKOlOmQmwA"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_GLtZMPjAEee3U96WHPYyxg"/>
+<set-eattribute name="name" target="_GLtZMPjAEee3U96WHPYyxg"><value literal="Dummy"/></set-eattribute>
+<add-to-resource position="0"><value eobject="_GLtZMPjAEee3U96WHPYyxg"/></add-to-resource>
+<remove-from-ereference name="" target="ROOT"><value eobject="_GLtZMPjAEee3U96WHPYyxg"/></remove-from-ereference>
+<delete eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_GLtZMPjAEee3U96WHPYyxg"/>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_SipCkPkhEeegtYoQbOwd7g"/>
+<set-eattribute name="name" target="_SipCkPkhEeegtYoQbOwd7g"><value literal="Dummy"/></set-eattribute>
+<add-to-resource position="0"><value eobject="_SipCkPkhEeegtYoQbOwd7g"/></add-to-resource>
+<remove-from-ereference name="" target="ROOT"><value eobject="_SipCkPkhEeegtYoQbOwd7g"/></remove-from-ereference>
+<delete eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_SipCkPkhEeegtYoQbOwd7g"/>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_HOHvcPkjEee6yJMFalcujg"/>
+<add-to-resource position="0"><value eobject="_HOHvcPkjEee6yJMFalcujg"/></add-to-resource>
+<remove-from-ereference name="" target="ROOT"><value eobject="_HOHvcPkjEee6yJMFalcujg"/></remove-from-ereference>
+<delete eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_HOHvcPkjEee6yJMFalcujg"/>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_HPpZcPkjEee6yJMFalcujg"/>
+<add-to-resource position="0"><value eobject="_HPpZcPkjEee6yJMFalcujg"/></add-to-resource>
+<remove-from-ereference name="" target="ROOT"><value eobject="_HPpZcPkjEee6yJMFalcujg"/></remove-from-ereference>
+<delete eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_HPpZcPkjEee6yJMFalcujg"/>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qhQs8PkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qhQs8PkjEeeACZDsQuaS8w"><value literal="root model"/></set-eattribute>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkIawPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkIawPkjEeeACZDsQuaS8w"><value literal="Model"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkJB0PkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkJB0PkjEeeACZDsQuaS8w"><value literal="Common java data types"/></set-eattribute>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkNTQPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkNTQPkjEeeACZDsQuaS8w"><value literal="int"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkNTQPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkNTQfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkNTQfkjEeeACZDsQuaS8w"><value literal="long"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="1" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkNTQfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkNTQvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkNTQvkjEeeACZDsQuaS8w"><value literal="float"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="2" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkNTQvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkN6UPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkN6UPkjEeeACZDsQuaS8w"><value literal="double"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="3" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkN6UPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkN6UfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkN6UfkjEeeACZDsQuaS8w"><value literal="boolean"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="4" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkN6UfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkN6UvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkN6UvkjEeeACZDsQuaS8w"><value literal="void"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="5" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkN6UvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkN6U_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkN6U_kjEeeACZDsQuaS8w"><value literal="char"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="6" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkN6U_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkN6VPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkN6VPkjEeeACZDsQuaS8w"><value literal="short"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="7" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkN6VPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkOhYPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkOhYPkjEeeACZDsQuaS8w"><value literal="byte"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="8" target="_qkJB0PkjEeeACZDsQuaS8w"><value eobject="_qkOhYPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_qkIawPkjEeeACZDsQuaS8w"><value eobject="_qkJB0PkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkOhYfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkOhYfkjEeeACZDsQuaS8w"><value literal="state2change"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkRksPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkRksPkjEeeACZDsQuaS8w"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkRksPkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkSy0PkjEeeACZDsQuaS8w"/>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgON_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkgON_kjEeeACZDsQuaS8w"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkgON_kjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgOOPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkgOOPkjEeeACZDsQuaS8w"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkgOOPkjEeeACZDsQuaS8w"><value literal="private"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnJ_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkfnJ_kjEeeACZDsQuaS8w"><value literal="Greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkfnJ_kjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgOMPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkgOMPkjEeeACZDsQuaS8w"><value literal="hello"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkgOMPkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgOMfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="direction" target="_qkgOMfkjEeeACZDsQuaS8w"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_qkgOMfkjEeeACZDsQuaS8w"><value eobject="_qkN6UvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_qkgOMPkjEeeACZDsQuaS8w"><value eobject="_qkgOMfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgOMvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkgOMvkjEeeACZDsQuaS8w"><value literal="name"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1SvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1SvkjEeeACZDsQuaS8w"><value literal="String"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkg1SvkjEeeACZDsQuaS8w"><value literal="package"/></set-eattribute>
+<set-ereference name="type" target="_qkgOMvkjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_qkgOMPkjEeeACZDsQuaS8w"><value eobject="_qkgOMvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_qkfnJ_kjEeeACZDsQuaS8w"><value eobject="_qkgOMPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<set-ereference name="type" target="_qkgOOPkjEeeACZDsQuaS8w"><value eobject="_qkfnJ_kjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_qkgON_kjEeeACZDsQuaS8w"><value eobject="_qkgOOPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1QPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1QPkjEeeACZDsQuaS8w"><value literal="name"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkg1QPkjEeeACZDsQuaS8w"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_qkg1QPkjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="1" target="_qkgON_kjEeeACZDsQuaS8w"><value eobject="_qkg1QPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1QfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1QfkjEeeACZDsQuaS8w"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkg1QfkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1QvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="direction" target="_qkg1QvkjEeeACZDsQuaS8w"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_qkg1QvkjEeeACZDsQuaS8w"><value eobject="_qkgON_kjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_qkg1QfkjEeeACZDsQuaS8w"><value eobject="_qkg1QvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1Q_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1Q_kjEeeACZDsQuaS8w"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_qkg1Q_kjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_qkg1QfkjEeeACZDsQuaS8w"><value eobject="_qkg1Q_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_qkgON_kjEeeACZDsQuaS8w"><value eobject="_qkg1QfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1RPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1RPkjEeeACZDsQuaS8w"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkg1RPkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1RfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="direction" target="_qkg1RfkjEeeACZDsQuaS8w"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_qkg1RfkjEeeACZDsQuaS8w"><value eobject="_qkN6UvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_qkg1RPkjEeeACZDsQuaS8w"><value eobject="_qkg1RfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1RvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1RvkjEeeACZDsQuaS8w"><value literal="person"/></set-eattribute>
+<set-ereference name="type" target="_qkg1RvkjEeeACZDsQuaS8w"><value eobject="_qkgON_kjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_qkg1RPkjEeeACZDsQuaS8w"><value eobject="_qkg1RvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="1" target="_qkgON_kjEeeACZDsQuaS8w"><value eobject="_qkg1RPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<set-ereference name="general" target="_qkSy0PkjEeeACZDsQuaS8w"><value eobject="_qkgON_kjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="generalization" position="0" target="_qkRksPkjEeeACZDsQuaS8w"><value eobject="_qkSy0PkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkWdMPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkWdMPkjEeeACZDsQuaS8w"><value literal="studentId"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkWdMPkjEeeACZDsQuaS8w"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_qkWdMPkjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_qkRksPkjEeeACZDsQuaS8w"><value eobject="_qkWdMPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkauoPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkauoPkjEeeACZDsQuaS8w"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkauoPkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkdK4PkjEeeACZDsQuaS8w"/>
+<set-eattribute name="direction" target="_qkdK4PkjEeeACZDsQuaS8w"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_qkdK4PkjEeeACZDsQuaS8w"><value eobject="_qkRksPkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_qkauoPkjEeeACZDsQuaS8w"><value eobject="_qkdK4PkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnIPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkfnIPkjEeeACZDsQuaS8w"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_qkfnIPkjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_qkauoPkjEeeACZDsQuaS8w"><value eobject="_qkfnIPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_qkRksPkjEeeACZDsQuaS8w"><value eobject="_qkauoPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_qkOhYfkjEeeACZDsQuaS8w"><value eobject="_qkRksPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnIfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkfnIfkjEeeACZDsQuaS8w"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkfnIfkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnIvkjEeeACZDsQuaS8w"/>
+<set-ereference name="general" target="_qkfnIvkjEeeACZDsQuaS8w"><value eobject="_qkgON_kjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="generalization" position="0" target="_qkfnIfkjEeeACZDsQuaS8w"><value eobject="_qkfnIvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnI_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkfnI_kjEeeACZDsQuaS8w"><value literal="title"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkfnI_kjEeeACZDsQuaS8w"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_qkfnI_kjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_qkfnIfkjEeeACZDsQuaS8w"><value eobject="_qkfnI_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnJPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkfnJPkjEeeACZDsQuaS8w"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkfnJPkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnJfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="direction" target="_qkfnJfkjEeeACZDsQuaS8w"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_qkfnJfkjEeeACZDsQuaS8w"><value eobject="_qkfnIfkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_qkfnJPkjEeeACZDsQuaS8w"><value eobject="_qkfnJfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkfnJvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkfnJvkjEeeACZDsQuaS8w"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_qkfnJvkjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_qkfnJPkjEeeACZDsQuaS8w"><value eobject="_qkfnJvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_qkfnIfkjEeeACZDsQuaS8w"><value eobject="_qkfnJPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_qkOhYfkjEeeACZDsQuaS8w"><value eobject="_qkfnIfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="2" target="_qkOhYfkjEeeACZDsQuaS8w"><value eobject="_qkfnJ_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgOM_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkgOM_kjEeeACZDsQuaS8w"><value literal="Main"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkgOM_kjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgONPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkgONPkjEeeACZDsQuaS8w"><value literal="main"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkgONPkjEeeACZDsQuaS8w"><value literal="public"/></set-eattribute>
+<set-eattribute name="isStatic" target="_qkgONPkjEeeACZDsQuaS8w"><value literal="true"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgONfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="direction" target="_qkgONfkjEeeACZDsQuaS8w"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_qkgONfkjEeeACZDsQuaS8w"><value eobject="_qkN6UvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_qkgONPkjEeeACZDsQuaS8w"><value eobject="_qkgONfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkgONvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkgONvkjEeeACZDsQuaS8w"><value literal="args"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkjRgvkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkjRgvkjEeeACZDsQuaS8w"><value literal="String[]"/></set-eattribute>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkjRg_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkjRg_kjEeeACZDsQuaS8w"><value literal="type"/></set-eattribute>
+<set-ereference name="type" target="_qkjRg_kjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_qkjRgvkjEeeACZDsQuaS8w"><value eobject="_qkjRg_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<set-ereference name="type" target="_qkgONvkjEeeACZDsQuaS8w"><value eobject="_qkjRgvkjEeeACZDsQuaS8w"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_qkgONPkjEeeACZDsQuaS8w"><value eobject="_qkgONvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_qkgOM_kjEeeACZDsQuaS8w"><value eobject="_qkgONPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="3" target="_qkOhYfkjEeeACZDsQuaS8w"><value eobject="_qkgOM_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="4" target="_qkOhYfkjEeeACZDsQuaS8w"><value eobject="_qkgON_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_qkIawPkjEeeACZDsQuaS8w"><value eobject="_qkOhYfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_qhQs8PkjEeeACZDsQuaS8w"><value eobject="_qkIawPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1R_kjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1R_kjEeeACZDsQuaS8w"><value literal="externals"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1SPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1SPkjEeeACZDsQuaS8w"><value literal="java"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkg1SfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkg1SfkjEeeACZDsQuaS8w"><value literal="lang"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_qkg1SfkjEeeACZDsQuaS8w"><value eobject="_qkg1SvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkiqcPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkiqcPkjEeeACZDsQuaS8w"><value literal="Comparable"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkiqcPkjEeeACZDsQuaS8w"><value literal="package"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkjRgPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkjRgPkjEeeACZDsQuaS8w"><value literal="T"/></set-eattribute>
+<add-to-ereference name="nestedClassifier" position="0" target="_qkiqcPkjEeeACZDsQuaS8w"><value eobject="_qkjRgPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_qkg1SfkjEeeACZDsQuaS8w"><value eobject="_qkiqcPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkjRgfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkjRgfkjEeeACZDsQuaS8w"><value literal="CharSequence"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkjRgfkjEeeACZDsQuaS8w"><value literal="package"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="2" target="_qkg1SfkjEeeACZDsQuaS8w"><value eobject="_qkjRgfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="3" target="_qkg1SfkjEeeACZDsQuaS8w"><value eobject="_qkjRgvkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_qkg1SPkjEeeACZDsQuaS8w"><value eobject="_qkg1SfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkjRhPkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkjRhPkjEeeACZDsQuaS8w"><value literal="io"/></set-eattribute>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_qkjRhfkjEeeACZDsQuaS8w"/>
+<set-eattribute name="name" target="_qkjRhfkjEeeACZDsQuaS8w"><value literal="Serializable"/></set-eattribute>
+<set-eattribute name="visibility" target="_qkjRhfkjEeeACZDsQuaS8w"><value literal="package"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_qkjRhPkjEeeACZDsQuaS8w"><value eobject="_qkjRhfkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_qkg1SPkjEeeACZDsQuaS8w"><value eobject="_qkjRhPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_qkg1R_kjEeeACZDsQuaS8w"><value eobject="_qkg1SPkjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_qhQs8PkjEeeACZDsQuaS8w"><value eobject="_qkg1R_kjEeeACZDsQuaS8w"/></add-to-ereference>
+<add-to-resource position="0"><value eobject="_qhQs8PkjEeeACZDsQuaS8w"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8m6Y0PklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8m6Y0PklEeevZbw4mZgQKw"><value literal="root model"/></set-eattribute>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8ppjwPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8ppjwPklEeevZbw4mZgQKw"><value literal="Model"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pqK0PklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pqK0PklEeevZbw4mZgQKw"><value literal="Common java data types"/></set-eattribute>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pt1MPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pt1MPklEeevZbw4mZgQKw"><value literal="int"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pt1MPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pt1MfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pt1MfklEeevZbw4mZgQKw"><value literal="long"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="1" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pt1MfklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pt1MvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pt1MvklEeevZbw4mZgQKw"><value literal="float"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="2" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pt1MvklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pt1M_klEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pt1M_klEeevZbw4mZgQKw"><value literal="double"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="3" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pt1M_klEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pt1NPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pt1NPklEeevZbw4mZgQKw"><value literal="boolean"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="4" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pt1NPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pt1NfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pt1NfklEeevZbw4mZgQKw"><value literal="void"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="5" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pt1NfklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pucQPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pucQPklEeevZbw4mZgQKw"><value literal="char"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="6" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pucQPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pucQfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pucQfklEeevZbw4mZgQKw"><value literal="short"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="7" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pucQfklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pucQvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pucQvklEeevZbw4mZgQKw"><value literal="byte"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="8" target="_8pqK0PklEeevZbw4mZgQKw"><value eobject="_8pucQvklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_8ppjwPklEeevZbw4mZgQKw"><value eobject="_8pqK0PklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pucQ_klEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pucQ_klEeevZbw4mZgQKw"><value literal="state2change"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pyGoPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8pyGoPklEeevZbw4mZgQKw"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="_8pyGoPklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8pzUwPklEeevZbw4mZgQKw"/>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClUfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qClUfklEeevZbw4mZgQKw"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qClUfklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClUvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qClUvklEeevZbw4mZgQKw"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qClUvklEeevZbw4mZgQKw"><value literal="private"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-QfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qB-QfklEeevZbw4mZgQKw"><value literal="Greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qB-QfklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-QvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qB-QvklEeevZbw4mZgQKw"><value literal="hello"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qB-QvklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-Q_klEeevZbw4mZgQKw"/>
+<set-eattribute name="direction" target="_8qB-Q_klEeevZbw4mZgQKw"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_8qB-Q_klEeevZbw4mZgQKw"><value eobject="_8pt1NfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_8qB-QvklEeevZbw4mZgQKw"><value eobject="_8qB-Q_klEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-RPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qB-RPklEeevZbw4mZgQKw"><value literal="name"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qDMZPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qDMZPklEeevZbw4mZgQKw"><value literal="String"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qDMZPklEeevZbw4mZgQKw"><value literal="package"/></set-eattribute>
+<set-ereference name="type" target="_8qB-RPklEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_8qB-QvklEeevZbw4mZgQKw"><value eobject="_8qB-RPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_8qB-QfklEeevZbw4mZgQKw"><value eobject="_8qB-QvklEeevZbw4mZgQKw"/></add-to-ereference>
+<set-ereference name="type" target="_8qClUvklEeevZbw4mZgQKw"><value eobject="_8qB-QfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_8qClUfklEeevZbw4mZgQKw"><value eobject="_8qClUvklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClU_klEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qClU_klEeevZbw4mZgQKw"><value literal="name"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qClU_klEeevZbw4mZgQKw"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_8qClU_klEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="1" target="_8qClUfklEeevZbw4mZgQKw"><value eobject="_8qClU_klEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClVPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qClVPklEeevZbw4mZgQKw"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qClVPklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClVfklEeevZbw4mZgQKw"/>
+<set-eattribute name="direction" target="_8qClVfklEeevZbw4mZgQKw"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_8qClVfklEeevZbw4mZgQKw"><value eobject="_8qClUfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_8qClVPklEeevZbw4mZgQKw"><value eobject="_8qClVfklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClVvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qClVvklEeevZbw4mZgQKw"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_8qClVvklEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_8qClVPklEeevZbw4mZgQKw"><value eobject="_8qClVvklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_8qClUfklEeevZbw4mZgQKw"><value eobject="_8qClVPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClV_klEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qClV_klEeevZbw4mZgQKw"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qClV_klEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClWPklEeevZbw4mZgQKw"/>
+<set-eattribute name="direction" target="_8qClWPklEeevZbw4mZgQKw"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_8qClWPklEeevZbw4mZgQKw"><value eobject="_8pt1NfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_8qClV_klEeevZbw4mZgQKw"><value eobject="_8qClWPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qDMYPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qDMYPklEeevZbw4mZgQKw"><value literal="person"/></set-eattribute>
+<set-ereference name="type" target="_8qDMYPklEeevZbw4mZgQKw"><value eobject="_8qClUfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_8qClV_klEeevZbw4mZgQKw"><value eobject="_8qDMYPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="1" target="_8qClUfklEeevZbw4mZgQKw"><value eobject="_8qClV_klEeevZbw4mZgQKw"/></add-to-ereference>
+<set-ereference name="general" target="_8pzUwPklEeevZbw4mZgQKw"><value eobject="_8qClUfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="generalization" position="0" target="_8pyGoPklEeevZbw4mZgQKw"><value eobject="_8pzUwPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8p4NQPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8p4NQPklEeevZbw4mZgQKw"><value literal="studentId"/></set-eattribute>
+<set-eattribute name="visibility" target="_8p4NQPklEeevZbw4mZgQKw"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_8p4NQPklEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_8pyGoPklEeevZbw4mZgQKw"><value eobject="_8p4NQPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8p8esPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8p8esPklEeevZbw4mZgQKw"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="_8p8esPklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8p-68PklEeevZbw4mZgQKw"/>
+<set-eattribute name="direction" target="_8p-68PklEeevZbw4mZgQKw"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_8p-68PklEeevZbw4mZgQKw"><value eobject="_8pyGoPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_8p8esPklEeevZbw4mZgQKw"><value eobject="_8p-68PklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qBXMPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qBXMPklEeevZbw4mZgQKw"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_8qBXMPklEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_8p8esPklEeevZbw4mZgQKw"><value eobject="_8qBXMPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_8pyGoPklEeevZbw4mZgQKw"><value eobject="_8p8esPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_8pucQ_klEeevZbw4mZgQKw"><value eobject="_8pyGoPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qBXMfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qBXMfklEeevZbw4mZgQKw"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qBXMfklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qBXMvklEeevZbw4mZgQKw"/>
+<set-ereference name="general" target="_8qBXMvklEeevZbw4mZgQKw"><value eobject="_8qClUfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="generalization" position="0" target="_8qBXMfklEeevZbw4mZgQKw"><value eobject="_8qBXMvklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qBXM_klEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qBXM_klEeevZbw4mZgQKw"><value literal="title"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qBXM_klEeevZbw4mZgQKw"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_8qBXM_klEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_8qBXMfklEeevZbw4mZgQKw"><value eobject="_8qBXM_klEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qBXNPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qBXNPklEeevZbw4mZgQKw"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qBXNPklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qBXNfklEeevZbw4mZgQKw"/>
+<set-eattribute name="direction" target="_8qBXNfklEeevZbw4mZgQKw"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_8qBXNfklEeevZbw4mZgQKw"><value eobject="_8qBXMfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_8qBXNPklEeevZbw4mZgQKw"><value eobject="_8qBXNfklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-QPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qB-QPklEeevZbw4mZgQKw"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_8qB-QPklEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_8qBXNPklEeevZbw4mZgQKw"><value eobject="_8qB-QPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_8qBXMfklEeevZbw4mZgQKw"><value eobject="_8qBXNPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_8pucQ_klEeevZbw4mZgQKw"><value eobject="_8qBXMfklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="2" target="_8pucQ_klEeevZbw4mZgQKw"><value eobject="_8qB-QfklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-RfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qB-RfklEeevZbw4mZgQKw"><value literal="Main"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qB-RfklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-RvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qB-RvklEeevZbw4mZgQKw"><value literal="main"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qB-RvklEeevZbw4mZgQKw"><value literal="public"/></set-eattribute>
+<set-eattribute name="isStatic" target="_8qB-RvklEeevZbw4mZgQKw"><value literal="true"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qB-R_klEeevZbw4mZgQKw"/>
+<set-eattribute name="direction" target="_8qB-R_klEeevZbw4mZgQKw"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_8qB-R_klEeevZbw4mZgQKw"><value eobject="_8pt1NfklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_8qB-RvklEeevZbw4mZgQKw"><value eobject="_8qB-R_klEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qClUPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qClUPklEeevZbw4mZgQKw"><value literal="args"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qFBkPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qFBkPklEeevZbw4mZgQKw"><value literal="String[]"/></set-eattribute>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qFBkfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qFBkfklEeevZbw4mZgQKw"><value literal="type"/></set-eattribute>
+<set-ereference name="type" target="_8qFBkfklEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_8qFBkPklEeevZbw4mZgQKw"><value eobject="_8qFBkfklEeevZbw4mZgQKw"/></add-to-ereference>
+<set-ereference name="type" target="_8qClUPklEeevZbw4mZgQKw"><value eobject="_8qFBkPklEeevZbw4mZgQKw"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_8qB-RvklEeevZbw4mZgQKw"><value eobject="_8qClUPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_8qB-RfklEeevZbw4mZgQKw"><value eobject="_8qB-RvklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="3" target="_8pucQ_klEeevZbw4mZgQKw"><value eobject="_8qB-RfklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="4" target="_8pucQ_klEeevZbw4mZgQKw"><value eobject="_8qClUfklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_8ppjwPklEeevZbw4mZgQKw"><value eobject="_8pucQ_klEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_8m6Y0PklEeevZbw4mZgQKw"><value eobject="_8ppjwPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qDMYfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qDMYfklEeevZbw4mZgQKw"><value literal="externals"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qDMYvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qDMYvklEeevZbw4mZgQKw"><value literal="java"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qDMY_klEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qDMY_klEeevZbw4mZgQKw"><value literal="lang"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_8qDMY_klEeevZbw4mZgQKw"><value eobject="_8qDMZPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qEagPklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qEagPklEeevZbw4mZgQKw"><value literal="Comparable"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qEagPklEeevZbw4mZgQKw"><value literal="package"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qEagfklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qEagfklEeevZbw4mZgQKw"><value literal="T"/></set-eattribute>
+<add-to-ereference name="nestedClassifier" position="0" target="_8qEagPklEeevZbw4mZgQKw"><value eobject="_8qEagfklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_8qDMY_klEeevZbw4mZgQKw"><value eobject="_8qEagPklEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qEagvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qEagvklEeevZbw4mZgQKw"><value literal="CharSequence"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qEagvklEeevZbw4mZgQKw"><value literal="package"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="2" target="_8qDMY_klEeevZbw4mZgQKw"><value eobject="_8qEagvklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="3" target="_8qDMY_klEeevZbw4mZgQKw"><value eobject="_8qFBkPklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_8qDMYvklEeevZbw4mZgQKw"><value eobject="_8qDMY_klEeevZbw4mZgQKw"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qFBkvklEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qFBkvklEeevZbw4mZgQKw"><value literal="io"/></set-eattribute>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_8qFBk_klEeevZbw4mZgQKw"/>
+<set-eattribute name="name" target="_8qFBk_klEeevZbw4mZgQKw"><value literal="Serializable"/></set-eattribute>
+<set-eattribute name="visibility" target="_8qFBk_klEeevZbw4mZgQKw"><value literal="package"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_8qFBkvklEeevZbw4mZgQKw"><value eobject="_8qFBk_klEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_8qDMYvklEeevZbw4mZgQKw"><value eobject="_8qFBkvklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_8qDMYfklEeevZbw4mZgQKw"><value eobject="_8qDMYvklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_8m6Y0PklEeevZbw4mZgQKw"><value eobject="_8qDMYfklEeevZbw4mZgQKw"/></add-to-ereference>
+<add-to-resource position="1"><value eobject="_8m6Y0PklEeevZbw4mZgQKw"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_THJrkPkmEeeIWLG4XwV9bg"/>
+<add-to-resource position="0"><value eobject="_THJrkPkmEeeIWLG4XwV9bg"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_TI7NMPkmEeeIWLG4XwV9bg"/>
+<add-to-resource position="0"><value eobject="_TI7NMPkmEeeIWLG4XwV9bg"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_TyQeEPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_TyQeEPkmEeeF5aJYeDCYOA"><value literal="root model"/></set-eattribute>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1LPMPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1LPMPkmEeeF5aJYeDCYOA"><value literal="Model"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1L2QPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1L2QPkmEeeF5aJYeDCYOA"><value literal="Common java data types"/></set-eattribute>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1PgoPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1PgoPkmEeeF5aJYeDCYOA"><value literal="int"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1PgoPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1PgofkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1PgofkmEeeF5aJYeDCYOA"><value literal="long"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="1" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1PgofkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1PgovkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1PgovkmEeeF5aJYeDCYOA"><value literal="float"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="2" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1PgovkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1Pgo_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1Pgo_kmEeeF5aJYeDCYOA"><value literal="double"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="3" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1Pgo_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1PgpPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1PgpPkmEeeF5aJYeDCYOA"><value literal="boolean"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="4" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1PgpPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1PgpfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1PgpfkmEeeF5aJYeDCYOA"><value literal="void"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="5" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1PgpfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1PgpvkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1PgpvkmEeeF5aJYeDCYOA"><value literal="char"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="6" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1PgpvkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1Pgp_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1Pgp_kmEeeF5aJYeDCYOA"><value literal="short"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="7" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1Pgp_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="PrimitiveType" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1PgqPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1PgqPkmEeeF5aJYeDCYOA"><value literal="byte"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="8" target="_T1L2QPkmEeeF5aJYeDCYOA"><value eobject="_T1PgqPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_T1LPMPkmEeeF5aJYeDCYOA"><value eobject="_T1L2QPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1QHsPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1QHsPkmEeeF5aJYeDCYOA"><value literal="state2change"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1TLAPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1TLAPkmEeeF5aJYeDCYOA"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1TLAPkmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1UZIPkmEeeF5aJYeDCYOA"/>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCp_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCp_kmEeeF5aJYeDCYOA"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jCp_kmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCqPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCqPkmEeeF5aJYeDCYOA"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jCqPkmEeeF5aJYeDCYOA"><value literal="private"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1ibl_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1ibl_kmEeeF5aJYeDCYOA"><value literal="Greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1ibl_kmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCoPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCoPkmEeeF5aJYeDCYOA"><value literal="hello"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jCoPkmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCofkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="direction" target="_T1jCofkmEeeF5aJYeDCYOA"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_T1jCofkmEeeF5aJYeDCYOA"><value eobject="_T1PgpfkmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_T1jCoPkmEeeF5aJYeDCYOA"><value eobject="_T1jCofkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCovkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCovkmEeeF5aJYeDCYOA"><value literal="name"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1kQw_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1kQw_kmEeeF5aJYeDCYOA"><value literal="String"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1kQw_kmEeeF5aJYeDCYOA"><value literal="package"/></set-eattribute>
+<set-ereference name="type" target="_T1jCovkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_T1jCoPkmEeeF5aJYeDCYOA"><value eobject="_T1jCovkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_T1ibl_kmEeeF5aJYeDCYOA"><value eobject="_T1jCoPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<set-ereference name="type" target="_T1jCqPkmEeeF5aJYeDCYOA"><value eobject="_T1ibl_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_T1jCp_kmEeeF5aJYeDCYOA"><value eobject="_T1jCqPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCqfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCqfkmEeeF5aJYeDCYOA"><value literal="name"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jCqfkmEeeF5aJYeDCYOA"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_T1jCqfkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="1" target="_T1jCp_kmEeeF5aJYeDCYOA"><value eobject="_T1jCqfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jpsPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jpsPkmEeeF5aJYeDCYOA"><value literal="Person"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jpsPkmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jpsfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="direction" target="_T1jpsfkmEeeF5aJYeDCYOA"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_T1jpsfkmEeeF5aJYeDCYOA"><value eobject="_T1jCp_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_T1jpsPkmEeeF5aJYeDCYOA"><value eobject="_T1jpsfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jpsvkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jpsvkmEeeF5aJYeDCYOA"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_T1jpsvkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_T1jpsPkmEeeF5aJYeDCYOA"><value eobject="_T1jpsvkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_T1jCp_kmEeeF5aJYeDCYOA"><value eobject="_T1jpsPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jps_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jps_kmEeeF5aJYeDCYOA"><value literal="greet"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jps_kmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jptPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="direction" target="_T1jptPkmEeeF5aJYeDCYOA"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_T1jptPkmEeeF5aJYeDCYOA"><value eobject="_T1PgpfkmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_T1jps_kmEeeF5aJYeDCYOA"><value eobject="_T1jptPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jptfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jptfkmEeeF5aJYeDCYOA"><value literal="person"/></set-eattribute>
+<set-ereference name="type" target="_T1jptfkmEeeF5aJYeDCYOA"><value eobject="_T1jCp_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_T1jps_kmEeeF5aJYeDCYOA"><value eobject="_T1jptfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="1" target="_T1jCp_kmEeeF5aJYeDCYOA"><value eobject="_T1jps_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<set-ereference name="general" target="_T1UZIPkmEeeF5aJYeDCYOA"><value eobject="_T1jCp_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="generalization" position="0" target="_T1TLAPkmEeeF5aJYeDCYOA"><value eobject="_T1UZIPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1YqkPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1YqkPkmEeeF5aJYeDCYOA"><value literal="studentId"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1YqkPkmEeeF5aJYeDCYOA"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_T1YqkPkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_T1TLAPkmEeeF5aJYeDCYOA"><value eobject="_T1YqkPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1djEPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1djEPkmEeeF5aJYeDCYOA"><value literal="Student"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1djEPkmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1fYQPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="direction" target="_T1fYQPkmEeeF5aJYeDCYOA"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_T1fYQPkmEeeF5aJYeDCYOA"><value eobject="_T1TLAPkmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_T1djEPkmEeeF5aJYeDCYOA"><value eobject="_T1fYQPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1ibkPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1ibkPkmEeeF5aJYeDCYOA"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_T1ibkPkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_T1djEPkmEeeF5aJYeDCYOA"><value eobject="_T1ibkPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_T1TLAPkmEeeF5aJYeDCYOA"><value eobject="_T1djEPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_T1QHsPkmEeeF5aJYeDCYOA"><value eobject="_T1TLAPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1ibkfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1ibkfkmEeeF5aJYeDCYOA"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1ibkfkmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Generalization" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1ibkvkmEeeF5aJYeDCYOA"/>
+<set-ereference name="general" target="_T1ibkvkmEeeF5aJYeDCYOA"><value eobject="_T1jCp_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="generalization" position="0" target="_T1ibkfkmEeeF5aJYeDCYOA"><value eobject="_T1ibkvkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1ibk_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1ibk_kmEeeF5aJYeDCYOA"><value literal="title"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1ibk_kmEeeF5aJYeDCYOA"><value literal="private"/></set-eattribute>
+<set-ereference name="type" target="_T1ibk_kmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_T1ibkfkmEeeF5aJYeDCYOA"><value eobject="_T1ibk_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1iblPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1iblPkmEeeF5aJYeDCYOA"><value literal="Lecturer"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1iblPkmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1iblfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="direction" target="_T1iblfkmEeeF5aJYeDCYOA"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_T1iblfkmEeeF5aJYeDCYOA"><value eobject="_T1ibkfkmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_T1iblPkmEeeF5aJYeDCYOA"><value eobject="_T1iblfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1iblvkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1iblvkmEeeF5aJYeDCYOA"><value literal="name"/></set-eattribute>
+<set-ereference name="type" target="_T1iblvkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_T1iblPkmEeeF5aJYeDCYOA"><value eobject="_T1iblvkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_T1ibkfkmEeeF5aJYeDCYOA"><value eobject="_T1iblPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_T1QHsPkmEeeF5aJYeDCYOA"><value eobject="_T1ibkfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="2" target="_T1QHsPkmEeeF5aJYeDCYOA"><value eobject="_T1ibl_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCo_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCo_kmEeeF5aJYeDCYOA"><value literal="Main"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jCo_kmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<create eclass="Operation" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCpPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCpPkmEeeF5aJYeDCYOA"><value literal="main"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1jCpPkmEeeF5aJYeDCYOA"><value literal="public"/></set-eattribute>
+<set-eattribute name="isStatic" target="_T1jCpPkmEeeF5aJYeDCYOA"><value literal="true"/></set-eattribute>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCpfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="direction" target="_T1jCpfkmEeeF5aJYeDCYOA"><value literal="return"/></set-eattribute>
+<set-ereference name="type" target="_T1jCpfkmEeeF5aJYeDCYOA"><value eobject="_T1PgpfkmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="0" target="_T1jCpPkmEeeF5aJYeDCYOA"><value eobject="_T1jCpfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Parameter" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1jCpvkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1jCpvkmEeeF5aJYeDCYOA"><value literal="args"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1mF8fkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1mF8fkmEeeF5aJYeDCYOA"><value literal="String[]"/></set-eattribute>
+<create eclass="Property" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1mF8vkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1mF8vkmEeeF5aJYeDCYOA"><value literal="type"/></set-eattribute>
+<set-ereference name="type" target="_T1mF8vkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedAttribute" position="0" target="_T1mF8fkmEeeF5aJYeDCYOA"><value eobject="_T1mF8vkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<set-ereference name="type" target="_T1jCpvkmEeeF5aJYeDCYOA"><value eobject="_T1mF8fkmEeeF5aJYeDCYOA"/></set-ereference>
+<add-to-ereference name="ownedParameter" position="1" target="_T1jCpPkmEeeF5aJYeDCYOA"><value eobject="_T1jCpvkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="ownedOperation" position="0" target="_T1jCo_kmEeeF5aJYeDCYOA"><value eobject="_T1jCpPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="3" target="_T1QHsPkmEeeF5aJYeDCYOA"><value eobject="_T1jCo_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="4" target="_T1QHsPkmEeeF5aJYeDCYOA"><value eobject="_T1jCp_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_T1LPMPkmEeeF5aJYeDCYOA"><value eobject="_T1QHsPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_TyQeEPkmEeeF5aJYeDCYOA"><value eobject="_T1LPMPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1kQwPkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1kQwPkmEeeF5aJYeDCYOA"><value literal="externals"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1kQwfkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1kQwfkmEeeF5aJYeDCYOA"><value literal="java"/></set-eattribute>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1kQwvkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1kQwvkmEeeF5aJYeDCYOA"><value literal="lang"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_T1kQwvkmEeeF5aJYeDCYOA"><value eobject="_T1kQw_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1le4PkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1le4PkmEeeF5aJYeDCYOA"><value literal="Comparable"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1le4PkmEeeF5aJYeDCYOA"><value literal="package"/></set-eattribute>
+<create eclass="Class" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1le4fkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1le4fkmEeeF5aJYeDCYOA"><value literal="T"/></set-eattribute>
+<add-to-ereference name="nestedClassifier" position="0" target="_T1le4PkmEeeF5aJYeDCYOA"><value eobject="_T1le4fkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_T1kQwvkmEeeF5aJYeDCYOA"><value eobject="_T1le4PkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1mF8PkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1mF8PkmEeeF5aJYeDCYOA"><value literal="CharSequence"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1mF8PkmEeeF5aJYeDCYOA"><value literal="package"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="2" target="_T1kQwvkmEeeF5aJYeDCYOA"><value eobject="_T1mF8PkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="3" target="_T1kQwvkmEeeF5aJYeDCYOA"><value eobject="_T1mF8fkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_T1kQwfkmEeeF5aJYeDCYOA"><value eobject="_T1kQwvkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<create eclass="Package" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1mF8_kmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1mF8_kmEeeF5aJYeDCYOA"><value literal="io"/></set-eattribute>
+<create eclass="Interface" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_T1mF9PkmEeeF5aJYeDCYOA"/>
+<set-eattribute name="name" target="_T1mF9PkmEeeF5aJYeDCYOA"><value literal="Serializable"/></set-eattribute>
+<set-eattribute name="visibility" target="_T1mF9PkmEeeF5aJYeDCYOA"><value literal="package"/></set-eattribute>
+<add-to-ereference name="packagedElement" position="0" target="_T1mF8_kmEeeF5aJYeDCYOA"><value eobject="_T1mF9PkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_T1kQwfkmEeeF5aJYeDCYOA"><value eobject="_T1mF8_kmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="0" target="_T1kQwPkmEeeF5aJYeDCYOA"><value eobject="_T1kQwfkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-ereference name="packagedElement" position="1" target="_TyQeEPkmEeeF5aJYeDCYOA"><value eobject="_T1kQwPkmEeeF5aJYeDCYOA"/></add-to-ereference>
+<add-to-resource position="1"><value eobject="_TyQeEPkmEeeF5aJYeDCYOA"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_iDa2kPkmEeen9PezhZOZ9Q"/>
+<add-to-resource position="0"><value eobject="_iDa2kPkmEeen9PezhZOZ9Q"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_iGQvMPkmEeen9PezhZOZ9Q"/>
+<add-to-resource position="0"><value eobject="_iGQvMPkmEeen9PezhZOZ9Q"/></add-to-resource>
+<create eclass="Model" epackage="http://www.eclipse.org/uml2/5.0.0/UML" id="_xcKiMPkmEeeENpjs1ThD4g"/>
+<add-to-resource position="1"><value eobject="_xcKiMPkmEeeENpjs1ThD4g"/></add-to-resource>
