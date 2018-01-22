@@ -218,15 +218,15 @@ public class State2ChangeConverter {
 				e.printStackTrace();
 			}
 
-//			// //---test by reload
+			// //---test by reload
 //			((CBPResource) cbpResource).getModelHistory().clear();
 //			((CBPResource) cbpResource).getIgnoreSet().clear();
 //			clearCacheAdapter(cbpResource);
-//			try {
-//				cbpResource.load(null);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			try {
+				cbpResource.load(null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 			cbpStateResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
 			URI cbpStateFileUri = URI.createFileURI(cbpStatePath + "Cbp-state-" + xmiFile.getName());

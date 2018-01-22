@@ -141,7 +141,6 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		String id = String.valueOf(idCounter);
 		idCounter = idCounter + 1;
-		String x = EcoreUtil.getID(eObject);
 		adopt(eObject, id);
 		return id;
 	}
@@ -222,6 +221,9 @@ public abstract class CBPResource extends ResourceImpl {
 
 	public void saveIgnoreSet(FileOutputStream outputStream) throws IOException {
 		DataOutputStream dos = new DataOutputStream(outputStream);
+//		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
+//			dos.writeInt(item);
+//		}
 		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
 			dos.writeInt(item);
 		}

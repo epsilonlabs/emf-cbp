@@ -56,6 +56,7 @@ import org.w3c.dom.Element;
 
 import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
 import fr.inria.atlanmod.neoemf.core.PersistentEObject;
+import fr.inria.atlanmod.neoemf.resource.DefaultPersistentResource;
 import fr.inria.atlanmod.neoemf.resource.PersistentResource;
 
 public class HybridResource extends ResourceImpl implements PersistentResource {
@@ -63,7 +64,7 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 	protected int persistedEvents = 0;
 
 	private PersistentResource neoPersistentResource;
-	private NeoChangeEventAdapter neoChangeEventAdapter;
+	private HybridChangeEventAdapter neoChangeEventAdapter;
 	private EStoreEList eStoreEList;
 	private DefaultPersistentEObject rootObject;
 	private OutputStream outputStream;
@@ -75,11 +76,11 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 
 	public HybridResource(PersistentResource persistentResource, OutputStream outputStream) {
 		super(persistentResource.getURI());
-		this.neoPersistentResource = persistentResource;
+		this.neoPersistentResource =  persistentResource;
 		this.uri = persistentResource.getURI();
 		this.outputStream = outputStream;
 
-		neoChangeEventAdapter = new NeoChangeEventAdapter(neoPersistentResource);
+		neoChangeEventAdapter = new HybridChangeEventAdapter(neoPersistentResource);
 
 		rootObject = (DefaultPersistentEObject) ((EStoreEList) this.neoPersistentResource.getContents()).getEObject();
 
@@ -388,7 +389,8 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 				EStore store) {
 			super(owner, eStructuralFeature, store);
 			
-			
+			HybridResource.HybridResourceContentsEStoreEList.this.eStructuralFeature = eStructuralFeature;
+			HybridResource.HybridResourceContentsEStoreEList.this.store = store; 
 		}
 
 		@Override

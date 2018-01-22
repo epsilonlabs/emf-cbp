@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.cbp.state2change.test;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +19,6 @@ public class State2ChangeConverterTest {
 	public void generateTest() throws Exception{
 		State2ChangeConverter state2ChangeConverter = new State2ChangeConverter(xmiDirectory);
 		boolean result = state2ChangeConverter.generate(cbpFile, diffDirectory);
-		assertNotEquals(true, result);		
+		assertEquals(true, result);		
 	}
 }
