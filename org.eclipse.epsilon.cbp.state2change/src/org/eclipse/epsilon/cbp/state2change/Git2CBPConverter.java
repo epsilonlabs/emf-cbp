@@ -13,27 +13,24 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
 
-public class GitProjectsExtractor {
+public class Git2CBPConverter {
 
 	private File gitDirectory;
 	private String getHashesCommand = "git rev-list --all";
 	private List<String> hashList;
 
-	public GitProjectsExtractor(File gitDirectory) throws IOException {
+	public Git2CBPConverter(File gitDirectory) throws IOException {
 		if (!gitDirectory.exists()) {
 			throw new FileNotFoundException("Git Directory does not exists: " + gitDirectory.getAbsolutePath());
 		}
 		this.gitDirectory = gitDirectory;
+		this.getCommitHashes();
 	}
 
-	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String code) throws IOException {
-		this.copyTargetProjectToCommitsDirectory(commitsDirectory, null, code);
-	}
-
-	
-	public void copyTargetProjectToCommitsDirectory(File commitsDirectory, String directoryName, String code)
-			throws IOException {
+	public void convertGit2CBP(File commitsDirectory, File targetXmiDirectory, String directoryName, String code)
+			throws IOException, DiscoveryException {
 		if (commitsDirectory == null) {
 			throw new NullPointerException("Target directory is null");
 		}
@@ -61,15 +58,15 @@ public class GitProjectsExtractor {
 			hashPath = strPath + File.separator + dirName;
 			hashDirectory = new File(hashPath);
 
-			if (hashDirectory.exists()){
+			if (hashDirectory.exists()) {
 				System.out.println("Deleting " + hashDirectory.getName());
 				this.deleteDirectory(hashDirectory);
 			}
 			System.out.println("Copying to " + dirName);
-			
+
 			hashDirectory.mkdir();
 			this.executeCommand("git checkout " + hash, gitDirectory);
-			
+
 			IOFileFilter nameFilter1 = FileFilterUtils.and(FileFilterUtils.directoryFileFilter(),
 					FileFilterUtils.nameFileFilter(".git"));
 			IOFileFilter nameFilter2 = FileFilterUtils.and(FileFilterUtils.fileFileFilter(),
@@ -78,17 +75,39 @@ public class GitProjectsExtractor {
 					FileFilterUtils.nameFileFilter(".gitignore"));
 			IOFileFilter orFilter = FileFilterUtils.or(nameFilter1, nameFilter2, nameFilter3);
 			IOFileFilter filter = FileFilterUtils.notFileFilter(orFilter);
-			
-			if (directoryName == null || directoryName.trim() == "") {
-				FileUtils.copyDirectory(gitDirectory, hashDirectory, filter);
-			} else {
-				File searchDir = searchDirectory(gitDirectory, directoryName);
-				if (searchDir != null) {
-					FileUtils.copyDirectory(searchDir, hashDirectory, filter);
-				}
+
+			List<File> sourceSubProjectList = searchProjects(gitDirectory);
+			List<File> targetSubProjectList = new ArrayList<>();
+			for (File projectPath : sourceSubProjectList) {
+				File subProjectDir = new File(hashDirectory.getPath() + File.separator + projectPath.getName());
+				subProjectDir.mkdir();
+				targetSubProjectList.add(subProjectDir);
+				FileUtils.copyDirectory(projectPath, subProjectDir, filter);
 			}
+
+			
+			UmlXmiGenerator generator = new UmlXmiGenerator();
+			generator.generateXmiFile(hashDirectory, targetXmiDirectory); 
+			
+//			// Convert projects to XMI should be done here
+//			UmlXmiGenerator generator = new UmlXmiGenerator();
+//			for (File targetSubProject : targetSubProjectList) {
+//				generator.generateXmiFile(targetSubProject, targetXmiDirectory);
+//			}
+//
+//			//combine all the generated xmis into one xmi
+//			File targetProjectXmiDirectory = new File(targetXmiDirectory.getAbsolutePath() + File.separator + hashDirectory.getName());
+//			generator.generateSingleXmiFile(targetProjectXmiDirectory);
+			
+			
+			// delete to save space
+			if (hashDirectory.exists()) {
+				System.out.println("Deleting " + hashDirectory.getName());
+				this.deleteDirectory(hashDirectory);
+			}
+
+			// System.out.println("Finished!");
 		}
-		System.out.println("Finished!");
 	}
 
 	public List<String> getCommitHashes() {
@@ -122,18 +141,24 @@ public class GitProjectsExtractor {
 		return output.toString();
 	}
 
-	private File searchDirectory(File searchInDirectory, String fileNameToSearch) {
-		File[] fileList = searchInDirectory.listFiles();
+	private List<File> searchProjects(File searchInDirectory) {
+		List<File> projectList = new ArrayList<>();
+		this.recursiveSearchProjects(searchInDirectory, projectList);
+
+		return projectList;
+	}
+
+	private void recursiveSearchProjects(File directory, List<File> projectList) {
+		File[] fileList = directory.listFiles();
 		for (File file : fileList) {
-			if (file.isDirectory()) {
-				if (file.getName() == fileNameToSearch || file.getName().equals(fileNameToSearch)) {
-					// System.out.println(fileNameToSearch);
-					return file;
+			if (file.isFile()) {
+				if (file.getName() == ".project" || file.getName().equals(".project")) {
+					projectList.add(directory);
 				}
-				searchDirectory(file, fileNameToSearch);
+			} else if (file.isDirectory()) {
+				recursiveSearchProjects(file, projectList);
 			}
 		}
-		return null;
 	}
 
 	private void deleteDirectory(File directory) {

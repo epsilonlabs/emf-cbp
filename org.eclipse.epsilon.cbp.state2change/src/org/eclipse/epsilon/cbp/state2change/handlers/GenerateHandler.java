@@ -37,7 +37,7 @@ public class GenerateHandler extends AbstractHandler {
 
 		UmlXmiGenerator generator = new UmlXmiGenerator();
 		try {
-			generator.generateXmi(gitCommitsDirectory, targetXmiDirectory);
+			generator.generateXmiFiles(gitCommitsDirectory, targetXmiDirectory);
 		} catch (DiscoveryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

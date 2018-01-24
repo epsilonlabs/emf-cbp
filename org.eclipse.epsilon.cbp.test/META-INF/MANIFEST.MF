@@ -26,6 +26,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.epsilon.eol.engine,
  org.eclipse.epsilon.emc.emf,
  org.eclipse.emf.compare,
- org.eclipse.epsilon.cbp.test,
- org.eclipse.emf.compare.source
+ org.eclipse.epsilon.cbp.test
 Bundle-ActivationPolicy: lazy

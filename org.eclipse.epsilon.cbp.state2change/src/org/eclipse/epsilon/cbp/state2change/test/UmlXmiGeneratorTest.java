@@ -17,7 +17,7 @@ public class UmlXmiGeneratorTest {
 		File targetXmiDirectory = new File("./test.data/xmi/".replace("/", File.separator));
 		
 		UmlXmiGenerator generator = new UmlXmiGenerator();
-		generator.generateXmi(gitCommitsDirectory, targetXmiDirectory);
+		generator.generateXmiFiles(gitCommitsDirectory, targetXmiDirectory);
 		
 		assertNotEquals(targetXmiDirectory.listFiles().length, 0);	
 	}

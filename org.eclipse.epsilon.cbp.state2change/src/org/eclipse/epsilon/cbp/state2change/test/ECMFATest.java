@@ -63,7 +63,7 @@ import com.google.common.collect.ImmutableSet;
  */
 public class ECMFATest {
 
-	public final static int ITERATION = 4;
+	public final static int ITERATION = 5;
 
 	private File cbpFile = new File("D:/TEMP/ECMFA/cbp/ecmfa.cbpxml");
 	private File cbpDummyFile = new File("D:/TEMP/ECMFA/cbp/ecmfa-dummy.cbpxml");
@@ -173,7 +173,7 @@ public class ECMFATest {
 
 		System.out.println();
 		System.out.println(
-				"No\tObCount\tEvents\tDifEvnts\tDiffs\tXmiLoad\tUCbpLoad\tOCbpLoad\tXmiSave\tUCbpSave\tOCbpSave\tXmiMem\tUnCbpMem\tOpCbpMem");
+				"No\tObCount\tEvents\tIgEvents\tDifEvnts\tDiffs\tXmiLoad\tUCbpLoad\tOCbpLoad\tXmiSave\tUCbpSave\tOCbpSave\tXmiMem\tUnCbpMem\tOpCbpMem");
 		for (int i = 0; i < sourceFiles.length; i++) {
 			// if (i == 15) {
 			// return;
@@ -189,7 +189,7 @@ public class ECMFATest {
 		}
 		System.out.println("Finished!");
 
-		System.out.println(results.toString());
+//		System.out.println(results.toString());
 		assertEquals(true, true);
 	}
 
@@ -256,6 +256,7 @@ public class ECMFATest {
 			int deltaEventCount = 1;
 			int diffCount = 0;
 			long eventCount = 0;
+			int ignoreCount = 0;
 
 			System.gc();
 			// System.out.print("Processing file " + xmiFile.getName() + " to
@@ -283,21 +284,18 @@ public class ECMFATest {
 				xmiLoadTime = 0;
 				for (int i : new int[ITERATION]) {
 
-					System.gc();
-					beforeXmiMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					
 					beforeXmiLoad = System.nanoTime();
 					xmiResource.load(null);
 					afterXmiLoad = System.nanoTime();
-					afterXmiMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					
 
 					xmiLoadTime += afterXmiLoad - beforeXmiLoad;
-					xmiMemory += afterXmiMemory - beforeXmiMemory;
 
 					xmiResource.unload();
 				}
 				xmiResource.load(null);
 				xmiLoadTime = xmiLoadTime / ITERATION;
-				xmiMemory = xmiMemory / ITERATION;
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -344,8 +342,6 @@ public class ECMFATest {
 				} else {
 					// dummy
 
-					
-					
 					// measure memory size
 					for (int i : new int[ITERATION]) {
 						saveCbpResource.getChangeEvents().clear();
@@ -356,20 +352,34 @@ public class ECMFATest {
 							runningCbpResource.saveIgnoreSet(outputStreamDummy);
 						}
 						
+						System.gc();
+						beforeUnoptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 						beforeUnoptCbpSave = System.nanoTime();
 						saveCbpResource.save(null);
 						afterUnoptCbpSave = System.nanoTime();
-
+						afterUnoptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+						
+						
+						System.gc();
+						beforeOptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 						beforeOptCbpSave = System.nanoTime();
 						runningCbpResource.saveIgnoreSet(outputStreamDummy);
 						saveCbpResource.save(null);
 						afterOptCbpSave = System.nanoTime();
+						afterOptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
+						
 						unoptCbpSaveTime += ((afterUnoptCbpSave - beforeUnoptCbpSave));
 						optCbpSaveTime += ((afterOptCbpSave - beforeOptCbpSave));
+						
+						unoptCbpMemory += afterUnoptCbpMemory - beforeUnoptCbpMemory;
+						optCbpMemory += afterOptCbpMemory - beforeOptCbpMemory;
 					}
 					unoptCbpSaveTime = unoptCbpSaveTime / (ITERATION );
 					optCbpSaveTime = optCbpSaveTime / (ITERATION );
+					
+					unoptCbpMemory = unoptCbpMemory / ITERATION;
+					optCbpMemory = optCbpMemory / ITERATION;
 				}
 //				System.out.println(runningCbpResource.getIgnoreSet().size());
 				runningCbpResource.saveIgnoreSet(outputStream);
@@ -394,21 +404,60 @@ public class ECMFATest {
 				// measure xmi save time
 				xmiSaveTime = 0;
 				for (int i : new int[ITERATION]) {
+					System.gc();
+					beforeXmiMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 					beforeXmiSave = System.nanoTime();
 					xmiResource.save(null);
 					afterXmiSave = System.nanoTime();
+					afterXmiMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					
 					xmiSaveTime += (afterXmiSave - beforeXmiSave);
+					xmiMemory += afterXmiMemory - beforeXmiMemory;
 				}
 				if (deltaEventCount == 0) {
 					xmiSaveTime = 0;
+					xmiMemory = 0;
 				} else {
 					xmiSaveTime = xmiSaveTime / ITERATION;
+					xmiMemory = xmiMemory / ITERATION;
 				}
 
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
+			
+
+			// //---test optimised CBP by reload
+			CBPResource optimisedCbpResource = new CBPXMLResourceImpl();
+			optimisedCbpResource.setURI(runningCbpResource.getURI());
+			cbpResourceSet.getResources().add(optimisedCbpResource);
+			try {
+				optCbpLoadTime = 0;
+				FileOutputStream fos = new FileOutputStream(ignoreListFile,true);
+				optimisedCbpResource.saveIgnoreSet(fos);
+				for (int i : new int[ITERATION]) {
+					
+//					FileInputStream fis = new FileInputStream(ignoreListFile);
+//					optimisedCbpResource.setIgnoreSet(new HashSet<>(runningCbpResource.getIgnoreSet()));
+					Set<Integer> set = new HashSet<>(runningCbpResource.getIgnoreSet());
+					beforeOptCbpLoad = System.nanoTime();
+					optimisedCbpResource.setIgnoreSet(set);
+//					optimisedCbpResource.loadIgnoreSet(fis);
+					optimisedCbpResource.load(null);
+					afterOptCbpLoad = System.nanoTime();
+
+					optCbpLoadTime += afterOptCbpLoad - beforeOptCbpLoad;
+
+					((CBPResource) optimisedCbpResource).getModelHistory().clear();
+					optimisedCbpResource.unload();
+				}
+				optimisedCbpResource.load(null);
+				optCbpLoadTime = optCbpLoadTime / ITERATION;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			// //---test unoptimised CBP by reload
 			CBPResource unoptimisedCbpResource = new CBPXMLResourceImpl();
 			cbpResourceSet.getResources().add(unoptimisedCbpResource);
@@ -418,56 +467,23 @@ public class ECMFATest {
 				Map<Object, Object> options = new HashMap<>();
 				options.put("optimise", false);
 				for (int i : new int[ITERATION]) {
-					System.gc();
-					beforeUnoptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					
 					beforeUnoptCbpLoad = System.nanoTime();
 					unoptimisedCbpResource.load(options);
 					afterUnoptCbpLoad = System.nanoTime();
-					afterUnoptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
+					
 					unoptCbpLoadTime += afterUnoptCbpLoad - beforeUnoptCbpLoad;
-					unoptCbpMemory += afterUnoptCbpMemory - beforeUnoptCbpMemory;
 
 					((CBPResource) unoptimisedCbpResource).getModelHistory().clear();
 					((CBPResource) unoptimisedCbpResource).getIgnoreSet().clear();
 					unoptimisedCbpResource.unload();
 				}
 				unoptCbpLoadTime = unoptCbpLoadTime / ITERATION;
-				unoptCbpMemory = unoptCbpMemory / ITERATION;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
-			// //---test optimised CBP by reload
-			CBPResource optimisedCbpResource = new CBPXMLResourceImpl();
-			optimisedCbpResource.setURI(runningCbpResource.getURI());
-			cbpResourceSet.getResources().add(optimisedCbpResource);
-			try {
-				optCbpLoadTime = 0;
-//				FileOutputStream fos = new FileOutputStream(ignoreListFile,true);
-//				optimisedCbpResource.saveIgnoreSet(fos);
-				for (int i : new int[ITERATION]) {
-					System.gc();
-					beforeOptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-					optimisedCbpResource.setIgnoreSet(new HashSet<>(runningCbpResource.getIgnoreSet()));
-					beforeOptCbpLoad = System.nanoTime();
-//					optimisedCbpResource.loadIgnoreSet(new FileInputStream(ignoreListFile));
-					optimisedCbpResource.load(null);
-					afterOptCbpLoad = System.nanoTime();
-					afterOptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
-					optCbpLoadTime += afterOptCbpLoad - beforeOptCbpLoad;
-					optCbpMemory += afterOptCbpMemory - beforeOptCbpMemory;
-
-					((CBPResource) optimisedCbpResource).getModelHistory().clear();
-					optimisedCbpResource.unload();
-				}
-				optimisedCbpResource.load(null);
-				optCbpLoadTime = optCbpLoadTime / ITERATION;
-				optCbpMemory = optCbpMemory / ITERATION;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			
+			ignoreCount = runningCbpResource.getIgnoreSet().size();
 
 			// after merging, to check if there are no more differences
 			scope = createComparisonScope(runningCbpResource, xmiResource);
@@ -498,8 +514,8 @@ public class ECMFATest {
 			// }
 			// list.clear();
 
-			String output = String.format("%s\t%s\t%s\t%s\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f",
-					elementCount, eventCount, deltaEventCount, diffCount, (double) xmiLoadTime / 1000000,
+			String output = String.format("%s\t%s\t%s\t%s\t%s\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f",
+					elementCount, eventCount, ignoreCount, deltaEventCount, diffCount, (double) xmiLoadTime / 1000000,
 					(double) unoptCbpLoadTime / 1000000, (double) optCbpLoadTime / 1000000,
 					(double) xmiSaveTime / 1000000, (double) unoptCbpSaveTime / 1000000,
 					(double) optCbpSaveTime / 1000000, (double) xmiMemory / 1000000, (double) unoptCbpMemory / 1000000,
