@@ -22,7 +22,7 @@ public class Git2XmiConverterTest {
 		File gitRepositoryDirectory = new File("D:/TEMP/org.eclipse.bpmn2/");
 		File gitProjectsDirectory = new File("D:/TEMP/BPMN2/projects/");
 		String targetProjectName = "";
-		String code = "BPMN2";
+		String prefix = "BPMN2";
 		File targetXmiDirectory = new File("D:/TEMP/BPMN2/xmi/");
 		File diffDirectory = new File("D:/TEMP/BPMN2/diff/");
 		File cbpFile = new File("D:/TEMP/BPMN2/cbp/javamodel.cbpxml");
@@ -30,7 +30,7 @@ public class Git2XmiConverterTest {
 		System.out.println("Repository to projects--------");
 ////		Repository to projects--------
 		Git2CBPConverter gitProjectsExtractor = new Git2CBPConverter(gitRepositoryDirectory);	
-		gitProjectsExtractor.convertGit2CBP(gitProjectsDirectory, targetXmiDirectory, targetProjectName, code);
+		gitProjectsExtractor.convertGit2CBP(gitProjectsDirectory, targetXmiDirectory, cbpFile, diffDirectory, targetProjectName, prefix);
 		
 		assertEquals(true, true);
 	}

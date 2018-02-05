@@ -158,6 +158,9 @@ public abstract class CBPResource extends ResourceImpl {
 	@Override
 	protected void doUnload() {
 		changeEventAdapter.setEnabled(false);
+		getChangeEvents().clear();
+		getModelHistory().clear();
+		clearIgnoreSet();
 		super.doUnload();
 	}
 
@@ -216,6 +219,7 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		dos.flush();
 		dos.close();
+		clearIgnoreSet();
 		persistedIgnoredEvents = ignoreList.size();
 	}
 
@@ -229,12 +233,14 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		dos.flush();
 		dos.close();
+		clearIgnoreSet();
 		persistedIgnoredEvents = ignoreList.size();
 	}
 
 	public void clearIgnoreSet() {
 		this.ignoreSet.clear();
 		this.ignoreList.clear();
+		persistedIgnoredEvents = 0;
 	}
 
 	public void startNewSession(String id) {

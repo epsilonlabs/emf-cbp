@@ -13,13 +13,22 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
+import org.eclipse.uml2.uml.internal.resource.UMLResourceFactoryImpl;
 
 public class Git2CBPConverter {
 
 	private File gitDirectory;
 	private String getHashesCommand = "git rev-list --all";
 	private List<String> hashList;
+	private static final int START_FROM_COMMIT = 1;
 
 	public Git2CBPConverter(File gitDirectory) throws IOException {
 		if (!gitDirectory.exists()) {
@@ -29,13 +38,24 @@ public class Git2CBPConverter {
 		this.getCommitHashes();
 	}
 
-	public void convertGit2CBP(File commitsDirectory, File targetXmiDirectory, String directoryName, String code)
-			throws IOException, DiscoveryException {
+	public void convertGit2CBP(File commitsDirectory, File targetXmiDirectory, File cbpFile, File diffDirectory,
+			String directoryName, String code) throws Exception {
+		this.convertGit2CBP(commitsDirectory, targetXmiDirectory, cbpFile, diffDirectory, directoryName, code, false,
+				false);
+	}
+
+	public void convertGit2CBP(File commitsDirectory, File targetXmiDirectory, File cbpFile, File diffDirectory,
+			String directoryName, String code, boolean deleteProject, boolean deleteXmi) throws Exception {
 		if (commitsDirectory == null) {
 			throw new NullPointerException("Target directory is null");
-		}
-		if (!commitsDirectory.exists()) {
+		} else if (!commitsDirectory.exists()) {
 			commitsDirectory.mkdir();
+		} else if (!targetXmiDirectory.exists()) {
+			targetXmiDirectory.mkdir();
+		} else if (!cbpFile.getParentFile().exists()) {
+			cbpFile.getParentFile().mkdir();
+		} else if (!diffDirectory.exists()) {
+			diffDirectory.mkdir();
 		}
 
 		String strPath = commitsDirectory.getAbsolutePath();
@@ -44,9 +64,29 @@ public class Git2CBPConverter {
 		File hashDirectory;
 		String strNum;
 		String dirName;
-		int num = 0;
-		System.out.println(hashList.size() + "version(s)");
-		for (int i = hashList.size() - 1; i >= 0; i--) {
+		int num = START_FROM_COMMIT - 1;
+
+		URI cbpUri = URI.createFileURI(cbpFile.getAbsolutePath());
+		File file = new File(cbpUri.toFileString());
+
+		if (file.getParentFile().exists() == false) {
+			file.getParentFile().mkdir();
+		}
+		if (file.exists()) {
+			file.delete();
+		}
+		file.createNewFile();
+
+		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet.getResourceFactoryRegistry().getContentTypeToFactoryMap().put("cbpxml",
+				new CBPXMLResourceFactory());
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("uml", new UMLResourceFactoryImpl());
+
+		Resource cbpResource = resourceSet.createResource(cbpUri);
+
+		System.out.println(hashList.size() + " version(s)");
+		for (int i = hashList.size() - 1 - START_FROM_COMMIT + 1; i >= 0; i--) {
 			num += 1;
 			hash = hashList.get(i);
 			strNum = "";
@@ -59,9 +99,10 @@ public class Git2CBPConverter {
 			hashDirectory = new File(hashPath);
 
 			if (hashDirectory.exists()) {
-				System.out.println("Deleting " + hashDirectory.getName());
+				System.out.println("Deleting existing " + hashDirectory.getName());
 				this.deleteDirectory(hashDirectory);
 			}
+
 			System.out.println("Copying to " + dirName);
 
 			hashDirectory.mkdir();
@@ -85,28 +126,25 @@ public class Git2CBPConverter {
 				FileUtils.copyDirectory(projectPath, subProjectDir, filter);
 			}
 
-			
 			UmlXmiGenerator generator = new UmlXmiGenerator();
-			generator.generateXmiFile(hashDirectory, targetXmiDirectory); 
-			
-//			// Convert projects to XMI should be done here
-//			UmlXmiGenerator generator = new UmlXmiGenerator();
-//			for (File targetSubProject : targetSubProjectList) {
-//				generator.generateXmiFile(targetSubProject, targetXmiDirectory);
-//			}
-//
-//			//combine all the generated xmis into one xmi
-//			File targetProjectXmiDirectory = new File(targetXmiDirectory.getAbsolutePath() + File.separator + hashDirectory.getName());
-//			generator.generateSingleXmiFile(targetProjectXmiDirectory);
-			
-			
+			Resource xmiResource = generator.generateXmiFile(hashDirectory, targetXmiDirectory);
+			File xmiFile = new File(xmiResource.getURI().toFileString());
+
+			State2ChangeConverter xmi2CbpConverter = new State2ChangeConverter(null);
+			xmi2CbpConverter.generateFromSingleFile(cbpResource, xmiResource, diffDirectory);
+
 			// delete to save space
-			if (hashDirectory.exists()) {
-				System.out.println("Deleting " + hashDirectory.getName());
+			if (deleteProject == true && hashDirectory.exists()) {
+				System.out.println("Deleting " + hashDirectory.getName() + " project to save space");
 				this.deleteDirectory(hashDirectory);
 			}
 
-			// System.out.println("Finished!");
+			if (deleteXmi == true && xmiFile.exists()) {
+				System.out.println("Deleting " + xmiFile.getName() + " file to save space");
+				xmiFile.delete();
+			}
+
+			System.out.println("");
 		}
 	}
 
@@ -125,15 +163,21 @@ public class Git2CBPConverter {
 		StringBuffer output = new StringBuffer();
 		Process p;
 		try {
-			p = Runtime.getRuntime().exec("cmd /c " + command, null, dir);
-			while (p.isAlive()) {
+			String os = System.getProperty("os.name").toLowerCase();
+			if (os.indexOf("nux") >= 0) {
+				p = Runtime.getRuntime().exec(command, null, dir);
+			} else {
+				p = Runtime.getRuntime().exec("cmd /c " + command, null, dir);
+			}
+
+			//while (p.isAlive()) {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 				String line = "";
 				while ((line = reader.readLine()) != null) {
 					output.append(line + "\n");
 				}
-			}
+			//}
 
 		} catch (Exception e) {
 			e.printStackTrace();

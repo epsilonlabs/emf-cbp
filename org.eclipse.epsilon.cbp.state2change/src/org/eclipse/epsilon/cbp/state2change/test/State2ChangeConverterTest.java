@@ -18,7 +18,7 @@ public class State2ChangeConverterTest {
 	@Test
 	public void generateTest() throws Exception{
 		State2ChangeConverter state2ChangeConverter = new State2ChangeConverter(xmiDirectory);
-		boolean result = state2ChangeConverter.generate(cbpFile, diffDirectory);
+		boolean result = state2ChangeConverter.generateFromMultipleFiles(cbpFile, diffDirectory);
 		assertEquals(true, result);		
 	}
 }

@@ -2,8 +2,11 @@ package org.eclipse.epsilon.cbp.history;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 
@@ -14,6 +17,11 @@ public class ObjectHistory {
 	private Map<EObject, AttributeHistory> attributeHistoryMap = new HashMap<EObject, AttributeHistory>();
 	private Map<EObject, ReferenceHistory> referencesHistoryMap = new HashMap<EObject, ReferenceHistory>();
 	private Map<String, EventHistory> getEventHistoryMap = new HashMap<String, EventHistory>();
+	private Set<EList<EObject>> previousTargetObjects = new HashSet<>(); 
+
+	public Set<EList<EObject>> getPreviousTargetObjects() {
+		return previousTargetObjects;
+	}
 
 	public boolean isMoved() {
 		return isMoved;

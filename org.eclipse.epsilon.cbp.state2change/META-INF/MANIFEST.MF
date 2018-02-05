@@ -20,9 +20,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.modisco.kdm.uml2converter,
  org.eclipse.emf.ecore,
  org.eclipse.emf.compare.uml2,
- org.eclipse.epsilon.cbp,
  org.eclipse.uml2.common,
- org.junit
+ org.junit,
+ org.eclipse.epsilon.cbp,
+ org.eclipse.modisco.xml.discoverer,
+ org.eclipse.gmt.modisco.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.collect,
  org.apache.commons.io;resolution:=optional,

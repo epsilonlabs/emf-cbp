@@ -1,10 +1,13 @@
 package org.eclipse.epsilon.cbp.resource;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.SequenceInputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -58,6 +61,10 @@ import org.w3c.dom.Element;
 
 public class CBPXMLResourceImpl extends CBPResource {
 
+	public static final String OPTION_OPTIMISE_LOAD = "optimise";
+	public static final String OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD = "OPTION_CLEAR_CHANGE_EVENTS_AFTER_LOAD";
+	public static final String OPTION_REPOPULATE_MODEL_HISTORY = "OPTION_REPOPULATE_MODEL_HISTORY";
+	
 	protected int setAttCount = 0;
 	protected int unsetAttCount = 0;
 	protected int addAttCount = 0;
@@ -72,7 +79,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	protected int addResCount = 0;
 	protected int removeResCount = 0;
 	protected int packageCount = 0;
-	protected int sessionCount = 0;
+	protected int sessionCount = 1;
 	protected int createCount = 0;
 
 	protected double setAttAvg = 0;
@@ -148,8 +155,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
 
 		boolean optimised = true;
-		if (options != null && options.containsKey("optimise")) {
-			optimised = (Boolean) options.get("optimise");
+		if (options != null && options.containsKey(OPTION_OPTIMISE_LOAD)) {
+			optimised = (Boolean) options.get(OPTION_OPTIMISE_LOAD);
 		}
 
 		try {
@@ -158,12 +165,15 @@ public class CBPXMLResourceImpl extends CBPResource {
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
-			//// alfa
 			int eventNumber = persistedEvents;
 
 			// Ignore the first #eventsAfterMostRecentLoad events
-//			for (ChangeEvent<?> event : getChangeEvents().subList(persistedEvents, getChangeEvents().size())) {
+			// for (ChangeEvent<?> event :
+			// getChangeEvents().subList(persistedEvents,
+			// getChangeEvents().size())) {
 			for (ChangeEvent<?> event : getChangeEvents().subList(0, getChangeEvents().size())) {
+
+				// System.out.println(eventNumber);
 
 				Document document = documentBuilder.newDocument();
 				Element e = null;
@@ -304,7 +314,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				eventNumber += 1;
 			}
 			documentBuilder.reset();
-			//persistedEvents = getChangeEvents().size();
+			// persistedEvents = getChangeEvents().size();
 			persistedEvents = eventNumber;
 			getChangeEvents().clear();
 		} catch (
@@ -332,7 +342,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		addResCount = 0;
 		removeResCount = 0;
 		packageCount = 0;
-		sessionCount = 0;
+		sessionCount = 1;
 		createCount = 0;
 
 		setAttAvg = 0;
@@ -369,15 +379,26 @@ public class CBPXMLResourceImpl extends CBPResource {
 		sessionSum = 0;
 		createSum = 0;
 
+		boolean optimised = true;
+		boolean keepChangeEventsAfterLoad = false;
+		boolean repopulateModelHistory = false;
+		
+		if (options != null && options.containsKey(OPTION_OPTIMISE_LOAD)) {
+			optimised = (Boolean) options.get(OPTION_OPTIMISE_LOAD);
+		}
+		if (options != null && options.containsKey(OPTION_REPOPULATE_MODEL_HISTORY)) {
+			repopulateModelHistory = (Boolean) options.get(OPTION_REPOPULATE_MODEL_HISTORY);
+		}
+		if (options != null && options.containsKey(OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD)) {
+			keepChangeEventsAfterLoad = (Boolean) options.get(OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD);
+		}
+
 		changeEventAdapter.setEnabled(false);
 		eObjectToIdMap.clear();
 		getChangeEvents().clear();
+		modelHistory.clear();
 
 		String errorMessage = null;
-		boolean optimised = true;
-		if (options != null && options.containsKey("optimise")) {
-			optimised = (Boolean) options.get("optimise");
-		}
 
 		int eventNumber = 0;
 		try {
@@ -418,15 +439,18 @@ public class CBPXMLResourceImpl extends CBPResource {
 							errorMessage = name;
 							switch (name) {
 							case "session":
-								event = new StartNewSessionEvent();
+								sessionCount += 1;
+								String sessionId = e.getAttributeByName(new QName("id")).getValue();
+								String time = e.getAttributeByName(new QName("time")).getValue();
+								event = new StartNewSessionEvent(sessionId, time);
 								break;
 							case "register": {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
 								errorMessage = errorMessage + ", package: " + packageName;
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								event = new RegisterEPackageEvent(ePackage, changeEventAdapter);
-								break;
 							}
+								break;
 							case "create": {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
 								String className = e.getAttributeByName(new QName("eclass")).getValue();
@@ -436,8 +460,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								EClass eClass = (EClass) ePackage.getEClassifier(className);
 								event = new CreateEObjectEvent(eClass, this, id);
-								break;
+
 							}
+								break;
 							case "add-to-resource":
 								event = new AddToResourceEvent();
 								break;
@@ -483,8 +508,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 								EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 								EClass eClass = (EClass) ePackage.getEClassifier(className);
 								event = new DeleteEObjectEvent(eClass, this, id);
-								break;
+
 							}
+								break;
 							}
 
 							if (event instanceof EStructuralFeatureEvent<?>) {
@@ -541,8 +567,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 					if (event != null && !name.equals("value") && !name.equals("m")) {
 						if (ignore == false) {
 							event.replay();
-//							repopulateModelHistory(event, eventNumber);
-//							getChangeEvents().add(event);
+							if (repopulateModelHistory == true) {
+								repopulateModelHistory(event, eventNumber);
+							}
+							if (keepChangeEventsAfterLoad == true) {
+								getChangeEvents().add(event);
+							}
 							errorMessage = "";
 
 							long afterEvent = System.nanoTime();
@@ -551,7 +581,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 							// ----
 							switch (name) {
 							case "session":
-								sessionCount++;
 								sessionSum += eventDuration;
 								sessionAvg = sessionSum / sessionCount;
 								break;
@@ -640,14 +669,19 @@ public class CBPXMLResourceImpl extends CBPResource {
 					}
 				}
 			}
-			//persistedEvents = getChangeEvents().size();
-			persistedEvents = eventNumber;
+			
+			// persistedEvents = getChangeEvents().size();
+			if (keepChangeEventsAfterLoad == true) {
+				persistedEvents = 0;
+			} else {
+				persistedEvents = eventNumber;
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Error: " + eventNumber + " : " + errorMessage);
 			throw new IOException("Error: " + eventNumber + " : " + errorMessage + "\n" + ex.toString() + "\n");
 		}
-
+		
 		changeEventAdapter.setEnabled(true);
 	}
 
@@ -698,12 +732,38 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 		return null;
 	}
+	
+	@Override
+	public void doUnload() {
+		super.doUnload();
+	}
+
+	public void generateIgnoreListFile(File cbpDummyFile, File ignoreListFile) throws IOException {
+
+		if (cbpDummyFile.exists()) cbpDummyFile.delete();
+		if (ignoreListFile.exists()) ignoreListFile.delete();
+
+		this.getModelHistory().clear();
+		this.clearIgnoreSet();
+		this.unload();
+
+		Map<Object, Object> options1 = new HashMap<>();
+		options1.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
+		options1.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
+		options1.put(CBPXMLResourceImpl.OPTION_REPOPULATE_MODEL_HISTORY, true);		
+		this.load(options1);
+
+		FileOutputStream cbpDummyOutputStream = new FileOutputStream(cbpDummyFile, false);
+		this.save(cbpDummyOutputStream, null);
+		FileOutputStream ignoreFileOutputStream = new FileOutputStream(ignoreListFile, false);
+		this.saveIgnoreSet(ignoreFileOutputStream);
+	}
 
 	protected Object getLiteralValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {
 		EDataType eDataType = ((EDataType) eStructuralFeature.getEType());
 		return eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType, e.getAttribute("literal"));
 	}
-	
+
 	protected void repopulateModelHistory(ChangeEvent<?> event, int eventNumber) {
 		if (event instanceof StartNewSessionEvent) {
 		} else if (event instanceof RegisterEPackageEvent) {
@@ -760,8 +820,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 		} else {
 			throw new RuntimeException("Unexpected event:" + event);
 		}
-}
+	}
 
+	public int getSessionCount() {
+		return sessionCount;
+	}
+	
 	public double getSetAttAvg() {
 		return setAttAvg;
 	}

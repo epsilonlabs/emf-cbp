@@ -487,9 +487,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 		if (removedObject.eResource() == null && removedObject.eCrossReferences().size() == 0) {
 			// if (isDeleted == true) {
 			String id = resource.getURIFragment(removedObject);
-			if (id.equals("42483")) {
-				System.out.println("AAA");
-			}
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
 			deleteCount++;
 			changeEvents.add(e);
