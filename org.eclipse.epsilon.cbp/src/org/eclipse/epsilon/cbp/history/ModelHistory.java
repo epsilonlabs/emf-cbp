@@ -639,7 +639,9 @@ public class ModelHistory extends ObjectHistory {
 					// it does not contain other objects then it is okay to set
 					// the object's isMoved to false, so later the object can be
 					// removed/deleted
-					valueHistory.getPreviousTargetObjects().add(values);
+					if (valueHistory != null && valueHistory.getPreviousTargetObjects() != null) {
+						valueHistory.getPreviousTargetObjects().add(values);
+					}
 				}
 
 				Map<String, EventHistory> targetEventLinesMap = referenceList.get(eReferenceTarget)
@@ -683,22 +685,24 @@ public class ModelHistory extends ObjectHistory {
 					for (EObject item : eObjectList) {
 						ObjectHistory temp = objectHistoryMap.get(item);
 						if (temp != null) {
-//							if (resource.getEObjectId(item).equals("4126")) {
-//								Set<EList<EObject>> set = temp.getPreviousTargetObjects();
-//								System.out.println(event);
-//								System.out.println();
-//							}
+							// if (resource.getEObjectId(item).equals("4126")) {
+							// Set<EList<EObject>> set =
+							// temp.getPreviousTargetObjects();
+							// System.out.println(event);
+							// System.out.println();
+							// }
 							if (temp.getPreviousTargetObjects().size() == 0) {
 								temp.setMoved(false);
-							}else {
+							} else {
 								boolean okayToBeDeleted = true;
-								for (List<EObject> list: temp.getPreviousTargetObjects()) {
+								for (List<EObject> list : temp.getPreviousTargetObjects()) {
 									if (list.size() > 1) {
 										okayToBeDeleted = false;
 										break;
 									}
 								}
-								if (okayToBeDeleted) temp.setMoved(false);
+								if (okayToBeDeleted)
+									temp.setMoved(false);
 							}
 						}
 					}

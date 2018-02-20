@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -45,14 +46,14 @@ public class Xmi2CbpConverter {
 		if (cbpDirectory.exists() == false)
 			cbpDirectory.mkdir();
 		File cbpFile = new File(cbpDirectory.getAbsolutePath() + File.separator + cbpFileName);
-		if (cbpFile.exists()) {
-			cbpFile.delete();
-		}
+//		if (cbpFile.exists()) {
+//			cbpFile.delete();
+//		}
 		cbpFile.createNewFile();
 		File ignoreFile = new File(cbpDirectory.getAbsolutePath() + File.separator + ignoreFileName);
-		if (ignoreFile.exists()) {
-			ignoreFile.delete();
-		}
+//		if (ignoreFile.exists()) {
+//			ignoreFile.delete();
+//		}
 
 		Map<Object, Object> saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
 		saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
@@ -66,6 +67,7 @@ public class Xmi2CbpConverter {
 
 		// iteration through all xmi files
 		File[] xmiFiles = xmiDirectory.listFiles();
+		Arrays.sort(xmiFiles);
 		for (File xmiFile : xmiFiles) {
 
 			System.out.println(State2ChangeTool.getTimeStamp() + ": Processing file " + xmiFile.getName() + " to CBP");
@@ -87,23 +89,23 @@ public class Xmi2CbpConverter {
 
 			((CBPXMLResourceImpl) runningCbpResource).startNewSession(xmiFile.getName());
 
-			int prevDiffs = diffs.size() + 1;
-			while (diffs.size() > 0 && prevDiffs > diffs.size()) {
-				prevDiffs = diffs.size();
+//			int prevDiffs = diffs.size() + 1;
+//			while (diffs.size() > 0 && prevDiffs > diffs.size()) {
+//				prevDiffs = diffs.size();
 
 				System.out.println("Merge ...");
 				System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
 				batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
 				System.out.println("   End: " + State2ChangeTool.getTimeStamp());
 
-				System.out.println("Re-compare again for validation ...");
-				System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
-				scope = new DefaultComparisonScope(runningCbpResource, xmiResource, null);
-				comparison = comparator.compare(scope);
-				diffs = comparison.getDifferences();
-				System.out.println("   End: " + State2ChangeTool.getTimeStamp());
-				System.out.println("   Diffs: " + diffs.size());
-			}
+//				System.out.println("Re-compare again for validation ...");
+//				System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
+//				scope = new DefaultComparisonScope(runningCbpResource, xmiResource, null);
+//				comparison = comparator.compare(scope);
+//				diffs = comparison.getDifferences();
+//				System.out.println("   End: " + State2ChangeTool.getTimeStamp());
+//				System.out.println("   Diffs: " + diffs.size());
+//			}
 			// saving CBP
 			FileOutputStream ignoreFileOutputStream = new FileOutputStream(ignoreFile, true);
 			runningCbpResource.save(saveOptions);
@@ -112,19 +114,19 @@ public class Xmi2CbpConverter {
 			// System.out.println(set1);
 			((CBPXMLResourceImpl) runningCbpResource).saveIgnoreSet(ignoreFileOutputStream);
 
-			// validation
-			System.out.println("Reload and compare again for validation ...");
-			System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
-			Resource validationCbpResource = resourceSet.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
-			FileInputStream ignoreFileInputStream = new FileInputStream(ignoreFile);
-			((CBPXMLResourceImpl) validationCbpResource).loadIgnoreSet(ignoreFileInputStream);
-			Set<Integer> set2 = new HashSet<>(((CBPXMLResourceImpl) validationCbpResource).getIgnoreSet());
-			// System.out.println(set2);
-			validationCbpResource.load(null);
-
-			scope = new DefaultComparisonScope(validationCbpResource, xmiResource, null);
-			comparison = comparator.compare(scope);
-			diffs = comparison.getDifferences();
+//			// validation
+//			System.out.println("Reload and compare again for validation ...");
+//			System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
+//			Resource validationCbpResource = resourceSet.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
+//			FileInputStream ignoreFileInputStream = new FileInputStream(ignoreFile);
+//			((CBPXMLResourceImpl) validationCbpResource).loadIgnoreSet(ignoreFileInputStream);
+//			Set<Integer> set2 = new HashSet<>(((CBPXMLResourceImpl) validationCbpResource).getIgnoreSet());
+//			// System.out.println(set2);
+//			validationCbpResource.load(null);
+//
+//			scope = new DefaultComparisonScope(validationCbpResource, xmiResource, null);
+//			comparison = comparator.compare(scope);
+//			diffs = comparison.getDifferences();
 
 			// if (set1.toString().equals(set2.toString()) || set1.toString() ==
 			// set2.toString()) {
@@ -133,57 +135,57 @@ public class Xmi2CbpConverter {
 			// System.out.println("BEDA!!");
 			// }
 
-			//this part is for debug
-			if (diffs.size() > 0) {
-
-				StringOutputStream os1 = new StringOutputStream();
-				StringOutputStream os2 = new StringOutputStream();
-				StringOutputStream os3 = new StringOutputStream();
-				Resource r1 = (new XMIResourceFactoryImpl().createResource(URI.createURI("foo1.xmi")));
-				Resource r2 = (new XMIResourceFactoryImpl().createResource(URI.createURI("foo2.xmi")));
-				r1.getContents().addAll(EcoreUtil.copyAll(runningCbpResource.getContents()));
-				r2.getContents().addAll(EcoreUtil.copyAll(validationCbpResource.getContents()));
-
-				// r1.save(os1, null);
-				// r2.save(os2, null);
-				runningCbpResource.save(os1, null);
-				validationCbpResource.save(os2, null);
-				xmiResource.save(os3, null);
-
-				System.out.println("R0---------------------");
-				try (BufferedReader br = new BufferedReader(new FileReader(cbpFile))) {
-					String line;
-					int i = 0;
-					while ((line = br.readLine()) != null) {
-						if (set2.contains(i) == false)
-							System.out.println(line);
-						i += 1;
-					}
-				}
-
-				// System.out.println("R1---------------------");
-				// System.out.println(os1);
-				// System.out.println("R2---------------------");
-				// System.out.println(os2);
-				// System.out.println("R3---------------------");
-				// System.out.println(os3);
-				// System.out.println("-----------------------");
-
-				ignoreFileInputStream.close();
-				throw new Exception("   Number of differences are not zero!");
-			}
-			System.out.println("   End: " + State2ChangeTool.getTimeStamp());
-			System.out.println("   Diffs: " + diffs.size());
+//			//this part is for debug
+//			if (diffs.size() > 0) {
+//
+//				StringOutputStream os1 = new StringOutputStream();
+//				StringOutputStream os2 = new StringOutputStream();
+//				StringOutputStream os3 = new StringOutputStream();
+//				Resource r1 = (new XMIResourceFactoryImpl().createResource(URI.createURI("foo1.xmi")));
+//				Resource r2 = (new XMIResourceFactoryImpl().createResource(URI.createURI("foo2.xmi")));
+//				r1.getContents().addAll(EcoreUtil.copyAll(runningCbpResource.getContents()));
+//				r2.getContents().addAll(EcoreUtil.copyAll(validationCbpResource.getContents()));
+//
+//				// r1.save(os1, null);
+//				// r2.save(os2, null);
+//				runningCbpResource.save(os1, null);
+//				validationCbpResource.save(os2, null);
+//				xmiResource.save(os3, null);
+//
+//				System.out.println("R0---------------------");
+//				try (BufferedReader br = new BufferedReader(new FileReader(cbpFile))) {
+//					String line;
+//					int i = 0;
+//					while ((line = br.readLine()) != null) {
+//						if (set2.contains(i) == false)
+//							System.out.println(line);
+//						i += 1;
+//					}
+//				}
+//
+//				// System.out.println("R1---------------------");
+//				// System.out.println(os1);
+//				// System.out.println("R2---------------------");
+//				// System.out.println(os2);
+//				// System.out.println("R3---------------------");
+//				// System.out.println(os3);
+//				// System.out.println("-----------------------");
+//
+//				ignoreFileInputStream.close();
+//				throw new Exception("   Number of differences are not zero!");
+//			}
+//			System.out.println("   End: " + State2ChangeTool.getTimeStamp());
+//			System.out.println("   Diffs: " + diffs.size());
 
 			// cleaning
 			ignoreFileOutputStream.close();
-			ignoreFileInputStream.close();
+//			ignoreFileInputStream.close();
 			xmiResource.unload();
-			((CBPXMLResourceImpl) validationCbpResource).getModelHistory().clear();
-			((CBPXMLResourceImpl) validationCbpResource).clearIgnoreSet();
-			validationCbpResource.unload();
+//			((CBPXMLResourceImpl) validationCbpResource).getModelHistory().clear();
+//			((CBPXMLResourceImpl) validationCbpResource).clearIgnoreSet();
+//			validationCbpResource.unload();
 			resourceSet.getResources().remove(xmiResource);
-			resourceSet.getResources().remove(validationCbpResource);
+//			resourceSet.getResources().remove(validationCbpResource);
 
 			System.out.println();
 		}

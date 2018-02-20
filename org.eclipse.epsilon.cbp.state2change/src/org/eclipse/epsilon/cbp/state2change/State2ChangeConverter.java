@@ -38,6 +38,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
+import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
@@ -197,13 +198,6 @@ public class State2ChangeConverter {
 			System.gc();
 			System.out.println("Converting file " + xmiResource.getURI().lastSegment() + " to CBP");
 
-			try {
-				cbpResource.load(null);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
 			IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
 			BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(),
 					Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
@@ -221,26 +215,17 @@ public class State2ChangeConverter {
 			// register all objects to be removed later to save UML cache
 			// memory
 			List<EObject> list = new ArrayList<EObject>();
-			TreeIterator<EObject> iterator = cbpResource.getAllContents();
+			// TreeIterator<EObject> iterator = cbpResource.getAllContents();
+			// while (iterator.hasNext()) {
+			// EObject eObject = iterator.next();
+			// list.add(eObject);
+			// }
+			TreeIterator<EObject> iterator = xmiResource.getAllContents();
 			while (iterator.hasNext()) {
 				EObject eObject = iterator.next();
 				list.add(eObject);
 			}
-			iterator = xmiResource.getAllContents();
-			while (iterator.hasNext()) {
-				EObject eObject = iterator.next();
-				list.add(eObject);
-			}
-			
-			//add new session
-			CBPXMLResourceImpl cbpImpl = ((CBPXMLResourceImpl) cbpResource);
-			cbpImpl.startNewSession(xmiResource.getURI().lastSegment());
-			try {
-				cbpResource.save(null);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
+
 			// initialise UML comparison
 			IComparisonScope2 scope = createComparisonScope(cbpResource, xmiResource);
 			System.out.println("Compare ...");
@@ -250,50 +235,19 @@ public class State2ChangeConverter {
 			EList<Diff> diffs = comparison.getDifferences();
 			System.out.println("Diffs: " + diffs.size());
 
+			CBPXMLResourceImpl cbpImpl = ((CBPXMLResourceImpl) cbpResource);
+			cbpImpl.startNewSession(xmiResource.getURI().lastSegment());
+
 			int prevDiffs = diffs.size() + 1;
 			while (diffs.size() > 0 && prevDiffs > diffs.size()) {
 				prevDiffs = diffs.size();
-				
-				// // persist diffs
-				// String diffFilePath = diffDirectory.getPath() +
-				// File.separator + "Diff-" +
-				// xmiResource.getURI().lastSegment();
-				// Resource comparisonResource =
-				// comparisonResourceSet.createResource(URI.createFileURI(diffFilePath));
-				// comparisonResource.getContents().addAll(EcoreUtil.copyAll(comparison.getDifferences()));
-				// try {
-				// comparisonResource.save(null);
-				// } catch (IOException e1) {
-				// e1.printStackTrace();
-				// }
-				//
-				// File diffFile = new File(diffFilePath);
-				// FileOutputStream diffFileOutputStream;
-				// try {
-				// diffFileOutputStream = new FileOutputStream(diffFile);
-				// comparisonResource.save(diffFileOutputStream, saveOptions);
-				// diffFileOutputStream.flush();
-				// diffFileOutputStream.close();
-				// } catch (IOException e) {
-				// e.printStackTrace();
-				// }
 
 				// copy all right to left
+				// List<ChangeEvent<?>> x = cbpImpl.getChangeEvents();
 				System.out.println("Merge ...");
 				System.out.println("Start: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
 				batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
 				System.out.println("End: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
-				try {
-					cbpResource.save(null);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				try {
-					cbpResource.load(null);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 
 				// after merging, to check if there are no more differences
 				scope = createComparisonScope(cbpResource, xmiResource);
@@ -304,20 +258,19 @@ public class State2ChangeConverter {
 				diffs = comparison.getDifferences();
 				System.out.println("Diffs: " + diffs.size());
 			}
-			// for (Diff diff : diffs) {
-			// System.out.println(diff);
-			// }
-			// if (diffs.size() > 0) {
-			// System.out.println("There are still differences between the CBP
-			// and the XMI.");
-			// return;
-			// }
-			
+
+			try {
+				// save
+				cbpResource.save(null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 			System.out.println();
-			
-			clearCacheAdapter();
-			((CBPResource) cbpResource).getModelHistory().clear();
-			((CBPResource) cbpResource).getIgnoreSet().clear();
+
+			// clearCacheAdapter();
+			// ((CBPResource) cbpResource).getModelHistory().clear();
+			// ((CBPResource) cbpResource).getIgnoreSet().clear();
 			for (EObject eObject : list) {
 				CacheAdapter.getInstance().getInverseReferences(eObject).clear();
 				CacheAdapter.getInstance().getNonNavigableInverseReferences(eObject).clear();
@@ -326,7 +279,7 @@ public class State2ChangeConverter {
 			}
 			list.clear();
 			clearCacheAdapter(xmiResource);
-			clearCacheAdapter(cbpResource);
+			// clearCacheAdapter(cbpResource);
 		}
 
 		/***
@@ -426,9 +379,9 @@ public class State2ChangeConverter {
 			comparison = comparator.compare(scope);
 			diffs = comparison.getDifferences();
 			System.out.println(" " + diffs.size());
-//			for (Diff diff : diffs) {
-//				System.out.println(diff);
-//			}
+			// for (Diff diff : diffs) {
+			// System.out.println(diff);
+			// }
 			if (diffs.size() > 0) {
 				System.out.println("There are still differences between the CBP and the XMI.");
 				return;

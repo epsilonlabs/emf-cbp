@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.cbp.resource;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -7,6 +9,10 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -186,6 +192,19 @@ public abstract class CBPResource extends ResourceImpl {
 		this.ignoreSet = ignoreSet;
 	}
 
+	public void loadIgnoreSet(BufferedInputStream inputStream) throws IOException {
+		DataInputStream dis = new DataInputStream(inputStream);
+		ignoreSet.clear();
+		ignoreList.clear();
+		while (dis.available() > 0) {
+			int value = dis.readInt();
+			if (ignoreSet.add(value)) {
+				ignoreList.add(value);
+			}
+		}
+		persistedIgnoredEvents = ignoreList.size();
+	}
+
 	public void loadIgnoreSet(ByteArrayInputStream inputStream) throws IOException {
 		DataInputStream dis = new DataInputStream(inputStream);
 		ignoreSet.clear();
@@ -200,15 +219,42 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 
 	public void loadIgnoreSet(FileInputStream inputStream) throws IOException {
-		DataInputStream dis = new DataInputStream(inputStream);
-		ignoreSet.clear();
-		ignoreList.clear();
-		while (dis.available() > 0) {
-			int value = dis.readInt();
-			if (ignoreSet.add(value)) {
-				ignoreList.add(value);
+		// new way to read ignore list -> much faster
+		if (inputStream.getChannel().size() <= Integer.MAX_VALUE) {
+			FileChannel inChannel = inputStream.getChannel();
+			ByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
+			int[] result = new int[(int) (inChannel.size() / 4)];
+			buffer.order(ByteOrder.BIG_ENDIAN);
+			IntBuffer intBuffer = buffer.asIntBuffer();
+			intBuffer.get(result);
+			ignoreSet.clear();
+			ignoreList.clear();
+			for (int x = 0; x < result.length; x++)
+				ignoreList.add(x);
+			ignoreSet = new HashSet<>(ignoreList);
+		} else {
+			DataInputStream dis = new DataInputStream(new BufferedInputStream(inputStream));
+			int count = (int) (inputStream.getChannel().size() / 4);
+			Integer[] values = new Integer[count];
+			for (int n = 0; n < count; n++) {
+				values[n] = dis.readInt();
 			}
+			ignoreSet.clear();
+			ignoreList.clear();
+			ignoreSet = new HashSet<Integer>(Arrays.asList(values));
+			ignoreList = new ArrayList<>(ignoreSet);
 		}
+
+		//// Old way to read ignore list => slow
+		// DataInputStream dis = new DataInputStream(inputStream);
+		// ignoreSet.clear();
+		// ignoreList.clear();
+		// while (dis.available() > 0) {
+		// int value = dis.readInt();
+		// if (ignoreSet.add(value)) {
+		// ignoreList.add(value);
+		// }
+		// }
 		persistedIgnoredEvents = ignoreList.size();
 	}
 
@@ -225,9 +271,10 @@ public abstract class CBPResource extends ResourceImpl {
 
 	public void saveIgnoreSet(FileOutputStream outputStream) throws IOException {
 		DataOutputStream dos = new DataOutputStream(outputStream);
-//		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
-//			dos.writeInt(item);
-//		}
+		// for (int item : ignoreList.subList(persistedIgnoredEvents,
+		// ignoreList.size())) {
+		// dos.writeInt(item);
+		// }
 		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
 			dos.writeInt(item);
 		}
@@ -246,7 +293,7 @@ public abstract class CBPResource extends ResourceImpl {
 	public void startNewSession(String id) {
 		changeEventAdapter.handleStartNewSession(id);
 	}
-	
+
 	public void startNewSession() {
 		changeEventAdapter.handleStartNewSession();
 	}

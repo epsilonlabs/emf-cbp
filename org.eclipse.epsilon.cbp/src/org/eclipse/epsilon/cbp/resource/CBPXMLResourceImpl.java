@@ -64,7 +64,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	public static final String OPTION_OPTIMISE_LOAD = "optimise";
 	public static final String OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD = "OPTION_CLEAR_CHANGE_EVENTS_AFTER_LOAD";
 	public static final String OPTION_REPOPULATE_MODEL_HISTORY = "OPTION_REPOPULATE_MODEL_HISTORY";
-	
+
 	protected int setAttCount = 0;
 	protected int unsetAttCount = 0;
 	protected int addAttCount = 0;
@@ -382,7 +382,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		boolean optimised = true;
 		boolean keepChangeEventsAfterLoad = false;
 		boolean repopulateModelHistory = false;
-		
+
 		if (options != null && options.containsKey(OPTION_OPTIMISE_LOAD)) {
 			optimised = (Boolean) options.get(OPTION_OPTIMISE_LOAD);
 		}
@@ -438,11 +438,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 							beforeEvent = System.nanoTime();
 							errorMessage = name;
 							switch (name) {
-							case "session":
+							case "session": {
 								sessionCount += 1;
 								String sessionId = e.getAttributeByName(new QName("id")).getValue();
 								String time = e.getAttributeByName(new QName("time")).getValue();
 								event = new StartNewSessionEvent(sessionId, time);
+							}
 								break;
 							case "register": {
 								String packageName = e.getAttributeByName(new QName("epackage")).getValue();
@@ -669,7 +670,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 					}
 				}
 			}
-			
+
 			// persistedEvents = getChangeEvents().size();
 			if (keepChangeEventsAfterLoad == true) {
 				persistedEvents = 0;
@@ -681,7 +682,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			System.out.println("Error: " + eventNumber + " : " + errorMessage);
 			throw new IOException("Error: " + eventNumber + " : " + errorMessage + "\n" + ex.toString() + "\n");
 		}
-		
+
 		changeEventAdapter.setEnabled(true);
 	}
 
@@ -732,7 +733,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 		return null;
 	}
-	
+
 	@Override
 	public void doUnload() {
 		super.doUnload();
@@ -740,8 +741,10 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 	public void generateIgnoreListFile(File cbpDummyFile, File ignoreListFile) throws IOException {
 
-		if (cbpDummyFile.exists()) cbpDummyFile.delete();
-		if (ignoreListFile.exists()) ignoreListFile.delete();
+		if (cbpDummyFile.exists())
+			cbpDummyFile.delete();
+		if (ignoreListFile.exists())
+			ignoreListFile.delete();
 
 		this.getModelHistory().clear();
 		this.clearIgnoreSet();
@@ -750,7 +753,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		Map<Object, Object> options1 = new HashMap<>();
 		options1.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
 		options1.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
-		options1.put(CBPXMLResourceImpl.OPTION_REPOPULATE_MODEL_HISTORY, true);		
+		options1.put(CBPXMLResourceImpl.OPTION_REPOPULATE_MODEL_HISTORY, true);
 		this.load(options1);
 
 		FileOutputStream cbpDummyOutputStream = new FileOutputStream(cbpDummyFile, false);
@@ -825,7 +828,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	public int getSessionCount() {
 		return sessionCount;
 	}
-	
+
 	public double getSetAttAvg() {
 		return setAttAvg;
 	}

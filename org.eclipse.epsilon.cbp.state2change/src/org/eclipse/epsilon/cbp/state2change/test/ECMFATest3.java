@@ -8,10 +8,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
@@ -28,6 +31,10 @@ import org.junit.Test;
 
 public class ECMFATest3 {
 
+	private static final int SLEEP_TIME = 1000;
+	final int ITERATION = 25;
+	final int DENOMINATOR = 10 * ITERATION;
+
 	@Test
 	public void testComparison() {
 		MoDiscoXMLPackage.eINSTANCE.eClass();
@@ -35,20 +42,26 @@ public class ECMFATest3 {
 
 		File dummyCbpFileForMeasuringSave = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.cbpxml");
 
-		System.out.println("Processing Epsilon ...");
-		File epsilonCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.cbpxml");
-		File epsilonIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.ignorelist");
-		Measurement e = performMeasure(epsilonCbpFile, epsilonIgnoreListFile, dummyCbpFileForMeasuringSave);
-
-		System.out.println("Processing BPMN2 ...");
-		File bpmn2CbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.cbpxml");
-		File bpmn2IgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.ignorelist");
-		Measurement b = performMeasure(bpmn2CbpFile, bpmn2IgnoreListFile, dummyCbpFileForMeasuringSave);
-
+		System.out.println();
 		System.out.println("Processing Wikipedia ...");
 		File wikipediaCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.cbpxml");
 		File wikipediaIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.ignorelist");
-		Measurement w = performMeasure(wikipediaCbpFile, wikipediaIgnoreListFile, dummyCbpFileForMeasuringSave);
+		Measurement w = new Measurement();
+		w = performMeasure(wikipediaCbpFile, wikipediaIgnoreListFile, dummyCbpFileForMeasuringSave);
+
+		System.out.println();
+		System.out.println("Processing Epsilon ...");
+		File epsilonCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.cbpxml");
+		File epsilonIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.ignorelist");
+		Measurement e = new Measurement();
+		e = performMeasure(epsilonCbpFile, epsilonIgnoreListFile, dummyCbpFileForMeasuringSave);
+
+		System.out.println();
+		System.out.println("Processing BPMN2 ...");
+		File bpmn2CbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.cbpxml");
+		File bpmn2IgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.ignorelist");
+		Measurement b = new Measurement();
+		b = performMeasure(bpmn2CbpFile, bpmn2IgnoreListFile, dummyCbpFileForMeasuringSave);
 
 		System.out.println();
 		System.out.println("Model \t Total Event Count \t Ignored Event Count \t Element Count \t Number of Commits");
@@ -60,47 +73,60 @@ public class ECMFATest3 {
 				+ w.getElementCount() + " \t " + w.getSessionCount());
 
 		System.out.println();
-		System.out.println("Model \t CBP Load Time \t Opt. CBP Load Time \t XMI Load Time");
+		System.out.println("Epsilon \t\t\t BPMN2 \t\t\t Wikipedia ");
 		System.out.println(
-				"Epsilon \t " + e.getNonOptLoadTime() + " \t " + e.getOptLoadTime() + " \t " + e.getXmiLoadTime());
-		System.out.println(
-				"BPMN2 \t " + b.getNonOptLoadTime() + " \t " + b.getOptLoadTime() + " \t " + b.getXmiLoadTime());
-		System.out.println(
-				"Wikipedia \t " + w.getNonOptLoadTime() + " \t " + w.getOptLoadTime() + " \t " + w.getXmiLoadTime());
+				"CBP Load Time \t Opt. CBP Load Time \t XMI Load Time \t CBP Load Time \t Opt. CBP Load Time \t XMI Load Time \t CBP Load Time \t Opt. CBP Load Time \t XMI Load Time");
+		for (int i = 0; i < ITERATION; i++) {
+			System.out.print(e.getNonOptLoadTime()[i] + " \t " + e.getOptLoadTime()[i] + " \t " + e.getXmiLoadTime()[i]
+					+ " \t ");
+			System.out.print(b.getNonOptLoadTime()[i] + " \t " + b.getOptLoadTime()[i] + " \t " + b.getXmiLoadTime()[i]
+					+ " \t ");
+			System.out.println(
+					w.getNonOptLoadTime()[i] + " \t " + w.getOptLoadTime()[i] + " \t " + w.getXmiLoadTime()[i]);
+		}
 
 		System.out.println();
-		System.out.println("Model \t CBP Save Time \t Opt. CBP Save Time \t XMI Save Time");
+		System.out.println("Epsilon \t\t\t BPMN2 \t\t\t Wikipedia ");
 		System.out.println(
-				"Epsilon \t " + e.getNonOptSaveTime() + " \t " + e.getOptSaveTime() + " \t " + e.getXmiSaveTime());
-		System.out.println(
-				"BPMN2 \t " + b.getNonOptSaveTime() + " \t " + b.getOptSaveTime() + " \t " + b.getXmiSaveTime());
-		System.out.println(
-				"Wikipedia \t " + w.getNonOptSaveTime() + " \t " + w.getOptSaveTime() + " \t " + w.getXmiSaveTime());
+				"CBP Save Time \t Opt. CBP Save Time \t XMI Save Time \t CBP Save Time \t Opt. CBP Save Time \t XMI Save Time \t CBP Save Time \t Opt. CBP Save Time \t XMI Save Time");
+		for (int i = 0; i < ITERATION; i++) {
+			System.out.print(e.getNonOptSaveTime()[i] + " \t " + e.getOptSaveTime()[i] + " \t " + e.getXmiSaveTime()[i]
+					+ " \t ");
+			System.out.print(b.getNonOptSaveTime()[i] + " \t " + b.getOptSaveTime()[i] + " \t " + b.getXmiSaveTime()[i]
+					+ " \t ");
+			System.out.println(
+					w.getNonOptSaveTime()[i] + " \t " + w.getOptSaveTime()[i] + " \t " + w.getXmiSaveTime()[i]);
+		}
 
 		System.out.println();
-		System.out.println("Model \t CBP Load Memory \t Opt. CBP Load Memory \t XMI Load Memory");
-		System.out.println("Epsilon \t " + e.getNonOptLoadMemory() + " \t " + e.getOptLoadMemory() + " \t "
-				+ e.getXmiLoadMemory());
+		System.out.println("Epsilon \t\t\t BPMN2 \t\t\t Wikipedia ");
 		System.out.println(
-				"BPMN2 \t " + b.getNonOptLoadMemory() + " \t " + b.getOptLoadMemory() + " \t " + b.getXmiLoadMemory());
-		System.out.println("Wikipedia \t " + w.getNonOptLoadMemory() + " \t " + w.getOptLoadMemory() + " \t "
-				+ w.getXmiLoadMemory());
+				"CBP Load Memory \t Opt. CBP Load Memory \t XMI Load Memory \t CBP Load Memory \t Opt. CBP Load Memory \t XMI Load Memory \t CBP Load Memory \t Opt. CBP Load Memory \t XMI Load Memory");
+		for (int i = 0; i < ITERATION; i++) {
+			System.out.print(e.getNonOptLoadMemory()[i] + " \t " + e.getOptLoadMemory()[i] + " \t "
+					+ e.getXmiLoadMemory()[i] + " \t ");
+			System.out.print(b.getNonOptLoadMemory()[i] + " \t " + b.getOptLoadMemory()[i] + " \t "
+					+ b.getXmiLoadMemory()[i] + " \t ");
+			System.out.println(
+					w.getNonOptLoadMemory()[i] + " \t " + w.getOptLoadMemory()[i] + " \t " + w.getXmiLoadMemory()[i]);
+		}
 
 		System.out.println();
-		System.out.println("Model \t CBP Save Memory \t Opt. CBP Save Memory \t XMI Save Memory");
-		System.out.println("Epsilon \t " + e.getNonOptSaveMemory() + " \t " + e.getOptSaveMemory() + " \t "
-				+ e.getXmiSaveMemory());
+		System.out.println("Epsilon \t\t\t BPMN2 \t\t\t Wikipedia ");
 		System.out.println(
-				"BPMN2 \t " + b.getNonOptSaveMemory() + " \t " + b.getOptSaveMemory() + " \t " + b.getXmiSaveMemory());
-		System.out.println("Wikipedia \t " + w.getNonOptSaveMemory() + " \t " + w.getOptSaveMemory() + " \t "
-				+ w.getXmiSaveMemory());
-
+				"CBP Save Memory \t Opt. CBP Save Memory \t XMI Save Memory \t CBP Save Memory \t Opt. CBP Save Memory \t XMI Save Memory \t CBP Save Memory \t Opt. CBP Save Memory \t XMI Save Memory");
+		for (int i = 0; i < ITERATION; i++) {
+			System.out.print(e.getNonOptSaveMemory()[i] + " \t " + e.getOptSaveMemory()[i] + " \t "
+					+ e.getXmiSaveMemory()[i] + " \t ");
+			System.out.print(b.getNonOptSaveMemory()[i] + " \t " + b.getOptSaveMemory()[i] + " \t "
+					+ b.getXmiSaveMemory()[i] + " \t ");
+			System.out.println(
+					w.getNonOptSaveMemory()[i] + " \t " + w.getOptSaveMemory()[i] + " \t " + w.getXmiSaveMemory()[i]);
+		}
 		assertEquals(true, true);
 	}
 
 	private Measurement performMeasure(File cbpFile, File ignoreListFile, File dummyCbpFileForMeasuringSave) {
-		final int ITERATION = 6;
-		final int DENOMINATOR = 60;
 
 		Measurement m = new Measurement();
 		try {
@@ -112,21 +138,21 @@ public class ECMFATest3 {
 			Map<Object, Object> xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
 			xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
 
-			double optLoadTime = 0;
-			double nonOptLoadTime = 0;
-			double xmiLoadTime = 0;
+			double[] optLoadTime = new double[ITERATION];
+			double[] nonOptLoadTime = new double[ITERATION];
+			double[] xmiLoadTime = new double[ITERATION];
 
-			double optLoadMemory = 0;
-			double nonOptLoadMemory = 0;
-			double xmiLoadMemory = 0;
+			double[] optLoadMemory = new double[ITERATION];
+			double[] nonOptLoadMemory = new double[ITERATION];
+			double[] xmiLoadMemory = new double[ITERATION];
 
-			double nonOptSaveTime = 0;
-			double optSaveTime = 0;
-			double xmiSaveTime = 0;
+			double[] nonOptSaveTime = new double[ITERATION];
+			double[] optSaveTime = new double[ITERATION];
+			double[] xmiSaveTime = new double[ITERATION];
 
-			double nonOptSaveMemory = 0;
-			double optSaveMemory = 0;
-			double xmiSaveMemory = 0;
+			double[] nonOptSaveMemory = new double[ITERATION];
+			double[] optSaveMemory = new double[ITERATION];
+			double[] xmiSaveMemory = new double[ITERATION];
 
 			int elementCount = 0;
 			int ignoredEventCount = 0;
@@ -148,9 +174,10 @@ public class ECMFATest3 {
 				cbpResource.load(cbpLoadOptions);
 				long endTime = System.nanoTime();
 				System.gc();
+				// Thread.sleep(SLEEP_TIME);
 				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-				nonOptLoadTime += (endTime - startTime);
-				nonOptLoadMemory += (endMemory - startMemory);
+				nonOptLoadTime[i] += (endTime - startTime);
+				nonOptLoadMemory[i] += Math.abs(endMemory - startMemory);
 
 				// xmi save time
 				System.out.println("Xmi Save Time and Memory");
@@ -162,9 +189,10 @@ public class ECMFATest3 {
 				xmiResource.save(os, xmiOptions);
 				endTime = System.nanoTime();
 				System.gc();
+				// Thread.sleep(SLEEP_TIME);
 				endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-				xmiSaveTime += (endTime - startTime);
-				xmiSaveMemory += (endMemory - startMemory);
+				xmiSaveTime[i] += (endTime - startTime);
+				xmiSaveMemory[i] += Math.abs(endMemory - startMemory);
 				xmiResource.unload();
 
 				// xmi load time
@@ -176,21 +204,23 @@ public class ECMFATest3 {
 				xmiResource.load(is, xmiOptions);
 				endTime = System.nanoTime();
 				System.gc();
+				// Thread.sleep(SLEEP_TIME);
 				endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-				xmiLoadTime += (endTime - startTime);
-				xmiLoadMemory += (endMemory - startMemory);
+				xmiLoadTime[i] += (endTime - startTime);
+				xmiLoadMemory[i] += Math.abs(endMemory - startMemory);
 
 				// clearance
 				cbpLoadOptions.clear();
 				xmiResource.unload();
 				cbpResource.unload();
+
+				nonOptLoadTime[i] = nonOptLoadTime[i] / 1000000000.0;
+				xmiSaveTime[i] = xmiSaveTime[i] / 1000000000.0;
+				xmiLoadTime[i] = xmiLoadTime[i] / 1000000000.0;
+				nonOptLoadMemory[i] = nonOptLoadMemory[i] / 1000000.0;
+				xmiSaveMemory[i] = xmiSaveMemory[i] / 1000000.0;
+				xmiLoadMemory[i] = xmiLoadMemory[i] / 1000000.0;
 			}
-			nonOptLoadTime = nonOptLoadTime / ITERATION / 1000000000.0;
-			xmiSaveTime = xmiSaveTime / ITERATION / 1000000000.0;
-			xmiLoadTime = xmiLoadTime / ITERATION / 1000000000.0;
-			nonOptLoadMemory = nonOptLoadMemory / ITERATION / 1000000.0;
-			xmiSaveMemory = xmiSaveMemory / ITERATION / 1000000.0;
-			xmiLoadMemory = xmiLoadMemory / ITERATION / 1000000.0;
 
 			// optimised CBP
 			for (int i = 0; i < ITERATION; i++) {
@@ -207,14 +237,16 @@ public class ECMFATest3 {
 				cbpResource.load(null);
 				long endTime = System.nanoTime();
 				System.gc();
+				// Thread.sleep(SLEEP_TIME);
 				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-				optLoadTime += (endTime - startTime);
-				optLoadMemory += (endMemory - startMemory);
+				optLoadTime[i] += (endTime - startTime);
+				optLoadMemory[i] += Math.abs(endMemory - startMemory);
 
 				cbpResource.unload();
+
+				optLoadTime[i] = optLoadTime[i] / 1000000000.0;
+				optLoadMemory[i] = optLoadMemory[i] / 1000000.0;
 			}
-			optLoadTime = optLoadTime / ITERATION / 1000000000.0;
-			optLoadMemory = optLoadMemory / ITERATION / 1000000.0;
 
 			// measuring saving time Non-optimised CBP
 			System.out.println("CBP Save Time and Memory");
@@ -251,7 +283,9 @@ public class ECMFATest3 {
 
 			System.out.println("CBP Save Time and Memory - continue");
 			cbpResource.getChangeEvents().clear();
+			int j = 0;
 			for (int i = 0; i < DENOMINATOR; i++) {
+
 				cbpResource.getChangeEvents().add(changeEvents.get(i));
 				System.gc();
 				long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -260,16 +294,17 @@ public class ECMFATest3 {
 				long endTime = System.nanoTime();
 				System.gc();
 				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-				nonOptSaveTime += (endTime - startTime);
-				if ((endMemory - startMemory) < 0) {
-					nonOptSaveMemory += 0;
-				} else {
-					nonOptSaveMemory += (endMemory - startMemory);
+				nonOptSaveTime[j] += (endTime - startTime);
+				nonOptSaveMemory[j] += Math.abs(endMemory - startMemory);
+
+				if ((i + 1) % (DENOMINATOR / ITERATION) == 0) {
+					nonOptSaveTime[j] = nonOptSaveTime[j] / (DENOMINATOR / ITERATION) / 1000000000.0;
+					nonOptSaveMemory[j] = nonOptSaveMemory[j] / (DENOMINATOR / ITERATION) / 1000000.0;
+					j += 1;
 				}
+
 			}
 			cbpResource.unload();
-			nonOptSaveTime = nonOptSaveTime / DENOMINATOR / 1000000000.0;
-			nonOptSaveMemory = nonOptSaveMemory / DENOMINATOR / 1000000.0;
 
 			// measuring saving time optimised CBP
 			System.out.println("Optimised CBP Save Time and Memory");
@@ -294,6 +329,7 @@ public class ECMFATest3 {
 			cbpResource.setURI(URI.createFileURI(dummyCbpFileForMeasuringSave.getAbsolutePath()));
 			totalEventCount = changeEvents.size();
 			cbpResource.getChangeEvents().clear();
+			j = 0;
 			for (int i = 0; i < DENOMINATOR; i++) {
 				cbpResource.getChangeEvents().add(changeEvents.get(i));
 				System.gc();
@@ -303,17 +339,16 @@ public class ECMFATest3 {
 				long endTime = System.nanoTime();
 				System.gc();
 				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-				optSaveTime += (endTime - startTime);
-				if ((endMemory - startMemory) < 0) {
-					optSaveMemory += 0;
-				} else {
-					optSaveMemory += (endMemory - startMemory);
+				optSaveTime[j] += (endTime - startTime);
+				optSaveMemory[j] += Math.abs(endMemory - startMemory);
+				if ((i + 1) % (DENOMINATOR / ITERATION) == 0) {
+					optSaveTime[j] = optSaveTime[j] / (DENOMINATOR / ITERATION) / 1000000000.0;
+					optSaveMemory[j] = optSaveMemory[j] / (DENOMINATOR / ITERATION) / 1000000.0;
+					j += 1;
 				}
 			}
 			changeEvents.clear();
 			cbpResource.unload();
-			optSaveTime = optSaveTime / DENOMINATOR / 1000000000.0;
-			optSaveMemory = optSaveMemory / DENOMINATOR / 1000000.0;
 
 			// set measurement values
 			m.setElementCount(elementCount);
@@ -339,61 +374,63 @@ public class ECMFATest3 {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+			// } catch (InterruptedException e) {
+			// e.printStackTrace();
 		}
 		return m;
 	}
 
 	public class Measurement {
-		double optLoadTime = 0;
-		double nonOptLoadTime = 0;
-		double xmiLoadTime = 0;
+		double[] optLoadTime = new double[ITERATION];
+		double[] nonOptLoadTime = new double[ITERATION];
+		double[] xmiLoadTime = new double[ITERATION];
 
-		double optLoadMemory = 0;
-		double nonOptLoadMemory = 0;
-		double xmiLoadMemory = 0;
+		double[] optLoadMemory = new double[ITERATION];
+		double[] nonOptLoadMemory = new double[ITERATION];
+		double[] xmiLoadMemory = new double[ITERATION];
 
-		double nonOpSaveTime = 0;
-		double opSaveTime = 0;
-		double xmiSaveTime = 0;
+		double[] nonOpSaveTime = new double[ITERATION];
+		double[] opSaveTime = new double[ITERATION];
+		double[] xmiSaveTime = new double[ITERATION];
 
-		double nonOpSaveMemory = 0;
-		double opSaveMemory = 0;
-		double xmiSaveMemory = 0;
+		double[] nonOpSaveMemory = new double[ITERATION];
+		double[] opSaveMemory = new double[ITERATION];
+		double[] xmiSaveMemory = new double[ITERATION];
 
 		int elementCount = 0;
 		int ignoredEventCount = 0;
 		int totalEventCount = 0;
 		int sessionCount = 0;
 
-		public double getNonOptSaveTime() {
+		public double[] getNonOptSaveTime() {
 			return nonOpSaveTime;
 		}
 
-		public void setNonOptSaveTime(double nonOpSaveTime) {
+		public void setNonOptSaveTime(double[] nonOpSaveTime) {
 			this.nonOpSaveTime = nonOpSaveTime;
 		}
 
-		public double getOptSaveTime() {
+		public double[] getOptSaveTime() {
 			return opSaveTime;
 		}
 
-		public void setOptSaveTime(double opSaveTime) {
+		public void setOptSaveTime(double[] opSaveTime) {
 			this.opSaveTime = opSaveTime;
 		}
 
-		public double getNonOptSaveMemory() {
+		public double[] getNonOptSaveMemory() {
 			return nonOpSaveMemory;
 		}
 
-		public void setNonOptSaveMemory(double nonOpSaveMemory) {
+		public void setNonOptSaveMemory(double[] nonOpSaveMemory) {
 			this.nonOpSaveMemory = nonOpSaveMemory;
 		}
 
-		public double getOptSaveMemory() {
+		public double[] getOptSaveMemory() {
 			return opSaveMemory;
 		}
 
-		public void setOptSaveMemory(double opSaveMemory) {
+		public void setOptSaveMemory(double[] opSaveMemory) {
 			this.opSaveMemory = opSaveMemory;
 		}
 
@@ -401,35 +438,35 @@ public class ECMFATest3 {
 			return totalEventCount;
 		}
 
-		public double getOptLoadMemory() {
+		public double[] getOptLoadMemory() {
 			return optLoadMemory;
 		}
 
-		public void setOptLoadMemory(double optLoadMemory) {
+		public void setOptLoadMemory(double[] optLoadMemory) {
 			this.optLoadMemory = optLoadMemory;
 		}
 
-		public double getNonOptLoadMemory() {
+		public double[] getNonOptLoadMemory() {
 			return nonOptLoadMemory;
 		}
 
-		public void setNonOptLoadMemory(double nonOptLoadMemory) {
+		public void setNonOptLoadMemory(double[] nonOptLoadMemory) {
 			this.nonOptLoadMemory = nonOptLoadMemory;
 		}
 
-		public double getXmiLoadMemory() {
+		public double[] getXmiLoadMemory() {
 			return xmiLoadMemory;
 		}
 
-		public void setXmiLoadMemory(double xmiLoadMemory) {
+		public void setXmiLoadMemory(double[] xmiLoadMemory) {
 			this.xmiLoadMemory = xmiLoadMemory;
 		}
 
-		public double getXmiSaveMemory() {
+		public double[] getXmiSaveMemory() {
 			return xmiSaveMemory;
 		}
 
-		public void setXmiSaveMemory(double xmiSaveMemory) {
+		public void setXmiSaveMemory(double[] xmiSaveMemory) {
 			this.xmiSaveMemory = xmiSaveMemory;
 		}
 
@@ -441,15 +478,15 @@ public class ECMFATest3 {
 			this.sessionCount = sessionCount;
 		}
 
-		public void setOptLoadTime(double optLoadTime) {
+		public void setOptLoadTime(double[] optLoadTime) {
 			this.optLoadTime = optLoadTime;
 		}
 
-		public void setNonOptLoadTime(double nonOptLoadTime) {
+		public void setNonOptLoadTime(double[] nonOptLoadTime) {
 			this.nonOptLoadTime = nonOptLoadTime;
 		}
 
-		public void setXmiLoadTime(double xmiLoadTime) {
+		public void setXmiLoadTime(double[] xmiLoadTime) {
 			this.xmiLoadTime = xmiLoadTime;
 		}
 
@@ -465,23 +502,23 @@ public class ECMFATest3 {
 			this.totalEventCount = totalEventCount;
 		}
 
-		public void setCbpSaveTime(double cbpSaveTime) {
+		public void setCbpSaveTime(double[] cbpSaveTime) {
 			this.nonOpSaveTime = cbpSaveTime;
 		}
 
-		public void setXmiSaveTime(double xmiSaveTime) {
+		public void setXmiSaveTime(double[] xmiSaveTime) {
 			this.xmiSaveTime = xmiSaveTime;
 		}
 
-		public double getOptLoadTime() {
+		public double[] getOptLoadTime() {
 			return optLoadTime;
 		}
 
-		public double getNonOptLoadTime() {
+		public double[] getNonOptLoadTime() {
 			return nonOptLoadTime;
 		}
 
-		public double getXmiLoadTime() {
+		public double[] getXmiLoadTime() {
 			return xmiLoadTime;
 		}
 
@@ -493,7 +530,7 @@ public class ECMFATest3 {
 			return ignoredEventCount;
 		}
 
-		public double getXmiSaveTime() {
+		public double[] getXmiSaveTime() {
 			return xmiSaveTime;
 		}
 

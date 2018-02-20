@@ -22,9 +22,9 @@ public class GenerateIgnoreListTest {
 		try {
 			UMLPackage.eINSTANCE.eClass();
 			
-			File cbpFile = new File("D:\\TEMP\\ECMFA\\BPMN2.cbpxml");
-			File cbpDummyFile = new File("D:\\TEMP\\ECMFA\\can-be-deleted.cbpxml");
-			File ignoreListFile = new File("D:\\TEMP\\ECMFA\\BPMN2.ignorelist");
+			File cbpFile = new File("D:\\TEMP\\ECMFA\\epsilon.401.cbpxml");
+			File cbpDummyFile = new File("D:\\TEMP\\ECMFA\\_temp.cbpxml");
+			File ignoreListFile = new File("D:\\TEMP\\ECMFA\\epsilon.401.ignorelist");
 			if (ignoreListFile.exists()) {
 				ignoreListFile.delete();
 			}
