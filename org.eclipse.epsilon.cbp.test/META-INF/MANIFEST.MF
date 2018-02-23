@@ -27,6 +27,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.epsilon.emc.emf,
  org.eclipse.emf.compare,
  org.eclipse.epsilon.cbp.test,
- org.eclipse.uml2.types
+ org.eclipse.uml2.types,
+ org.eclipse.gmt.modisco.xml
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.uml2.uml

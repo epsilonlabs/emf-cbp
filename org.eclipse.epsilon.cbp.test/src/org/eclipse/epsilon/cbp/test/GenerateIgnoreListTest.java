@@ -4,13 +4,20 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Map;
+
+import javax.management.modelmbean.ModelMBeanInfoSupport;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
+import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
 
@@ -20,37 +27,36 @@ public class GenerateIgnoreListTest {
 	public void generateIgnoreList() {
 		boolean isSuccess = false;
 		try {
+			System.out.println("Initialise ...");
 			UMLPackage.eINSTANCE.eClass();
+			MoDiscoXMLPackage.eINSTANCE.eClass();
 			
-			File cbpFile = new File("D:\\TEMP\\ECMFA\\epsilon.401.cbpxml");
-			File cbpDummyFile = new File("D:\\TEMP\\ECMFA\\_temp.cbpxml");
-			File ignoreListFile = new File("D:\\TEMP\\ECMFA\\epsilon.401.ignorelist");
+			Map<Object, Object> saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
+			saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+			
+			File cbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.003100.cbpxml");
+			File cbpDummyFile = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.cbpxml");
+			File ignoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\_output.ignoreset");
+			FileOutputStream xmiFile1 = new FileOutputStream("D:\\TEMP\\ECMFA\\cbp\\_temp1.xmi");
+			FileOutputStream xmiFile2 = new FileOutputStream("D:\\TEMP\\ECMFA\\cbp\\_temp2.xmi");
+			
+			
 			if (ignoreListFile.exists()) {
 				ignoreListFile.delete();
 			}
-			System.out.println("Generating ignore list of " + cbpFile.getName() + " ...");
 			
-
+			System.out.println("Generating ignore list of " + cbpFile.getName() + " ...");
 			//CBP Resource 1
 			CBPXMLResourceImpl cbpResource1 = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
 					.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
 			
 			cbpResource1.generateIgnoreListFile(cbpDummyFile, ignoreListFile);
 			
-//			Map<Object, Object> options1 = new HashMap<>();
-//			options1.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
-//			options1.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
-//			cbpResource1.load(options1);
-//			
-//			FileOutputStream cbpDummyOutputStream = new FileOutputStream(cbpDummyFile, false);
-//			cbpResource1.save(cbpDummyOutputStream, null);
-//			FileOutputStream ignoreFileOutputStream = new FileOutputStream(ignoreListFile, false);
-//			cbpResource1.saveIgnoreSet(ignoreFileOutputStream);
-			
 			Resource xmiResource1 = (new XMIResourceFactoryImpl().createResource(URI.createURI("model.xmi")));
 			xmiResource1.getContents().addAll(cbpResource1.getContents());
 			
 			//CBP Resource 2
+			System.out.println("Loading optimised CBP ...");
 			FileInputStream ignoreFileInputStream = new FileInputStream(ignoreListFile);
 			
 			CBPXMLResourceImpl cbpResource2 = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
@@ -62,12 +68,17 @@ public class GenerateIgnoreListTest {
 			xmiResource2.getContents().addAll(cbpResource2.getContents());
 			
 			//Comparison
+			System.out.println("Saving original XMI ...");
 			StringOutputStream outputStream1 = new StringOutputStream();
-			xmiResource1.save(outputStream1, null);
+			xmiResource1.save(outputStream1, saveOptions);
+			xmiResource1.save(xmiFile1, saveOptions);
 			
+			System.out.println("Saving XMI from optimised CBP loading ...");
 			StringOutputStream outputStream2 = new StringOutputStream();
-			xmiResource1.save(outputStream2, null);
+			xmiResource2.save(outputStream2, saveOptions);
+			xmiResource2.save(xmiFile2, saveOptions);
 			
+			System.out.println("Comparing XMIs ...");
 			if (outputStream1.toString().equals(outputStream2.toString())) {
 				System.out.println("SUCCESS!");
 				isSuccess = true;
@@ -88,6 +99,7 @@ public class GenerateIgnoreListTest {
 			xmiResource1.unload();
 			xmiResource2.unload();
 			
+			System.out.println("Finished!");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

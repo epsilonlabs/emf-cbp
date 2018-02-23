@@ -263,6 +263,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 					unsetAttCount++;
 				} else if (feature instanceof EReference) {
 					event = new UnsetEReferenceEvent();
+					event.setValues(n.getOldValue());
 					unsetRefCount++;
 				}
 			}
@@ -297,6 +298,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 						unsetAttCount++;
 					} else if (feature instanceof EReference) {
 						event = new UnsetEReferenceEvent();
+						event.setValues(n.getOldValue());
 						unsetRefCount++;
 					}
 				}

@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.cbp.resource;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -229,8 +230,8 @@ public abstract class CBPResource extends ResourceImpl {
 			intBuffer.get(result);
 			ignoreSet.clear();
 			ignoreList.clear();
-			for (int x = 0; x < result.length; x++)
-				ignoreList.add(x);
+			for (int i = 0; i < result.length; i++)
+				ignoreList.add(result[i]);
 			ignoreSet = new HashSet<>(ignoreList);
 		} else {
 			DataInputStream dis = new DataInputStream(new BufferedInputStream(inputStream));
@@ -245,8 +246,9 @@ public abstract class CBPResource extends ResourceImpl {
 			ignoreList = new ArrayList<>(ignoreSet);
 		}
 
-		//// Old way to read ignore list => slow
-		// DataInputStream dis = new DataInputStream(inputStream);
+		// Old way to read ignore list => slow
+		// DataInputStream dis = new DataInputStream(new
+		// BufferedInputStream(inputStream));
 		// ignoreSet.clear();
 		// ignoreList.clear();
 		// while (dis.available() > 0) {
@@ -270,7 +272,7 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 
 	public void saveIgnoreSet(FileOutputStream outputStream) throws IOException {
-		DataOutputStream dos = new DataOutputStream(outputStream);
+		DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(outputStream));
 		// for (int item : ignoreList.subList(persistedIgnoredEvents,
 		// ignoreList.size())) {
 		// dos.writeInt(item);

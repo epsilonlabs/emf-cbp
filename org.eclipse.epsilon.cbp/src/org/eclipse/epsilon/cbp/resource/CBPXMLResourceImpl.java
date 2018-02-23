@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.cbp.resource;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -173,7 +175,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 			// getChangeEvents().size())) {
 			for (ChangeEvent<?> event : getChangeEvents().subList(0, getChangeEvents().size())) {
 
-				// System.out.println(eventNumber);
+				if (eventNumber % 100000 == 0)
+					System.out.println(eventNumber);
 
 				Document document = documentBuilder.newDocument();
 				Element e = null;
@@ -235,13 +238,15 @@ public class CBPXMLResourceImpl extends CBPResource {
 				} else if (event instanceof SetEReferenceEvent) {
 					e = document.createElement("set-ereference");
 					EObject eObject = ((SetEReferenceEvent) event).getTarget();
+					EObject value = ((SetEReferenceEvent) event).getValue();
 					if (optimised == true)
-						modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
+						modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 				} else if (event instanceof UnsetEReferenceEvent) {
 					e = document.createElement("unset-ereference");
 					EObject eObject = ((UnsetEReferenceEvent) event).getTarget();
+					EObject value = ((UnsetEReferenceEvent) event).getValue();
 					if (optimised == true)
-						modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
+						modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 				} else if (event instanceof UnsetEAttributeEvent) {
 					e = document.createElement("unset-eattribute");
 					EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
@@ -567,7 +572,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
 						if (ignore == false) {
+							
 							event.replay();
+
+							if (eventNumber % 100000 == 0)
+								System.out.println(eventNumber);
+
 							if (repopulateModelHistory == true) {
 								repopulateModelHistory(event, eventNumber);
 							}
@@ -753,11 +763,16 @@ public class CBPXMLResourceImpl extends CBPResource {
 		Map<Object, Object> options1 = new HashMap<>();
 		options1.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
 		options1.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
-		options1.put(CBPXMLResourceImpl.OPTION_REPOPULATE_MODEL_HISTORY, true);
+		// options1.put(CBPXMLResourceImpl.OPTION_REPOPULATE_MODEL_HISTORY,
+		// true);
+		System.out.println("Loading CBP ...");
 		this.load(options1);
 
+		System.out.println("Saving CBP to a temporary file ...");
 		FileOutputStream cbpDummyOutputStream = new FileOutputStream(cbpDummyFile, false);
-		this.save(cbpDummyOutputStream, null);
+		this.save(new BufferedOutputStream(cbpDummyOutputStream), null);
+		// System.out.println(this.getIgnoreSet());
+		System.out.println("Saving ignore set ...");
 		FileOutputStream ignoreFileOutputStream = new FileOutputStream(ignoreListFile, false);
 		this.saveIgnoreSet(ignoreFileOutputStream);
 	}
@@ -797,10 +812,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 		} else if (event instanceof SetEReferenceEvent) {
 			EObject eObject = ((SetEReferenceEvent) event).getTarget();
-			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
+			EObject value = ((SetEReferenceEvent) event).getValue();
+			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof UnsetEReferenceEvent) {
 			EObject eObject = ((UnsetEReferenceEvent) event).getTarget();
-			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
+			EObject value = ((UnsetEReferenceEvent) event).getValue();
+			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof UnsetEAttributeEvent) {
 			EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
