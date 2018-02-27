@@ -42,6 +42,7 @@ public class DeleteEObjectEvent extends ChangeEvent<EObject> {
 		this.setValue(eObject);
 		//EcoreUtil.remove(eObject);
 		EcoreUtil.delete(eObject);
+		resource.geteObjectToIdMap().remove(eObject);
 		//resource.unregister(eObject);
 //		resource.detached(eObject);
 	}

@@ -61,6 +61,10 @@ public abstract class CBPResource extends ResourceImpl {
 		this.eObjectToIdMap = HashBiMap.create();
 	}
 
+	public BiMap<EObject, String> geteObjectToIdMap() {
+		return eObjectToIdMap;
+	}
+
 	public ChangeEventAdapter getChangeEventAdapter() {
 		return changeEventAdapter;
 	}
@@ -168,6 +172,7 @@ public abstract class CBPResource extends ResourceImpl {
 		getChangeEvents().clear();
 		getModelHistory().clear();
 		clearIgnoreSet();
+		eObjectToIdMap.clear();
 		super.doUnload();
 	}
 
@@ -273,13 +278,10 @@ public abstract class CBPResource extends ResourceImpl {
 
 	public void saveIgnoreSet(FileOutputStream outputStream) throws IOException {
 		DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(outputStream));
-		// for (int item : ignoreList.subList(persistedIgnoredEvents,
-		// ignoreList.size())) {
-		// dos.writeInt(item);
-		// }
 		for (int item : ignoreList.subList(persistedIgnoredEvents, ignoreList.size())) {
 			dos.writeInt(item);
 		}
+
 		dos.flush();
 		dos.close();
 		clearIgnoreSet();

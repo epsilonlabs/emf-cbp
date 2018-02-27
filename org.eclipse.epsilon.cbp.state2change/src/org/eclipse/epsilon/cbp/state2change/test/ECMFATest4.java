@@ -196,7 +196,7 @@ public class ECMFATest4 {
 			System.gc();
 			long a1 = System.nanoTime();
 			Map<Object, Object> options = new HashMap<>();
-			options.put(CBPXMLResourceImpl.OPTION_REPOPULATE_MODEL_HISTORY, true);
+			options.put(CBPXMLResourceImpl.OPTION_GENERATE_MODEL_HISTORY, true);
 			resource1.loadIgnoreSet(new FileInputStream(ignoreFile));
 			resource1.load(options);
 			long a2 = System.nanoTime();

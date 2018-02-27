@@ -2,19 +2,24 @@ package org.eclipse.epsilon.cbp.resource;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.SequenceInputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -65,7 +70,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 	public static final String OPTION_OPTIMISE_LOAD = "optimise";
 	public static final String OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD = "OPTION_CLEAR_CHANGE_EVENTS_AFTER_LOAD";
-	public static final String OPTION_REPOPULATE_MODEL_HISTORY = "OPTION_REPOPULATE_MODEL_HISTORY";
+	public static final String OPTION_GENERATE_MODEL_HISTORY = "OPTION_REPOPULATE_MODEL_HISTORY";
 
 	protected int setAttCount = 0;
 	protected int unsetAttCount = 0;
@@ -144,6 +149,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 	protected int persistedEvents = 0;
 	private long beforeEvent;
+	private boolean repopulateModelHistory;
+	private boolean keepChangeEventsAfterLoad;
+	private boolean optimised;
 
 	public CBPXMLResourceImpl() {
 		super();
@@ -175,8 +183,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 			// getChangeEvents().size())) {
 			for (ChangeEvent<?> event : getChangeEvents().subList(0, getChangeEvents().size())) {
 
-				if (eventNumber % 100000 == 0)
-					System.out.println(eventNumber);
+//				 if (eventNumber % 100000 == 0)
+//				 System.out.println(eventNumber);
 
 				Document document = documentBuilder.newDocument();
 				Element e = null;
@@ -315,6 +323,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				StreamResult result = new StreamResult(out);
 				transformer.transform(source, result);
 				out.write(System.getProperty("line.separator").getBytes());
+				out.flush();
 
 				eventNumber += 1;
 			}
@@ -328,6 +337,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 			ex.printStackTrace();
 			throw new IOException(ex);
 		}
+	}
+
+	public void loadAdditionalEvents(InputStream inputStream) throws IOException {
+		changeEventAdapter.setEnabled(false);
+		this.replayEvents(inputStream);
+		changeEventAdapter.setEnabled(true);
 	}
 
 	@Override
@@ -384,15 +399,15 @@ public class CBPXMLResourceImpl extends CBPResource {
 		sessionSum = 0;
 		createSum = 0;
 
-		boolean optimised = true;
-		boolean keepChangeEventsAfterLoad = false;
-		boolean repopulateModelHistory = false;
+		optimised = true;
+		keepChangeEventsAfterLoad = false;
+		repopulateModelHistory = false;
 
 		if (options != null && options.containsKey(OPTION_OPTIMISE_LOAD)) {
 			optimised = (Boolean) options.get(OPTION_OPTIMISE_LOAD);
 		}
-		if (options != null && options.containsKey(OPTION_REPOPULATE_MODEL_HISTORY)) {
-			repopulateModelHistory = (Boolean) options.get(OPTION_REPOPULATE_MODEL_HISTORY);
+		if (options != null && options.containsKey(OPTION_GENERATE_MODEL_HISTORY)) {
+			repopulateModelHistory = (Boolean) options.get(OPTION_GENERATE_MODEL_HISTORY);
 		}
 		if (options != null && options.containsKey(OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD)) {
 			keepChangeEventsAfterLoad = (Boolean) options.get(OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD);
@@ -402,19 +417,38 @@ public class CBPXMLResourceImpl extends CBPResource {
 		eObjectToIdMap.clear();
 		getChangeEvents().clear();
 		modelHistory.clear();
+		persistedEvents = 0;
 
+		replayEvents(inputStream);
+
+		changeEventAdapter.setEnabled(true);
+		this.clearIgnoreSet();
+	}
+
+	/**
+	 * @param inputStream
+	 * @throws FactoryConfigurationError
+	 * @throws IOException
+	 */
+	private void replayEvents(InputStream inputStream) throws FactoryConfigurationError, IOException {
 		String errorMessage = null;
 
-		int eventNumber = 0;
+		int eventNumber = persistedEvents;
 		try {
+			InputStream stream = new ByteArrayInputStream(new byte[0]);
+
+			ByteArrayInputStream header = new ByteArrayInputStream(
+					"<?xml version='1.0' encoding='ISO-8859-1' ?>".getBytes());
 			ByteArrayInputStream begin = new ByteArrayInputStream("<m>".getBytes());
 			ByteArrayInputStream end = new ByteArrayInputStream("</m>".getBytes());
-			InputStream stream = new SequenceInputStream(begin, inputStream);
+			stream = new SequenceInputStream(stream, header);
+			stream = new SequenceInputStream(stream, begin);
+			stream = new SequenceInputStream(stream, inputStream);
 			stream = new SequenceInputStream(stream, end);
-
+			
 			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 			XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
-
+			
 			ChangeEvent<?> event = null;
 			boolean ignore = false;
 
@@ -572,11 +606,11 @@ public class CBPXMLResourceImpl extends CBPResource {
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
 						if (ignore == false) {
-							
+
 							event.replay();
 
-							if (eventNumber % 100000 == 0)
-								System.out.println(eventNumber);
+//							 if (eventNumber % 100000 == 0)
+//							 System.out.println(eventNumber);
 
 							if (repopulateModelHistory == true) {
 								repopulateModelHistory(event, eventNumber);
@@ -680,20 +714,26 @@ public class CBPXMLResourceImpl extends CBPResource {
 					}
 				}
 			}
-
+			begin.close();
+			end.close();
+			inputStream.close();
+			stream.close();
+			xmlReader.close();
+			
 			// persistedEvents = getChangeEvents().size();
 			if (keepChangeEventsAfterLoad == true) {
-				persistedEvents = 0;
+				if (eventNumber > 0) {
+					persistedEvents = eventNumber - 1;
+				}
 			} else {
 				persistedEvents = eventNumber;
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			System.out.println("Error: " + eventNumber + " : " + errorMessage);
-			throw new IOException("Error: " + eventNumber + " : " + errorMessage + "\n" + ex.toString() + "\n");
+			System.out.println("Error: Event Number " + eventNumber + " : " + errorMessage);
+			throw new IOException(
+					"Error: Event Number " + eventNumber + " : " + errorMessage + "\n" + ex.toString() + "\n");
 		}
-
-		changeEventAdapter.setEnabled(true);
 	}
 
 	protected ChangeEvent<?> buildEvent(Element e, String name) {
@@ -749,8 +789,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 		super.doUnload();
 	}
 
-	public void generateIgnoreListFile(File cbpDummyFile, File ignoreListFile) throws IOException {
-
+	public void generateIgnoreListFile(File cbpFile, File cbpDummyFile, File ignoreListFile) throws IOException {
+		System.out.println("Start: " + (new Date()).toString());
 		if (cbpDummyFile.exists())
 			cbpDummyFile.delete();
 		if (ignoreListFile.exists())
@@ -762,19 +802,42 @@ public class CBPXMLResourceImpl extends CBPResource {
 
 		Map<Object, Object> options1 = new HashMap<>();
 		options1.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
-		options1.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
-		// options1.put(CBPXMLResourceImpl.OPTION_REPOPULATE_MODEL_HISTORY,
-		// true);
+		options1.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, false);
+		options1.put(CBPXMLResourceImpl.OPTION_GENERATE_MODEL_HISTORY, true);
 		System.out.println("Loading CBP ...");
-		this.load(options1);
 
-		System.out.println("Saving CBP to a temporary file ...");
-		FileOutputStream cbpDummyOutputStream = new FileOutputStream(cbpDummyFile, false);
-		this.save(new BufferedOutputStream(cbpDummyOutputStream), null);
-		// System.out.println(this.getIgnoreSet());
-		System.out.println("Saving ignore set ...");
+		this.load(options1);
+//		this.getModelHistory().printStructure();
+		
+		
+//		ByteArrayInputStream dummyInputStream = new ByteArrayInputStream(new byte[0]);
+//		this.load(dummyInputStream, options1);
+//
+//		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(cbpFile), "ISO-8859-1"));
+//		String strLine;
+//		int line = 0;
+//		while ((strLine = br.readLine()) != null) {
+//			// System.gc();
+//			 if (line % 100000 == 0) {
+////				 System.gc();
+//				 System.out.println(line);
+//			 }
+//			// System.out.println(this.ignoreSet.size());
+//			// System.out.println("line: " + line);
+//			this.loadAdditionalEvents(new ByteArrayInputStream(strLine.getBytes()));
+//
+////			FileOutputStream cbpDummyOutputStream = new FileOutputStream(cbpDummyFile, true);
+////			this.save(new BufferedOutputStream(cbpDummyOutputStream), null);
+////			cbpDummyOutputStream.close();
+//
+//			line += 1;
+//		}
+//		br.close();
+
 		FileOutputStream ignoreFileOutputStream = new FileOutputStream(ignoreListFile, false);
 		this.saveIgnoreSet(ignoreFileOutputStream);
+
+		System.out.println("End: " + (new Date()).toString());
 	}
 
 	protected Object getLiteralValue(EObject eObject, EStructuralFeature eStructuralFeature, Element e) {

@@ -580,12 +580,6 @@ public class ModelHistory extends ObjectHistory {
 					EventHistory eventHistory = objectHistory.getEventHistoryMap().get(eventName);
 					eventHistory.add(new Line(eventNumber));
 
-					String id = resource.getEObjectId(value);
-					if (id.equals("916")) {
-						ObjectHistory oh = objectHistoryMap.get(value);
-						List<Line> lines = oh.getEventHistoryMap().get(eventName);
-						int b = 1;
-					}
 				}
 			}
 		}
@@ -873,13 +867,6 @@ public class ModelHistory extends ObjectHistory {
 		ObjectHistory eObjectHistory = objectHistoryMap.get(eObject);
 		if (eObjectHistory != null) {
 			eObjectHistory.addEventLine(event, eventNumber);
-
-			if (eventNumber == 191874) {
-				EObject x = resource.getEObject("916");
-				ObjectHistory oh = objectHistoryMap.get(eObject);
-				List<Line> lines = oh.getEventHistoryMap().get(SetEReferenceEvent.class.getSimpleName());
-				int b = 1;
-			}
 
 			if (eObjectHistory.isMoved() == false) {
 				ObjectHistory deletedEObjectHistory = objectHistoryMap.get(eObject);
