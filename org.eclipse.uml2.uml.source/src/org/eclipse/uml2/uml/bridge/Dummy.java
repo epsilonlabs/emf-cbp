@@ -22,6 +22,18 @@ public class Dummy extends EModelElementImpl implements Element {
 	}
 
 	@Override
+	public EList<EAnnotation> getEAnnotations() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EAnnotation getEAnnotation(String source) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public EList<Element> getOwnedElements() {
 		// TODO Auto-generated method stub
 		return null;
@@ -260,4 +272,6 @@ public class Dummy extends EModelElementImpl implements Element {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	
 }

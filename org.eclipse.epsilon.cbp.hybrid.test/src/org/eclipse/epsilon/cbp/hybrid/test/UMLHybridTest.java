@@ -16,14 +16,12 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.epsilon.cbp.hybrid.HybridResource;
+import org.eclipse.epsilon.cbp.hybrid.HybridNeoEMFResourceImpl;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
-
-
 
 import fr.inria.atlanmod.neoemf.data.PersistenceBackendFactoryRegistry;
 import fr.inria.atlanmod.neoemf.data.blueprints.BlueprintsPersistenceBackendFactory;
@@ -43,7 +41,7 @@ public class UMLHybridTest {
 			UMLFactory umlFactory = UMLFactory.eINSTANCE;
 			Model dummyModel = umlFactory.createModel();
 			dummyModel.setName("Dummy");
-//			System.out.println(dummyModel.id());
+			// System.out.println(dummyModel.id());
 
 			// files
 			File databaseFile = new File("databases/import-uml.graphdb");
@@ -72,7 +70,7 @@ public class UMLHybridTest {
 			FileOutputStream outputStream = new FileOutputStream(cbpFile, true);
 
 			// PersistentResource hybridResource = persistentResource;
-			HybridResource hybridResource = new HybridResource(persistentResource, outputStream);
+			HybridNeoEMFResourceImpl hybridResource = new HybridNeoEMFResourceImpl(persistentResource, outputStream);
 
 			Map<String, Object> saveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().weakCache().autocommit()
 					.asMap();
@@ -108,8 +106,7 @@ public class UMLHybridTest {
 			xmiResource.unload();
 			hybridResource.unload();
 			hybridResource.close();
-			
-			
+
 			assertEquals(true, true);
 
 		} catch (Exception ex) {

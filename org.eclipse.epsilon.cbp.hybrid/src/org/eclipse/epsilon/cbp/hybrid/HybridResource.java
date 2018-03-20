@@ -1,13 +1,24 @@
 package org.eclipse.epsilon.cbp.hybrid;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Iterator;
+import java.io.SequenceInputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -18,24 +29,16 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.ETypedElement;
-import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.InternalEObject.EStore;
-import org.eclipse.emf.ecore.impl.EClassifierImpl;
-import org.eclipse.emf.ecore.impl.EReferenceImpl;
-import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
-import org.eclipse.emf.ecore.impl.EStoreEObjectImpl.EStoreEList;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
-import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
-import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
-import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
@@ -46,136 +49,258 @@ import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
+import org.eclipse.epsilon.hybrid.event.CreateEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.DeleteEObjectEvent;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
-import fr.inria.atlanmod.neoemf.core.PersistentEObject;
-import fr.inria.atlanmod.neoemf.resource.DefaultPersistentResource;
-import fr.inria.atlanmod.neoemf.resource.PersistentResource;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
-public class HybridResource extends ResourceImpl implements PersistentResource {
+public abstract class HybridResource extends ResourceImpl {
+
+	protected int sessionCount = 1;
 
 	protected int persistedEvents = 0;
+	protected int idCounter = 0;
 
-	private PersistentResource neoPersistentResource;
-	private HybridChangeEventAdapter neoChangeEventAdapter;
-	private EStoreEList eStoreEList;
-	private DefaultPersistentEObject rootObject;
-	private OutputStream outputStream;
-	private static final ResourceContentsEStructuralFeature ROOT_CONTENTS_ESTRUCTURALFEATURE = new ResourceContentsEStructuralFeature();
+	protected Resource stateBasedResource;
+	protected OutputStream cbpOutputStream;
+	protected HybridChangeEventAdapter hybridChangeEventAdapter;
+	protected BiMap<EObject, String> eObjectToIdMap;
+	protected Map<EObject, String> deletedEObjectToIdMap;
 
-	public PersistentResource getPersistentResource() {
-		return neoPersistentResource;
-	}
-
-	public HybridResource(PersistentResource persistentResource, OutputStream outputStream) {
-		super(persistentResource.getURI());
-		this.neoPersistentResource =  persistentResource;
-		this.uri = persistentResource.getURI();
-		this.outputStream = outputStream;
-
-		neoChangeEventAdapter = new HybridChangeEventAdapter(neoPersistentResource);
-
-		rootObject = (DefaultPersistentEObject) ((EStoreEList) this.neoPersistentResource.getContents()).getEObject();
-
-		neoPersistentResource.eSetDeliver(true);
-		neoPersistentResource.eAdapters().add(neoChangeEventAdapter);
-
-		rootObject.eSetDeliver(true);
-		rootObject.eAdapters().add(neoChangeEventAdapter);
+	public HybridResource() {
+		this(null);
 	}
 
 	public HybridResource(URI uri) {
 		super(uri);
+		this.eObjectToIdMap = HashBiMap.create();
+		this.deletedEObjectToIdMap = new HashMap<>();
 	}
 
-	public HybridResource(URI uri, PersistentResource persistenceResource) {
-		super(uri);
-		this.neoPersistentResource = persistenceResource;
+	public Resource getStateBasedResource() {
+		return stateBasedResource;
 	}
 
-	@Override
-	public String getURIFragment(EObject eObject) {
-		String id = null;
-		if (eObject instanceof PersistentEObject) {
-			id = ((PersistentEObject) eObject).id().toString();
-		} else {
-			id = neoPersistentResource.getURIFragment(eObject);
+	public void loadFromCBP(InputStream inputStream) throws FactoryConfigurationError, IOException {
+		hybridChangeEventAdapter.setEnabled(false);
+		deletedEObjectToIdMap.clear();
+		eObjectToIdMap.clear();
+		getChangeEvents().clear();
+		persistedEvents = 0;
+		replayEvents(inputStream);
+		// TreeIterator<EObject> iterator = this.getAllContents();
+		// while (iterator.hasNext()) {
+		// EObject eObject = iterator.next();
+		// String id = eObjectToIdMap.get(eObject);
+		// ((XMIResourceImpl) stateBasedResource).setID(eObject, id);
+		// }
+		hybridChangeEventAdapter.setEnabled(true);
+	}
+
+	public void loadAndReplayEvents(InputStream inputStream) throws IOException {
+		hybridChangeEventAdapter.setEnabled(false);
+		this.replayEvents(inputStream);
+		hybridChangeEventAdapter.setEnabled(true);
+	}
+
+	private void replayEvents(InputStream inputStream) throws FactoryConfigurationError, IOException {
+		String errorMessage = null;
+		int eventNumber = persistedEvents;
+		try {
+			InputStream stream = new ByteArrayInputStream(new byte[0]);
+
+			ByteArrayInputStream header = new ByteArrayInputStream(
+					"<?xml version='1.0' encoding='ISO-8859-1' ?>".getBytes());
+			ByteArrayInputStream begin = new ByteArrayInputStream("<m>".getBytes());
+			ByteArrayInputStream end = new ByteArrayInputStream("</m>".getBytes());
+			stream = new SequenceInputStream(stream, header);
+			stream = new SequenceInputStream(stream, begin);
+			stream = new SequenceInputStream(stream, inputStream);
+			stream = new SequenceInputStream(stream, end);
+
+			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+			XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
+
+			ChangeEvent<?> event = null;
+
+			while (xmlReader.hasNext()) {
+				XMLEvent xmlEvent = xmlReader.nextEvent();
+				if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
+					StartElement e = xmlEvent.asStartElement();
+					String name = e.getName().getLocalPart();
+
+					if (name.equals("m")) {
+						continue;
+					}
+
+					if (!name.equals("value")) {
+
+						errorMessage = name;
+						switch (name) {
+						case "session": {
+							sessionCount += 1;
+							String sessionId = e.getAttributeByName(new QName("id")).getValue();
+							String time = e.getAttributeByName(new QName("time")).getValue();
+							event = new StartNewSessionEvent(sessionId, time);
+						}
+							break;
+						case "register": {
+							String packageName = e.getAttributeByName(new QName("epackage")).getValue();
+							errorMessage = errorMessage + ", package: " + packageName;
+							EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
+							event = new RegisterEPackageEvent(ePackage, hybridChangeEventAdapter);
+						}
+							break;
+						case "create": {
+							String packageName = e.getAttributeByName(new QName("epackage")).getValue();
+							String className = e.getAttributeByName(new QName("eclass")).getValue();
+							String id = e.getAttributeByName(new QName("id")).getValue();
+							errorMessage = errorMessage + ", package: " + packageName + ", class: " + className
+									+ ", id: " + id;
+							EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
+							EClass eClass = (EClass) ePackage.getEClassifier(className);
+							event = new CreateEObjectEvent(eClass, this, id);
+
+						}
+							break;
+						case "add-to-resource":
+							event = new AddToResourceEvent();
+							break;
+						case "remove-from-resource":
+							event = new RemoveFromResourceEvent();
+							break;
+						case "add-to-ereference":
+							event = new AddToEReferenceEvent();
+							break;
+						case "remove-from-ereference":
+							event = new RemoveFromEReferenceEvent();
+							break;
+						case "set-eattribute":
+							event = new SetEAttributeEvent();
+							break;
+						case "set-ereference":
+							event = new SetEReferenceEvent();
+							break;
+						case "unset-eattribute":
+							event = new UnsetEAttributeEvent();
+							break;
+						case "unset-ereference":
+							event = new UnsetEReferenceEvent();
+							break;
+						case "add-to-eattribute":
+							event = new AddToEAttributeEvent();
+							break;
+						case "remove-from-eattribute":
+							event = new RemoveFromEAttributeEvent();
+							break;
+						case "move-in-eattribute":
+							event = new MoveWithinEAttributeEvent();
+							break;
+						case "move-in-ereference":
+							event = new MoveWithinEReferenceEvent();
+							break;
+						case "delete": {
+							String packageName = e.getAttributeByName(new QName("epackage")).getValue();
+							String className = e.getAttributeByName(new QName("eclass")).getValue();
+							String id = e.getAttributeByName(new QName("id")).getValue();
+							errorMessage = errorMessage + ", package: " + packageName + ", class: " + className
+									+ ", id: " + id;
+							EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
+							EClass eClass = (EClass) ePackage.getEClassifier(className);
+							event = new DeleteEObjectEvent(eClass, this, id);
+
+						}
+							break;
+						}
+
+						if (event instanceof EStructuralFeatureEvent<?>) {
+							String sTarget = e.getAttributeByName(new QName("target")).getValue();
+							String sName = e.getAttributeByName(new QName("name")).getValue();
+							errorMessage = errorMessage + ", target: " + sTarget + ", name: " + sName;
+							EObject target = getEObject(sTarget);
+							EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(sName);
+							((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
+							((EStructuralFeatureEvent<?>) event).setTarget(target);
+						} else if (event instanceof ResourceEvent) {
+							((ResourceEvent) event).setResource(this);
+						}
+
+						if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent
+								|| event instanceof AddToResourceEvent) {
+							String sPosition = e.getAttributeByName(new QName("position")).getValue();
+							errorMessage = errorMessage + ", target: " + sPosition;
+							event.setPosition(Integer.parseInt(sPosition));
+						}
+						if (event instanceof FromPositionEvent) {
+							String sTo = e.getAttributeByName(new QName("to")).getValue();
+							errorMessage = errorMessage + ", to: " + sTo;
+							String sFrom = e.getAttributeByName(new QName("from")).getValue();
+							errorMessage = errorMessage + ", from: " + sFrom;
+							event.setPosition(Integer.parseInt(sTo));
+							((FromPositionEvent) event).setFromPosition(Integer.parseInt(sFrom));
+						}
+
+					} else if (name.equals("value")) {
+
+						if (event instanceof EObjectValuesEvent) {
+							EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
+							String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+							errorMessage = errorMessage + ", value: " + seobject;
+							EObject eob = resolveXRef(seobject);
+							valuesEvent.getValues().add(eob);
+						} else if (event instanceof EAttributeEvent) {
+							EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
+							String sliteral = e.getAttributeByName(new QName("literal")).getValue();
+							errorMessage = errorMessage + ", value: " + sliteral;
+							EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature().getEType());
+							Object value = eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType,
+									sliteral);
+							eAttributeEvent.getValues().add(value);
+						}
+
+					}
+				}
+				if (xmlEvent.getEventType() == XMLStreamConstants.END_ELEMENT) {
+					EndElement ee = xmlEvent.asEndElement();
+					String name = ee.getName().getLocalPart();
+					if (event != null && !name.equals("value") && !name.equals("m")) {
+						
+						if (eventNumber == 147764) {
+							System.out.println("");
+						}
+						
+						event.replay();
+						errorMessage = "";
+						eventNumber += 1;
+					}
+				}
+			}
+			begin.close();
+			end.close();
+			inputStream.close();
+			stream.close();
+			xmlReader.close();
+
+			persistedEvents = eventNumber;
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.out.println("Error: Event Number " + eventNumber + " : " + errorMessage);
+			throw new IOException(
+					"Error: Event Number " + eventNumber + " : " + errorMessage + "\n" + ex.toString() + "\n");
 		}
-		return id;
 	}
 
-	@Override
-	public void save(Map<?, ?> options) throws IOException {
-		neoPersistentResource.save(options);
-		saveChangeBasedPersistence(outputStream, options);
-	}
-
-	@Override
-	public void load(Map<?, ?> options) throws IOException {
-		neoPersistentResource.load(options);
-		
-//		eStoreEList = (EStoreEList) neoPersistentResource.getContents();
-//		rootObject = (DefaultPersistentEObject) eStoreEList.getEObject();
-
-		neoPersistentResource.eSetDeliver(true);
-		neoPersistentResource.eAdapters().add(neoChangeEventAdapter);
-
-//		rootObject.eSetDeliver(true);
-//		rootObject.eAdapters().add(neoChangeEventAdapter);
-	}
-
-	@Override
-	public EList<EObject> getContents() {
-		// return this.persistentResource.getContents();
-		EList<EObject> list = new HybridResourceContentsEStoreEList(rootObject, ROOT_CONTENTS_ESTRUCTURALFEATURE,
-				this.neoPersistentResource.eStore());
-		return list;
-	}
-
-	@Override
-	public void close() {
-		this.neoPersistentResource.close();
-
-	}
-
-	@Override
-	public EStore eStore() {
-		return this.neoPersistentResource.eStore();
-	}
-
-	@Override
-	public EList<EObject> getAllInstances(EClass arg0) {
-		return this.neoPersistentResource.getAllInstances(arg0);
-	}
-
-	@Override
-	public EList<EObject> getAllInstances(EClass arg0, boolean arg1) {
-		return this.neoPersistentResource.getAllInstances(arg0, arg1);
-	}
-
-	@Override
-	protected void doUnload() {
-		neoPersistentResource.unload();
-	}
-
-	@Override
-	public TreeIterator<EObject> getAllContents() {
-		return neoPersistentResource.getAllContents();
-	}
-
-	private void saveChangeBasedPersistence(OutputStream outputStream, Map<?, ?> options) throws IOException {
-
-		boolean optimised = true;
-		if (options != null && options.containsKey("optimise")) {
-			optimised = (Boolean) options.get("optimise");
-		}
+	public void saveChangeBasedPersistence(OutputStream outputStream, Map<?, ?> options) throws IOException {
 
 		try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -186,8 +311,8 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 			//// alfa
 			int eventNumber = persistedEvents;
 
-			for (ChangeEvent<?> event : neoChangeEventAdapter.getChangeEvents().subList(0,
-					neoChangeEventAdapter.getChangeEvents().size())) {
+			for (ChangeEvent<?> event : hybridChangeEventAdapter.getChangeEvents().subList(0,
+					hybridChangeEventAdapter.getChangeEvents().size())) {
 
 				Document document = documentBuilder.newDocument();
 				Element e = null;
@@ -201,114 +326,51 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 					RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
 					e = document.createElement("register");
 					e.setAttribute("epackage", r.getEPackage().getNsURI());
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(r.getEPackage(), event,
-					// eventNumber);
 				} else if (event instanceof CreateEObjectEvent) {
 					e = document.createElement("create");
 					e.setAttribute("epackage", ((CreateEObjectEvent) event).getEClass().getEPackage().getNsURI());
 					e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
 					e.setAttribute("id", ((CreateEObjectEvent) event).getId());
-					EObject eObject = ((CreateEObjectEvent) event).getValue();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
 				} else if (event instanceof DeleteEObjectEvent) {
 					e = document.createElement("delete");
 					e.setAttribute("epackage", ((DeleteEObjectEvent) event).getEClass().getEPackage().getNsURI());
 					e.setAttribute("eclass", ((DeleteEObjectEvent) event).getEClass().getName());
-					EObject eObject = ((DeleteEObjectEvent) event).getValue();
-					e.setAttribute("id", getURIFragment(eObject));
-					System.out.println();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
+					e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
+					// EObject eObject = ((DeleteEObjectEvent)
+					// event).getValue();
+					// e.setAttribute("id", getURIFragment(eObject));
 				} else if (event instanceof AddToResourceEvent) {
 					e = document.createElement("add-to-resource");
-					EObject eObject = ((AddToResourceEvent) event).getValue();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
 				} else if (event instanceof RemoveFromResourceEvent) {
 					e = document.createElement("remove-from-resource");
-					EObject eObject = ((RemoveFromResourceEvent) event).getValue();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
 				} else if (event instanceof AddToEReferenceEvent) {
 					e = document.createElement("add-to-ereference");
-					EObject eObject = ((AddToEReferenceEvent) event).getTarget();
-					EObject value = ((AddToEReferenceEvent) event).getValue();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber, value);
 				} else if (event instanceof RemoveFromEReferenceEvent) {
 					e = document.createElement("remove-from-ereference");
-					EObject eObject = ((RemoveFromEReferenceEvent) event).getTarget();
-					EObject value = ((RemoveFromEReferenceEvent) event).getValue();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber, value);
 				} else if (event instanceof SetEAttributeEvent) {
 					e = document.createElement("set-eattribute");
-					EObject eObject = ((SetEAttributeEvent) event).getTarget();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
 				} else if (event instanceof SetEReferenceEvent) {
 					e = document.createElement("set-ereference");
-					EObject eObject = ((SetEReferenceEvent) event).getTarget();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
 				} else if (event instanceof UnsetEReferenceEvent) {
 					e = document.createElement("unset-ereference");
-					EObject eObject = ((UnsetEReferenceEvent) event).getTarget();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
 				} else if (event instanceof UnsetEAttributeEvent) {
 					e = document.createElement("unset-eattribute");
-					EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber);
 				} else if (event instanceof AddToEAttributeEvent) {
 					e = document.createElement("add-to-eattribute");
-					EObject eObject = ((AddToEAttributeEvent) event).getTarget();
-					Object value = ((AddToEAttributeEvent) event).getValue();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber, value);
 				} else if (event instanceof RemoveFromEAttributeEvent) {
 					e = document.createElement("remove-from-eattribute");
-					EObject eObject = ((RemoveFromEAttributeEvent) event).getTarget();
-					Object value = ((RemoveFromEAttributeEvent) event).getValue();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber, value);
 				} else if (event instanceof MoveWithinEReferenceEvent) {
 					e = document.createElement("move-in-ereference");
-					EObject eObject = ((MoveWithinEReferenceEvent) event).getTarget();
-					Object values = ((MoveWithinEReferenceEvent) event).getValues();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber, values);
 				} else if (event instanceof MoveWithinEAttributeEvent) {
 					e = document.createElement("move-in-eattribute");
-					EObject eObject = ((MoveWithinEAttributeEvent) event).getTarget();
-					Object values = ((MoveWithinEAttributeEvent) event).getValues();
-					// if (optimised == true)
-					// modelHistory.addObjectHistoryLine(eObject, event,
-					// eventNumber, values);
 				} else {
 					throw new RuntimeException("Unexpected event:" + event);
 				}
 
 				if (event instanceof EStructuralFeatureEvent<?>) {
-					if (((EStructuralFeatureEvent<?>) event).getEStructuralFeature()!= null){
+					if (((EStructuralFeatureEvent<?>) event).getEStructuralFeature() != null) {
 						e.setAttribute("name", ((EStructuralFeatureEvent<?>) event).getEStructuralFeature().getName());
-					}else {
+					} else {
 						e.setAttribute("name", null);
 					}
 					e.setAttribute("target", getURIFragment(((EStructuralFeatureEvent<?>) event).getTarget()));
@@ -344,13 +406,13 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 				StreamResult result = new StreamResult(outputStream);
 				transformer.transform(source, result);
 				outputStream.write(System.getProperty("line.separator").getBytes());
+				outputStream.flush();
 
 				eventNumber += 1;
 			}
 			documentBuilder.reset();
-			// persistedEvents = getChangeEvents().size();
 			persistedEvents = eventNumber;
-			neoChangeEventAdapter.getChangeEvents().clear();
+			hybridChangeEventAdapter.getChangeEvents().clear();
 		} catch (
 
 		Exception ex) {
@@ -359,86 +421,139 @@ public class HybridResource extends ResourceImpl implements PersistentResource {
 		}
 	}
 
-	/**
-	 * Fake {@link EStructuralFeature} that represents the
-	 * {@link Resource#getContents()} feature.
-	 */
-	private static class ResourceContentsEStructuralFeature extends EReferenceImpl {
+	protected EObject resolveXRef(final String sEObjectURI) {
+		EObject eob = getEObject(sEObjectURI);
+		if (eob == null) {
+			URI uri = URI.createURI(sEObjectURI);
 
-		/**
-		 * ???
-		 */
-		private static final String CONTENTS = "eContents";
-
-		/**
-		 * Constructs a new {@code ResourceContentsEStructuralFeature}.
-		 */
-		public ResourceContentsEStructuralFeature() {
-			setUpperBound(ETypedElement.UNBOUNDED_MULTIPLICITY);
-			setLowerBound(0);
-			setName(CONTENTS);
-			setEType(new EClassifierImpl() {
-			});
-			setFeatureID(RESOURCE__CONTENTS);
-		}
-	}
-
-	private class HybridResourceContentsEStoreEList extends EStoreEObjectImpl.EStoreEList {
-
-		public HybridResourceContentsEStoreEList(InternalEObject owner, EStructuralFeature eStructuralFeature,
-				EStore store) {
-			super(owner, eStructuralFeature, store);
-			
-			HybridResource.HybridResourceContentsEStoreEList.this.eStructuralFeature = eStructuralFeature;
-			HybridResource.HybridResourceContentsEStoreEList.this.store = store; 
-		}
-
-		@Override
-		public boolean add(Object object) {
-			EObject eObject = (EObject) object;
-			eObject.eSetDeliver(true);
-			eObject.eAdapters().add(neoChangeEventAdapter);
-
-			return neoPersistentResource.getContents().add(eObject);
-		}
-
-		@Override
-		public boolean addAll(Collection objects) {
-			for (Object object : objects) {
-				EObject eObject = (EObject) object;
-				eObject.eSetDeliver(true);
-				eObject.eAdapters().add(neoChangeEventAdapter);
+			String nsURI = uri.trimFragment().toString();
+			EPackage pkg = (EPackage) getResourceSet().getPackageRegistry().get(nsURI);
+			if (pkg != null) {
+				eob = pkg.eResource().getEObject(uri.fragment());
 			}
-			return neoPersistentResource.getContents().addAll(objects);
 		}
+		return eob;
+	}
 
-		@Override
-		protected Object clone() throws CloneNotSupportedException {
-			// TODO Auto-generated method stub
-			return super.clone();
-		}
-
-		@Override
-		public int size() {
-			return neoPersistentResource.getContents().size();
-		}
-
-		@Override
-		public Iterator<EObject> iterator() {
-			// TODO Auto-generated method stub
-			return neoPersistentResource.getContents().iterator();
-		}
-
-		@Override
-		public void clear() {
-			// TODO Auto-generated method stub
-			neoPersistentResource.getContents().clear();
-		}
-
-		@Override
-		public EObject get(int index) {
-			// TODO Auto-generated method stub
-			return neoPersistentResource.getContents().get(index);
+	@Override
+	protected void doUnload() {
+		super.doUnload();
+		stateBasedResource.unload();
+		eObjectToIdMap.clear();
+		deletedEObjectToIdMap.clear();
+		hybridChangeEventAdapter.getChangeEvents().clear();
+		try {
+			cbpOutputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public String getURIFragment(EObject eObject) {
+		String uriFragment = null;
+		if (eObjectToIdMap == null) {
+			uriFragment = null;
+		} else {
+			uriFragment = eObjectToIdMap.get(eObject);
+		}
+		if (uriFragment == null) {
+			uriFragment = deletedEObjectToIdMap.get(eObject);
+		}
+		if (uriFragment == null) {
+			uriFragment = stateBasedResource.getURIFragment(eObject);
+		}
+		return uriFragment;
+	}
+
+	public void unregister(String objectId) {
+		// if (eObjectToIdMap.containsValue(objectId)) {
+		// EObject eObject = eObjectToIdMap.inverse().get(objectId);
+		// deletedEObjctToIdMap.put(eObject, objectId);
+		// }
+		eObjectToIdMap.inverse().remove(objectId);
+	}
+
+	public void unregister(EObject eObject) {
+		// if (eObjectToIdMap.containsKey(eObject)) {
+		// String id = eObjectToIdMap.get(eObject);
+		// deletedEObjctToIdMap.put(eObject, id);
+		// }
+		eObjectToIdMap.remove(eObject);
+	}
+
+	public boolean isRegistered(String objectId) {
+		return eObjectToIdMap.containsValue(objectId);
+	}
+
+	public boolean isRegistered(EObject eObject) {
+		return eObjectToIdMap.containsKey(eObject);
+	}
+
+	public String register(EObject eObject) {
+		// if (eObjectToIdMap.containsKey(eObject)) {
+		// String id = getURIFragment(eObject);
+		// adopt(eObject, id);
+		// }
+
+		// while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
+		// idCounter += 1;
+		// }
+		// String id = String.valueOf(idCounter);
+		// idCounter = idCounter + 1;
+		String id = getURIFragment(eObject);
+		adopt(eObject, id);
+		return id;
+	}
+
+	public String register(EObject eObject, String id) {
+		adopt(eObject, id);
+		return id;
+	}
+
+	public void adopt(EObject eObject, String id) {
+		if (eObjectToIdMap.containsValue(id)) {
+			EObject oldEObject = eObjectToIdMap.inverse().get(id);
+			deletedEObjectToIdMap.put(oldEObject, id);
+			eObjectToIdMap.inverse().remove(id);
+		}
+		eObjectToIdMap.put(eObject, id);
+	}
+
+	@Override
+	public URI getURI() {
+		return stateBasedResource.getURI();
+	}
+
+	@Override
+	public TreeIterator<EObject> getAllContents() {
+		return stateBasedResource.getAllContents();
+	}
+
+	public void startNewSession(String id) {
+		hybridChangeEventAdapter.handleStartNewSession(id);
+	}
+
+	public List<ChangeEvent<?>> getChangeEvents() {
+		return hybridChangeEventAdapter.getChangeEvents();
+	}
+
+	@Override
+	public EList<EObject> getContents() {
+		EList<EObject> list = stateBasedResource.getContents();
+		return list;
+	}
+
+	@Override
+	public EObject getEObject(String uriFragment) {
+		return eObjectToIdMap.inverse().get(uriFragment);
+	}
+
+	public String getEObjectId(EObject eObject) {
+		if (eObjectToIdMap.containsKey(eObject)) {
+			return eObjectToIdMap.get(eObject);
+		}
+		return null;
+	}
+
 }

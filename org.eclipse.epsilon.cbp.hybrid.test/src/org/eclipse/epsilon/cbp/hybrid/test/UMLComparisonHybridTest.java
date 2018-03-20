@@ -44,7 +44,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.epsilon.cbp.hybrid.HybridResource;
+import org.eclipse.epsilon.cbp.hybrid.HybridNeoEMFResourceImpl;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
@@ -52,7 +52,6 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
-import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
 import fr.inria.atlanmod.neoemf.data.PersistenceBackendFactoryRegistry;
 import fr.inria.atlanmod.neoemf.data.blueprints.BlueprintsPersistenceBackendFactory;
 import fr.inria.atlanmod.neoemf.data.blueprints.neo4j.option.BlueprintsNeo4jOptionsBuilder;
@@ -90,8 +89,7 @@ public class UMLComparisonHybridTest {
 			Resource xmiResource = xmiResourceSet.getResource(xmiFileUri, true);
 
 			// load Neo model
-			PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
-					BlueprintsPersistenceBackendFactory.getInstance());
+			PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME, BlueprintsPersistenceBackendFactory.getInstance());
 			ResourceSet resourceSet = new ResourceSetImpl();
 			resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(BlueprintsURI.SCHEME,
 					PersistentResourceFactory.getInstance());
@@ -106,8 +104,8 @@ public class UMLComparisonHybridTest {
 			// PersistentResource hybridResource = persistentResource;
 			// Resource hybridResource =
 			// xmiResourceSet.createResource(URI.createFileURI(xmiFile2.getAbsolutePath()));
-			HybridResource hybridResource1 = new HybridResource(persistentResource1, outputStream);
-			HybridResource hybridResource2 = new HybridResource(persistentResource2, outputStream);
+			HybridNeoEMFResourceImpl hybridResource1 = new HybridNeoEMFResourceImpl(persistentResource1, outputStream);
+			HybridNeoEMFResourceImpl hybridResource2 = new HybridNeoEMFResourceImpl(persistentResource2, outputStream);
 
 			Map<String, Object> saveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().weakCache().autocommit()
 					.asMap();
@@ -171,7 +169,7 @@ public class UMLComparisonHybridTest {
 //				hybridResource2.save(saveOptions);
 //				hybridResource2.load(loadOptions);
 
-				IComparisonScope2 scope = createComparisonScope(hybridResource1.getPersistentResource(), xmiResource);
+				IComparisonScope2 scope = createComparisonScope(hybridResource1.getStateBasedResource(), xmiResource);
 
 				Comparison comparison = comparator.compare(scope);
 				EList<Diff> diffs = comparison.getDifferences();

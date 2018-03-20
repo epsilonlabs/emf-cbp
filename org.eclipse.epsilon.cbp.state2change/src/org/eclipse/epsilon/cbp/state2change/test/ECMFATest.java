@@ -3,601 +3,694 @@ package org.eclipse.epsilon.cbp.state2change.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.LineNumberReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.jar.Pack200.Unpacker;
-import java.util.regex.Pattern;
 
-import org.eclipse.emf.common.util.BasicMonitor;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.compare.Comparison;
-import org.eclipse.emf.compare.Diff;
-import org.eclipse.emf.compare.EMFCompare;
-import org.eclipse.emf.compare.EMFCompare.Builder;
-import org.eclipse.emf.compare.merge.BatchMerger;
-import org.eclipse.emf.compare.merge.IBatchMerger;
-import org.eclipse.emf.compare.merge.IMerger;
-import org.eclipse.emf.compare.postprocessor.BasicPostProcessorDescriptorImpl;
-import org.eclipse.emf.compare.postprocessor.IPostProcessor;
-import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl;
-import org.eclipse.emf.compare.scope.DefaultComparisonScope;
-import org.eclipse.emf.compare.scope.IComparisonScope2;
-import org.eclipse.emf.compare.uml2.internal.merge.UMLMerger;
-import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
-import org.eclipse.epsilon.cbp.event.ChangeEvent;
-import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
-import org.eclipse.uml2.common.util.CacheAdapter;
+import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableSet;
-
-/***
- * 
- * @author Ryano
- *
- */
 public class ECMFATest {
 
-	public final static int ITERATION = 5;
+	final int SLEEP_TIME = 1000;
+	final int ITERATION = 25;
+	final int START_FROM = 3;
+	final String outputPath = "D:\\TEMP\\ECMFA\\output";
+	final String sourcePath = "D:\\TEMP\\ECMFA\\cbp";
 
-	private File cbpFile = new File("D:/TEMP/ECMFA/cbp/ecmfa.cbpxml");
-	private File cbpDummyFile = new File("D:/TEMP/ECMFA/cbp/ecmfa-dummy.cbpxml");
-	private File sourceDirectory = new File("D:/TEMP/ECMFA/xmi/");
-	private File ignoreListFile = new File("D:/TEMP/ECMFA/cbp/ecmfa.ignorelist");
-	private File ignoreListDummyFile = new File("D:/TEMP/ECMFA/cbp/ecmfa-dummy.ignorelist");
-
-	protected URI rootXmiFileUri;
-	protected URI commonXmiURI = URI.createURI("umlmodel.xmi");
-	protected URI commonCbpxmlURI = URI.createURI("umlmodel.cbpxml");
-
-	protected IBatchMerger batchMerger;
-	protected EMFCompare comparator;
-
-	protected List<ResourceSet> resourceSetList = new ArrayList<>();
-
-	protected CBPResource runningCbpResource;
-	protected ResourceSet cbpResourceSet;
-	protected ResourceSet xmiResourceSet;
-
-	protected Map<Object, Object> saveOptions;
-	protected String cbpStatePath;
-
-	public StringBuilder results = new StringBuilder();
-
-	/***
-	 * 
-	 */
 	public ECMFATest() {
-
+		MoDiscoXMLPackage.eINSTANCE.eClass();
+		UMLPackage.eINSTANCE.eClass();
 	}
 
-	/***
-	 * 
-	 * @param cbpFile
-	 * @param diffDirectory
-	 * @return
-	 * @throws Exception
-	 */
 	@Test
-	public void testAll() throws Exception {
+	public void testComparison() throws FileNotFoundException, InterruptedException {
+		System.out.println("Start: " + (new Date()).toString());
 
-		UMLPackage.eINSTANCE.eClass();
-		saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
-		saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+		List<String> models = new ArrayList<>();
+		List<File> cbpFiles = new ArrayList<>();
+		List<File> ignoreFiles = new ArrayList<>();
+		List<File> xmiFiles = new ArrayList<>();
 
-		// -----Set Up CBP
-		cbpResourceSet = new ResourceSetImpl();
-		cbpResourceSet.getResourceFactoryRegistry().getContentTypeToFactoryMap().put("cbpxml",
-				new CBPXMLResourceFactory());
+		// MODELS
+//		models.add("bpmn2");
+//		cbpFiles.add(new File(sourcePath + File.separator + "BPMN2.cbpxml"));
+//		ignoreFiles.add(new File(sourcePath + File.separator + "BPMN2.ignoreset"));
+//		xmiFiles.add(new File(sourcePath + File.separator + "BPMN2.xmi"));
+//
+//		models.add("epsilon");
+//		cbpFiles.add(new File(sourcePath + File.separator + "epsilon.947.cbpxml"));
+//		ignoreFiles.add(new File(sourcePath + File.separator + "epsilon.947.ignoreset"));
+//		xmiFiles.add(new File(sourcePath + File.separator + "epsilon.947.xmi"));
 
-		runningCbpResource = new CBPXMLResourceImpl();
-		cbpResourceSet.getResources().add(runningCbpResource);
-		if (cbpFile.exists()) {
-			cbpFile.delete();
-		}
-		cbpFile.createNewFile();
-		URI cbpUri = URI.createFileURI(cbpFile.getAbsolutePath());
-		runningCbpResource.setURI(cbpUri);
+		models.add("wikipedia");
+		cbpFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.cbpxml"));
+		ignoreFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.ignoreset"));
+		xmiFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.xmi"));
 
-		try {
-			runningCbpResource.load(null);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		// Generating data description
+//		for (int i = 0; i < models.size(); i++) {
+//			String model = models.get(i);
+//			File cbpFile = cbpFiles.get(i);
+//			File ignoreFile = ignoreFiles.get(i);
+//			File xmiFile = xmiFiles.get(i);
+//
+//			String filePath = outputPath + File.separator + "data_description_" + model + ".csv";
+//			File outputFile = new File(filePath);
+//			DataDescriptionTask task = new DataDescriptionTask(model, cbpFile, ignoreFile, xmiFile, outputFile);
+//			// task.setDaemon(true);
+//			task.setName(outputFile.getName());
+//			task.start();
+//			task.join();
+//		}
 
-		// --Set up XMI
-		xmiResourceSet = new ResourceSetImpl();
-		xmiResourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		resourceSetList.add(xmiResourceSet);
+		for (int i = 0; i < models.size(); i++) {
+			String model = models.get(i);
+			System.out.println("Processing " + model + "...");
 
-		File[] sourceFiles = sourceDirectory.listFiles();
-		System.out.println("Converting " + sourceFiles.length + " file(s) to CBP");
-		for (int x : new int[20]) {
-			for (int i = 0; i < 3; i++) {
-				System.out.print(String.format("Dummy\t"));
-				Task task = new Task(cbpFile, sourceFiles[i]);
-				task.setDaemon(true);
-				task.setName(sourceFiles[i].getName());
+			File cbpFile = cbpFiles.get(i);
+			File ignoreFile = ignoreFiles.get(i);
+			File xmiFile = xmiFiles.get(i);
+
+			List<File> outputFileList = new ArrayList<>();
+
+			File outputLoadTimeFile = new File(outputPath + File.separator + "load_time_" + model + ".csv");
+			outputFileList.add(outputLoadTimeFile);
+			File outputLoadMemoryFile = new File(outputPath + File.separator + "load_memory_" + model + ".csv");
+			outputFileList.add(outputLoadMemoryFile);
+			File outputSaveTimeFile = new File(outputPath + File.separator + "save_time_" + model + ".csv");
+			outputFileList.add(outputSaveTimeFile);
+			File outputSaveMemoryFile = new File(outputPath + File.separator + "save_memory_" + model + ".csv");
+			outputFileList.add(outputSaveMemoryFile);
+
+			for (File outputFile : outputFileList) {
+				PrintWriter printer = new PrintWriter(new FileOutputStream(outputFile, false));
+				printer.println("Value,Group");
+				printer.flush();
+				printer.close();
+			}
+
+//			for (int n = 0; n < ITERATION; n++) {
+//				System.out.println("Filling " + (n + 1) + " - CBP Load Time and Memory");
+//				CBPLoadTimeMemoryTask task = new CBPLoadTimeMemoryTask(model, cbpFile, outputLoadTimeFile,
+//						outputLoadMemoryFile, n);
+//				// task.setDaemon(true);
+//				task.setName("CBPLoadTimeMemory");
+//				System.gc();
+//				task.start();
+//				task.join();
+//			}
+
+			for (int n = 0; n < ITERATION; n++) {
+				System.out.println("Filling " + (n + 1) + " - XMI Load and Save Time and Memory");
+				XMILoadSaveTimeMemoryTask task = new XMILoadSaveTimeMemoryTask(model, xmiFile, outputLoadTimeFile,
+						outputLoadMemoryFile, outputSaveTimeFile, outputSaveMemoryFile, n);
+				task.setName("XMILoadSaveTimeMemory");
+				System.gc();
 				task.start();
 				task.join();
 			}
+
+//			for (int n = 0; n < ITERATION; n++) {
+//				System.out.println("Filling " + (n + 1) + " - OCBP Load Time and Memory");
+//				OCBPLoadTimeMemoryTask task = new OCBPLoadTimeMemoryTask(model, cbpFile, ignoreFile, outputLoadTimeFile,
+//						outputLoadMemoryFile, n);
+//				// task.setDaemon(true);
+//				task.setName("OCBPLoadTimeMemory");
+//				System.gc();
+//				task.start();
+//				task.join();
+//			}
+//
+//			System.out.println("Filling OCBP Save Time and Memory");
+//			OCBPSaveTimeMemoryTask task1 = new OCBPSaveTimeMemoryTask(model, cbpFile, ignoreFile, outputSaveTimeFile,
+//					outputSaveMemoryFile);
+//			// task.setDaemon(true);
+//			task1.setName("OCBPSaveTimeMemory");
+//			System.gc();
+//			task1.start();
+//			task1.join();
+//
+//			System.out.println("Filling CBP Save Time and Memory");
+//			CBPSaveTimeMemoryTask task2 = new CBPSaveTimeMemoryTask(model, cbpFile, outputSaveTimeFile,
+//					outputSaveMemoryFile);
+//			// task.setDaemon(true);
+//			task2.setName("CBPSaveTimeMemory");
+//			System.gc();
+//			task2.start();
+//			task2.join();
+
 		}
 
-		runningCbpResource.unload();
-		if (cbpFile.exists()) {
-			while (cbpFile.delete() == false) {
-				cbpFile.delete();
-			}
-		}
-		while (cbpFile.canWrite() == false) {
-			try {
-				cbpFile.delete();
-				cbpFile.createNewFile();
-			} catch (Exception exe) {
-
-			}
-		}
-
-		try {
-			((CBPResource) runningCbpResource).getModelHistory().clear();
-			((CBPResource) runningCbpResource).getIgnoreSet().clear();
-			runningCbpResource.load(null);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		System.out.println();
-		System.out.println(
-				"No\tObCount\tEvents\tIgEvents\tDifEvnts\tDiffs\tXmiLoad\tUCbpLoad\tOCbpLoad\tXmiSave\tUCbpSave\tOCbpSave\tXmiMem\tUnCbpMem\tOpCbpMem");
-		for (int i = 0; i < sourceFiles.length; i++) {
-			// if (i == 15) {
-			// return;
-			// }
-			System.out.print(String.format("%s\t", (i + 1)));
-			results.append(String.valueOf(i + 1) + " ");
-
-			Task task = new Task(cbpFile, sourceFiles[i]);
-			task.setDaemon(true);
-			task.setName(sourceFiles[i].getName());
-			task.start();
-			task.join();
-		}
-		System.out.println("Finished!");
-
-//		System.out.println(results.toString());
+		System.out.println("End: " + (new Date()).toString());
 		assertEquals(true, true);
 	}
 
-	/***
-	 * 
-	 * @author Ryano
-	 *
-	 */
-	public class Task extends Thread {
+	abstract class Task extends Thread {
+		String type;
+		String model;
+		File cbpFile;
+		File ignoreFile;
+		File outputFile;
+		int iteration;
 
-		protected File cbpFile;
-		protected File diffDirectory;
-		protected File xmiFile;
-
-		/***
-		 * 
-		 * @param cbpFile
-		 * @param diffDirectory
-		 * @param sourceFile
-		 * @throws IOException
-		 */
-		public Task(File cbpFile, File sourceFile) throws IOException {
-			super();
+		public Task(String model, File cbpFile, File ignorFile, File outputFile) {
+			this.model = model;
 			this.cbpFile = cbpFile;
-			this.xmiFile = sourceFile;
+			this.ignoreFile = ignorFile;
+			this.outputFile = outputFile;
+		}
+	}
+
+	class XMILoadSaveTimeMemoryTask extends Task {
+		File xmiFile;
+		File xmiOutputLoadTimeFile;
+		File xmiOutputLoadMemoryFile;
+		File xmiOutputSaveTimeFile;
+		File xmiOutputSaveMemoryFile;
+
+		public XMILoadSaveTimeMemoryTask(String model, File xmiFile, File xmiOutputLoadTimeFile,
+				File xmiOutputLoadMemoryFile, File xmiOutputSaveTimeFile, File xmiOutputSaveMemoryFile, int iteration) {
+			super(null, null, null, null);
+			this.type = "XMI";
+			this.model = model;
+			this.xmiFile = xmiFile;
+			this.xmiOutputLoadTimeFile = xmiOutputLoadTimeFile;
+			this.xmiOutputLoadMemoryFile = xmiOutputLoadMemoryFile;
+			this.xmiOutputSaveTimeFile = xmiOutputSaveTimeFile;
+			this.xmiOutputSaveMemoryFile = xmiOutputSaveMemoryFile;
+			this.iteration = iteration;
 		}
 
-		/***
-		 * 
-		 */
-		@SuppressWarnings("restriction")
 		@Override
 		public void run() {
-
-			long beforeXmiLoad = 0;
-			long afterXmiLoad = 0;
-			long xmiLoadTime = 0;
-			long beforeOptCbpLoad = 0;
-			long afterOptCbpLoad = 0;
-			long optCbpLoadTime = 0;
-			long beforeUnoptCbpLoad = 0;
-			long afterUnoptCbpLoad = 0;
-			long unoptCbpLoadTime = 0;
-			long beforeXmiSave = 0;
-			long afterXmiSave = 0;
-			long xmiSaveTime = 0;
-			long beforeUnoptCbpSave = 0;
-			long afterUnoptCbpSave = 0;
-			long unoptCbpSaveTime = 0;
-			long beforeOptCbpSave = 0;
-			long afterOptCbpSave = 0;
-			long optCbpSaveTime = 0;
-
-			long beforeXmiMemory = 0;
-			long afterXmiMemory = 0;
-			long xmiMemory = 0;
-			long beforeUnoptCbpMemory = 0;
-			long afterUnoptCbpMemory = 0;
-			long unoptCbpMemory = 0;
-			long beforeOptCbpMemory = 0;
-			long afterOptCbpMemory = 0;
-			long optCbpMemory = 0;
-
-			int deltaEventCount = 1;
-			int diffCount = 0;
-			long eventCount = 0;
-			int ignoreCount = 0;
-
-			System.gc();
-			// System.out.print("Processing file " + xmiFile.getName() + " to
-			// CBP");
-
-			// measure number of event
-			IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
-			BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(),
-					Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
-			postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
-			Builder builder = EMFCompare.builder();
-			builder.setPostProcessorRegistry(postProcessorRegistry);
-			comparator = builder.build();
-
-			IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
-			UMLMerger umlMerger = new UMLMerger();
-			umlMerger.setRanking(11);
-			registry.add(umlMerger);
-			batchMerger = new BatchMerger(registry);
-
-			String xmiFilePath = xmiFile.getAbsolutePath();
-			URI xmiFileUri = URI.createFileURI(xmiFilePath);
-			Resource xmiResource = xmiResourceSet.createResource(xmiFileUri);
+			super.run();
 			try {
-				xmiLoadTime = 0;
-				for (int i : new int[ITERATION]) {
+				PrintStream printer = null;
 
-					
-					beforeXmiLoad = System.nanoTime();
-					xmiResource.load(null);
-					afterXmiLoad = System.nanoTime();
-					
+				Map<Object, Object> xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
+				xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF,
+						XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
 
-					xmiLoadTime += afterXmiLoad - beforeXmiLoad;
+				XMIResource xmiResource = (XMIResource) (new XMIResourceFactoryImpl())
+						.createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
 
-					xmiResource.unload();
-				}
-				xmiResource.load(null);
-				xmiLoadTime = xmiLoadTime / ITERATION;
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			xmiResource.setURI(commonXmiURI);
-
-			// initialise UML comparison
-			IComparisonScope2 scope = createComparisonScope(runningCbpResource, xmiResource);
-
-			Comparison comparison = comparator.compare(scope);
-			EList<Diff> diffs = comparison.getDifferences();
-			diffCount = diffs.size();
-
-			// count elements
-			List<EObject> list = new ArrayList<EObject>();
-			TreeIterator<EObject> iterator = xmiResource.getAllContents();
-			int elementCount = 0;
-			while (iterator.hasNext()) {
-				EObject eObject = iterator.next();
-				list.add(eObject);
-				elementCount += 1;
-			}
-
-			// MERGE: copy all right to left
-			CBPXMLResourceImpl cbpImpl = ((CBPXMLResourceImpl) runningCbpResource);
-			cbpImpl.startNewSession(xmiFile.getName());
-			int beforeEventCount = runningCbpResource.getChangeEvents().size();
-			batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
-			int afterEventCount = runningCbpResource.getChangeEvents().size();
-			deltaEventCount = afterEventCount - beforeEventCount;
-
-			// measure
-			try {
-				FileOutputStream outputStream = new FileOutputStream(ignoreListFile, true);
-				FileOutputStream outputStreamDummy = new FileOutputStream(ignoreListDummyFile,true);
-
-				CBPResource saveCbpResource = new CBPXMLResourceImpl();
-				saveCbpResource.setURI(URI.createFileURI(cbpDummyFile.getAbsolutePath()));
-
-				unoptCbpSaveTime = 0;
-				optCbpSaveTime = 0;
-				if (deltaEventCount == 0) {
-					unoptCbpSaveTime = 0;
+				System.gc();
+				long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				long startTime = System.nanoTime();
+				xmiResource.load(xmiOptions);
+				long endTime = System.nanoTime();
+				System.gc();
+				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				double xmiLoadTime = (endTime - startTime) / 1000000000.0;
+				double xmiLoadMemory = 0;
+				if (endMemory - startMemory < 0) {
+					xmiLoadMemory = 0;
 				} else {
-					// dummy
+					xmiLoadMemory = Math.abs(endMemory - startMemory) / (1024.0 * 1024.0);
+				}
 
-					// measure memory size
-					for (int i : new int[ITERATION]) {
-						saveCbpResource.getChangeEvents().clear();
-						saveCbpResource.getChangeEvents().addAll(new ArrayList<>(runningCbpResource.getChangeEvents()));
+				if (iteration >= START_FROM) {
+					printer = new PrintStream(new FileOutputStream(xmiOutputLoadTimeFile, true));
+					printer.printf("%f,%s\n", xmiLoadTime, type);
+					printer.flush();
+					printer.close();
 
-						for (int j : new int[4]) {
-							saveCbpResource.save(null);
-							runningCbpResource.saveIgnoreSet(outputStreamDummy);
+					printer = new PrintStream(new FileOutputStream(xmiOutputLoadMemoryFile, true));
+					printer.printf("%f,%s\n", xmiLoadMemory, type);
+					printer.flush();
+					printer.close();
+				}
+
+				System.gc();
+				startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				startTime = System.nanoTime();
+				xmiResource.save(xmiOptions);
+				endTime = System.nanoTime();
+				Thread.sleep(SLEEP_TIME);
+				System.gc();
+				endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				double xmiSaveTime = (endTime - startTime) / 1000000000.0;
+				double xmiSaveMemory = 0;
+				if (endMemory - startMemory < 0) {
+					xmiSaveMemory = 0;
+				} else {
+					xmiSaveMemory = Math.abs(endMemory - startMemory) / (1024.0 * 1024.0);
+				}
+				xmiResource.unload();
+
+				if (iteration >= START_FROM) {
+					printer = new PrintStream(new FileOutputStream(xmiOutputSaveTimeFile, true));
+					printer.printf("%.9f,%s\n", xmiSaveTime, type);
+					printer.flush();
+					printer.close();
+
+					printer = new PrintStream(new FileOutputStream(xmiOutputSaveMemoryFile, true));
+					printer.printf("%.9f,%s\n", xmiSaveMemory, type);
+					printer.flush();
+					printer.close();
+				}
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	class CBPSaveTimeMemoryTask extends Task {
+		File cbpOutputTimeFile;
+		File cbpOutputMemoryFile;
+
+		public CBPSaveTimeMemoryTask(String model, File cbpFile, File cbpOutputTimeFile, File cbpOutputMemoryFile) {
+			super(null, null, null, null);
+			this.type = "CBP";
+			this.model = model;
+			this.cbpFile = cbpFile;
+			this.cbpOutputTimeFile = cbpOutputTimeFile;
+			this.cbpOutputMemoryFile = cbpOutputMemoryFile;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			try {
+				File dummyCbpFile = new File(sourcePath + File.separator + "_temp.cbpxml");
+				if (dummyCbpFile.exists())
+					dummyCbpFile.delete();
+
+				Map<Object, Object> cbpSaveOptions = new HashMap<>();
+				cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
+				CBPXMLResourceImpl cbpResource = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
+						.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
+
+				cbpResource.load(new ByteArrayInputStream(new byte[0]), cbpSaveOptions);
+				cbpResource.setURI(URI.createFileURI(dummyCbpFile.getAbsolutePath()));
+
+				cbpResource.getChangeEvents().clear();
+
+				LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(cbpFile));
+				lineNumberReader.skip(Long.MAX_VALUE);
+				int totalEventCount = lineNumberReader.getLineNumber();
+				lineNumberReader.close();
+
+				BufferedReader reader = new BufferedReader(new FileReader(cbpFile));
+				String line;
+				int lineCount = 0;
+				int iterationCount = 0;
+				while ((line = reader.readLine()) != null) {
+
+					if (lineCount % 100000 == 0)
+						System.out.println(lineCount);
+
+					if (iterationCount >= ITERATION)
+						break;
+
+					InputStream stream = new ByteArrayInputStream(line.getBytes());
+					try {
+						cbpResource.loadAdditionalEvents(stream);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					stream.close();
+
+					if (lineCount >= totalEventCount - ITERATION + START_FROM) {
+						System.out.println(line);
+						System.gc();
+						long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+						long startTime = System.nanoTime();
+						cbpResource.save(cbpSaveOptions);
+						long endTime = System.nanoTime();
+						System.gc();
+						Thread.sleep(SLEEP_TIME);
+						long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+						double optSaveTime = (endTime - startTime) / 1000000000.0;
+						double optSaveMemory = 0;
+						if (endMemory - startMemory < 0) {
+							optSaveMemory = 0;
+						} else {
+							optSaveMemory = Math.abs(endMemory - startMemory) / 1000000.0;
 						}
-						
-						System.gc();
-						beforeUnoptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-						beforeUnoptCbpSave = System.nanoTime();
-						saveCbpResource.save(null);
-						afterUnoptCbpSave = System.nanoTime();
-						afterUnoptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-						
-						
-						System.gc();
-						beforeOptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-						beforeOptCbpSave = System.nanoTime();
-						runningCbpResource.saveIgnoreSet(outputStreamDummy);
-						saveCbpResource.save(null);
-						afterOptCbpSave = System.nanoTime();
-						afterOptCbpMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
-						
-						unoptCbpSaveTime += ((afterUnoptCbpSave - beforeUnoptCbpSave));
-						optCbpSaveTime += ((afterOptCbpSave - beforeOptCbpSave));
-						
-						unoptCbpMemory += afterUnoptCbpMemory - beforeUnoptCbpMemory;
-						optCbpMemory += afterOptCbpMemory - beforeOptCbpMemory;
+						PrintStream printer = new PrintStream(new FileOutputStream(cbpOutputTimeFile, true));
+						printer.printf("%f,%s\n", optSaveTime, type);
+						printer.flush();
+						printer.close();
+
+						printer = new PrintStream(new FileOutputStream(cbpOutputMemoryFile, true));
+						printer.printf("%f,%s\n", optSaveMemory, type);
+						printer.flush();
+						printer.close();
+
+					} else {
+						cbpResource.save(new ByteArrayOutputStream(), null);
+						// cbpResource.save(null);
 					}
-					unoptCbpSaveTime = unoptCbpSaveTime / (ITERATION );
-					optCbpSaveTime = optCbpSaveTime / (ITERATION );
-					
-					unoptCbpMemory = unoptCbpMemory / ITERATION;
-					optCbpMemory = optCbpMemory / ITERATION;
+					lineCount += 1;
 				}
-//				System.out.println(runningCbpResource.getIgnoreSet().size());
-				runningCbpResource.saveIgnoreSet(outputStream);
-				runningCbpResource.save(null);
-				saveCbpResource.getChangeEvents().clear();
-				saveCbpResource.unload();
+				reader.close();
+				cbpResource.unload();
 
-				// count number of events
-				try {
-					BufferedReader reader = new BufferedReader(new FileReader(cbpFile));
-					long lines = 0;
-					while (reader.readLine() != null) {
-						lines++;
+				if (dummyCbpFile.exists())
+					dummyCbpFile.delete();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	class OCBPSaveTimeMemoryTask extends Task {
+		File cbpOutputTimeFile;
+		File cbpOutputMemoryFile;
+
+		public OCBPSaveTimeMemoryTask(String model, File cbpFile, File ignoreFile, File cbpOutputTimeFile,
+				File cbpOutputMemoryFile) {
+			super(null, null, null, null);
+			this.type = "OCBP";
+			this.model = model;
+			this.cbpFile = cbpFile;
+			this.ignoreFile = ignoreFile;
+			this.cbpOutputTimeFile = cbpOutputTimeFile;
+			this.cbpOutputMemoryFile = cbpOutputMemoryFile;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			try {
+				File dummyCbpFile = new File(sourcePath + File.separator + "_temp.cbpxml");
+				File dummyIgnoreFile = new File(sourcePath + File.separator + "_temp.ignoreset");
+				if (dummyCbpFile.exists())
+					dummyCbpFile.delete();
+				if (dummyIgnoreFile.exists())
+					dummyIgnoreFile.delete();
+
+				Map<Object, Object> cbpSaveOptions = new HashMap<>();
+				cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
+				CBPXMLResourceImpl cbpResource = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
+						.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
+
+				cbpResource.loadIgnoreSet(new FileInputStream(ignoreFile));
+				int ignoredEventCount = cbpResource.getIgnoreSet().size();
+
+				cbpResource.load(new ByteArrayInputStream(new byte[0]), cbpSaveOptions);
+				cbpResource.setURI(URI.createFileURI(dummyCbpFile.getAbsolutePath()));
+
+				cbpResource.getChangeEvents().clear();
+
+				LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(cbpFile));
+				lineNumberReader.skip(Long.MAX_VALUE);
+				int totalEventCount = lineNumberReader.getLineNumber();
+				lineNumberReader.close();
+
+				BufferedReader reader = new BufferedReader(new FileReader(cbpFile));
+				String line;
+				int lineCount = 0;
+				int iterationCount = 0;
+				int unignoredLineCount = 0;
+				while ((line = reader.readLine()) != null) {
+
+					if (lineCount % 100000 == 0)
+						System.out.println(lineCount);
+
+					if (iterationCount >= ITERATION)
+						break;
+
+					if (cbpResource.getIgnoreSet().contains(lineCount) == false) {
+
+						InputStream stream = new ByteArrayInputStream(line.getBytes());
+						try {
+							cbpResource.loadAdditionalEvents(stream);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						stream.close();
+
+						if (unignoredLineCount >= totalEventCount - ignoredEventCount - ITERATION + START_FROM) {
+							System.out.println(line);
+							System.gc();
+							long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+							long startTime = System.nanoTime();
+							cbpResource.save(cbpSaveOptions);
+							cbpResource.saveIgnoreSet(new FileOutputStream(dummyIgnoreFile, true));
+							long endTime = System.nanoTime();
+							System.gc();
+							Thread.sleep(SLEEP_TIME);
+							long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+							double optSaveTime = (endTime - startTime) / 1000000000.0;
+							double optSaveMemory = 0;
+							if (endMemory - startMemory < 0) {
+								optSaveMemory = 0;
+							} else {
+								optSaveMemory = Math.abs(endMemory - startMemory) / 1000000.0;
+							}
+
+							PrintStream printer = new PrintStream(new FileOutputStream(cbpOutputTimeFile, true));
+							printer.printf("%f,%s\n", optSaveTime, type);
+							printer.flush();
+							printer.close();
+
+							printer = new PrintStream(new FileOutputStream(cbpOutputMemoryFile, true));
+							printer.printf("%f,%s\n", optSaveMemory, type);
+							printer.flush();
+							printer.close();
+
+							iterationCount += 1;
+						} else {
+							cbpResource.save(new ByteArrayOutputStream(), null);
+							// FileOutputStream baos = new
+							// FileOutputStream(dummyIgnoreFile, true);
+							cbpResource.clearIgnoreSet();
+							// baos.close();
+						}
+
+						unignoredLineCount += 1;
 					}
-					reader.close();
-					eventCount = lines;
-				} catch (IOException e2) {
-					// TODO Auto-generated catch block
-					e2.printStackTrace();
+					lineCount += 1;
 				}
+				reader.close();
+				cbpResource.unload();
 
-				// measure xmi save time
-				xmiSaveTime = 0;
-				for (int i : new int[ITERATION]) {
-					System.gc();
-					beforeXmiMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-					beforeXmiSave = System.nanoTime();
-					xmiResource.save(null);
-					afterXmiSave = System.nanoTime();
-					afterXmiMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-					
-					xmiSaveTime += (afterXmiSave - beforeXmiSave);
-					xmiMemory += afterXmiMemory - beforeXmiMemory;
-				}
-				if (deltaEventCount == 0) {
-					xmiSaveTime = 0;
-					xmiMemory = 0;
+				if (dummyCbpFile.exists())
+					dummyCbpFile.delete();
+				if (dummyIgnoreFile.exists())
+					dummyIgnoreFile.delete();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	class OCBPLoadTimeMemoryTask extends Task {
+		File cbpOutputTimeFile;
+		File cbpOutputMemoryFile;
+		File xmiOutputTimeFile;
+		File xmiOutputMemoryFile;
+
+		public OCBPLoadTimeMemoryTask(String model, File cbpFile, File ignoreFile, File cbpOutputTimeFile,
+				File cbpOutputMemoryFile, int iteration) {
+			super(null, null, null, null);
+			this.type = "OCBP";
+			this.model = model;
+			this.cbpFile = cbpFile;
+			this.ignoreFile = ignoreFile;
+			this.cbpOutputTimeFile = cbpOutputTimeFile;
+			this.cbpOutputMemoryFile = cbpOutputMemoryFile;
+			this.iteration = iteration;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			try {
+				CBPXMLResourceImpl cbpResource = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
+						.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
+
+				System.gc();
+				Thread.sleep(1000);
+				long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				long startTime = System.nanoTime();
+				cbpResource.loadIgnoreSet(new FileInputStream(ignoreFile));
+				cbpResource.load(null);
+				long endTime = System.nanoTime();
+				System.gc();
+				Thread.sleep(1000);
+				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				double nonOptLoadTime = (endTime - startTime) / 1000000000.0;
+				double nonOptLoadMemory;
+				if (endMemory - startMemory < 0) {
+					nonOptLoadMemory = 0;
 				} else {
-					xmiSaveTime = xmiSaveTime / ITERATION;
-					xmiMemory = xmiMemory / ITERATION;
+					nonOptLoadMemory = Math.abs(endMemory - startMemory) / (1024.0 * 1024.0);
 				}
 
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+				if (iteration >= START_FROM) {
+					PrintStream printer = new PrintStream(new FileOutputStream(cbpOutputTimeFile, true));
+					printer.printf("%f,%s\n", nonOptLoadTime, type);
+					printer.flush();
+					printer.close();
 
-			
-
-			// //---test optimised CBP by reload
-			CBPResource optimisedCbpResource = new CBPXMLResourceImpl();
-			optimisedCbpResource.setURI(runningCbpResource.getURI());
-			cbpResourceSet.getResources().add(optimisedCbpResource);
-			try {
-				optCbpLoadTime = 0;
-				FileOutputStream fos = new FileOutputStream(ignoreListFile,true);
-				optimisedCbpResource.saveIgnoreSet(fos);
-				for (int i : new int[ITERATION]) {
-					
-//					FileInputStream fis = new FileInputStream(ignoreListFile);
-//					optimisedCbpResource.setIgnoreSet(new HashSet<>(runningCbpResource.getIgnoreSet()));
-					Set<Integer> set = new HashSet<>(runningCbpResource.getIgnoreSet());
-					beforeOptCbpLoad = System.nanoTime();
-					optimisedCbpResource.setIgnoreSet(set);
-//					optimisedCbpResource.loadIgnoreSet(fis);
-					optimisedCbpResource.load(null);
-					afterOptCbpLoad = System.nanoTime();
-
-					optCbpLoadTime += afterOptCbpLoad - beforeOptCbpLoad;
-
-					((CBPResource) optimisedCbpResource).getModelHistory().clear();
-					optimisedCbpResource.unload();
+					printer = new PrintStream(new FileOutputStream(cbpOutputMemoryFile, true));
+					printer.printf("%f,%s\n", nonOptLoadMemory, type);
+					printer.flush();
+					printer.close();
 				}
-				optimisedCbpResource.load(null);
-				optCbpLoadTime = optCbpLoadTime / ITERATION;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			// //---test unoptimised CBP by reload
-			CBPResource unoptimisedCbpResource = new CBPXMLResourceImpl();
-			cbpResourceSet.getResources().add(unoptimisedCbpResource);
-			unoptimisedCbpResource.setURI(runningCbpResource.getURI());
-			try {
-				unoptCbpLoadTime = 0;
-				Map<Object, Object> options = new HashMap<>();
-				options.put("optimise", false);
-				for (int i : new int[ITERATION]) {
-					
-					beforeUnoptCbpLoad = System.nanoTime();
-					unoptimisedCbpResource.load(options);
-					afterUnoptCbpLoad = System.nanoTime();
-					
-					unoptCbpLoadTime += afterUnoptCbpLoad - beforeUnoptCbpLoad;
-
-					((CBPResource) unoptimisedCbpResource).getModelHistory().clear();
-					((CBPResource) unoptimisedCbpResource).getIgnoreSet().clear();
-					unoptimisedCbpResource.unload();
-				}
-				unoptCbpLoadTime = unoptCbpLoadTime / ITERATION;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			ignoreCount = runningCbpResource.getIgnoreSet().size();
-
-			// after merging, to check if there are no more differences
-			scope = createComparisonScope(runningCbpResource, xmiResource);
-			comparison = comparator.compare(scope);
-			diffs = comparison.getDifferences();
-			if (diffs.size() > 0) {
-				System.out.println("There are still differences between the CBP and the XMI.");
-				// return;
-			}
-
-			clearCacheAdapter();
-
-			unoptimisedCbpResource.unload();
-			cbpResourceSet.getResources().remove(unoptimisedCbpResource);
-			optimisedCbpResource.unload();
-			cbpResourceSet.getResources().remove(optimisedCbpResource);
-			optimisedCbpResource.unload();
-
-			((CBPResource) unoptimisedCbpResource).getModelHistory().clear();
-			((CBPResource) unoptimisedCbpResource).getIgnoreSet().clear();
-			((CBPResource) optimisedCbpResource).getModelHistory().clear();
-			((CBPResource) optimisedCbpResource).getIgnoreSet().clear();
-			// for (EObject eObject : list) {
-			// CacheAdapter.getInstance().getInverseReferences(eObject).clear();
-			// CacheAdapter.getInstance().getNonNavigableInverseReferences(eObject).clear();
-			// eObject.eAdapters().clear();
-			// EcoreUtil.remove(eObject);
-			// }
-			// list.clear();
-
-			String output = String.format("%s\t%s\t%s\t%s\t%s\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f",
-					elementCount, eventCount, ignoreCount, deltaEventCount, diffCount, (double) xmiLoadTime / 1000000,
-					(double) unoptCbpLoadTime / 1000000, (double) optCbpLoadTime / 1000000,
-					(double) xmiSaveTime / 1000000, (double) unoptCbpSaveTime / 1000000,
-					(double) optCbpSaveTime / 1000000, (double) xmiMemory / 1000000, (double) unoptCbpMemory / 1000000,
-					(double) optCbpMemory / 1000000);
-			System.out.println(output);
-			results.append(output + "\n");
-		}
-
-	}
-
-	/***
-	 * 
-	 * @param cbpResource
-	 * @param xmiResource
-	 * @return
-	 */
-	private IComparisonScope2 createComparisonScope(Resource cbpResource, Resource xmiResource) {
-		IComparisonScope2 scope = new DefaultComparisonScope(cbpResource, xmiResource, null);
-		Set<ResourceSet> resourceSets = ImmutableSet.of(cbpResource.getResourceSet(), xmiResource.getResourceSet());
-		com.google.common.collect.ImmutableSet.Builder<URI> uriBuilder = ImmutableSet.builder();
-		for (ResourceSet set : resourceSets) {
-			for (Resource resource : set.getResources()) {
-				uriBuilder.add(resource.getURI());
+				cbpResource.unload();
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
 		}
-		Set<URI> setUri = uriBuilder.build();
-		scope.getAllInvolvedResourceURIs().addAll(setUri);
-		return scope;
 	}
 
-	/***
-	 * 
-	 */
-	private void clearCacheAdapter() {
-		for (ResourceSet resourceSet : resourceSetList) {
-			for (Resource resource : resourceSet.getResources()) {
-				TreeIterator<EObject> iterator = resource.getAllContents();
-				List<EObject> list = new ArrayList<>();
+	class CBPLoadTimeMemoryTask extends Task {
+		File cbpOutputTimeFile;
+		File cbpOutputMemoryFile;
+		File xmiOutputTimeFile;
+		File xmiOutputMemoryFile;
+
+		public CBPLoadTimeMemoryTask(String model, File cbpFile, File cbpOutputTimeFile, File cbpOutputMemoryFile,
+				int iteration) {
+			super(null, null, null, null);
+			this.type = "CBP";
+			this.model = model;
+			this.cbpFile = cbpFile;
+			this.cbpOutputTimeFile = cbpOutputTimeFile;
+			this.cbpOutputMemoryFile = cbpOutputMemoryFile;
+			this.iteration = iteration;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			try {
+				Map<Object, Object> cbpLoadOptions = new HashMap<>();
+				cbpLoadOptions.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
+				CBPXMLResourceImpl cbpResource = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
+						.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
+
+				System.gc();
+				Thread.sleep(1000);
+				long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				long startTime = System.nanoTime();
+				cbpResource.load(cbpLoadOptions);
+				long endTime = System.nanoTime();
+				System.gc();
+				Thread.sleep(1000);
+				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				double nonOptLoadTime = (endTime - startTime) / 1000000000.0;
+				double nonOptLoadMemory;
+				if (endMemory - startMemory < 0) {
+					nonOptLoadMemory = 0;
+				} else {
+					nonOptLoadMemory = Math.abs(endMemory - startMemory) / (1024.0 * 1024.0);
+				}
+				if (iteration >= START_FROM) {
+					PrintStream printer = new PrintStream(new FileOutputStream(cbpOutputTimeFile, true));
+					printer.printf("%f,%s\n", nonOptLoadTime, type);
+					printer.flush();
+					printer.close();
+
+					printer = new PrintStream(new FileOutputStream(cbpOutputMemoryFile, true));
+					printer.printf("%f,%s\n", nonOptLoadMemory, type);
+					printer.flush();
+					printer.close();
+				}
+
+				cbpResource.unload();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	class DataDescriptionTask extends Task {
+		File xmiFile;
+
+		public DataDescriptionTask(String model, File cbpFile, File ignoreFile, File xmiFile, File outputFile) {
+			super(model, cbpFile, ignoreFile, outputFile);
+			this.xmiFile = xmiFile;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			try {
+				System.out.println("Generating " + outputFile.getName());
+				Map<Object, Object> cbpSaveOptions = new HashMap<>();
+				// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD,
+				// false);
+				CBPXMLResourceImpl cbpResource = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
+						.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
+
+				// ignore event count
+				cbpResource.loadIgnoreSet(new FileInputStream(ignoreFile));
+				int ignoredEventCount = cbpResource.getIgnoreSet().size();
+
+				cbpResource.load(cbpSaveOptions);
+
+				// total event count
+				LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(cbpFile));
+				lineNumberReader.skip(Long.MAX_VALUE);
+				int totalEventCount = lineNumberReader.getLineNumber();
+				lineNumberReader.close();
+
+				// session count
+				int sessionCount = 0;
+				sessionCount = cbpResource.getSessionCount();
+
+				// element count
+				int elementCount = 0;
+				TreeIterator<EObject> iterator = cbpResource.getAllContents();
 				while (iterator.hasNext()) {
-					EObject item = iterator.next();
-					list.add(item);
+					iterator.next();
+					elementCount += 1;
 				}
-				for (EObject eObject : list) {
-					CacheAdapter.getInstance().getInverseReferences(eObject).clear();
-					CacheAdapter.getInstance().getNonNavigableInverseReferences(eObject).clear();
-					eObject.eAdapters().clear();
-					EcoreUtil.remove(eObject);
 
-				}
-				list.clear();
-				CacheAdapter.getInstance().clear(resource);
-				CacheAdapter.getInstance().clear();
+				PrintStream printer = new PrintStream(outputFile);
+				printer.println("Model,TotalEvents,IgnoredEvents,ElementCount,SessionCount");
+				printer.println(model + "," + totalEventCount + "," + ignoredEventCount + "," + elementCount + ","
+						+ sessionCount);
+				printer.flush();
+				printer.close();
 
-				resource.getContents().clear();
-				resource.unload();
+				// save xmi
+				Map<Object, Object> xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
+				xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF,
+						XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+				XMIResourceImpl xmiResource = (XMIResourceImpl) (new XMIResourceFactoryImpl())
+						.createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
+				xmiResource.getContents().addAll(cbpResource.getContents());
+				xmiResource.save(xmiOptions);
+				xmiResource.unload();
+
+				cbpResource.unload();
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-			resourceSet.getResources().clear();
 		}
+
 	}
 
-	/***
-	 * 
-	 * @param resource
-	 */
-	private void clearCacheAdapter(Resource resource) {
-		TreeIterator<EObject> iterator = resource.getAllContents();
-		List<EObject> list = new ArrayList<>();
-		while (iterator.hasNext()) {
-			EObject item = iterator.next();
-			list.add(item);
-		}
-		for (EObject eObject : list) {
-			CacheAdapter.getInstance().getInverseReferences(eObject).clear();
-			CacheAdapter.getInstance().getNonNavigableInverseReferences(eObject).clear();
-			eObject.eAdapters().clear();
-			EcoreUtil.remove(eObject);
-
-		}
-		list.clear();
-		CacheAdapter.getInstance().clear(resource);
-		CacheAdapter.getInstance().clear();
-		resource.getContents().clear();
-		resource.unload();
-	}
 }

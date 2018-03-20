@@ -1,10 +1,26 @@
 package org.eclipse.epsilon.cbp.history;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+
 import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
@@ -1018,6 +1034,154 @@ public class ModelHistory extends ObjectHistory {
 
 		}
 		this.geteObjectHistoryMap().clear();
+	}
+
+	public void importModelHistory(File filePath) throws FileNotFoundException, XMLStreamException {
+		XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+		XMLEventReader xmlReader = xmlInputFactory
+				.createXMLEventReader(new BufferedInputStream(new FileInputStream(filePath)));
+
+		String id = null;
+		boolean isMoved = false;
+		int lineNumber = -1;
+
+		while (xmlReader.hasNext()) {
+			XMLEvent xmlEvent = xmlReader.nextEvent();
+			if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
+				StartElement e = xmlEvent.asStartElement();
+				String name = e.getName().getLocalPart();
+
+				if (name.equals("EObject")) {
+					id = e.getAttributeByName(new QName("id")).getValue();
+					isMoved = e.getAttributeByName(new QName("id")).getValue().equals("1") ? true : false; 
+				}
+				
+				if (name.equals("Attributes")) {
+					
+				}
+				
+				if (name.equals("References")) {
+					
+				}
+				
+				if(name.equals(CreateEObjectEvent.class.getName())) {
+					
+				}
+				
+				if(name.equals(SetEReferenceEvent.class.getName())) {
+					
+				
+				}
+				
+				if (name.equals(Line.class.getName())) {
+					lineNumber = Integer.valueOf(e.getAttributeByName(new QName("lineNumber")).getValue());
+				}
+			}
+
+			if (xmlEvent.getEventType() == XMLStreamConstants.END_ELEMENT) {
+				EndElement ee = xmlEvent.asEndElement();
+				String name = ee.getName().getLocalPart();
+
+				if (name.equals("EObject")) {
+					EObject eObject = resource.getEObject(id);
+					resource.getModelHistory().geteObjectHistoryMap().put(eObject, new ObjectHistory(eObject));
+				}
+				
+				if(name.equals(CreateEObjectEvent.class.getName())) {
+					EventHistory event = new EventHistory(new CreateEObjectEvent(null));
+					resource.getModelHistory().getEventHistoryMap().put(CreateEObjectEvent.class.getName(), event);
+				}
+				
+				if(name.equals(SetEReferenceEvent.class.getName())) {
+				
+				}
+
+			}
+		}
+	}
+
+	public void exportModelHistory(File filePath) throws FileNotFoundException {
+		PrintWriter printer = new PrintWriter(filePath);
+
+		printer.println("<?xml version='1.0' encoding='ISO-8859-1' ?>");
+		printer.println("<ModelHistory>");
+		for (Entry<EObject, ObjectHistory> entry1 : this.geteObjectHistoryMap().entrySet()) {
+			EObject eObject = entry1.getKey();
+			ObjectHistory eObjectEventLineHistory = entry1.getValue();
+			String id = resource.getURIFragment(eObject);
+			if (id.equals("/-1") == false) {
+				printer.printf("  <EObject id='%s' isMoved='%s'>" + System.lineSeparator(), id,
+						eObjectEventLineHistory.isMoved() ? 1 : 0);
+
+				for (Entry<String, EventHistory> entry2 : eObjectEventLineHistory.getEventHistoryMap().entrySet()) {
+					String eventName = entry2.getKey();
+					List<Line> lines = entry2.getValue();
+					printer.printf("    <%s>" + System.lineSeparator(), eventName);
+					for (Line line : lines) {
+						printer.printf("      <Line lineNumber='%s'/>" + System.lineSeparator(), line.getEventNumber());
+					}
+					printer.printf("    </%s>" + System.lineSeparator(), eventName);
+				}
+				Map<EObject, AttributeHistory> attributeList = eObjectEventLineHistory.getAttributes();
+
+				if (attributeList.size() > 0) {
+					printer.println("    <Attributes>");
+					for (Entry<EObject, AttributeHistory> entry2 : attributeList.entrySet()) {
+						EAttribute eAttribute = (EAttribute) entry2.getKey();
+						ObjectHistory eAttributeHistory = entry2.getValue();
+						printer.printf("      <Attribute name='%s' isMoved='%s'>" + System.lineSeparator(),
+								eAttribute.getName(), eAttributeHistory.isMoved() ? 1 : 0);
+
+						for (Entry<String, EventHistory> entry3 : eAttributeHistory.getEventHistoryMap().entrySet()) {
+							String eventName = entry3.getKey();
+							List<Line> lines = entry3.getValue();
+							printer.printf("        <%s>" + System.lineSeparator(), eventName);
+							for (Line line : lines) {
+								printer.printf("          <Line lineNumber='%s'/>" + System.lineSeparator(),
+										line.getEventNumber());
+							}
+							printer.printf("        </%s>" + System.lineSeparator(), eventName);
+						}
+
+						printer.println("      </Attribute>");
+					}
+					printer.println("    </Attributes>");
+				}
+
+				// references
+				Map<EObject, ReferenceHistory> referenceList = eObjectEventLineHistory.getReferences();
+				if (referenceList.size() > 0) {
+					printer.println("    <References>");
+					for (Entry<EObject, ReferenceHistory> entry2 : referenceList.entrySet()) {
+						EReference eReference = (EReference) entry2.getKey();
+						ObjectHistory eReferenceHistory = entry2.getValue();
+
+						printer.printf("      <Reference name='%s' isMoved='%s'>" + System.lineSeparator(),
+								eReference.getName(), eReferenceHistory.isMoved() ? 1 : 0);
+						for (Entry<String, EventHistory> entry3 : eReferenceHistory.getEventHistoryMap().entrySet()) {
+							String eventName = entry3.getKey();
+							List<Line> lines = entry3.getValue();
+							printer.printf("        <%s>" + System.lineSeparator(), eventName);
+							for (Line line : lines) {
+								if (resource.getEObjectId((EObject) line.getValue()) != null) {
+									printer.printf(
+											"          <Line lineNumber='%s' value='%s'/>" + System.lineSeparator(),
+											line.getEventNumber(), resource.getEObjectId((EObject) line.getValue()));
+								}
+							}
+							printer.printf("        </%s>" + System.lineSeparator(), eventName);
+						}
+						printer.println("      </Reference>");
+
+					}
+					printer.println("    </References>");
+				}
+
+				printer.println("  </EObject>");
+			}
+		}
+		printer.println("</ModelHistory>");
+		printer.close();
 	}
 
 	public void printStructure() {

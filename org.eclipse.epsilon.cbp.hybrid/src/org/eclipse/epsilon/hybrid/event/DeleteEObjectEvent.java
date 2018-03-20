@@ -1,45 +1,30 @@
-package org.eclipse.epsilon.cbp.event;
+package org.eclipse.epsilon.hybrid.event;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.resource.CBPResource;
+import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 
-public class DeleteEObjectEvent extends ChangeEvent<EObject> {
+public class DeleteEObjectEvent extends org.eclipse.epsilon.cbp.event.DeleteEObjectEvent {
 
-	protected EClass eClass;
-	protected CBPResource resource;
-	protected String id;
-	protected EObject eObject;
-	
-	public DeleteEObjectEvent() {
-		
-	}
+	protected HybridResource resource;
 
 	public DeleteEObjectEvent(EObject eObject, String id) {
-		super();
+		super(eObject, id);
 		this.eObject = eObject;
 		this.eClass = eObject.eClass();
 		this.id = id;
 		this.setValue(eObject);
 	}
 
-	public DeleteEObjectEvent(EClass eClass, CBPResource resource, String id) {
+	public DeleteEObjectEvent(EClass eClass, HybridResource resource, String id) {
 		super();
 		this.eClass = eClass;
 		this.id = id;
 		this.resource = resource;
 		this.eObject = resource.getEObject(id);
 	}
-
-	public EClass getEClass() {
-		return eClass;
-	}
-
-	public String getId() {
-		return id;
-	}
-
+	
 	@Override
 	public void replay() {
 		this.eObject = resource.getEObject(this.id);
@@ -48,8 +33,4 @@ public class DeleteEObjectEvent extends ChangeEvent<EObject> {
 		resource.unregister(eObject);
 	}
 
-	@Override
-	public <U> U accept(IChangeEventVisitor<U> visitor) {
-		return visitor.visit(this);
-	}
 }

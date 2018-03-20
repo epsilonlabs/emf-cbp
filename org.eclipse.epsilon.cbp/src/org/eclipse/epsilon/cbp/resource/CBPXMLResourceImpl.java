@@ -1,15 +1,10 @@
 package org.eclipse.epsilon.cbp.resource;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.SequenceInputStream;
 import java.util.Date;
@@ -32,6 +27,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
@@ -422,7 +418,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		replayEvents(inputStream);
 
 		changeEventAdapter.setEnabled(true);
-		this.clearIgnoreSet();
+//		this.clearIgnoreSet();
 	}
 
 	/**
@@ -608,7 +604,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 						if (ignore == false) {
 
 							event.replay();
-
+							
 //							 if (eventNumber % 100000 == 0)
 //							 System.out.println(eventNumber);
 

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,11 +12,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,7 +35,7 @@ import org.junit.Test;
 public class ECMFATest3 {
 
 	private static final int SLEEP_TIME = 1000;
-	final int ITERATION = 6;
+	final int ITERATION = 4;
 	final int startFrom = 0;
 
 	String dirPath = "D:\\TEMP\\ECMFA\\scripts";
@@ -54,51 +51,49 @@ public class ECMFATest3 {
 
 		MoDiscoXMLPackage.eINSTANCE.eClass();
 		UMLPackage.eINSTANCE.eClass();
-
+		
 		File dummyCbpFileForMeasuringSave = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.cbpxml");
 		File dummyIgnoreSet = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.ignoreset");
 
-		 System.out.println();
-		 System.out.println("Processing BPMN2 ...");
-		 File bpmn2CbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.cbpxml");
-		 File bpmn2IgnoreListFile = new
-		 File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.ignoreset");
-		 Measurement b = new Measurement();
-		 b = performMeasure(bpmn2CbpFile, bpmn2IgnoreListFile,
-		 dummyCbpFileForMeasuringSave, dummyIgnoreSet);
-		 map.put("BPMN2", b);
+		System.out.println();
+		System.out.println("Processing BPMN2 ...");
+		File bpmn2CbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.cbpxml");
+		File bpmn2IgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.ignoreset");
+		Measurement b = new Measurement();
+		b = performMeasure(bpmn2CbpFile, bpmn2IgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
+		map.put("BPMN2", b);
 
-//		System.out.println();
-//		System.out.println("Processing Epsilon ...");
-//		File epsilonCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.cbpxml");
-//		File epsilonIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.ignoreset");
-//		Measurement e = new Measurement();
-//		e = performMeasure(epsilonCbpFile, epsilonIgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
-//		map.put("Epsilon", e);
+		// System.out.println();
+		// System.out.println("Processing Epsilon ...");
+		// File epsilonCbpFile = new
+		// File("D:\\TEMP\\ECMFA\\cbp\\epsilon.cbpxml");
+		// File epsilonIgnoreListFile = new
+		// File("D:\\TEMP\\ECMFA\\cbp\\epsilon.ignoreset");
+		// Measurement e = new Measurement();
+		// e = performMeasure(epsilonCbpFile, epsilonIgnoreListFile,
+		// dummyCbpFileForMeasuringSave, dummyIgnoreSet);
+		// map.put("Epsilon", e);
 
-//		 System.out.println();
-//		 System.out.println("Processing Wikipedia ...");
-//		 File wikipediaCbpFile = new
-//		 File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.003100.ISO.cbpxml");
-//		 File wikipediaIgnoreListFile = new
-//		 File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.003100.ISO.ignoreset");
-//		 Measurement w = new Measurement();
-//		 w = performMeasure(wikipediaCbpFile, wikipediaIgnoreListFile,
-//		 dummyCbpFileForMeasuringSave, dummyIgnoreSet);
-//		 map.put("Wikipedia", w);
+		System.out.println();
+		System.out.println("Processing Wikipedia ...");
+		File wikipediaCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.9180.cbpxml");
+		File wikipediaIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.9180.ignoreset");
+		Measurement w = new Measurement();
+		w = performMeasure(wikipediaCbpFile, wikipediaIgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
+		map.put("Wikipedia", w);
 
 		System.out.println();
 		fileName = dirPath + File.separator + "general_description" + extension;
 		printer = new PrintStream(new File(fileName));
 		printer.println("Model , Total Event Count , Ignored Event Count , Element Count , Number of Commits");
-		 printer.println("BPMN2 , " + b.getTotalEventCount() + " , " +
-		 b.getIgnoredEventCount() + " , "
-		 + b.getElementCount() + " , " + b.getSessionCount());
-//		printer.println("Epsilon , " + e.getTotalEventCount() + " , " + e.getIgnoredEventCount() + " , "
-//				+ e.getElementCount() + " , " + e.getSessionCount());
-//		 printer.println("Wikipedia , " + w.getTotalEventCount() + " , " +
-//		 w.getIgnoredEventCount() + " , "
-//		 + w.getElementCount() + " , " + w.getSessionCount());
+		printer.println("BPMN2 , " + b.getTotalEventCount() + " , " + b.getIgnoredEventCount() + " , "
+				+ b.getElementCount() + " , " + b.getSessionCount());
+		// printer.println("Epsilon , " + e.getTotalEventCount() + " , " +
+		// e.getIgnoredEventCount() + " , "
+		// + e.getElementCount() + " , " + e.getSessionCount());
+		// printer.println("Wikipedia , " + w.getTotalEventCount() + " , " +
+		// w.getIgnoredEventCount() + " , "
+		// + w.getElementCount() + " , " + w.getSessionCount());
 		printer.flush();
 		printer.close();
 
@@ -190,10 +185,12 @@ public class ECMFATest3 {
 	private Measurement performMeasure(File cbpFile, File ignoreListFile, File dummyCbpFileForMeasuringSave,
 			File dummyIgnoreSet) {
 
+		
 		Measurement m = new Measurement();
 		try {
+			File dummyXmiFile = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.xmi");
 			XMIResource xmiResource = (XMIResource) (new XMIResourceFactoryImpl())
-					.createResource(URI.createURI("foo.xmi"));
+					.createResource(URI.createFileURI(dummyXmiFile.getAbsolutePath()));
 			CBPXMLResourceImpl cbpResource = (CBPXMLResourceImpl) (new CBPXMLResourceFactory())
 					.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
 
@@ -252,14 +249,11 @@ public class ECMFATest3 {
 
 				// xmi save time
 				System.out.println("Xmi Save Time and Memory");
-				// xmiResource = (XMIResource) (new XMIResourceFactoryImpl())
-				// .createResource(URI.createURI("foo.xmi"));
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				xmiResource.getContents().addAll(cbpResource.getContents());
 				System.gc();
 				startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 				startTime = System.nanoTime();
-				xmiResource.save(os, xmiOptions);
+				xmiResource.save(xmiOptions);
 				endTime = System.nanoTime();
 				System.gc();
 				try {
@@ -278,13 +272,10 @@ public class ECMFATest3 {
 
 				// xmi load time
 				System.out.println("Xmi Load Time and Memory");
-				// xmiResource = (XMIResource) (new XMIResourceFactoryImpl())
-				// .createResource(URI.createURI("foo.xmi"));
-				ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 				System.gc();
 				startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 				startTime = System.nanoTime();
-				xmiResource.load(is, xmiOptions);
+				xmiResource.load(xmiOptions);
 				endTime = System.nanoTime();
 				System.gc();
 				// Thread.sleep(SLEEP_TIME);
@@ -338,215 +329,191 @@ public class ECMFATest3 {
 				optLoadMemory[i] = optLoadMemory[i] / 1000000.0;
 			}
 
-			// // measuring saving time Non-optimised CBP
-			// System.out.println("General Description");
-			// if (dummyCbpFileForMeasuringSave.exists()) {
-			// dummyCbpFileForMeasuringSave.delete();
-			// }
-			// dummyCbpFileForMeasuringSave.createNewFile();
-			//
-			// Map<Object, Object> cbpSaveOptions = new HashMap<>();
-			// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD,
-			// true);
-			// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD,
-			// false);
-			// cbpResource.setURI(URI.createFileURI(cbpFile.getAbsolutePath()));
-			// cbpResource.load(cbpSaveOptions);
-			// cbpResource.setURI(URI.createFileURI(dummyCbpFileForMeasuringSave.getAbsolutePath()));
-			// List<ChangeEvent<?>> changeEvents = new
-			// ArrayList<>(cbpResource.getChangeEvents());
-			//
-			// // total event count
-			// System.out.println("Total Event Count");
-			// totalEventCount = changeEvents.size();
-			//
-			// // session count
-			// System.out.println("Session Count");
-			// sessionCount = 0;
-			// sessionCount = cbpResource.getSessionCount();
-			//
-			// // element count
-			// System.out.println("Element Count");
-			// elementCount = 0;
-			// TreeIterator<EObject> iterator = cbpResource.getAllContents();
-			// while (iterator.hasNext()) {
-			// iterator.next();
-			// elementCount += 1;
-			// }
-			// cbpResource.unload();
-			//
-			// // measuring saving time optimised CBP
-			// System.out.println("General Description 2");
-			// if (dummyCbpFileForMeasuringSave.exists()) {
-			// dummyCbpFileForMeasuringSave.delete();
-			// }
-			// dummyCbpFileForMeasuringSave.createNewFile();
-			// if (dummyIgnoreSet.exists()) {
-			// dummyIgnoreSet.delete();
-			// }
-			// dummyIgnoreSet.createNewFile();
-			//
-			// // ignored event count
-			// cbpSaveOptions.clear();
-			// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD,
-			// true);
-			// //
+			// measuring saving time Non-optimised CBP
+			System.out.println("General Description");
+			if (dummyCbpFileForMeasuringSave.exists()) {
+				dummyCbpFileForMeasuringSave.delete();
+			}
+			dummyCbpFileForMeasuringSave.createNewFile();
+
+			Map<Object, Object> cbpSaveOptions = new HashMap<>();
+			cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
+			cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
+			cbpResource.setURI(URI.createFileURI(cbpFile.getAbsolutePath()));
+			cbpResource.load(cbpSaveOptions);
+			cbpResource.setURI(URI.createFileURI(dummyCbpFileForMeasuringSave.getAbsolutePath()));
+			List<ChangeEvent<?>> changeEvents = new ArrayList<>(cbpResource.getChangeEvents());
+
+			// total event count
+			System.out.println("Total Event Count");
+			totalEventCount = changeEvents.size();
+
+			// session count
+			System.out.println("Session Count");
+			sessionCount = 0;
+			sessionCount = cbpResource.getSessionCount();
+
+			// element count
+			System.out.println("Element Count");
+			elementCount = 0;
+			TreeIterator<EObject> iterator = cbpResource.getAllContents();
+			while (iterator.hasNext()) {
+				iterator.next();
+				elementCount += 1;
+			}
+			cbpResource.unload();
+
+			// measuring saving time optimised CBP
+			System.out.println("General Description 2");
+			if (dummyCbpFileForMeasuringSave.exists()) {
+				dummyCbpFileForMeasuringSave.delete();
+			}
+			dummyCbpFileForMeasuringSave.createNewFile();
+			if (dummyIgnoreSet.exists()) {
+				dummyIgnoreSet.delete();
+			}
+			dummyIgnoreSet.createNewFile();
+
+			// ignored event count
+			cbpSaveOptions.clear();
+			cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
 			// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_GENERATE_MODEL_HISTORY,
-			// // true);
-			//
-			// System.out.println("Ignored Event Count");
-			// cbpResource.loadIgnoreSet(new FileInputStream(ignoreListFile));
-			// ignoredEventCount = cbpResource.getIgnoreSet().size();
-			//
-			// System.out.println("Optimised CBP Save Time and Memory");
-			// cbpResource.load(new ByteArrayInputStream(new byte[0]),
-			// cbpSaveOptions);
-			// cbpResource.setURI(URI.createFileURI(dummyCbpFileForMeasuringSave.getAbsolutePath()));
-			// totalEventCount = changeEvents.size();
-			// cbpResource.getChangeEvents().clear();
-			//
-			// BufferedReader reader = new BufferedReader(new
-			// FileReader(cbpFile));
-			// String line;
-			// int lineCount = 0;
-			// int iterationCount = 0;
-			// int unignoredLineCount = 0;
-			// while ((line = reader.readLine()) != null) {
-			//
-			// if (lineCount % 100000 == 0)
-			// System.out.println(lineCount);
-			//
-			// if (iterationCount >= ITERATION)
-			// break;
-			//
-			// if (cbpResource.getIgnoreSet().contains(lineCount) == false) {
-			//
-			// InputStream stream = new ByteArrayInputStream(line.getBytes());
-			// try {
-			// cbpResource.loadAdditionalEvents(stream);
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// stream.close();
-			//
-			// if (unignoredLineCount >= totalEventCount - ignoredEventCount -
-			// ITERATION) {
-			// System.out.println(line);
-			// System.gc();
-			// long startMemory = Runtime.getRuntime().totalMemory() -
-			// Runtime.getRuntime().freeMemory();
-			// long startTime = System.nanoTime();
-			// cbpResource.save(cbpSaveOptions);
-			// cbpResource.saveIgnoreSet(new FileOutputStream(dummyIgnoreSet,
-			// true));
-			// long endTime = System.nanoTime();
-			// System.gc();
-			// try {
-			// Thread.sleep(SLEEP_TIME);
-			// } catch (InterruptedException e) {
-			// e.printStackTrace();
-			// }
-			// long endMemory = Runtime.getRuntime().totalMemory() -
-			// Runtime.getRuntime().freeMemory();
-			// optSaveTime[iterationCount] += (endTime - startTime);
-			// if (endMemory - startMemory < 0) {
-			// optSaveMemory[iterationCount] += 0;
-			// } else {
-			// optSaveMemory[iterationCount] += Math.abs(endMemory -
-			// startMemory);
-			// }
-			// optSaveTime[iterationCount] = optSaveTime[iterationCount] /
-			// 1000000000.0;
-			// optSaveMemory[iterationCount] = optSaveMemory[iterationCount] /
-			// 1000000.0;
-			// iterationCount += 1;
-			// } else {
-			// // System.out.println("Saving previously replayed
-			// // events");
-			// // System.out.println(cbpResource.getChangeEvents().size());
-			// // System.gc();
-			// cbpResource.save(cbpSaveOptions);
-			// cbpResource.saveIgnoreSet(new FileOutputStream(dummyIgnoreSet,
-			// true));
-			// }
-			//
-			// unignoredLineCount += 1;
-			// }
-			// lineCount += 1;
-			// }
-			// reader.close();
-			// cbpResource.unload();
-			//
-			// System.out.println("CBP Save Time and Memory");
-			// cbpSaveOptions.clear();
-			// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD,
 			// true);
-			// //
+
+			System.out.println("Ignored Event Count");
+			cbpResource.loadIgnoreSet(new FileInputStream(ignoreListFile));
+			ignoredEventCount = cbpResource.getIgnoreSet().size();
+
+			System.out.println("Optimised CBP Save Time and Memory");
+			cbpResource.load(new ByteArrayInputStream(new byte[0]), cbpSaveOptions);
+			cbpResource.setURI(URI.createFileURI(dummyCbpFileForMeasuringSave.getAbsolutePath()));
+			totalEventCount = changeEvents.size();
+			cbpResource.getChangeEvents().clear();
+
+			BufferedReader reader = new BufferedReader(new FileReader(cbpFile));
+			String line;
+			int lineCount = 0;
+			int iterationCount = 0;
+			int unignoredLineCount = 0;
+			while ((line = reader.readLine()) != null) {
+
+				if (lineCount % 100000 == 0)
+					System.out.println(lineCount);
+
+				if (iterationCount >= ITERATION)
+					break;
+
+				if (cbpResource.getIgnoreSet().contains(lineCount) == false) {
+
+					InputStream stream = new ByteArrayInputStream(line.getBytes());
+					try {
+						cbpResource.loadAdditionalEvents(stream);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					stream.close();
+
+					if (unignoredLineCount >= totalEventCount - ignoredEventCount - ITERATION) {
+						System.out.println(line);
+						System.gc();
+						long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+						long startTime = System.nanoTime();
+						cbpResource.save(cbpSaveOptions);
+						cbpResource.saveIgnoreSet(new FileOutputStream(dummyIgnoreSet, true));
+						long endTime = System.nanoTime();
+						System.gc();
+						try {
+							Thread.sleep(SLEEP_TIME);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+						optSaveTime[iterationCount] += (endTime - startTime);
+						if (endMemory - startMemory < 0) {
+							optSaveMemory[iterationCount] += 0;
+						} else {
+							optSaveMemory[iterationCount] += Math.abs(endMemory - startMemory);
+						}
+						optSaveTime[iterationCount] = optSaveTime[iterationCount] / 1000000000.0;
+						optSaveMemory[iterationCount] = optSaveMemory[iterationCount] / 1000000.0;
+						iterationCount += 1;
+					} else {
+						// System.out.println("Saving previously replayed
+						// events");
+						// System.out.println(cbpResource.getChangeEvents().size());
+						// System.gc();
+						cbpResource.save(cbpSaveOptions);
+						cbpResource.saveIgnoreSet(new FileOutputStream(dummyIgnoreSet, true));
+					}
+
+					unignoredLineCount += 1;
+				}
+				lineCount += 1;
+			}
+			reader.close();
+			cbpResource.unload();
+
+			System.out.println("CBP Save Time and Memory");
+			cbpSaveOptions.clear();
+			cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_KEEP_CHANGE_EVENTS_AFTER_LOAD, true);
 			// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_GENERATE_MODEL_HISTORY,
-			// // true);
-			// cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD,
-			// false);
-			// cbpResource.load(new ByteArrayInputStream(new byte[0]),
-			// cbpSaveOptions);
-			//
-			// reader = new BufferedReader(new FileReader(cbpFile));
-			// lineCount = 0;
-			// iterationCount = 0;
-			// while ((line = reader.readLine()) != null) {
-			//
-			// if (lineCount % 100000 == 0)
-			// System.out.println(lineCount);
-			//
-			// if (iterationCount >= ITERATION)
-			// break;
-			//
-			// InputStream stream = new ByteArrayInputStream(line.getBytes());
-			// try {
-			// cbpResource.loadAdditionalEvents(stream);
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// stream.close();
-			//
-			// if (lineCount >= totalEventCount - ITERATION) {
-			// System.out.println(line);
-			// System.gc();
-			// long startMemory = Runtime.getRuntime().totalMemory() -
-			// Runtime.getRuntime().freeMemory();
-			// long startTime = System.nanoTime();
-			// cbpResource.save(cbpSaveOptions);
-			// long endTime = System.nanoTime();
-			// System.gc();
-			// try {
-			// Thread.sleep(SLEEP_TIME);
-			// } catch (InterruptedException e) {
-			// e.printStackTrace();
-			// }
-			// long endMemory = Runtime.getRuntime().totalMemory() -
-			// Runtime.getRuntime().freeMemory();
-			// nonOptSaveTime[iterationCount] += (endTime - startTime);
-			// if (endMemory - startMemory < 0) {
-			// nonOptSaveMemory[iterationCount] += 0;
-			// } else {
-			// nonOptSaveMemory[iterationCount] += Math.abs(endMemory -
-			// startMemory);
-			// }
-			// nonOptSaveTime[iterationCount] = nonOptSaveTime[iterationCount] /
-			// 1000000000.0;
-			// nonOptSaveMemory[iterationCount] =
-			// nonOptSaveMemory[iterationCount] / 1000000.0;
-			// iterationCount += 1;
-			// } else if (lineCount == totalEventCount - ITERATION - 1) {
-			// System.out.println("Saving previously replayed events");
-			// System.out.println(cbpResource.getChangeEvents().size());
-			// System.gc();
-			// cbpResource.save(cbpSaveOptions);
-			// }
-			//
-			// lineCount += 1;
-			// }
-			// reader.close();
-			// cbpResource.unload();
+			// true);
+			cbpSaveOptions.put(CBPXMLResourceImpl.OPTION_OPTIMISE_LOAD, false);
+			cbpResource.load(new ByteArrayInputStream(new byte[0]), cbpSaveOptions);
+
+			reader = new BufferedReader(new FileReader(cbpFile));
+			lineCount = 0;
+			iterationCount = 0;
+			while ((line = reader.readLine()) != null) {
+
+				if (lineCount % 100000 == 0)
+					System.out.println(lineCount);
+
+				if (iterationCount >= ITERATION)
+					break;
+
+				InputStream stream = new ByteArrayInputStream(line.getBytes());
+				try {
+					cbpResource.loadAdditionalEvents(stream);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				stream.close();
+
+				if (lineCount >= totalEventCount - ITERATION) {
+					System.out.println(line);
+					System.gc();
+					long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					long startTime = System.nanoTime();
+					cbpResource.save(cbpSaveOptions);
+					long endTime = System.nanoTime();
+					System.gc();
+					try {
+						Thread.sleep(SLEEP_TIME);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					nonOptSaveTime[iterationCount] += (endTime - startTime);
+					if (endMemory - startMemory < 0) {
+						nonOptSaveMemory[iterationCount] += 0;
+					} else {
+						nonOptSaveMemory[iterationCount] += Math.abs(endMemory - startMemory);
+					}
+					nonOptSaveTime[iterationCount] = nonOptSaveTime[iterationCount] / 1000000000.0;
+					nonOptSaveMemory[iterationCount] = nonOptSaveMemory[iterationCount] / 1000000.0;
+					iterationCount += 1;
+				} else if (lineCount == totalEventCount - ITERATION - 1) {
+					System.out.println("Saving previously replayed events");
+					System.out.println(cbpResource.getChangeEvents().size());
+					System.gc();
+					cbpResource.save(cbpSaveOptions);
+				}
+
+				lineCount += 1;
+			}
+			reader.close();
+			cbpResource.unload();
 
 			// set measurement values
 			m.setElementCount(elementCount);

@@ -235,9 +235,9 @@ public abstract class CBPResource extends ResourceImpl {
 			intBuffer.get(result);
 			ignoreSet.clear();
 			ignoreList.clear();
-			for (int i = 0; i < result.length; i++)
-				ignoreList.add(result[i]);
-			ignoreSet = new HashSet<>(ignoreList);
+			for (int i: result)
+				ignoreSet.add(i);
+			ignoreList = new ArrayList<>(ignoreSet);
 		} else {
 			DataInputStream dis = new DataInputStream(new BufferedInputStream(inputStream));
 			int count = (int) (inputStream.getChannel().size() / 4);

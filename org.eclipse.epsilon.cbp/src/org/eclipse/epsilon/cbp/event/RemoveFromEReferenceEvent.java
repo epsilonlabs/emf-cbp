@@ -10,6 +10,7 @@ public class RemoveFromEReferenceEvent extends EReferenceEvent implements EObjec
 	@Override
 	public void replay() {
 		
+		
 		((Collection<EObject>) target.eGet(getEStructuralFeature())).removeAll(getValues());
 	}
 

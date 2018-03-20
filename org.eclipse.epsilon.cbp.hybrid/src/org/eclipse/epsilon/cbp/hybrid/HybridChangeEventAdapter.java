@@ -1,38 +1,32 @@
 package org.eclipse.epsilon.cbp.hybrid;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
-import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
-import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-
-import fr.inria.atlanmod.neoemf.resource.PersistentResource;
+import org.eclipse.epsilon.hybrid.event.CreateEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.DeleteEObjectEvent;
 
 public class HybridChangeEventAdapter extends ChangeEventAdapter {
 
-	private List<String> createdEObjects = new ArrayList<>();
-
-	private PersistentResource resource;
+	protected Resource resource;
 
 	public HybridChangeEventAdapter(CBPResource resource) {
 		super(resource);
 		// TODO Auto-generated constructor stub
 	}
 
-	public HybridChangeEventAdapter(PersistentResource resource) {
+	public HybridChangeEventAdapter(Resource resource) {
 		super(null);
 		this.resource = resource;
 
@@ -45,41 +39,26 @@ public class HybridChangeEventAdapter extends ChangeEventAdapter {
 
 	@Override
 	public void handleDeletedEObject(EObject removedObject, Object parent, Object feature) {
-		boolean isDeleted = true;
 
-		String y = resource.getURIFragment(removedObject);
-
-		TreeIterator<EObject> eAllContents = resource.getAllContents();
-		while (eAllContents.hasNext()) {
-			EObject eObject = eAllContents.next();
-			if (eObject.equals(removedObject)) {
-				isDeleted = false;
-				break;
-			}
-		}
-
-		if (isDeleted == true) {
+		if (removedObject.eResource() == null && removedObject.eCrossReferences().size() == 0) {
+			// System.out.println("XXX1: " + removedObject);
 			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
-			createdEObjects.remove(id);
-			deleteCount++;
 			changeEvents.add(e);
 		}
 	}
-
-	@Override
-	public void handleEPackageOf(EObject eObject) {
-
-	}
+	//
+	// @Override
+	// public void handleEPackageOf(EObject eObject) {
+	//
+	// }
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void handleCreateEObject(EObject eObject) {
-		String objectId = resource.getURIFragment(eObject);
-		if (createdEObjects.contains(objectId) == false) {
-			ChangeEvent<?> event = new CreateEObjectEvent(eObject, objectId);
-			createdEObjects.add(objectId);
-			createCount++;
+		HybridResource hybridResource = (HybridResource) resource;
+		if (!hybridResource.isRegistered(eObject)) {
+			ChangeEvent<?> event = new CreateEObjectEvent(eObject, hybridResource.register(eObject));
 			changeEvents.add(event);
 
 			// Include prior attribute values into the resource

@@ -16,7 +16,6 @@ Require-Bundle: org.eclipse.uml2.uml.source,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.epsilon.cbp.hybrid,
  fr.inria.atlanmod.neoemf.core,
- fr.inria.atlanmod.neoemf.data.blueprints.core,
  fr.inria.atlanmod.neoemf.data.blueprints.neo4j,
  fr.inria.atlanmod.neoemf.data.blueprints.neo4j.wrapper,
  org.eclipse.epsilon.cbp,
@@ -24,9 +23,10 @@ Require-Bundle: org.eclipse.uml2.uml.source,
  org.eclipse.emf.compare,
  com.google.guava,
  org.apache.log4j,
- org.eclipse.emf.compare.uml2
+ org.eclipse.emf.compare.uml2,
+ org.eclipse.gmt.modisco.xml
 Bundle-ActivationPolicy: lazy
-Import-Package: graph,
+Import-Package: 
  org.eclipse.gmt.modisco.java,
  org.eclipse.uml2.uml,
  org.eclipse.uml2.uml.bridge,
