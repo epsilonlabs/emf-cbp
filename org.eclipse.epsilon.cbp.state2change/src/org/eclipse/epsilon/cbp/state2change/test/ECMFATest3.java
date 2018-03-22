@@ -35,7 +35,7 @@ import org.junit.Test;
 public class ECMFATest3 {
 
 	private static final int SLEEP_TIME = 1000;
-	final int ITERATION = 4;
+	final int ITERATION = 3;
 	final int startFrom = 0;
 
 	String dirPath = "D:\\TEMP\\ECMFA\\scripts";

@@ -5,9 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.SequenceInputStream;
 import java.util.LinkedList;
 import java.util.Map;
@@ -51,8 +53,8 @@ import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
-import org.eclipse.epsilon.hybrid.event.CreateEObjectEvent;
-import org.eclipse.epsilon.hybrid.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.CreateEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.DeleteEObjectEvent;
 
 public class CBP2XMIResource extends HybridResource {
 
@@ -80,8 +82,12 @@ public class CBP2XMIResource extends HybridResource {
 		this.xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
 	}
 
-	public void generateXMI() {
-
+	public void generateXMI() throws FactoryConfigurationError, IOException {
+		FileInputStream fis = new FileInputStream(cbpFile);
+		BufferedInputStream bis = new BufferedInputStream(fis);
+		replayEvents(bis, false, this.targetDir, -1, null);
+		bis.close();
+		fis.close();
 	}
 
 	public void generateSessionXMI(String sessionName) {
@@ -150,7 +156,7 @@ public class CBP2XMIResource extends HybridResource {
 						switch (name) {
 						case "session": {
 							String sessionId = e.getAttributeByName(new QName("id")).getValue();
-							System.out.println("Generating " + sessionId + " ...");
+							System.out.println("Processing " + sessionId + " ...");
 							String time = e.getAttributeByName(new QName("time")).getValue();
 							event = new StartNewSessionEvent(sessionId, time);
 							fifo.add(sessionId);
@@ -293,7 +299,9 @@ public class CBP2XMIResource extends HybridResource {
 
 						} else if (all == false) {
 							if (nextSessionLine != prevSessionLine) {
-								break;
+								String sessionName = fifo.getFirst();
+								fifo.removeFirst();
+								prevSessionLine = nextSessionLine;
 							}
 							if (eventNumber == targetLineNumber) {
 								break;
@@ -353,6 +361,12 @@ public class CBP2XMIResource extends HybridResource {
 		this.save(bos, xmiOptions);
 		fos.close();
 		bos.close();
+	}
+	
+	@Override
+	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
+		stateBasedResource.save(out, options);
+		out.flush();
 	}
 }
 

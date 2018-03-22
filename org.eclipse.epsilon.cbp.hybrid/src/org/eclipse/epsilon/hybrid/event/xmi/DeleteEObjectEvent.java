@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.hybrid.event;
+package org.eclipse.epsilon.hybrid.event.xmi;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -24,7 +24,7 @@ public class DeleteEObjectEvent extends org.eclipse.epsilon.cbp.event.DeleteEObj
 		this.resource = resource;
 		this.eObject = resource.getEObject(id);
 	}
-	
+
 	@Override
 	public void replay() {
 		this.eObject = resource.getEObject(this.id);

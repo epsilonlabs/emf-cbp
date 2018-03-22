@@ -13,11 +13,14 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.modelmbean.ModelMBeanInfoSupport;
 
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -32,10 +35,12 @@ import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.Comment;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
 
+import fr.inria.atlanmod.neoemf.core.PersistentEObject;
 import fr.inria.atlanmod.neoemf.data.PersistenceBackendFactoryRegistry;
 import fr.inria.atlanmod.neoemf.data.blueprints.BlueprintsPersistenceBackendFactory;
 import fr.inria.atlanmod.neoemf.data.blueprints.neo4j.option.BlueprintsNeo4jOptionsBuilder;
@@ -43,10 +48,11 @@ import fr.inria.atlanmod.neoemf.data.blueprints.util.BlueprintsURI;
 import fr.inria.atlanmod.neoemf.resource.DefaultPersistentResource;
 import fr.inria.atlanmod.neoemf.resource.PersistentResource;
 import fr.inria.atlanmod.neoemf.resource.PersistentResourceFactory;
+import fr.inria.atlanmod.neoemf.util.logging.NeoLogger;
 
 public class HybridNeoEMFTest {
 
-	public final int ITERATION = 5;
+	public final int ITERATION = 3;
 	public final int START_FROM = 0;
 	public final int SLEEP_TIME = 1000;
 
@@ -59,78 +65,52 @@ public class HybridNeoEMFTest {
 		try {
 			System.out.println("Start ....");
 
+			// init common
 			File targetNeoFile = new File("D:\\TEMP\\HYBRID\\output_load.graphdb");
 			File targetCbpFile = new File("D:\\TEMP\\HYBRID\\output_load.cbxpml");
-			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\smalluml.cbpxml");
-//			 File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\BPMN2.cbpxml");
-			// File sourceCbpFile = new
-			// File("D:\\TEMP\\HYBRID\\epsilon.727.cbpxml");
-			// File sourceCbpFile = new
-			// File("D:\\TEMP\\HYBRID\\wikipedia.003100.ISO.cbpxml");
-			System.out.println("Processing " + sourceCbpFile.getName() + "....");
+			// File sourceXmiFile = new
+			// File("D:\\TEMP\\HYBRID\\smalluml-final-state.xmi");
+//			File sourceXmiFile = new File("D:\\TEMP\\HYBRID\\bpmn2-final-state.xmi");
+			File sourceXmiFile = new File("D:\\TEMP\\HYBRID\\epsilon-final-state.xmi");
 
-			UMLFactory umlFactory = UMLFactory.eINSTANCE;
-			Model dummyModel = umlFactory.createModel();
-			dummyModel.setName("Dummy");
-			Comment comment = dummyModel.createOwnedComment();
-			comment.setBody("XXXXXXX");
-
-			Map<Object, Object> xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
-			xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
-
+			System.out.println("Processing " + sourceXmiFile.getName() + "....");
 			UMLPackage.eINSTANCE.eClass();
 			MoDiscoXMLPackage.eINSTANCE.eClass();
-
 			HybridNeoEMFTest.deleteFolder(targetNeoFile);
 
-			// TEST
-			// LOADING---------------------------------------------------------------------------
-			 PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
-		                BlueprintsPersistenceBackendFactory.getInstance());
-//			ResourceSet resourceSet = new ResourceSetImpl();
-//			resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(BlueprintsURI.SCHEME,
-//					PersistentResourceFactory.getInstance());
+			// init neoemf
+			PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
+					BlueprintsPersistenceBackendFactory.getInstance());
 
 			PersistentResource neoResource = (PersistentResource) PersistentResourceFactory.getInstance()
 					.createResource(BlueprintsURI.createFileURI(targetNeoFile));
-			// PersistentResource neoResource = (PersistentResource) resourceSet
-			// .createResource(BlueprintsURI.createFileURI(targetNeoFile));
 
-			Map<String, Object> neoSaveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().weakCache().autocommit()
-					.asMap();
+			Map<String, Object> neoSaveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().autocommit().asMap();
 			Map<String, Object> neoLoadOptions = Collections.emptyMap();
 
-			// ----
 			FileOutputStream targetCbpFileStream = new FileOutputStream(targetCbpFile);
 			BufferedOutputStream targetCbpBufferedStream = new BufferedOutputStream(targetCbpFileStream);
-
-			FileInputStream sourceCbpFileStream = new FileInputStream(sourceCbpFile);
-			BufferedInputStream sourceCbpBufferedStream = new BufferedInputStream(sourceCbpFileStream);
-
-			System.out.println("Loading from a CBP");
 			HybridResource hybridResource = new HybridNeoEMFResourceImpl(neoResource, targetCbpBufferedStream);
 
-			hybridResource.getContents().add(dummyModel);
-			dummyModel =  (Model) hybridResource.getContents().get(0);
-			hybridResource.save(neoSaveOptions);
-			hybridResource.load(neoLoadOptions);
-			dummyModel =  (Model) hybridResource.getContents().get(0);
-			dummyModel.getOwnedComments().remove(0);
-//			hybridResource.getContents().clear();
-			hybridResource.save(neoSaveOptions);
+			// init xmi and load it
+			Map<Object, Object> xmiSaveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
+			xmiSaveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF,
+					XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+			Map<Object, Object> xmiLoadOptions = (new XMIResourceImpl()).getDefaultLoadOptions();
+			xmiLoadOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF,
+					XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+			Resource xmiResource = (new XMIResourceFactoryImpl())
+					.createResource(URI.createFileURI(sourceXmiFile.getAbsolutePath()));
+			xmiResource.load(xmiLoadOptions);
 
-			hybridResource.loadFromCBP(sourceCbpBufferedStream);
-
-			// save xmi first
-			System.out.println("Save to NeoEMF");
-//			Resource resource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("dummy.xmi"));
-//			resource.getContents().addAll(hybridResource.getContents());
-//			StringOutputStream sos = new StringOutputStream();
-//			resource.save(sos, null);
-//			System.out.println(sos);
+			// copy xmi to neoemf
+			hybridResource.getContents().addAll(EcoreUtil.copyAll(xmiResource.getContents()));
 			hybridResource.save(neoSaveOptions);
+			targetCbpBufferedStream.close();
+			targetCbpFileStream.close();
 			hybridResource.unload();
 			((HybridNeoEMFResourceImpl) hybridResource).close();
+			xmiResource.unload();
 
 			// reinitialise and reload and measure time and memory
 			System.out.println("Reload the XMI Several Times");
@@ -148,7 +128,6 @@ public class HybridNeoEMFTest {
 				long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 				long startTime = System.nanoTime();
 
-				// xmiResource.load(xmiOptions);
 				hybridResource.load(neoLoadOptions);
 
 				long endTime = System.nanoTime();
@@ -168,6 +147,27 @@ public class HybridNeoEMFTest {
 				((HybridNeoEMFResourceImpl) hybridResource).close();
 			}
 
+			// // validate
+			// hybridResource.load(neoLoadOptions);
+			// TreeIterator<EObject> iterator = hybridResource.getAllContents();
+			// while (iterator.hasNext()) {
+			// EObject eObject = iterator.next();
+			// String id = ((PersistentEObject) eObject).id().toString();
+			// System.out.println(id);
+			// }
+
+			// hybridResource.load(neoLoadOptions);
+			// Resource resource = (new
+			// XMIResourceFactoryImpl()).createResource(URI.createURI("dummy.xmi"));
+			// resource.getContents().addAll(hybridResource.getContents());
+			// StringOutputStream sos = new StringOutputStream();
+			// resource.save(sos, null);
+			//// System.out.println(sos);
+			// hybridResource.unload();
+
+			// closing
+			hybridResource.unload();
+
 			// print results
 			System.out.println();
 			System.out.println("Hybrid XMI Load Time");
@@ -185,13 +185,6 @@ public class HybridNeoEMFTest {
 				}
 			}
 
-			// closing
-			hybridResource.unload();
-			targetCbpFileStream.close();
-			targetCbpBufferedStream.close();
-			sourceCbpFileStream.close();
-			sourceCbpBufferedStream.close();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -201,92 +194,82 @@ public class HybridNeoEMFTest {
 	}
 
 	@Test
-	public void testHybridXMISave() {
+	public void testHybridNeoEMFSave() {
 		try {
-			System.out.println("Start ...");
+			System.out.println("Please run the load test first before running this one.");
+			System.out.println("Start ....");
 
-			File targetXmiFile = new File("D:\\TEMP\\HYBRID\\output_save.xmi");
-			File targetCbpFile = new File("D:\\TEMP\\HYBRID\\output_save.cbpxml");
-			// File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\BPMN2.cbpxml");
-			// File sourceCbpFile = new
-			// File("D:\\TEMP\\HYBRID\\epsilon.727.cbpxml");
-			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\wikipedia.003100.ISO.cbpxml");
-			System.out.println("Processing " + sourceCbpFile.getName() + "....");
+			// init common
+			File sourceNeoFile = new File("D:\\TEMP\\HYBRID\\output_load.graphdb");
+			File targetCbpFile = new File("D:\\TEMP\\HYBRID\\output_save.cbxpml");
+			// File sourceXmiFile = new
+			// File("D:\\TEMP\\HYBRID\\smalluml-final-state.xmi");
+			File sourceXmiFile = new File("D:\\TEMP\\HYBRID\\bpmn2-final-state.xmi");
 
-			Map<Object, Object> xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
-			xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
-
+			System.out.println("Processing " + sourceXmiFile.getName() + "....");
 			UMLPackage.eINSTANCE.eClass();
+			MoDiscoXMLPackage.eINSTANCE.eClass();
 
-			// TEST SAVE----------------------------------------------------
+			// init neoemf
+			PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
+					BlueprintsPersistenceBackendFactory.getInstance());
+			PersistentResource neoResource = (PersistentResource) PersistentResourceFactory.getInstance()
+					.createResource(BlueprintsURI.createFileURI(sourceNeoFile));
 
-			FileOutputStream targetCbpFileStream = new FileOutputStream(targetCbpFile);
+			Map<String, Object> neoSaveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().autocommit().asMap();
+			Map<String, Object> neoLoadOptions = Collections.emptyMap();
+
+			FileOutputStream targetCbpFileStream = new FileOutputStream(targetCbpFile, true);
 			BufferedOutputStream targetCbpBufferedStream = new BufferedOutputStream(targetCbpFileStream);
+			HybridResource hybridResource = new HybridNeoEMFResourceImpl(neoResource, targetCbpBufferedStream);
+			hybridResource.load(neoLoadOptions);
 
-			Resource xmiResource = (new XMIResourceFactoryImpl())
-					.createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
-			HybridResource hybridResource = new HybridXmiResourceImpl(xmiResource, targetCbpBufferedStream);
-			// hybridResource.loadFromCBP(new ByteArrayInputStream(new
-			// byte[0]));
+			UMLFactory factory = UMLFactory.eINSTANCE;
+			Package p = factory.createPackage();
 
-			// total event count
-			LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(sourceCbpFile));
-			lineNumberReader.skip(Long.MAX_VALUE);
-			int totalEventCount = lineNumberReader.getLineNumber();
-			lineNumberReader.close();
-
-			// iteration
-			int lineCount = 0;
-			String line = null;
 			int measureCount = 0;
 			long[] saveTime = new long[ITERATION];
 			long[] saveMemory = new long[ITERATION];
-			FileReader fileReader = new FileReader(sourceCbpFile);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			while ((line = bufferedReader.readLine()) != null) {
 
-				if (lineCount % 100000 == 0)
-					System.out.println(lineCount);
+			for (; measureCount < ITERATION; measureCount++) {
 
-				ByteArrayInputStream bais = new ByteArrayInputStream(line.getBytes());
-				hybridResource.loadAndReplayEvents(bais);
-				bais.close();
-
-				if (lineCount >= totalEventCount - ITERATION) {
-
-					System.gc();
-					long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-					long startTime = System.nanoTime();
-
-					hybridResource.save(xmiOptions);
-
-					long endTime = System.nanoTime();
-					System.gc();
-					try {
-						Thread.sleep(SLEEP_TIME);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-					saveTime[measureCount] += (endTime - startTime);
-					if (endMemory - startMemory < 0) {
-						saveMemory[measureCount] += 0;
-					} else {
-						saveMemory[measureCount] += Math.abs(endMemory - startMemory);
-					}
-
-					System.out.println(
-							(saveTime[measureCount] / 1000000000.0) + ", " + (saveMemory[measureCount] / 1000000.0));
-					targetCbpFileStream.flush();
-					targetCbpBufferedStream.flush();
-
-					measureCount += 1;
+				if (hybridResource.getContents().get(0) instanceof Model) {
+					Model model = (Model) hybridResource.getContents().get(0);
+//					model.getPackagedElements().add(EcoreUtil.copy(p));
+					model.setName("dummy-" + measureCount);
 				}
-				lineCount += 1;
+
+				// do measure
+				System.gc();
+				long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				long startTime = System.nanoTime();
+
+				hybridResource.save(neoSaveOptions);
+
+				long endTime = System.nanoTime();
+				System.gc();
+				try {
+					Thread.sleep(SLEEP_TIME);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				saveTime[measureCount] += (endTime - startTime);
+				if (endMemory - startMemory < 0) {
+					saveMemory[measureCount] += 0;
+				} else {
+					saveMemory[measureCount] += Math.abs(endMemory - startMemory);
+				}
+
+				System.out.println(
+						(saveTime[measureCount] / 1000000000.0) + ", " + (saveMemory[measureCount] / 1000000.0));
+				targetCbpFileStream.flush();
+				targetCbpBufferedStream.flush();
 			}
-			bufferedReader.close();
+
 			targetCbpFileStream.close();
 			targetCbpBufferedStream.close();
+			((HybridNeoEMFResourceImpl) hybridResource).close();
 
 			// print results
 			System.out.println();

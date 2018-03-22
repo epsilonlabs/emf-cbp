@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.hybrid.event;
+package org.eclipse.epsilon.hybrid.event.neoemf;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;

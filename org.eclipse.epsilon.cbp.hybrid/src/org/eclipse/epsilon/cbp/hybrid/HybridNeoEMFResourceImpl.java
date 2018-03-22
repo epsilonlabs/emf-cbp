@@ -1,10 +1,16 @@
 package org.eclipse.epsilon.cbp.hybrid;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.xml.stream.FactoryConfigurationError;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
@@ -19,12 +25,10 @@ import org.eclipse.emf.ecore.impl.EReferenceImpl;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl.EStoreEList;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.uml2.uml.Model;
-import org.eclipse.uml2.uml.UMLFactory;
 
 import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
 import fr.inria.atlanmod.neoemf.core.PersistentEObject;
-import fr.inria.atlanmod.neoemf.data.blueprints.neo4j.option.BlueprintsNeo4jOptionsBuilder;
+import fr.inria.atlanmod.neoemf.core.StringId;
 import fr.inria.atlanmod.neoemf.resource.PersistentResource;
 
 public class HybridNeoEMFResourceImpl extends HybridResource implements PersistentResource {
@@ -50,11 +54,57 @@ public class HybridNeoEMFResourceImpl extends HybridResource implements Persiste
 		rootObject.eAdapters().add(hybridChangeEventAdapter);
 	}
 
+	public void loadFromCBPToNeoEMF(File cbpFile, Map<String, Object> neoSaveOptions, Map<String, Object> neoLoadOptions)
+			throws FactoryConfigurationError, IOException {
+		hybridChangeEventAdapter.setEnabled(false);
+		deletedEObjectToIdMap.clear();
+		eObjectToIdMap.clear();
+		getChangeEvents().clear();
+		persistedEvents = 0;
+
+		FileReader fileReader = new FileReader(cbpFile);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		int lineCount = 0;
+		String line = null;
+		while ((line = bufferedReader.readLine()) != null) {
+			if (lineCount % 1000 == 0){
+				System.out.println(lineCount);
+			}
+			ByteArrayInputStream bais = new ByteArrayInputStream(line.getBytes());
+			loadAndReplayEvents(bais);
+			save(neoSaveOptions);
+//			unload();
+//			close();
+			internalLoadFromCBPToNeoEMF(neoLoadOptions);
+			bais.close();
+			lineCount += 1;
+		}
+		bufferedReader.close();
+		hybridChangeEventAdapter.setEnabled(true);
+	}
+
 	@Override
 	public void save(Map<?, ?> options) throws IOException {
 		stateBasedResource.save(options);
 		saveChangeBasedPersistence(cbpOutputStream, options);
 		cbpOutputStream.flush();
+	}
+
+	private void internalLoadFromCBPToNeoEMF(Map<?, ?> options) throws IOException {
+		hybridChangeEventAdapter.setEnabled(false);
+		stateBasedResource.load(options);
+		stateBasedResource.eSetDeliver(true);
+		
+		TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
+		while (iterator.hasNext()) {
+			EObject eObject = iterator.next();
+			register(eObject);
+		}
+		if (stateBasedResource.eAdapters().contains(hybridChangeEventAdapter)) {
+			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
+		}
+		stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
+		hybridChangeEventAdapter.setEnabled(true);
 	}
 
 	@Override
@@ -67,7 +117,8 @@ public class HybridNeoEMFResourceImpl extends HybridResource implements Persiste
 		TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
 		while (iterator.hasNext()) {
 			EObject eObject = iterator.next();
-			register(eObject);
+			String id = ((PersistentEObject) eObject).id().toString();
+			register(eObject, id);
 		}
 		if (stateBasedResource.eAdapters().contains(hybridChangeEventAdapter)) {
 			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
@@ -75,6 +126,14 @@ public class HybridNeoEMFResourceImpl extends HybridResource implements Persiste
 		stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
 		hybridChangeEventAdapter.setEnabled(true);
 	}
+	
+	@Override
+	public String register(EObject eObject, String id) {
+		((PersistentEObject) eObject).id(new StringId(id));
+		adopt(eObject, id);
+		return id;
+	}
+	
 
 	@Override
 	public EList<EObject> getContents() {
@@ -149,6 +208,13 @@ public class HybridNeoEMFResourceImpl extends HybridResource implements Persiste
 
 		@Override
 		public boolean addAll(Collection objects) {
+
+//			stateBasedResource.eSetDeliver(true);
+//			stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
+//			rootObject.eSetDeliver(true);
+//			rootObject.eAdapters().add(hybridChangeEventAdapter);
+
+			hybridChangeEventAdapter.setEnabled(true);
 			for (Object object : objects) {
 				EObject eObject = (EObject) object;
 				eObject.eSetDeliver(true);

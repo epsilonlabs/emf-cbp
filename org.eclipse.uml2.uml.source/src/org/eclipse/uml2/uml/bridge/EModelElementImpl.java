@@ -557,16 +557,18 @@ public abstract class EModelElementImpl extends DefaultPersistentEObject impleme
 		}
 	}
 
-	//protected InternalEObject eContainer;
+	protected InternalEObject eContainer;
 
-//	@Override
-//	public InternalEObject eInternalContainer() {
-//		return eContainer;
-//	}
+	@Override
+	public InternalEObject eInternalContainer() {
+		eContainer = super.eInternalContainer();
+		return eContainer;
+	}
 
-//	@Override
-//	protected void eBasicSetContainer(InternalEObject newContainer) {
-//		eContainer = newContainer;
-//	}
+	@Override
+	protected void eBasicSetContainer(InternalEObject newContainer) {
+//		super.eBasicSetContainer(newContainer);
+		eContainer = newContainer;
+	}
 
 }

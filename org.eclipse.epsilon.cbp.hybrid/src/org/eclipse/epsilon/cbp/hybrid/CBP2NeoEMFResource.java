@@ -51,8 +51,8 @@ import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
-import org.eclipse.epsilon.hybrid.event.CreateEObjectEvent;
-import org.eclipse.epsilon.hybrid.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.CreateEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.DeleteEObjectEvent;
 
 public class CBP2NeoEMFResource extends HybridResource {
 

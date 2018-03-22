@@ -161,7 +161,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			if (!feature.isChangeable() || feature.isDerived())
 				return;
 		}
-		
+
 		if (n.getNewValue() != null && n.getNewValue() instanceof DanglingHREFException) {
 			return;
 		}
@@ -263,8 +263,10 @@ public class ChangeEventAdapter extends EContentAdapter {
 						addRefCount++;
 					}
 				}
-				evt.setValues(value);
-				addEventToList(evt, n, position++);
+				if (evt != null) {
+					evt.setValues(value);
+					addEventToList(evt, n, position++);
+				}
 			}
 
 			break;
@@ -343,16 +345,15 @@ public class ChangeEventAdapter extends EContentAdapter {
 			break;
 		}
 		}
-
 		this.addEventToList(event, n);
 
 	}
 
-	private void addEventToList(ChangeEvent<?> event, Notification n) {
+	protected void addEventToList(ChangeEvent<?> event, Notification n) {
 		this.addEventToList(event, n, -1);
 	}
 
-	private void addEventToList(ChangeEvent<?> event, Notification n, int position) {
+	protected void addEventToList(ChangeEvent<?> event, Notification n, int position) {
 
 		// Features which are not meant to be serialised are defined as "unset"
 		if (event instanceof SetEReferenceEvent || event instanceof AddToEReferenceEvent) {

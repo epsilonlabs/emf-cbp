@@ -34,8 +34,8 @@ import org.eclipse.emf.compare.postprocessor.IPostProcessor;
 import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope2;
-import org.eclipse.emf.compare.uml2.internal.merge.UMLMerger;
-import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
+//import org.eclipse.emf.compare.uml2.internal.merge.UMLMerger;
+//import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl.EStoreEList;
@@ -131,16 +131,16 @@ public class UMLComparisonHybridTest {
 				hybridResource2.load(loadOptions);
 
 				// initialise comparison
-				IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
-				UMLMerger umlMerger = new UMLMerger();
-				umlMerger.setRanking(11);
-				registry.add(umlMerger);
-				IBatchMerger batchMerger = new BatchMerger(registry);
-
-				IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
-				BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(),
-						Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
-				postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+//				IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
+//				UMLMerger umlMerger = new UMLMerger();
+//				umlMerger.setRanking(11);
+//				registry.add(umlMerger);
+//				IBatchMerger batchMerger = new BatchMerger(registry);
+//
+//				IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+//				BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(),
+//						Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+//				postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
 				
 				//custom matchEngine
 				IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.NEVER);
@@ -152,7 +152,7 @@ public class UMLComparisonHybridTest {
 				matchEngineRegistry.add(matchEngineFactory);
 				
 				Builder builder = EMFCompare.builder().setMatchEngineFactoryRegistry(matchEngineRegistry);
-				builder.setPostProcessorRegistry(postProcessorRegistry);
+//				builder.setPostProcessorRegistry(postProcessorRegistry);
 				EMFCompare comparator = builder.build();
 
 				 
@@ -174,7 +174,7 @@ public class UMLComparisonHybridTest {
 				Comparison comparison = comparator.compare(scope);
 				EList<Diff> diffs = comparison.getDifferences();
 
-				batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
+//				batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
 
 				// after merging, to check if there are no more differences
 				// comparator = builder.build();

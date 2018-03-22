@@ -14,8 +14,8 @@ import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-import org.eclipse.epsilon.hybrid.event.CreateEObjectEvent;
-import org.eclipse.epsilon.hybrid.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.CreateEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.DeleteEObjectEvent;
 
 public class HybridChangeEventAdapter extends ChangeEventAdapter {
 

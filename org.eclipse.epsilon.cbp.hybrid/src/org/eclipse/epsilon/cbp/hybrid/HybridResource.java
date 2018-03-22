@@ -55,8 +55,8 @@ import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
-import org.eclipse.epsilon.hybrid.event.CreateEObjectEvent;
-import org.eclipse.epsilon.hybrid.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.CreateEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.xmi.DeleteEObjectEvent;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -273,11 +273,10 @@ public abstract class HybridResource extends ResourceImpl {
 					EndElement ee = xmlEvent.asEndElement();
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
-						
-						if (eventNumber == 147764) {
-							System.out.println("");
-						}
-						
+
+						if (eventNumber % 1000 == 0)
+							System.out.println(eventNumber);
+
 						event.replay();
 						errorMessage = "";
 						eventNumber += 1;
@@ -466,6 +465,27 @@ public abstract class HybridResource extends ResourceImpl {
 		return uriFragment;
 	}
 
+	public String register(EObject eObject) {
+		// if (eObjectToIdMap.containsKey(eObject)) {
+		// String id = getURIFragment(eObject);
+		// adopt(eObject, id);
+		// }
+
+		// while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
+		// idCounter += 1;
+		// }
+		// String id = String.valueOf(idCounter);
+		// idCounter = idCounter + 1;
+		String id = getURIFragment(eObject);
+		adopt(eObject, id);
+		return id;
+	}
+
+	public String register(EObject eObject, String id) {
+		adopt(eObject, id);
+		return id;
+	}
+
 	public void unregister(String objectId) {
 		// if (eObjectToIdMap.containsValue(objectId)) {
 		// EObject eObject = eObjectToIdMap.inverse().get(objectId);
@@ -488,27 +508,6 @@ public abstract class HybridResource extends ResourceImpl {
 
 	public boolean isRegistered(EObject eObject) {
 		return eObjectToIdMap.containsKey(eObject);
-	}
-
-	public String register(EObject eObject) {
-		// if (eObjectToIdMap.containsKey(eObject)) {
-		// String id = getURIFragment(eObject);
-		// adopt(eObject, id);
-		// }
-
-		// while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
-		// idCounter += 1;
-		// }
-		// String id = String.valueOf(idCounter);
-		// idCounter = idCounter + 1;
-		String id = getURIFragment(eObject);
-		adopt(eObject, id);
-		return id;
-	}
-
-	public String register(EObject eObject, String id) {
-		adopt(eObject, id);
-		return id;
 	}
 
 	public void adopt(EObject eObject, String id) {

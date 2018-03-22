@@ -3,34 +3,35 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.epsilon.cbp.hybrid.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/jsr305-3.0.1.jar
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: node,
+Export-Package: javax.annotation,
+ javax.annotation.concurrent,
+ javax.annotation.meta,
+ node,
  node.impl,
- node.util
-Require-Bundle: org.eclipse.uml2.uml.source,
+ node.util,
+ org.eclipse.epsilon.cbp.hybrid.test
+Require-Bundle: org.eclipse.uml2.uml.neoemf;bundle-version="1.0.0",
+ neoemf-core,
+ neoemf-io,
+ neoemf-data-blueprints-core,
+ neoemf-data-blueprints-neo4j,
  org.junit,
  org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
- org.eclipse.epsilon.cbp.hybrid,
  fr.inria.atlanmod.neoemf.core,
- fr.inria.atlanmod.neoemf.data.blueprints.neo4j,
- fr.inria.atlanmod.neoemf.data.blueprints.neo4j.wrapper,
+ org.eclipse.epsilon.cbp.hybrid,
  org.eclipse.epsilon.cbp,
  org.eclipse.emf.ecore.xmi,
  org.eclipse.emf.compare,
  com.google.guava,
  org.apache.log4j,
- org.eclipse.emf.compare.uml2,
- org.eclipse.gmt.modisco.xml
+ org.eclipse.gmt.modisco.xml,
+ fr.inria.atlanmod.neoemf.tutorial,
+ org.eclipse.uml2.types
 Bundle-ActivationPolicy: lazy
-Import-Package: 
- org.eclipse.gmt.modisco.java,
- org.eclipse.uml2.uml,
- org.eclipse.uml2.uml.bridge,
- org.eclipse.uml2.uml.internal.impl,
- org.eclipse.uml2.uml.internal.operations,
- org.eclipse.uml2.uml.internal.resource,
- org.eclipse.uml2.uml.util
+Import-Package: org.eclipse.gmt.modisco.java
