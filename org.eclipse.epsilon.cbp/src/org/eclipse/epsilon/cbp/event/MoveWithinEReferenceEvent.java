@@ -20,17 +20,19 @@ public class MoveWithinEReferenceEvent extends EReferenceEvent implements FromPo
 	@SuppressWarnings("unchecked")
 	@Override
 	public void replay() {
-		EList<EObject> list = (EList<EObject>) target.eGet(getEStructuralFeature());
-		if (fromPosition >= list.size()) {
-			fromPosition = list.size() - 1;
-		}
-		if (position >= list.size()) {
-			position = list.size() - 1;
-		}
-		EObject a = this.getValue();
-		EObject b = list.get(fromPosition);
-		if (b.equals(a)) {
-			list.move(position, fromPosition);
+		EList<EObject> list = (EList<EObject>) target.eGet(this.getEStructuralFeature());
+		if (list.size() > 0) {
+			if (fromPosition >= list.size()) {
+				fromPosition = list.size() - 1;
+			}
+			if (position >= list.size()) {
+				position = list.size() - 1;
+			}
+			EObject a = this.getValue();
+			EObject b = list.get(fromPosition);
+			if (b.equals(a)) {
+				list.move(position, fromPosition);
+			}
 		}
 	}
 

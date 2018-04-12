@@ -6,7 +6,6 @@ import java.io.File;
 
 import org.eclipse.epsilon.cbp.hybrid.CBP2XMIResource;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
-import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
 
 public class CBP2XMITest {
@@ -14,10 +13,13 @@ public class CBP2XMITest {
 	@Test
 	public void testGeneateAllSessionsXMIs() {
 		try {
-			UMLPackage.eINSTANCE.eClass();
+			org.eclipse.uml2.uml.UMLPackage.eINSTANCE.eClass();
+//			UML.UMLPackage.eINSTANCE.eClass();
 			
-			File cbpFile = new File("D:\\TEMP\\XMI_GENERATOR\\BPMN2.cbpxml");
-			File targetDir = new File("D:\\TEMP\\XMI_GENERATOR\\BPMN2\\");
+//			File cbpFile = new File("D:\\TEMP\\ASE\\epsilon.1473.cbpxml");
+//			File targetDir = new File("D:\\TEMP\\ASE\\epsilon_xmi");
+			File cbpFile = new File("D:\\TEMP\\ASE\\bpmn2.192.cbpxml");
+			File targetDir = new File("D:\\TEMP\\ASE\\bpmn2_xmi");
 //			File cbpFile = new File("D:\\TEMP\\XMI_GENERATOR\\input.cbpxml");
 //			File targetDir = new File("D:\\TEMP\\XMI_GENERATOR\\");
 					
@@ -33,11 +35,12 @@ public class CBP2XMITest {
 	@Test
 	public void testGenerateXMI() {
 		try {
-			UMLPackage.eINSTANCE.eClass();
+//			org.eclipse.uml2.uml.UMLPackage.eINSTANCE.eClass();
+			UML.UMLPackage.eINSTANCE.eClass();
 			MoDiscoXMLPackage.eINSTANCE.eClass();
 			
-			File cbpFile = new File("D:\\TEMP\\XMI_GENERATOR\\wikipedia.003100.ISO.cbpxml");
-			File targetDir = new File("D:\\TEMP\\XMI_GENERATOR\\");
+			File cbpFile = new File("D:\\TEMP\\ASE\\epsilon.1473.cbpxml");
+			File targetDir = new File("D:\\TEMP\\ASE\\");
 //			File cbpFile = new File("D:\\TEMP\\XMI_GENERATOR\\input.cbpxml");
 //			File targetDir = new File("D:\\TEMP\\XMI_GENERATOR\\");
 					

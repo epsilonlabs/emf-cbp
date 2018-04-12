@@ -33,9 +33,12 @@ import fr.inria.atlanmod.neoemf.resource.PersistentResource;
 
 public class HybridNeoEMFResourceImpl extends HybridResource implements PersistentResource {
 
-	private DefaultPersistentEObject rootObject;
-	private static final ResourceContentsEStructuralFeature ROOT_CONTENTS_ESTRUCTURALFEATURE = new ResourceContentsEStructuralFeature();
+	protected DefaultPersistentEObject rootObject;
+	protected static final ResourceContentsEStructuralFeature ROOT_CONTENTS_ESTRUCTURALFEATURE = new ResourceContentsEStructuralFeature();
 
+	public HybridNeoEMFResourceImpl() {
+	}
+	
 	public HybridNeoEMFResourceImpl(PersistentResource persistentResource, OutputStream outputStream)
 			throws IOException {
 		super(persistentResource.getURI());
@@ -113,26 +116,41 @@ public class HybridNeoEMFResourceImpl extends HybridResource implements Persiste
 		stateBasedResource.load(options);
 		stateBasedResource.eSetDeliver(true);
 
-		eObjectToIdMap.clear();
-		TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
-		while (iterator.hasNext()) {
-			EObject eObject = iterator.next();
-			String id = ((PersistentEObject) eObject).id().toString();
-			register(eObject, id);
-		}
+//		eObjectToIdMap.clear();
+//		TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
+//		while (iterator.hasNext()) {
+//			EObject eObject = iterator.next();
+//			String id = ((PersistentEObject) eObject).id().toString();
+//			register(eObject, id);
+//		}
+		
+//		Object x = stateBasedResource.eAdapters();
+//		Object y = rootObject.eAdapters();
+		
+//		if (rootObject.eAdapters().contains(hybridChangeEventAdapter)) {
+//			rootObject.eAdapters().remove(hybridChangeEventAdapter);
+//			rootObject.eAdapters().add(hybridChangeEventAdapter);
+//		}
+		
 		if (stateBasedResource.eAdapters().contains(hybridChangeEventAdapter)) {
 			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
+			stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
+		}else {
+			stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
 		}
-		stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
+		
+//		hybridChangeEventAdapter.setTarget(stateBasedResource);
+		
+		
 		hybridChangeEventAdapter.setEnabled(true);
 	}
 	
-	@Override
-	public String register(EObject eObject, String id) {
-		((PersistentEObject) eObject).id(new StringId(id));
-		adopt(eObject, id);
-		return id;
-	}
+//	@Override
+//	public String register(EObject eObject, String id) {
+//		((PersistentEObject) eObject).id(new StringId(id));
+//		adopt(eObject, id);
+//		return id;
+//	}
 	
 
 	@Override

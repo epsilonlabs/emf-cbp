@@ -17,7 +17,7 @@ public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValu
 		if (position > list.size()) {
 			position = list.size();
 		}
-		list.addAll(position, getValues());
+		list.addAll(position, this.getValues());
 	}
 
 	@Override

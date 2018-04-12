@@ -35,8 +35,8 @@ import org.junit.Test;
 public class ECMFATest3 {
 
 	private static final int SLEEP_TIME = 1000;
-	final int ITERATION = 3;
-	final int startFrom = 0;
+	final int ITERATION = 25;
+	final int startFrom = 3;
 
 	String dirPath = "D:\\TEMP\\ECMFA\\scripts";
 	String extension = ".csv";
@@ -51,49 +51,46 @@ public class ECMFATest3 {
 
 		MoDiscoXMLPackage.eINSTANCE.eClass();
 		UMLPackage.eINSTANCE.eClass();
-		
+
 		File dummyCbpFileForMeasuringSave = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.cbpxml");
 		File dummyIgnoreSet = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.ignoreset");
 
-		System.out.println();
-		System.out.println("Processing BPMN2 ...");
-		File bpmn2CbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.cbpxml");
-		File bpmn2IgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.ignoreset");
-		Measurement b = new Measurement();
-		b = performMeasure(bpmn2CbpFile, bpmn2IgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
-		map.put("BPMN2", b);
-
-		// System.out.println();
-		// System.out.println("Processing Epsilon ...");
-		// File epsilonCbpFile = new
-		// File("D:\\TEMP\\ECMFA\\cbp\\epsilon.cbpxml");
-		// File epsilonIgnoreListFile = new
-		// File("D:\\TEMP\\ECMFA\\cbp\\epsilon.ignoreset");
-		// Measurement e = new Measurement();
-		// e = performMeasure(epsilonCbpFile, epsilonIgnoreListFile,
-		// dummyCbpFileForMeasuringSave, dummyIgnoreSet);
-		// map.put("Epsilon", e);
+		
+//		System.out.println();
+//		System.out.println("Processing Wikipedia ...");
+//		File wikipediaCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.003100.ISO.cbpxml");
+//		File wikipediaIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.003100.ISO.ignoreset");
+//		Measurement w = new Measurement();
+//		w = performMeasure(wikipediaCbpFile, wikipediaIgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
+//		map.put("Wikipedia", w);
 
 		System.out.println();
-		System.out.println("Processing Wikipedia ...");
-		File wikipediaCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.9180.cbpxml");
-		File wikipediaIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\wikipedia.9180.ignoreset");
-		Measurement w = new Measurement();
-		w = performMeasure(wikipediaCbpFile, wikipediaIgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
-		map.put("Wikipedia", w);
+		System.out.println("Processing Epsilon ...");
+		File epsilonCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.1009.cbpxml");
+		File epsilonIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.1009.ignoreset");
+		Measurement e = new Measurement();
+		e = performMeasure(epsilonCbpFile, epsilonIgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
+		map.put("Epsilon", e);
+		
+//		System.out.println();
+//		System.out.println("Processing BPMN2 ...");
+//		File bpmn2CbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.cbpxml");
+//		File bpmn2IgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.ignoreset");
+//		Measurement b = new Measurement();
+//		b = performMeasure(bpmn2CbpFile, bpmn2IgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);
+//		map.put("BPMN2", b);
+
 
 		System.out.println();
 		fileName = dirPath + File.separator + "general_description" + extension;
 		printer = new PrintStream(new File(fileName));
 		printer.println("Model , Total Event Count , Ignored Event Count , Element Count , Number of Commits");
-		printer.println("BPMN2 , " + b.getTotalEventCount() + " , " + b.getIgnoredEventCount() + " , "
-				+ b.getElementCount() + " , " + b.getSessionCount());
-		// printer.println("Epsilon , " + e.getTotalEventCount() + " , " +
-		// e.getIgnoredEventCount() + " , "
-		// + e.getElementCount() + " , " + e.getSessionCount());
-		// printer.println("Wikipedia , " + w.getTotalEventCount() + " , " +
-		// w.getIgnoredEventCount() + " , "
-		// + w.getElementCount() + " , " + w.getSessionCount());
+//		printer.println("BPMN2 , " + b.getTotalEventCount() + " , " + b.getIgnoredEventCount() + " , "
+//				+ b.getElementCount() + " , " + b.getSessionCount());
+		printer.println("Epsilon , " + e.getTotalEventCount() + " , " + e.getIgnoredEventCount() + " , "
+				+ e.getElementCount() + " , " + e.getSessionCount());
+//		printer.println("Wikipedia , " + w.getTotalEventCount() + " , " + w.getIgnoredEventCount() + " , "
+//		 + w.getElementCount() + " , " + w.getSessionCount());
 		printer.flush();
 		printer.close();
 
@@ -185,7 +182,6 @@ public class ECMFATest3 {
 	private Measurement performMeasure(File cbpFile, File ignoreListFile, File dummyCbpFileForMeasuringSave,
 			File dummyIgnoreSet) {
 
-		
 		Measurement m = new Measurement();
 		try {
 			File dummyXmiFile = new File("D:\\TEMP\\ECMFA\\cbp\\_temp.xmi");

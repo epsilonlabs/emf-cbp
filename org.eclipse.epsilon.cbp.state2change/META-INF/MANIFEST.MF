@@ -24,7 +24,7 @@ Require-Bundle: org.eclipse.ui,
  org.junit,
  org.eclipse.epsilon.cbp,
  org.eclipse.modisco.xml.discoverer,
- org.eclipse.gmt.modisco.xml
+ org.eclipse.gmt.modisco.xml.neoemf.backup
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.collect,
  org.apache.commons.io;resolution:=optional,

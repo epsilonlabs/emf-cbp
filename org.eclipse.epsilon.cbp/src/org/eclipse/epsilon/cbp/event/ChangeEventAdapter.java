@@ -419,23 +419,11 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
 
 	public void handleDeletedEObject(EObject removedObject, Object parent, Object feature) {
-		boolean isDeleted = true;
-		// TreeIterator<EObject> eAllContents = resource.getAllContents();
-		// while (eAllContents.hasNext()) {
-		// EObject eObject = eAllContents.next();
-		// if (eObject.equals(removedObject)) {
-		// isDeleted = false;
-		// break;
-		// }
-		// }
-
 		if (removedObject.eResource() == null && removedObject.eCrossReferences().size() == 0) {
-			// if (isDeleted == true) {
 			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
 			deleteCount++;
 			changeEvents.add(e);
-			// this.addToModelHistory(e, -1);
 		}
 	}
 

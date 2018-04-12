@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
@@ -22,6 +23,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.hybrid.HybridNeoEMFResourceImpl;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
+import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Comment;
 import org.eclipse.uml2.uml.Model;
@@ -30,6 +32,7 @@ import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
 
 import fr.inria.atlanmod.neoemf.core.PersistentEObject;
+import fr.inria.atlanmod.neoemf.core.StringId;
 import fr.inria.atlanmod.neoemf.data.PersistenceBackendFactoryRegistry;
 import fr.inria.atlanmod.neoemf.data.blueprints.BlueprintsPersistenceBackendFactory;
 import fr.inria.atlanmod.neoemf.data.blueprints.neo4j.option.BlueprintsNeo4jOptionsBuilder;
@@ -42,14 +45,78 @@ import node.NodePackage;
 
 public class UMLNeoEMFTest {
 
+	// File databaseFile = new File("D:\\TEMP\\ASE\\_output.epsilon.graphdb");
+	// File xmiFile = new File("D:\\TEMP\\ASE\\epsilon.1009.xmi");
+	// File cbpFile = new File("D:\\TEMP\\ASE\\_output.epsilon.cbpxml");
+	//
+	// File databaseFile = new File("D:\\TEMP\\ASE\\_output.epsilon.graphdb");
+	// File xmiFile = new File("D:\\TEMP\\ASE\\epsilon.1009.xmi");
+	// File cbpFile = new File("D:\\TEMP\\ASE\\_output.epsilon.cbpxml");
+
+	File databaseFile = new File("D:\\TEMP\\ASE\\_output.bpmn2.graphdb");
+	File xmiFile = new File("D:\\TEMP\\ASE\\experiment\\bpmn2.192.xmi");
+	File cbpFile = new File("D:\\TEMP\\ASE\\_output.bpmn2.cbpxml");
+
+	public UMLNeoEMFTest() {
+//		UMLPackage.eINSTANCE.eClass();
+		UML.UMLPackage.eINSTANCE.eClass();
+		MoDiscoXMLPackage.eINSTANCE.eClass();
+	}
+
+	@Test
+	public void testImportCustomUMLMetamodel() throws IOException {
+
+		deleteFolder(databaseFile);
+
+		PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
+				BlueprintsPersistenceBackendFactory.getInstance());
+		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(BlueprintsURI.SCHEME,
+				PersistentResourceFactory.getInstance());
+
+		URI databaseUri = BlueprintsURI.createFileURI(databaseFile);
+		PersistentResource persistentResource = (PersistentResource) resourceSet
+				.createResource(BlueprintsURI.createFileURI(databaseUri));
+
+		Map<String, Object> neoSaveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().autocommit()
+				.asMap();
+		neoSaveOptions = Collections.emptyMap();
+		Map<String, Object> neoLoadOptions = Collections.emptyMap();
+
+		
+//		UML.Model dummy = UML.UMLFactory.eINSTANCE.createModel();
+//		 dummy.setName("DUMMY");
+//		 persistentResource.getContents().add(dummy);
+//		 persistentResource.save(neoSaveOptions);
+//		
+		UML.UMLFactory factory = UML.UMLFactory.eINSTANCE;
+
+		for (int i = 1; i <= 10; i++) {
+			UML.Model model = factory.createModel();
+			model.id(new StringId(String.valueOf(i)));
+			model.setName("Model-" + String.valueOf(i));
+			persistentResource.getContents().add(model);
+			persistentResource.save(neoSaveOptions);
+			persistentResource.unload();
+			persistentResource.close();
+			persistentResource.load(neoLoadOptions);
+		}
+		
+		persistentResource.load(neoLoadOptions);
+		for (EObject obj : persistentResource.getContents()) {
+			System.out.println(((PersistentEObject) obj).id().toString());
+		}
+		persistentResource.unload();
+		persistentResource.close();
+		
+		persistentResource.load(neoLoadOptions);
+		for (EObject obj : persistentResource.getContents()) {
+			System.out.println(((UML.Model) obj).getName());
+		}
+	}
+
 	@Test
 	public void testImportFromXMI() throws IOException {
-		UMLPackage.eINSTANCE.eClass();
-		
-		File databaseFile = new File("D:\\TEMP\\HYBRID\\uml-metamodel.graphdb");
-//		File xmiFile = new File("D:\\TEMP\\HYBRID\\smalluml-final-state.xmi");
-//		File xmiFile = new File("D:\\TEMP\\HYBRID\\bpmn2-final-state.xmi");
-		File xmiFile = new File("D:\\TEMP\\HYBRID\\epsilon-final-state.xmi");
 
 		//// init xmi
 		Map<Object, Object> xmiSaveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
@@ -62,7 +129,7 @@ public class UMLNeoEMFTest {
 		xmiResource.load(xmiLoadOptions);
 
 		//// init neoemf
-		 deleteFolder(databaseFile);
+		deleteFolder(databaseFile);
 		PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
 				BlueprintsPersistenceBackendFactory.getInstance());
 		ResourceSet resourceSet = new ResourceSetImpl();
@@ -79,8 +146,12 @@ public class UMLNeoEMFTest {
 		Map<String, Object> neoLoadOptions = Collections.emptyMap();
 
 		// copy
-		persistentResource.getContents().addAll(EcoreUtil.copyAll(xmiResource.getContents()));
+		persistentResource.getContents().addAll(xmiResource.getContents());
+
 		persistentResource.save(neoSaveOptions);
+
+		String id = ((PersistentEObject) persistentResource.getContents().get(0)).id().toString();
+
 		persistentResource.unload();
 		persistentResource.close();
 
@@ -92,12 +163,17 @@ public class UMLNeoEMFTest {
 		StringOutputStream outputStream = new StringOutputStream();
 		xmiResource.save(outputStream, xmiSaveOptions);
 		System.out.println(outputStream);
-		
-		//closing
+
+		// closing
 		outputStream.close();
 		xmiResource.unload();
 		persistentResource.unload();
 		persistentResource.close();
+
+		// check get object only
+		persistentResource.load(neoLoadOptions);
+		PersistentEObject eObject = (PersistentEObject) persistentResource.getEObject(id);
+		System.out.println(eObject);
 	}
 
 	@Test
@@ -118,9 +194,6 @@ public class UMLNeoEMFTest {
 			Comment comment = dummyModel.createOwnedComment();
 			comment.setBody("AAAAA");
 
-			// files
-			File databaseFile = new File("D:\\TEMP\\HYBRID\\uml-metamodel.graphdb");
-			File cbpFile = new File("D:\\TEMP\\HYBRID\\uml-metamodel.cbpxml");
 			// File xmiFile = new File("D:\\TEMP\\HYBRID\\uml-metamodel.uml");
 
 			// // load UML model

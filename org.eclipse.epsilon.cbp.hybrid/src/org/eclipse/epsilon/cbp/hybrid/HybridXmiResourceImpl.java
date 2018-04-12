@@ -24,12 +24,6 @@ public class HybridXmiResourceImpl extends HybridResource {
 
 	@Override
 	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
-		// TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
-		// while (iterator.hasNext()) {
-		// EObject eObject = iterator.next();
-		// String id = eObjectToIdMap.get(eObject);
-		// ((XMIResourceImpl) stateBasedResource).setID(eObject, id);
-		// }
 		saveChangeBasedPersistence(cbpOutputStream, options);
 		cbpOutputStream.flush();
 		stateBasedResource.save(out, options);
@@ -40,24 +34,6 @@ public class HybridXmiResourceImpl extends HybridResource {
 	public void doLoad(InputStream out, Map<?, ?> options) throws IOException {
 		hybridChangeEventAdapter.setEnabled(false);
 		stateBasedResource.load(options);
-		// stateBasedResource.eSetDeliver(true);
-
-		eObjectToIdMap.clear();
-		TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
-		while (iterator.hasNext()) {
-			EObject eObject = iterator.next();
-			// String id = getURIFragment(eObject);
-			// String id = ((XMIResourceImpl)
-			// stateBasedResource).getID(eObject);
-			try {
-				register(eObject);
-			} catch (Exception w) {
-				w.printStackTrace();
-			}
-		}
-
-		// stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
-		// stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
 		hybridChangeEventAdapter.setEnabled(true);
 	}
 	

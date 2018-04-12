@@ -3,7 +3,11 @@ package org.eclipse.epsilon.hybrid.event.xmi;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
+
+import fr.inria.atlanmod.neoemf.core.PersistentEObject;
+import fr.inria.atlanmod.neoemf.core.StringId;
 
 public class CreateEObjectEvent extends org.eclipse.epsilon.cbp.event.CreateEObjectEvent {
 
@@ -32,6 +36,9 @@ public class CreateEObjectEvent extends org.eclipse.epsilon.cbp.event.CreateEObj
 			resource.register(this.eObject);
 		} else {
 			resource.register(this.eObject, this.id);
+			//((PersistentEObject)this.eObject).id(new StringId(this.id));
+//			((XMIResource)resource.getStateBasedResource()).setID(this.eObject, this.id);
+//			((XMIResource)resource.getStateBasedResource()).setID(this.eObject, resource.getURIFragment(eObject));
 		}
 	}
 	

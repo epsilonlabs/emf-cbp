@@ -5,6 +5,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 
+import fr.inria.atlanmod.neoemf.core.PersistentEObject;
+import fr.inria.atlanmod.neoemf.core.StringId;
+
 public class CreateEObjectEvent extends org.eclipse.epsilon.cbp.event.CreateEObjectEvent {
 
 	protected HybridResource resource;
@@ -32,6 +35,7 @@ public class CreateEObjectEvent extends org.eclipse.epsilon.cbp.event.CreateEObj
 			resource.register(this.eObject);
 		} else {
 			resource.register(this.eObject, this.id);
+			((PersistentEObject) eObject).id(new StringId(id));
 		}
 	}
 	

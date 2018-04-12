@@ -89,6 +89,10 @@ public abstract class HybridResource extends ResourceImpl {
 	public Resource getStateBasedResource() {
 		return stateBasedResource;
 	}
+	
+	public BiMap<EObject, String> getEObjectToIdMap(){
+		return eObjectToIdMap;
+	}
 
 	public void loadFromCBP(InputStream inputStream) throws FactoryConfigurationError, IOException {
 		hybridChangeEventAdapter.setEnabled(false);
@@ -274,8 +278,8 @@ public abstract class HybridResource extends ResourceImpl {
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
 
-						if (eventNumber % 1000 == 0)
-							System.out.println(eventNumber);
+//						if (eventNumber % 1000 == 0)
+//							System.out.println(eventNumber);
 
 						event.replay();
 						errorMessage = "";

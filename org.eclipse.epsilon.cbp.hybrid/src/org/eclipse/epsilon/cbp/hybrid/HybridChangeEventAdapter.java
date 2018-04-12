@@ -17,16 +17,16 @@ import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.hybrid.event.xmi.CreateEObjectEvent;
 import org.eclipse.epsilon.hybrid.event.xmi.DeleteEObjectEvent;
 
-public class HybridChangeEventAdapter extends ChangeEventAdapter {
+public abstract class HybridChangeEventAdapter extends ChangeEventAdapter {
 
-	protected Resource resource;
+	protected HybridResource resource;
 
 	public HybridChangeEventAdapter(CBPResource resource) {
 		super(resource);
 		// TODO Auto-generated constructor stub
 	}
 
-	public HybridChangeEventAdapter(Resource resource) {
+	public HybridChangeEventAdapter(HybridResource resource) {
 		super(null);
 		this.resource = resource;
 
@@ -39,19 +39,12 @@ public class HybridChangeEventAdapter extends ChangeEventAdapter {
 
 	@Override
 	public void handleDeletedEObject(EObject removedObject, Object parent, Object feature) {
-
 		if (removedObject.eResource() == null && removedObject.eCrossReferences().size() == 0) {
-			// System.out.println("XXX1: " + removedObject);
 			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
 			changeEvents.add(e);
 		}
 	}
-	//
-	// @Override
-	// public void handleEPackageOf(EObject eObject) {
-	//
-	// }
 
 	@SuppressWarnings("unchecked")
 	@Override

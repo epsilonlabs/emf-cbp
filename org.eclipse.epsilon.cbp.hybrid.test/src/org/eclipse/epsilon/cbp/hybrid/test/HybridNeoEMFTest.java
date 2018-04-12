@@ -12,9 +12,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.management.modelmbean.ModelMBeanInfoSupport;
 
@@ -32,9 +34,11 @@ import org.eclipse.epsilon.cbp.hybrid.HybridNeoEMFResourceImpl;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 import org.eclipse.epsilon.cbp.hybrid.HybridXmiResourceImpl;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
+import org.eclipse.gmt.modisco.xml.Node;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.Comment;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.NamedElement;
 import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
@@ -52,12 +56,25 @@ import fr.inria.atlanmod.neoemf.util.logging.NeoLogger;
 
 public class HybridNeoEMFTest {
 
-	public final int ITERATION = 3;
-	public final int START_FROM = 0;
+	public final int ITERATION = 25;
+	public final int START_FROM = 3;
 	public final int SLEEP_TIME = 1000;
 
-	public HybridNeoEMFTest() {
+//	File neoDatabase = new File("D:\\TEMP\\ASE\\_output.bpmn2.graphdb");
+//	File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.bpmn2.cbxpml");
+//	File sourceXmiFile = new File("D:\\TEMP\\ASE\\bpmn2.192.xmi");
 
+	 File neoDatabase = new File("D:\\TEMP\\ASE\\_output.epsilon.graphdb");
+	 File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.epsilon.cbxpml");
+	 File sourceXmiFile = new File("D:\\TEMP\\ASE\\epsilon.940.xmi");
+
+//	 File neoDatabase = new File("D:\\TEMP\\ASE\\_output.wikipedia.graphdb");
+//	 File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.wikipedia.cbxpml");
+//	 File sourceXmiFile = new File("D:\\TEMP\\ASE\\wikipedia.10187.xmi");
+
+	public HybridNeoEMFTest() {
+		UMLPackage.eINSTANCE.eClass();
+		MoDiscoXMLPackage.eINSTANCE.eClass();
 	}
 
 	@Test
@@ -65,25 +82,15 @@ public class HybridNeoEMFTest {
 		try {
 			System.out.println("Start ....");
 
-			// init common
-			File targetNeoFile = new File("D:\\TEMP\\HYBRID\\output_load.graphdb");
-			File targetCbpFile = new File("D:\\TEMP\\HYBRID\\output_load.cbxpml");
-			// File sourceXmiFile = new
-			// File("D:\\TEMP\\HYBRID\\smalluml-final-state.xmi");
-//			File sourceXmiFile = new File("D:\\TEMP\\HYBRID\\bpmn2-final-state.xmi");
-			File sourceXmiFile = new File("D:\\TEMP\\HYBRID\\epsilon-final-state.xmi");
-
 			System.out.println("Processing " + sourceXmiFile.getName() + "....");
-			UMLPackage.eINSTANCE.eClass();
-			MoDiscoXMLPackage.eINSTANCE.eClass();
-			HybridNeoEMFTest.deleteFolder(targetNeoFile);
+			HybridNeoEMFTest.deleteFolder(neoDatabase);
 
 			// init neoemf
 			PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
 					BlueprintsPersistenceBackendFactory.getInstance());
 
 			PersistentResource neoResource = (PersistentResource) PersistentResourceFactory.getInstance()
-					.createResource(BlueprintsURI.createFileURI(targetNeoFile));
+					.createResource(BlueprintsURI.createFileURI(neoDatabase));
 
 			Map<String, Object> neoSaveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().autocommit().asMap();
 			Map<String, Object> neoLoadOptions = Collections.emptyMap();
@@ -120,7 +127,7 @@ public class HybridNeoEMFTest {
 				System.out.println("Iteration " + i);
 
 				neoResource = (PersistentResource) PersistentResourceFactory.getInstance()
-						.createResource(BlueprintsURI.createFileURI(targetNeoFile));
+						.createResource(BlueprintsURI.createFileURI(neoDatabase));
 
 				hybridResource = new HybridNeoEMFResourceImpl(neoResource, targetCbpBufferedStream);
 
@@ -131,9 +138,9 @@ public class HybridNeoEMFTest {
 				hybridResource.load(neoLoadOptions);
 
 				long endTime = System.nanoTime();
-				endTime = System.nanoTime();
 				System.gc();
-				// Thread.sleep(SLEEP_TIME);
+				Thread.sleep(SLEEP_TIME);
+
 				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 				loadTime[i] += (endTime - startTime);
 				if (endMemory - startMemory < 0) {
@@ -170,18 +177,18 @@ public class HybridNeoEMFTest {
 
 			// print results
 			System.out.println();
-			System.out.println("Hybrid XMI Load Time");
+			System.out.println("Hybrid NEO Load Time");
 			for (int i = 0; i < ITERATION; i++) {
 				if (i >= START_FROM) {
-					System.out.println(loadTime[i] / 1000000000.0 + ",H-XMI");
+					System.out.println(loadTime[i] / 1000000000.0 + ",H-NEO");
 				}
 			}
 
 			System.out.println();
-			System.out.println("Hybrid XMI Load Memory");
+			System.out.println("Hybrid NEO Load Memory");
 			for (int i = 0; i < ITERATION; i++) {
 				if (i >= START_FROM) {
-					System.out.println(loadMemory[i] / 1000000.0 + ",H-XMI");
+					System.out.println(loadMemory[i] / 1000000.0 + ",H-NEO");
 				}
 			}
 
@@ -199,22 +206,13 @@ public class HybridNeoEMFTest {
 			System.out.println("Please run the load test first before running this one.");
 			System.out.println("Start ....");
 
-			// init common
-			File sourceNeoFile = new File("D:\\TEMP\\HYBRID\\output_load.graphdb");
-			File targetCbpFile = new File("D:\\TEMP\\HYBRID\\output_save.cbxpml");
-			// File sourceXmiFile = new
-			// File("D:\\TEMP\\HYBRID\\smalluml-final-state.xmi");
-			File sourceXmiFile = new File("D:\\TEMP\\HYBRID\\bpmn2-final-state.xmi");
-
 			System.out.println("Processing " + sourceXmiFile.getName() + "....");
-			UMLPackage.eINSTANCE.eClass();
-			MoDiscoXMLPackage.eINSTANCE.eClass();
 
 			// init neoemf
 			PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
 					BlueprintsPersistenceBackendFactory.getInstance());
 			PersistentResource neoResource = (PersistentResource) PersistentResourceFactory.getInstance()
-					.createResource(BlueprintsURI.createFileURI(sourceNeoFile));
+					.createResource(BlueprintsURI.createFileURI(neoDatabase));
 
 			Map<String, Object> neoSaveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().autocommit().asMap();
 			Map<String, Object> neoLoadOptions = Collections.emptyMap();
@@ -224,8 +222,14 @@ public class HybridNeoEMFTest {
 			HybridResource hybridResource = new HybridNeoEMFResourceImpl(neoResource, targetCbpBufferedStream);
 			hybridResource.load(neoLoadOptions);
 
-			UMLFactory factory = UMLFactory.eINSTANCE;
-			Package p = factory.createPackage();
+			int count = 0;
+			List<EObject> list = new ArrayList<>();
+			TreeIterator<EObject> iterator = neoResource.getAllContents();
+			while (iterator.hasNext()) {
+				list.add(iterator.next());
+				count += 1;
+			}
+			System.out.println("Element count = " + count);
 
 			int measureCount = 0;
 			long[] saveTime = new long[ITERATION];
@@ -233,10 +237,14 @@ public class HybridNeoEMFTest {
 
 			for (; measureCount < ITERATION; measureCount++) {
 
-				if (hybridResource.getContents().get(0) instanceof Model) {
-					Model model = (Model) hybridResource.getContents().get(0);
-//					model.getPackagedElements().add(EcoreUtil.copy(p));
-					model.setName("dummy-" + measureCount);
+				// select an object randomly and modify its name to raise an
+				// event
+				EObject eObject = list.get((new Random()).nextInt(list.size()));
+				if (eObject instanceof Node) {
+					((Node) eObject).setName("measurement-" + measureCount);
+				}
+				if (eObject instanceof NamedElement) {
+					((NamedElement) eObject).setName("measurement-" + measureCount);
 				}
 
 				// do measure
@@ -248,11 +256,8 @@ public class HybridNeoEMFTest {
 
 				long endTime = System.nanoTime();
 				System.gc();
-				try {
-					Thread.sleep(SLEEP_TIME);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				Thread.sleep(SLEEP_TIME);
+
 				long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 				saveTime[measureCount] += (endTime - startTime);
 				if (endMemory - startMemory < 0) {
@@ -273,18 +278,18 @@ public class HybridNeoEMFTest {
 
 			// print results
 			System.out.println();
-			System.out.println("Hybrid XMI Save Time");
+			System.out.println("Hybrid NEO Save Time");
 			for (int i = 0; i < ITERATION; i++) {
 				if (i >= START_FROM) {
-					System.out.println(saveTime[i] / 1000000000.0 + ",H-XMI");
+					System.out.println(saveTime[i] / 1000000000.0 + ",H-NEO");
 				}
 			}
 
 			System.out.println();
-			System.out.println("Hybrid XMI Save Memory");
+			System.out.println("Hybrid NEO Save Memory");
 			for (int i = 0; i < ITERATION; i++) {
 				if (i >= START_FROM) {
-					System.out.println(saveMemory[i] / 1000000.0 + ",H-XMI");
+					System.out.println(saveMemory[i] / 1000000.0 + ",H-NEO");
 				}
 			}
 

@@ -77,7 +77,7 @@ public class CBP2XMIResource extends HybridResource {
 		this.cbpFile = cbpFile;
 		this.targetDir = targetDir;
 		this.stateBasedResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("model.xmi"));
-		this.hybridChangeEventAdapter = new HybridChangeEventAdapter(this);
+		this.hybridChangeEventAdapter = new HybridXmiChangeEventAdapter(this);
 		this.xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
 		this.xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
 	}

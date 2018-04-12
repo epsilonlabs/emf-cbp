@@ -44,9 +44,9 @@ public class HybridXmiTest {
 			File targetXmiFile = new File("D:\\TEMP\\HYBRID\\output_load.xmi");
 			File targetCbpFile = new File("D:\\TEMP\\HYBRID\\output_load.cbxpml");
 //			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\smalluml.cbpxml");
-			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\BPMN2.cbpxml");
-//			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\epsilon.727.cbpxml");
-//			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\wikipedia.003100.ISO.cbpxml");
+//			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\BPMN2.cbpxml");
+//			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\epsilon.1009.cbpxml");
+			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\wikipedia.003100.ISO.cbpxml");
 			System.out.println("Processing " + sourceCbpFile.getName() + "....");
 
 			Map<Object, Object> xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
@@ -149,8 +149,8 @@ public class HybridXmiTest {
 			File targetXmiFile = new File("D:\\TEMP\\HYBRID\\output_save.xmi");
 			File targetCbpFile = new File("D:\\TEMP\\HYBRID\\output_save.cbpxml");
 //			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\BPMN2.cbpxml");
-//			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\epsilon.727.cbpxml");
-			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\wikipedia.003100.ISO.cbpxml");
+			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\epsilon.1009.cbpxml");
+//			File sourceCbpFile = new File("D:\\TEMP\\HYBRID\\wikipedia.003100.ISO.cbpxml");
 			System.out.println("Processing " + sourceCbpFile.getName() + "....");
 			
 			Map<Object, Object> xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();

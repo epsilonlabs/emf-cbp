@@ -1,0 +1,101 @@
+@namespace(uri="https://github.com/epsilonlabs/emf-cbp/1.0", prefix="cbp")
+package CBP;
+
+class Session {
+    attr String ~id;
+    attr String time;
+}
+
+class Register {
+	attr String epackage; 
+}
+
+class Create {
+	attr String eclass;
+	attr String epackage;
+	attr String ~id;
+}
+
+class Delete {
+    attr String eclass;
+    attr String epackage;
+    attr String ~id;
+}
+
+class AddToResource {
+    attr String position;
+    val Value value;
+}
+
+class RemoveFromResource {
+    val Value value;
+}
+
+class Value {
+    attr String literal;
+    attr String eobject;	
+}
+
+class SetEAttribute {
+    attr String name;
+    attr String target;
+    val Value value;
+}
+
+class UnsetEAttribute {
+    attr String name;
+    attr String target;
+}
+
+class SetEReference {
+    attr String name;
+    attr String target;
+    val Value value;
+}
+
+class UnsetEReference {
+    attr String name;
+    attr String target;
+}
+
+class AddToEAttribute {
+    attr String name;
+    attr String position;
+    attr String target;
+    val Value value;
+}
+
+class RemoveFromEAttribute {
+    attr String name;
+    attr String target;
+    val Value value;
+}
+
+class MoveInEAttribute {
+    attr String from;
+    attr String to;
+    attr String name;
+    attr String target;
+    val Value value;
+}
+
+class AddToEReference {
+	attr String name;
+	attr String position;
+	attr String target;
+	val Value value;
+}
+
+class RemoveFromEReference {
+    attr String name;
+    attr String target;
+    val Value value;
+}
+
+class MoveInEReference {
+    attr String from;
+    attr String to;
+    attr String name;
+    attr String target;
+    val Value value;
+}

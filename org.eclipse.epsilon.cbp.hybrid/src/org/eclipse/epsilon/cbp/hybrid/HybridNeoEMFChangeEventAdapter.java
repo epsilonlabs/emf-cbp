@@ -18,7 +18,7 @@ import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
 
 public class HybridNeoEMFChangeEventAdapter extends HybridChangeEventAdapter {
 
-	public HybridNeoEMFChangeEventAdapter(HybridResource hybridResource) {
+	public HybridNeoEMFChangeEventAdapter(HybridNeoEMFResourceImpl hybridResource) {
 		super(hybridResource);
 	}
 

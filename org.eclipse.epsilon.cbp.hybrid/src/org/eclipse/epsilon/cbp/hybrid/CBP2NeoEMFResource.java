@@ -1,17 +1,17 @@
 package org.eclipse.epsilon.cbp.hybrid;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLEventReader;
@@ -21,6 +21,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
@@ -28,11 +29,14 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.impl.EStoreEObjectImpl.EStoreEList;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
-import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
@@ -43,7 +47,6 @@ import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
-import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
 import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
@@ -51,10 +54,23 @@ import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
-import org.eclipse.epsilon.hybrid.event.xmi.CreateEObjectEvent;
-import org.eclipse.epsilon.hybrid.event.xmi.DeleteEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.neoemf.AddToEReferenceEvent;
+import org.eclipse.epsilon.hybrid.event.neoemf.CreateEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.neoemf.DeleteEObjectEvent;
+import org.eclipse.epsilon.hybrid.event.neoemf.RemoveFromEReferenceEvent;
 
-public class CBP2NeoEMFResource extends HybridResource {
+import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
+import fr.inria.atlanmod.neoemf.core.PersistentEObject;
+import fr.inria.atlanmod.neoemf.core.StringId;
+import fr.inria.atlanmod.neoemf.data.PersistenceBackendFactoryRegistry;
+import fr.inria.atlanmod.neoemf.data.blueprints.BlueprintsPersistenceBackendFactory;
+import fr.inria.atlanmod.neoemf.data.blueprints.neo4j.option.BlueprintsNeo4jOptionsBuilder;
+import fr.inria.atlanmod.neoemf.data.blueprints.util.BlueprintsURI;
+import fr.inria.atlanmod.neoemf.resource.DefaultPersistentResource;
+import fr.inria.atlanmod.neoemf.resource.PersistentResource;
+import fr.inria.atlanmod.neoemf.resource.PersistentResourceFactory;
+
+public class CBP2NeoEMFResource extends HybridNeoEMFResourceImpl {
 
 	protected File cbpFile;
 	protected File targetDir;
@@ -63,21 +79,82 @@ public class CBP2NeoEMFResource extends HybridResource {
 	protected int sessionCount = 0;
 	protected int persistedEvents = 0;
 	protected boolean useID = false;
-	private Map<Object, Object> xmiOptions;
+	private Map<String, Object> neoSaveOptions;
+	private Map<String, Object> neoLoadOptions;
 
-	public CBP2NeoEMFResource(File cbpFile, File targetDir) {
+	File neoRunningDatabase = null;
+
+	public CBP2NeoEMFResource(File cbpFile, File targetDir) throws IOException {
 		this(cbpFile, targetDir, false);
 	}
 
-	public CBP2NeoEMFResource(File cbpFile, File targetDir, boolean useID) {
-		super();
+	public CBP2NeoEMFResource(File cbpFile, File targetDir, boolean useID) throws IOException {
 		this.useID = useID;
 		this.cbpFile = cbpFile;
 		this.targetDir = targetDir;
-		this.stateBasedResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("model.xmi"));
-		this.hybridChangeEventAdapter = new HybridChangeEventAdapter(this);
-		this.xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
-		this.xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+
+		neoRunningDatabase = new File(targetDir.getAbsolutePath() + File.separator + "running_neoemf.graphdb");
+
+		if (neoRunningDatabase.exists()) {
+			FileUtils.forceDelete(neoRunningDatabase);
+		}
+
+		PersistenceBackendFactoryRegistry.register(BlueprintsURI.SCHEME,
+				BlueprintsPersistenceBackendFactory.getInstance());
+		ResourceSet resourceSet = new ResourceSetImpl();
+		resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(BlueprintsURI.SCHEME,
+				PersistentResourceFactory.getInstance());
+
+		URI databaseUri = BlueprintsURI.createFileURI(neoRunningDatabase);
+		PersistentResource persistentResource = (PersistentResource) resourceSet
+				.createResource(BlueprintsURI.createFileURI(databaseUri));
+
+		this.stateBasedResource = persistentResource;
+		rootObject = (DefaultPersistentEObject) ((EStoreEList<?>) this.stateBasedResource.getContents()).getEObject();
+
+		this.hybridChangeEventAdapter = new HybridNeoEMFChangeEventAdapter(this);
+
+		this.neoSaveOptions = BlueprintsNeo4jOptionsBuilder.newBuilder().autocommit().asMap();
+		this.neoLoadOptions = Collections.emptyMap();
+
+		// UML.Model dummy = UML.UMLFactory.eINSTANCE.createModel();
+		// dummy.setName("DUMMY");
+		// persistentResource.getContents().add(dummy);
+		// persistentResource.save(neoSaveOptions);
+
+		// UML.UMLFactory factory = UML.UMLFactory.eINSTANCE;
+		//
+		// for (int i = 1; i <= 10; i++) {
+		// UML.Model model = factory.createModel();
+		// model.id(new StringId(String.valueOf(i)));
+		// model.setName("Model-" + String.valueOf(i));
+		// persistentResource.getContents().add(model);
+		//// persistentResource.save(neoSaveOptions);
+		//// persistentResource.unload();
+		//// persistentResource.close();
+		//// persistentResource.load(neoLoadOptions);
+		// }
+		// persistentResource.save(neoSaveOptions);
+		//
+		// persistentResource.load(neoLoadOptions);
+		// for (EObject obj : persistentResource.getContents()) {
+		// System.out.println(((PersistentEObject) obj).id().toString());
+		// }
+		// persistentResource.unload();
+		// persistentResource.close();
+		//
+		// persistentResource.load(neoLoadOptions);
+		// for (EObject obj : persistentResource.getContents()) {
+		// System.out.println(((UML.Model) obj).getName());
+		// }
+		//
+		// TreeIterator<EObject> iterator = persistentResource.getAllContents();
+		// while (iterator.hasNext()) {
+		// EObject eObject = iterator.next();
+		// }
+		//
+		// System.out.println();
+
 	}
 
 	public void generateXMI() {
@@ -276,7 +353,14 @@ public class CBP2NeoEMFResource extends HybridResource {
 					EndElement ee = xmlEvent.asEndElement();
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
+
+						if (eventNumber == 94932) {
+							System.out.println();
+						}
+						
 						event.replay();
+
+						// this.getStateBasedResource().save(neoSaveOptions);
 
 						if (name.equals("session")) {
 							sessionCount += 1;
@@ -287,7 +371,7 @@ public class CBP2NeoEMFResource extends HybridResource {
 							if (nextSessionLine != prevSessionLine) {
 								String sessionName = fifo.getFirst();
 								fifo.removeFirst();
-								this.generateXMIFile(targetDir, sessionName);
+								this.generateNeoDatabase(targetDir, sessionName);
 								prevSessionLine = nextSessionLine;
 							}
 
@@ -310,11 +394,11 @@ public class CBP2NeoEMFResource extends HybridResource {
 			if (all == true) {
 				String sessionName = fifo.getFirst();
 				if (sessionName != null) {
-					this.generateXMIFile(targetDir, sessionName);
+					this.generateNeoDatabase(targetDir, sessionName);
 				}
 			} else if (all == false) {
 				String sessionName = fifo.getFirst();
-				this.generateXMIFile(targetDir, sessionName);
+				this.generateNeoDatabase(targetDir, sessionName);
 			}
 
 			begin.close();
@@ -324,9 +408,7 @@ public class CBP2NeoEMFResource extends HybridResource {
 			xmlReader.close();
 
 			System.out.println("Done!");
-		} catch (
-
-		Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Error: Event Number " + eventNumber + " : " + errorMessage);
 			throw new IOException(
@@ -334,24 +416,33 @@ public class CBP2NeoEMFResource extends HybridResource {
 		}
 	}
 
-	private void generateXMIFile(File targetDir, String fileName) throws IOException {
+	private void generateNeoDatabase(File targetDir, String fileName) throws IOException, InterruptedException {
 
-		String targetPath = targetDir.getAbsolutePath() + File.separator + fileName;
+		String targetPath = targetDir.getAbsolutePath() + File.separator + fileName.replace(".xmi", ".graphdb");
 
-		// set id of all objects
-		if (useID == true) {
-			TreeIterator<EObject> iterator = this.getAllContents();
-			while (iterator.hasNext()) {
-				EObject eObject = iterator.next();
-				String id = eObjectToIdMap.get(eObject);
-				((XMIResourceImpl) this.stateBasedResource).setID(eObject, id);
+//		// set id of all objects
+//		if (useID == true) {
+//			TreeIterator<EObject> iterator = this.getAllContents();
+//			while (iterator.hasNext()) {
+//				EObject eObject = iterator.next();
+//				String id = eObjectToIdMap.get(eObject);
+//				((XMIResourceImpl) this.stateBasedResource).setID(eObject, id);
+//			}
+//		}
+		
+		stateBasedResource.save(neoSaveOptions);
+		
+		boolean copySuccess = false;
+		Thread.sleep(2000);
+		while (copySuccess == false) {
+			try {
+				FileUtils.copyDirectory(neoRunningDatabase, new File(targetPath));
+				copySuccess = true;
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				System.out.println("Retry copying ...");
+				copySuccess = false;
 			}
 		}
-
-		FileOutputStream fos = new FileOutputStream(targetPath);
-		BufferedOutputStream bos = new BufferedOutputStream(fos);
-		this.save(bos, xmiOptions);
-		fos.close();
-		bos.close();
 	}
 }
