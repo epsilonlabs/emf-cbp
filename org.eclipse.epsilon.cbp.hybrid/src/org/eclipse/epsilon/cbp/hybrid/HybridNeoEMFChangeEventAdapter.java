@@ -20,17 +20,20 @@ public class HybridNeoEMFChangeEventAdapter extends HybridChangeEventAdapter {
 
 	public HybridNeoEMFChangeEventAdapter(HybridNeoEMFResourceImpl hybridResource) {
 		super(hybridResource);
+		this.resource = hybridResource;
 	}
 
 	@Override
 	public void notifyChanged(Notification n) {
+
 		super.notifyChanged(n);
 
-//		System.out.println(" n = " + n);
-//		if (n.getClass().getName().equals(ResourceImpl.class.getName() + "$9")) {
-//			System.out.println(n.getNotifier());
-//			System.out.println(n.getFeature());
-//		} 
+		// System.out.println(" n = " + n);
+		// if (n.getClass().getName().equals(ResourceImpl.class.getName() +
+		// "$9")) {
+		// System.out.println(n.getNotifier());
+		// System.out.println(n.getFeature());
+		// }
 		if (n instanceof ENotificationImpl) {
 
 			if (n.getEventType() == Notification.ADD_MANY) {

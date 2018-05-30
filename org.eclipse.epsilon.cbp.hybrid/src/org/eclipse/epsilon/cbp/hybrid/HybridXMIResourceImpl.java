@@ -9,15 +9,15 @@ import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 
-public class HybridXmiResourceImpl extends HybridResource {
+public class HybridXMIResourceImpl extends HybridResource {
 
-	public HybridXmiResourceImpl(Resource xmiResource, OutputStream cbpOutputStream) {
+	public HybridXMIResourceImpl(Resource xmiResource, OutputStream cbpOutputStream) {
 		super(xmiResource.getURI());
 		this.stateBasedResource = xmiResource;
 		this.uri = xmiResource.getURI();
 		this.cbpOutputStream = cbpOutputStream;
 
-		hybridChangeEventAdapter = new HybridXmiChangeEventAdapter(this);
+		hybridChangeEventAdapter = new HybridXMIChangeEventAdapter(this);
 		stateBasedResource.eSetDeliver(true);
 		stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
 	}
@@ -34,7 +34,11 @@ public class HybridXmiResourceImpl extends HybridResource {
 	public void doLoad(InputStream out, Map<?, ?> options) throws IOException {
 		hybridChangeEventAdapter.setEnabled(false);
 		stateBasedResource.load(options);
+//		if (stateBasedResource.eAdapters().contains(hybridChangeEventAdapter)) {
+//			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
+//		}
 		hybridChangeEventAdapter.setEnabled(true);
 	}
+	
 	
 }

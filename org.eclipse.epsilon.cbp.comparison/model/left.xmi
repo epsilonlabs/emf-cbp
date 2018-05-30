@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML">
+  <uml:Package name="p0" visibility="public"/>
+  <uml:Package name="p1" visibility="public">
+    <packagedElement xsi:type="uml:Package" name="p2" visibility="public">
+      <packagedElement xsi:type="uml:Class" name="c1" visibility="public"/>
+    </packagedElement>
+    <packagedElement xsi:type="uml:Package" name="p4" visibility="public">
+      <packagedElement xsi:type="uml:Class" name="c2" visibility="public"/>
+    </packagedElement>
+  </uml:Package>
+</xmi:XMI>

@@ -47,18 +47,19 @@ public class NeoEMFTest {
 //	 File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.bpmn2.cbxpml");
 //	 File sourceXmiFile = new File("D:\\TEMP\\ASE\\bpmn2.192.xmi");
 
-//	File neoDatabase = new File("D:\\TEMP\\ASE\\_output.epsilon.graphdb");
-//	File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.epsilon.cbxpml");
+	 File neoDatabase = new File("D:\\TEMP\\ASE\\_output.epsilon.graphdb");
+	 File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.epsilon.cbxpml");
 	// File sourceXmiFile = new File("D:\\TEMP\\ASE\\epsilon.1009.xmi");
-//	File sourceXmiFile = new File("D:\\TEMP\\ASE\\epsilon.940.xmi");
+	 File sourceXmiFile = new File("D:\\TEMP\\ASE\\epsilon.940.xmi");
 	// File sourceXmiFile = new File("D:\\TEMP\\ASE\\epsilon.1473.xmi");
 
-	 File neoDatabase = new File("D:\\TEMP\\ASE\\_output.wikipedia.graphdb");
-	 File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.wikipedia.cbxpml");
-	 File sourceXmiFile = new File("D:\\TEMP\\ASE\\wikipedia.10187.xmi");
+//	 File neoDatabase = new File("D:\\TEMP\\ASE\\_output.wikipedia.graphdb");
+//	 File targetCbpFile = new File("D:\\TEMP\\ASE\\_output.wikipedia.cbpxml");
+//	 File sourceXmiFile = new File("D:\\TEMP\\ASE\\wikipedia.10187.xmi");
 
 	public NeoEMFTest() {
-		UMLPackage.eINSTANCE.eClass();
+		 UMLPackage.eINSTANCE.eClass();
+//		UML.UMLPackage.eINSTANCE.eClass();
 		MoDiscoXMLPackage.eINSTANCE.eClass();
 	}
 
@@ -68,7 +69,7 @@ public class NeoEMFTest {
 			System.out.println("Start ....");
 
 			System.out.println("Processing " + sourceXmiFile.getName() + "....");
-			UMLPackage.eINSTANCE.eClass();
+			// UMLPackage.eINSTANCE.eClass();
 			MoDiscoXMLPackage.eINSTANCE.eClass();
 			NeoEMFTest.deleteFolder(neoDatabase);
 
@@ -171,6 +172,8 @@ public class NeoEMFTest {
 			// closing
 			neoResource.unload();
 
+			Thread.sleep(3000);
+			
 			// print results
 			System.out.println();
 			System.out.println("NEO Load Time");
@@ -203,7 +206,7 @@ public class NeoEMFTest {
 			System.out.println("Start ....");
 
 			System.out.println("Processing " + sourceXmiFile.getName() + "....");
-			UMLPackage.eINSTANCE.eClass();
+			// UMLPackage.eINSTANCE.eClass();
 			MoDiscoXMLPackage.eINSTANCE.eClass();
 
 			// init neoemf
@@ -269,6 +272,8 @@ public class NeoEMFTest {
 			targetCbpBufferedStream.close();
 			neoResource.close();
 
+			Thread.sleep(300);
+			
 			// print results
 			System.out.println();
 			System.out.println("NEO Save Time");

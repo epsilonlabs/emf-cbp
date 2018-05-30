@@ -36,10 +36,10 @@ public class GenerateIgnoreListTest {
 			Map<Object, Object> saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
 			saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
 
-			File cbpFile = new File("D:\\TEMP\\ASE\\epsilon.1473.cbpxml");
+			File cbpFile = new File("D:\\TEMP\\ASE\\epsilon.940.cbpxml");
 //			File cbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\BPMN2.cbpxml");
 			File cbpDummyFile = new File("D:\\TEMP\\ASE\\_temp.cbpxml");
-			File ignoreListFile = new File("D:\\TEMP\\ASE\\epsilon.1473.ignoreset");
+			File ignoreListFile = new File("D:\\TEMP\\ASE\\epsilon.940.ignoreset");
 			FileOutputStream xmiFile1 = new FileOutputStream("D:\\TEMP\\ASE\\_temp1.xmi");
 			FileOutputStream xmiFile2 = new FileOutputStream("D:\\TEMP\\ASE\\_temp2.xmi");
 

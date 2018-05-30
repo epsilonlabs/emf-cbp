@@ -66,7 +66,7 @@ public class ECMFATest3 {
 
 		System.out.println();
 		System.out.println("Processing Epsilon ...");
-		File epsilonCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.1009.cbpxml");
+		File epsilonCbpFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.940.cbpxml");
 		File epsilonIgnoreListFile = new File("D:\\TEMP\\ECMFA\\cbp\\epsilon.1009.ignoreset");
 		Measurement e = new Measurement();
 		e = performMeasure(epsilonCbpFile, epsilonIgnoreListFile, dummyCbpFileForMeasuringSave, dummyIgnoreSet);

@@ -16,10 +16,10 @@ public class CBP2XMITest {
 			org.eclipse.uml2.uml.UMLPackage.eINSTANCE.eClass();
 //			UML.UMLPackage.eINSTANCE.eClass();
 			
-//			File cbpFile = new File("D:\\TEMP\\ASE\\epsilon.1473.cbpxml");
-//			File targetDir = new File("D:\\TEMP\\ASE\\epsilon_xmi");
-			File cbpFile = new File("D:\\TEMP\\ASE\\bpmn2.192.cbpxml");
-			File targetDir = new File("D:\\TEMP\\ASE\\bpmn2_xmi");
+			File cbpFile = new File("D:\\TEMP\\ASE\\epsilon.388.cbpxml");
+			File targetDir = new File("D:\\TEMP\\ASE\\epsilon_xmi");
+//			File cbpFile = new File("D:\\TEMP\\ASE\\bpmn2.192.cbpxml");
+//			File targetDir = new File("D:\\TEMP\\ASE\\bpmn2_xmi");
 //			File cbpFile = new File("D:\\TEMP\\XMI_GENERATOR\\input.cbpxml");
 //			File targetDir = new File("D:\\TEMP\\XMI_GENERATOR\\");
 					

@@ -85,8 +85,8 @@ public class CBPEventMetamodelTest {
 		try {
 			CBPPackage.eINSTANCE.eClass();
 
-			File source = new File("D:\\TEMP\\ASE\\bpmn2.192.cbpxml");
-			File target = new File("D:\\TEMP\\ASE\\bpmn2.192.comparison.cbpxml");
+			File source = new File("D:\\TEMP\\ASE\\comparison\\epsilon.008.cbpxml");
+			File target = new File("D:\\TEMP\\ASE\\comparison\\epsilon.008.cbpxml.xmi");
 			if (target.exists()) {
 				target.delete();
 			}

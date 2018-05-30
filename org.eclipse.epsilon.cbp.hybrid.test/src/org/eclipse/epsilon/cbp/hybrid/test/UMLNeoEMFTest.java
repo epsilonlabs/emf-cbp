@@ -186,13 +186,13 @@ public class UMLNeoEMFTest {
 			Node node = nodeFactory.createNode();
 			node.setName("Dummy");
 
-			UMLPackage.eINSTANCE.eClass();
-			UMLFactory.eINSTANCE.eClass();
-			UMLFactory umlFactory = UMLFactory.eINSTANCE;
-			Model dummyModel = umlFactory.createModel();
+			UML.UMLPackage.eINSTANCE.eClass();
+			UML.UMLFactory.eINSTANCE.eClass();
+			UML.UMLFactory umlFactory = UML.UMLFactory.eINSTANCE;
+			UML.Model dummyModel = umlFactory.createModel();
 			dummyModel.setName("Dummy");
-			Comment comment = dummyModel.createOwnedComment();
-			comment.setBody("AAAAA");
+//			Comment comment = dummyModel.createOwnedComment();
+//			comment.setBody("AAAAA");
 
 			// File xmiFile = new File("D:\\TEMP\\HYBRID\\uml-metamodel.uml");
 
@@ -229,19 +229,17 @@ public class UMLNeoEMFTest {
 			}
 			persistentResource.getContents().add(dummyModel);
 			persistentResource.save(saveOptions);
+			persistentResource.close();
 			persistentResource.load(loadOptions);
 
 			TreeIterator<EObject> treeIterator = persistentResource.getAllContents();
 			while (treeIterator.hasNext()) {
 				EObject eObject = treeIterator.next();
 				PersistentEObject persistentObject = (PersistentEObject) eObject;
-				if (eObject instanceof Model) {
-					Model model = (Model) eObject;
+				if (eObject instanceof UML.Model) {
+					UML.Model model = (UML.Model) eObject;
 					System.out.println(model.getName());
-				} else if (eObject instanceof Comment) {
-					Comment c = (Comment) eObject;
-					System.out.println(c.getBody());
-				}
+				} 
 			}
 
 			persistentResource.close();

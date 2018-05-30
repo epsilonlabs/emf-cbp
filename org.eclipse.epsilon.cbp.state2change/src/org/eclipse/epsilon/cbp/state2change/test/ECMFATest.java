@@ -60,15 +60,15 @@ public class ECMFATest {
 //		ignoreFiles.add(new File(sourcePath + File.separator + "BPMN2.ignoreset"));
 //		xmiFiles.add(new File(sourcePath + File.separator + "BPMN2.xmi"));
 //
-//		models.add("epsilon");
-//		cbpFiles.add(new File(sourcePath + File.separator + "epsilon.947.cbpxml"));
-//		ignoreFiles.add(new File(sourcePath + File.separator + "epsilon.947.ignoreset"));
-//		xmiFiles.add(new File(sourcePath + File.separator + "epsilon.947.xmi"));
+		models.add("epsilon");
+		cbpFiles.add(new File(sourcePath + File.separator + "epsilon.947.cbpxml"));
+		ignoreFiles.add(new File(sourcePath + File.separator + "epsilon.947.ignoreset"));
+		xmiFiles.add(new File(sourcePath + File.separator + "epsilon.947.xmi"));
 
-		models.add("wikipedia");
-		cbpFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.cbpxml"));
-		ignoreFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.ignoreset"));
-		xmiFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.xmi"));
+//		models.add("wikipedia");
+//		cbpFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.cbpxml"));
+//		ignoreFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.ignoreset"));
+//		xmiFiles.add(new File(sourcePath + File.separator + "wikipedia.9180.xmi"));
 
 		// Generating data description
 //		for (int i = 0; i < models.size(); i++) {

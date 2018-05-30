@@ -52,19 +52,25 @@ public class UMLCompareTest {
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpxml", new CBPXMLResourceFactory());
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("uml", new UMLResourceFactoryImpl());
-		Resource leftResouce = resourceSet.createResource(URI.createFileURI("D:/TEMP/BPMN2/xmi/model.cbpxml"));
+
+		// Resource leftResouce =
+		// resourceSet.createResource(URI.createFileURI("D:/TEMP/BPMN2/xmi/model.cbpxml"));
+		Resource leftResouce = resourceSet
+				.createResource(URI.createFileURI("D:\\TEMP\\ASE\\comparison\\epsilon.008.xmi"));
 		leftResouce.load(null);
-//		Resource rightResource = resourceSet.createResource(
-//				URI.createFileURI("D:/TEMP/BPMN2/xmi/BPMN2-0000001-1b47f8942c6849ba1c2c61eb3e2253217361dbbc.xmi"));
-		Resource rightResource = resourceSet.createResource(
-				URI.createFileURI("D:/TEMP/BPMN2/xmi/BPMN2-0000002-ea2d0e08a81f54e12ac1f12e95fc3fbd21b5e09a.xmi"));
+		// Resource rightResource = resourceSet.createResource(
+		// URI.createFileURI("D:/TEMP/BPMN2/xmi/BPMN2-0000001-1b47f8942c6849ba1c2c61eb3e2253217361dbbc.xmi"));
+		// Resource rightResource = resourceSet.createResource(
+		// URI.createFileURI("D:/TEMP/BPMN2/xmi/BPMN2-0000002-ea2d0e08a81f54e12ac1f12e95fc3fbd21b5e09a.xmi"));
+		Resource rightResource = resourceSet
+				.createResource(URI.createFileURI("D:\\TEMP\\ASE\\comparison\\epsilon.044.xmi"));
 		rightResource.load(null);
-		
-//		TreeIterator<EObject> iterator = rightResource.getAllContents();
-//		while(iterator.hasNext()) {
-//			EObject eObject = iterator.next();
-//			((UMLResource) rightResource).setID(eObject, null);
-//		}
+
+		// TreeIterator<EObject> iterator = rightResource.getAllContents();
+		// while(iterator.hasNext()) {
+		// EObject eObject = iterator.next();
+		// ((UMLResource) rightResource).setID(eObject, null);
+		// }
 
 		IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
 		BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(),
@@ -94,16 +100,15 @@ public class UMLCompareTest {
 			System.out.println("Start: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
 			batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
 			System.out.println("End: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
-			
-			leftResouce.save(null);
 
+//			leftResouce.save(null);
 			System.out.println("\nRe-compare again for validation ...");
 			scope = createComparisonScope(leftResouce, rightResource);
 			System.out.println("Start: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
 			comparison = comparator.compare(scope);
 			System.out.println("End: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
 			diffs = comparison.getDifferences();
-			System.out.println("Diffs: " + diffs.size());	
+			System.out.println("Diffs: " + diffs.size());
 		}
 	}
 

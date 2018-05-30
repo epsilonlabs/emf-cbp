@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Comparison
+Bundle-SymbolicName: org.eclipse.epsilon.cbp.comparison
+Bundle-Version: 1.0.0.qualifier
+Export-Package: org.eclipse.epsilon.cbp.comparison.test
+Require-Bundle: org.eclipse.emf.common,
+ org.eclipse.emf.compare,
+ org.junit,
+ org.eclipse.emf.ecore.xmi,
+ org.eclipse.epsilon.cbp,
+ org.apache.log4j,
+ org.eclipse.uml2.uml,
+ org.eclipse.epsilon.cbp.hybrid,
+ org.eclipse.emf.compare.uml2
+Import-Package: org.eclipse.uml2.uml

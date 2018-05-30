@@ -76,8 +76,10 @@ public class CBP2XMIResource extends HybridResource {
 		this.useID = useID;
 		this.cbpFile = cbpFile;
 		this.targetDir = targetDir;
+		if (this.targetDir.exists() == false)
+			targetDir.mkdir();
 		this.stateBasedResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("model.xmi"));
-		this.hybridChangeEventAdapter = new HybridXmiChangeEventAdapter(this);
+		this.hybridChangeEventAdapter = new HybridXMIChangeEventAdapter(this);
 		this.xmiOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
 		this.xmiOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
 	}
@@ -282,6 +284,8 @@ public class CBP2XMIResource extends HybridResource {
 					EndElement ee = xmlEvent.asEndElement();
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
+//						System.out.println(eventNumber);
+						
 						event.replay();
 
 						if (name.equals("session")) {
@@ -362,11 +366,10 @@ public class CBP2XMIResource extends HybridResource {
 		fos.close();
 		bos.close();
 	}
-	
+
 	@Override
 	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
 		stateBasedResource.save(out, options);
 		out.flush();
 	}
 }
-

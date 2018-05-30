@@ -72,6 +72,7 @@ public abstract class HybridResource extends ResourceImpl {
 
 	protected Resource stateBasedResource;
 	protected OutputStream cbpOutputStream;
+	
 	protected HybridChangeEventAdapter hybridChangeEventAdapter;
 	protected BiMap<EObject, String> eObjectToIdMap;
 	protected Map<EObject, String> deletedEObjectToIdMap;
@@ -558,5 +559,8 @@ public abstract class HybridResource extends ResourceImpl {
 		}
 		return null;
 	}
-
+	
+	public OutputStream getCBPOutputStream() {
+		return cbpOutputStream;
+	}
 }
