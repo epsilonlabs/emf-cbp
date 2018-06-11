@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML">
+  <uml:Package name="1">
+    <packagedElement xsi:type="uml:Package" href="output/left.xmi#/1"/>
+  </uml:Package>
+  <uml:Package name="2">
+    <packagedElement xsi:type="uml:Package" href="output/left.xmi#/2"/>
+  </uml:Package>
+  <uml:Package name="3">
+    <packagedElement xsi:type="uml:Package" href="output/left.xmi#/3"/>
+  </uml:Package>
+  <uml:Package name="4"/>
+  <uml:Package name="E"/>
+</xmi:XMI>

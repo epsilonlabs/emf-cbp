@@ -6,12 +6,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
@@ -319,23 +323,30 @@ public class State2ChangeConverter {
 			// initialise UML comparison
 			IComparisonScope2 scope = createComparisonScope(cbpResource, xmiResource);
 
+//			Logger.getRootLogger().setLevel(Level.OFF);
+			List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
+			loggers.add(LogManager.getRootLogger());
+			for ( Logger logger : loggers ) {
+			    logger.setLevel(Level.OFF);
+			}
+			
 			Comparison comparison = comparator.compare(scope);
 			EList<Diff> diffs = comparison.getDifferences();
 
-			// persist diffs
-			Resource comparisonResource = diffResourceSet.createResource(URI.createURI("diffs.xmi"));
-			comparisonResource.getContents().addAll(EcoreUtil.copyAll(comparison.getDifferences()));
-			String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + xmiFile.getName();
-			File diffFile = new File(diffFilePath);
-			FileOutputStream diffFileOutputStream;
-			try {
-				diffFileOutputStream = new FileOutputStream(diffFile);
-				comparisonResource.save(diffFileOutputStream, saveOptions);
-				diffFileOutputStream.flush();
-				diffFileOutputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			// persist diffs
+//			Resource comparisonResource = diffResourceSet.createResource(URI.createURI("diffs.xmi"));
+//			comparisonResource.getContents().addAll(EcoreUtil.copyAll(comparison.getDifferences()));
+//			String diffFilePath = diffDirectory.getPath() + File.separator + "Diff-" + xmiFile.getName();
+//			File diffFile = new File(diffFilePath);
+//			FileOutputStream diffFileOutputStream;
+//			try {
+//				diffFileOutputStream = new FileOutputStream(diffFile);
+//				comparisonResource.save(diffFileOutputStream, saveOptions);
+//				diffFileOutputStream.flush();
+//				diffFileOutputStream.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 
 			// copy all right to left
 			List<EObject> list = new ArrayList<EObject>();
@@ -384,7 +395,29 @@ public class State2ChangeConverter {
 			// }
 			if (diffs.size() > 0) {
 				System.out.println("There are still differences between the CBP and the XMI.");
-				return;
+				
+				batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
+				try {
+					cbpResource.save(null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				try {
+					cbpResource.load(null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				scope = createComparisonScope(cbpResource, xmiResource);
+				comparison = comparator.compare(scope);
+				diffs = comparison.getDifferences();
+				System.out.println(" Size After second comparison and merging " + diffs.size());
+				
+				if (diffs.size() > 0) {
+					System.out.println();
+					return;
+				}
 			}
 
 			clearCacheAdapter();

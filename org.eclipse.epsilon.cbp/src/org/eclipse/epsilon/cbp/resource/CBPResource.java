@@ -152,6 +152,9 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 		String id = String.valueOf(idCounter);
 		idCounter = idCounter + 1;
+		
+		id = EcoreUtil.generateUUID();
+		
 		adopt(eObject, id);
 		return id;
 	}

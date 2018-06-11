@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.SequenceInputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
@@ -66,6 +68,7 @@ public class CBP2XMIResource extends HybridResource {
 	protected int persistedEvents = 0;
 	protected boolean useID = false;
 	private Map<Object, Object> xmiOptions;
+	private Map<String, String> id2uuid = new HashMap<String, String>();
 
 	public CBP2XMIResource(File cbpFile, File targetDir) {
 		this(cbpFile, targetDir, false);
@@ -181,6 +184,8 @@ public class CBP2XMIResource extends HybridResource {
 							EClass eClass = (EClass) ePackage.getEClassifier(className);
 							event = new CreateEObjectEvent(eClass, this, id);
 
+							id2uuid.put(id, EcoreUtil.generateUUID());
+
 						}
 							break;
 						case "add-to-resource":
@@ -284,8 +289,8 @@ public class CBP2XMIResource extends HybridResource {
 					EndElement ee = xmlEvent.asEndElement();
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
-//						System.out.println(eventNumber);
-						
+						// System.out.println(eventNumber);
+
 						event.replay();
 
 						if (name.equals("session")) {
@@ -356,6 +361,7 @@ public class CBP2XMIResource extends HybridResource {
 			while (iterator.hasNext()) {
 				EObject eObject = iterator.next();
 				String id = this.getURIFragment(eObject);
+				id = id2uuid.get(id);
 				((XMIResourceImpl) this.stateBasedResource).setID(eObject, id);
 			}
 		}

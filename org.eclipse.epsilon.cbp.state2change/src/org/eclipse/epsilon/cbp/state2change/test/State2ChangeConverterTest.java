@@ -11,9 +11,9 @@ import org.junit.Test;
 
 public class State2ChangeConverterTest {
 
-	private File xmiDirectory = new File("D:\\TEMP\\MINIUML\\xmi");
-	private File diffDirectory = new File("D:\\TEMP\\MINIUML");
-	private File cbpFile = new File("D:\\TEMP\\MINIUML\\miniuml.cbpxml");
+	private File xmiDirectory = new File("D:\\TEMP\\COMPARISON\\xmi-without-id\\");
+	private File diffDirectory = new File("D:\\TEMP\\COMPARISON\\diff\\");
+	private File cbpFile = new File("D:\\TEMP\\COMPARISON\\target-cbpxml\\BPMN2-id.cbpxml");
 	
 	@Test
 	public void generateTest() throws Exception{

@@ -9,6 +9,19 @@ public class ComparisonLine {
 	private Line leftLine = null;
 	private Line rightLine = null;
 	
+	public ComparisonLine() {
+	}
+	
+	public ComparisonLine(int lineNumber, boolean isDifferent, boolean isConflict, Line leftLine, Line rightLine) {
+		this.lineNumber = lineNumber;
+		this.isDifferent = isDifferent;
+		this.isConflict = isConflict;
+		this.leftLine = leftLine;
+		this.rightLine = rightLine;
+		this.leftLine.setComparisonLine(this);
+		this.rightLine.setComparisonLine(this);
+	}
+	
 	public int getLineNumber() {
 		return lineNumber;
 	}

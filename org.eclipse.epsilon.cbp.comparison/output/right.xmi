@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML">
+  <uml:Package name="A"/>
+  <uml:Package name="3">
+    <packagedElement xsi:type="uml:Package" href="output/right.xmi#/2"/>
+  </uml:Package>
+  <uml:Package name="4"/>
+</xmi:XMI>

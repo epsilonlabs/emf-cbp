@@ -420,6 +420,23 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	public void handleDeletedEObject(EObject removedObject, Object parent, Object feature) {
 		if (removedObject.eResource() == null && removedObject.eCrossReferences().size() == 0) {
+
+			for (EReference eRef : removedObject.eClass().getEAllReferences()) {
+				if (eRef.isContainment() == true) {
+					if (eRef.isMany()) {
+						List<EObject> values = (List<EObject>) removedObject.eGet(eRef);
+						while(values.size() > 0) {
+							EObject value = values.get(values.size() - 1);
+							values.remove(value);
+							handleDeletedEObject(value);
+						}
+					} else {
+						EObject value = (EObject) removedObject.eGet(eRef);
+						handleCreateEObject(value);
+					}
+				}
+			}
+
 			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
 			deleteCount++;
