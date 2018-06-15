@@ -39,6 +39,7 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.CancelEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
@@ -179,13 +180,17 @@ public class CBPXMLResourceImpl extends CBPResource {
 			// getChangeEvents().size())) {
 			for (ChangeEvent<?> event : getChangeEvents().subList(0, getChangeEvents().size())) {
 
-//				 if (eventNumber % 100000 == 0)
-//				 System.out.println(eventNumber);
+				// if (eventNumber % 100000 == 0)
+				// System.out.println(eventNumber);
 
 				Document document = documentBuilder.newDocument();
 				Element e = null;
 
-				if (event instanceof StartNewSessionEvent) {
+				if (event instanceof CancelEvent) {
+					CancelEvent c = ((CancelEvent) event);
+					e = document.createElement("session");
+					e.setAttribute("offset", String.valueOf(c.getLineToCancelOffset()));
+				} else if (event instanceof StartNewSessionEvent) {
 					StartNewSessionEvent s = ((StartNewSessionEvent) event);
 					e = document.createElement("session");
 					e.setAttribute("id", s.getSessionId());
@@ -418,7 +423,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		replayEvents(inputStream);
 
 		changeEventAdapter.setEnabled(true);
-//		this.clearIgnoreSet();
+		// this.clearIgnoreSet();
 	}
 
 	/**
@@ -441,10 +446,10 @@ public class CBPXMLResourceImpl extends CBPResource {
 			stream = new SequenceInputStream(stream, begin);
 			stream = new SequenceInputStream(stream, inputStream);
 			stream = new SequenceInputStream(stream, end);
-			
+
 			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 			XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
-			
+
 			ChangeEvent<?> event = null;
 			boolean ignore = false;
 
@@ -473,6 +478,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 							beforeEvent = System.nanoTime();
 							errorMessage = name;
 							switch (name) {
+							case "cancel": {
+								int lineToCancelOffset = Integer
+										.parseInt(e.getAttributeByName(new QName("offset")).getValue());
+								event = new CancelEvent(lineToCancelOffset);
+							}
+								break;
 							case "session": {
 								sessionCount += 1;
 								String sessionId = e.getAttributeByName(new QName("id")).getValue();
@@ -604,9 +615,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 						if (ignore == false) {
 
 							event.replay();
-							
-//							 if (eventNumber % 100000 == 0)
-//							 System.out.println(eventNumber);
+
+							// if (eventNumber % 100000 == 0)
+							// System.out.println(eventNumber);
 
 							if (repopulateModelHistory == true) {
 								repopulateModelHistory(event, eventNumber);
@@ -715,7 +726,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			inputStream.close();
 			stream.close();
 			xmlReader.close();
-			
+
 			// persistedEvents = getChangeEvents().size();
 			if (keepChangeEventsAfterLoad == true) {
 				if (eventNumber > 0) {
@@ -775,6 +786,10 @@ public class CBPXMLResourceImpl extends CBPResource {
 		case "session": {
 			return new StartNewSessionEvent(e.getAttribute("id"), e.getAttribute("time"));
 		}
+		case "cancel": {
+			int lineToCancelOffset = Integer.parseInt(e.getAttribute("offset"));
+			return new CancelEvent(lineToCancelOffset);
+		}
 		}
 
 		return null;
@@ -803,32 +818,35 @@ public class CBPXMLResourceImpl extends CBPResource {
 		System.out.println("Loading CBP ...");
 
 		this.load(options1);
-//		this.getModelHistory().printStructure();
-		
-		
-//		ByteArrayInputStream dummyInputStream = new ByteArrayInputStream(new byte[0]);
-//		this.load(dummyInputStream, options1);
-//
-//		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(cbpFile), "ISO-8859-1"));
-//		String strLine;
-//		int line = 0;
-//		while ((strLine = br.readLine()) != null) {
-//			// System.gc();
-//			 if (line % 100000 == 0) {
-////				 System.gc();
-//				 System.out.println(line);
-//			 }
-//			// System.out.println(this.ignoreSet.size());
-//			// System.out.println("line: " + line);
-//			this.loadAdditionalEvents(new ByteArrayInputStream(strLine.getBytes()));
-//
-////			FileOutputStream cbpDummyOutputStream = new FileOutputStream(cbpDummyFile, true);
-////			this.save(new BufferedOutputStream(cbpDummyOutputStream), null);
-////			cbpDummyOutputStream.close();
-//
-//			line += 1;
-//		}
-//		br.close();
+		// this.getModelHistory().printStructure();
+
+		// ByteArrayInputStream dummyInputStream = new ByteArrayInputStream(new
+		// byte[0]);
+		// this.load(dummyInputStream, options1);
+		//
+		// BufferedReader br = new BufferedReader(new InputStreamReader(new
+		// FileInputStream(cbpFile), "ISO-8859-1"));
+		// String strLine;
+		// int line = 0;
+		// while ((strLine = br.readLine()) != null) {
+		// // System.gc();
+		// if (line % 100000 == 0) {
+		//// System.gc();
+		// System.out.println(line);
+		// }
+		// // System.out.println(this.ignoreSet.size());
+		// // System.out.println("line: " + line);
+		// this.loadAdditionalEvents(new
+		// ByteArrayInputStream(strLine.getBytes()));
+		//
+		//// FileOutputStream cbpDummyOutputStream = new
+		// FileOutputStream(cbpDummyFile, true);
+		//// this.save(new BufferedOutputStream(cbpDummyOutputStream), null);
+		//// cbpDummyOutputStream.close();
+		//
+		// line += 1;
+		// }
+		// br.close();
 
 		FileOutputStream ignoreFileOutputStream = new FileOutputStream(ignoreListFile, false);
 		this.saveIgnoreSet(ignoreFileOutputStream);
@@ -842,7 +860,8 @@ public class CBPXMLResourceImpl extends CBPResource {
 	}
 
 	protected void repopulateModelHistory(ChangeEvent<?> event, int eventNumber) {
-		if (event instanceof StartNewSessionEvent) {
+		if (event instanceof CancelEvent) {
+		} else if (event instanceof StartNewSessionEvent) {
 		} else if (event instanceof RegisterEPackageEvent) {
 			RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
 			modelHistory.addObjectHistoryLine(r.getEPackage(), event, eventNumber);

@@ -1,16 +1,30 @@
 package org.eclipse.epsilon.cbp.comparison;
 
-import java.io.BufferedReader;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.io.SequenceInputStream;
+import java.io.StringWriter;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -18,6 +32,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
@@ -31,11 +52,13 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.CancelEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
+import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
 import org.eclipse.epsilon.cbp.event.FromPositionEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
@@ -44,17 +67,20 @@ import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
-import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
-import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class CBPComparison {
 
+	private List<ComparisonEvent> mergedEvents = new ArrayList<>();
+	private List<SessionEvent> leftSessionEvents = new ArrayList<>();
+	private List<SessionEvent> rightSessionEvents = new ArrayList<>();
 	private List<ComparisonEvent> leftChangeEvents = new ArrayList<>();
 	private List<ComparisonEvent> rightChangeEvents = new ArrayList<>();
 	private List<Line> leftLines = new ArrayList<>();
@@ -64,7 +90,8 @@ public class CBPComparison {
 	private File rightCbpFile;
 	private CBPResource leftResource;
 	private CBPResource rightResource;
-	private List<ConflictedEvents> conflictedEventList = new ArrayList<>();
+	private List<ConflictedEvents> conflictedEventsList = new ArrayList<>();
+	private SessionEvent reconciliationSessionEvent;
 
 	public CBPComparison() {
 
@@ -77,452 +104,298 @@ public class CBPComparison {
 	}
 
 	public void compare() throws IOException, XMLStreamException {
-//		leftResource = (CBPResource) (new CBPXMLResourceFactory())
-//				.createResource(URI.createFileURI(leftCbpFile.getAbsolutePath()));
-//		System.out.println("Loading " + leftResource.getURI().lastSegment() + "...");
-//		leftResource.load(null);
+		// leftResource = (CBPResource) (new CBPXMLResourceFactory())
+		// .createResource(URI.createFileURI(leftCbpFile.getAbsolutePath()));
+		// System.out.println("Loading " + leftResource.getURI().lastSegment() +
+		// "...");
+		// leftResource.load(null);
 
-//		rightResource = (CBPResource) (new CBPXMLResourceFactory())
-//				.createResource(URI.createFileURI(rightCbpFile.getAbsolutePath()));
-//		System.out.println("Loading " + rightResource.getURI().lastSegment() + "...");
-//		rightResource.load(null);
+		// rightResource = (CBPResource) (new CBPXMLResourceFactory())
+		// .createResource(URI.createFileURI(rightCbpFile.getAbsolutePath()));
+		// System.out.println("Loading " + rightResource.getURI().lastSegment()
+		// + "...");
+		// rightResource.load(null);
 
-		FileReader leftFileReader = new FileReader(leftCbpFile);
-		BufferedReader leftBufferedReader = new BufferedReader(leftFileReader);
+		RandomAccessFile leftRaf = new RandomAccessFile(leftCbpFile, "rw");
+		RandomAccessFile rightRaf = new RandomAccessFile(rightCbpFile, "rw");
 
-		FileReader rightFileReader = new FileReader(rightCbpFile);
-		BufferedReader rightBufferedReader = new BufferedReader(rightFileReader);
+		FileChannel leftChannel = leftRaf.getChannel();
+		FileChannel rightChannel = rightRaf.getChannel();
+
+		ByteBuffer leftBuffer = ByteBuffer.allocate(1);
+		ByteBuffer rightBuffer = ByteBuffer.allocate(1);
 
 		int leftInt = -1;
 		int rightInt = -1;
-		boolean keepReading = true;
+		CharBuffer leftCharBuffer;
+		CharBuffer rightCharBuffer;
+		int lineCount = 1;
+		long position = -1;
+		char leftChar;
+		char rightChar;
 
-		leftBufferedReader.mark(0);
-		rightBufferedReader.mark(0);
-		int prevInt = -1;
-		int lineCount = 0;
-		while (keepReading) {
-			leftInt = leftBufferedReader.read();
-			rightInt = rightBufferedReader.read();
-			if (leftInt != rightInt || leftInt == -1 && rightInt == -1) {
+		while (true) {
+			leftInt = leftChannel.read(leftBuffer);
+			rightInt = rightChannel.read(rightBuffer);
+
+			leftBuffer.flip();
+			leftCharBuffer = Charset.defaultCharset().decode(leftBuffer);
+			leftChar = leftCharBuffer.get();
+			leftBuffer.clear();
+
+			rightBuffer.flip();
+			rightCharBuffer = Charset.defaultCharset().decode(rightBuffer);
+			rightChar = rightCharBuffer.get();
+			rightBuffer.clear();
+
+			if (leftChar != rightChar || leftInt == -1 && rightInt == -1) {
 				System.out.println();
 				break;
-			} else if (prevInt == 13) {
-				leftBufferedReader.mark(0);
-				rightBufferedReader.mark(0);
+			} else if (leftChar == (char) 13) {
 				lineCount += 1;
+				position = leftChannel.position();
 			}
-			System.out.print((char) leftInt);
-			prevInt = leftInt;
+			System.out.print(leftChar);
 		}
 
-		if (leftInt > -1)
-			leftBufferedReader.reset();
-		if (rightInt > -1)
-			rightBufferedReader.reset();
+		leftChannel.position(position);
+		rightChannel.position(position);
 
 		System.out.println();
-
-		System.out.println("LEFT:");
-		String leftString = null;
-		while (leftInt > -1 && (leftString = leftBufferedReader.readLine()) != null) {
-			System.out.println(leftString);
-			ChangeEvent<?> changeEvent = createEvent(leftString, leftResource, rightResource);
-			ComparisonEvent comparisonEvent = createComparisonEvent(changeEvent, leftString);
-			leftChangeEvents.add(comparisonEvent);
-		}
-		leftBufferedReader.close();
-
-		System.out.println("RIGHT:");
-		String rightString = null;
-		while (rightInt > -1 && (rightString = rightBufferedReader.readLine()) != null) {
-			System.out.println(rightString);
-			ChangeEvent<?> changeEvent = createEvent(rightString, rightResource, leftResource);
-			ComparisonEvent comparisonEvent = createComparisonEvent(changeEvent, rightString);
-			rightChangeEvents.add(comparisonEvent);
-		}
-		rightBufferedReader.close();
+		createChangeEvents(leftChannel, leftChangeEvents, leftSessionEvents);
+		System.out.println();
+		createChangeEvents(rightChannel, rightChangeEvents, rightSessionEvents);
 
 		int leftLineCount = lineCount;
 		int rightLineCount = lineCount;
-		for (ComparisonEvent leftEvent : leftChangeEvents) {
-			for (ComparisonEvent rightEvent : rightChangeEvents) {
-							
-				if (leftEvent.getEventType().equals(rightEvent.getEventType()) 
-						&& leftEvent.getTarget() != null
-						&& rightEvent.getTarget() != null
-						&& leftResource.getEObjectId(leftEvent.getTarget()).equals(rightResource.getEObjectId(rightEvent.getTarget()))
-//						&& leftEvent.getFeature() != null && rightEvent.getFeature() != null
-//						&& leftEvent.getFeature().equals(rightEvent.getFeature()) && leftEvent.getValue() != null
-//						&& rightEvent.getValue() != null && !leftEvent.getValue().equals(rightEvent.getValue())
-						) {
-
-					String x = leftResource.getEObjectId(leftEvent.getTarget());
-					String y = rightResource.getEObjectId(rightEvent.getTarget());
-					
-					conflictedEventList.add(new ConflictedEvents(leftLineCount, leftEvent, rightLineCount, rightEvent,
-							ConflictedEvents.TYPE_DIFFERENT_VALUES));
-					System.out.println();
-				}
-
-				rightLineCount += 1;
-			}
-
-			leftLineCount += 1;
-		}
-
-	}
-
-	private ComparisonEvent createComparisonEvent(ChangeEvent<?> changeEvent, String eventString) {
-		Class<?> eventType = changeEvent.getClass();
-		EObject target = null;
-		Object value = null;
-		EStructuralFeature feature = null;
-		Integer position = -1;
-		if (changeEvent instanceof StartNewSessionEvent) {
-		} else if (changeEvent instanceof CreateEObjectEvent) {
-			CreateEObjectEvent event = (CreateEObjectEvent) changeEvent;
-			value = event.getValue();
-		} else if (changeEvent instanceof DeleteEObjectEvent) {
-			DeleteEObjectEvent event = (DeleteEObjectEvent) changeEvent;
-			value = event.getValue();
-		} else if (changeEvent instanceof AddToResourceEvent) {
-			AddToResourceEvent event = (AddToResourceEvent) changeEvent;
-			value = event.getValue();
-		} else if (changeEvent instanceof RemoveFromResourceEvent) {
-			RemoveFromResourceEvent event = (RemoveFromResourceEvent) changeEvent;
-			value = event.getValue();
-		} else if (changeEvent instanceof SetEAttributeEvent) {
-			SetEAttributeEvent event = (SetEAttributeEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-		} else if (changeEvent instanceof SetEReferenceEvent) {
-			SetEReferenceEvent event = (SetEReferenceEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-		} else if (changeEvent instanceof UnsetEAttributeEvent) {
-			UnsetEAttributeEvent event = (UnsetEAttributeEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-		} else if (changeEvent instanceof UnsetEReferenceEvent) {
-			UnsetEReferenceEvent event = (UnsetEReferenceEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-		} else if (changeEvent instanceof AddToEAttributeEvent) {
-			AddToEAttributeEvent event = (AddToEAttributeEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-			position = event.getPosition();
-		} else if (changeEvent instanceof AddToEAttributeEvent) {
-			AddToEAttributeEvent event = (AddToEAttributeEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-			position = event.getPosition();
-		} else if (changeEvent instanceof AddToEReferenceEvent) {
-			AddToEReferenceEvent event = (AddToEReferenceEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-			position = event.getPosition();
-		} else if (changeEvent instanceof RemoveFromEAttributeEvent) {
-			RemoveFromEAttributeEvent event = (RemoveFromEAttributeEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-			position = event.getPosition();
-		} else if (changeEvent instanceof RemoveFromEReferenceEvent) {
-			RemoveFromEReferenceEvent event = (RemoveFromEReferenceEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-			position = event.getPosition();
-		} else if (changeEvent instanceof MoveWithinEAttributeEvent) {
-			MoveWithinEAttributeEvent event = (MoveWithinEAttributeEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-			position = event.getPosition();
-		} else if (changeEvent instanceof MoveWithinEReferenceEvent) {
-			MoveWithinEReferenceEvent event = (MoveWithinEReferenceEvent) changeEvent;
-			target = event.getTarget();
-			value = event.getValue();
-			feature = event.getEStructuralFeature();
-			position = event.getPosition();
-		}
-
-		return new ComparisonEvent(eventType, changeEvent, target, value, feature, position, eventString, null, null);
-	}
-	
-	public List<ConflictedEvents> getConflicts() {
-		return this.conflictedEventList;
-	}
-
-	protected void backtrack(List<String> leftList, List<String> rightList, List<int[]> VS) {
-		final int N = leftList.size();
-		final int M = rightList.size();
-		final int MAX = N + M;
-		int offset = (2 * (MAX + 1)) / 2;
-		int xEnd = N;
-		int yEnd = M;
-
-		char currentSign = Line.SIGN_INITIAL;
-		char prevSign = Line.SIGN_INITIAL;
-		String text = "";
-		int lineNumber = 1;
-
-		for (int D = VS.size() - 1; D >= 0 && (xEnd > 0 || yEnd > 0); D--) {
-			int[] V = VS.get(D);
-
-			int k = xEnd - yEnd;
-
-			int kPrev = 0; // previous k
-			int xStart = 0;
-			int yStart = 0;
-
-			// lower < upper -> upward, else leftward
-			if (k == -D || (k != D && V[k - 1 + offset] < V[k + 1 + offset])) {
-				kPrev = k + 1;
-				xStart = V[kPrev + offset];
-				yStart = xStart - kPrev;
-				if (yStart >= 0 && yStart < M) {
-					currentSign = Line.SIGN_ADD;
-					text = rightList.get(yStart);
-				}
-			} else {
-				kPrev = k - 1;
-				xStart = V[kPrev + offset];
-				yStart = xStart - kPrev;
-				if (xStart >= 0 && xStart < N) {
-					currentSign = Line.SIGN_DELETE;
-					text = leftList.get(xStart);
-				}
-			}
-
-			while (xEnd > xStart && yEnd > yStart) {
-				char equalSign = Line.SIGN_NEUTRAL;
-				String equalText = leftList.get(xEnd - 1);
-				System.out.print(" " + equalSign + equalText);
-
-				xEnd = xEnd - 1;
-				yEnd = yEnd - 1;
-
-				addToComparisonList(equalSign, leftList, rightList, xEnd, yEnd);
-
-			}
-
-			if (D > 0) {
-				if (currentSign != Line.SIGN_NEUTRAL) {
-					System.out.print(" " + currentSign + text);
-					addToComparisonList(currentSign, leftList, rightList, xStart, yStart);
-				}
-			}
-
-			xEnd = xStart;
-			yEnd = yStart;
-		}
-
-		equaliseNumberOfLines();
-		fillComparisonLines();
 
 		System.out.println();
-	}
+		System.out.println("COMPARISON:");
+		for (SessionEvent leftSessionEvent : leftSessionEvents) {
+			for (SessionEvent rightSessionEvent : rightSessionEvents) {
+				if (!leftSessionEvent.getSessionId().equals(rightSessionEvent.getSessionId())) {
 
-	/**
-	 * 
-	 */
-	private void fillComparisonLines() {
-		boolean isConflict = false;
-		boolean isDifferent = false;
+					for (ComparisonEvent leftEvent : leftSessionEvent.getComparisonEvents()) {
+						for (ComparisonEvent rightEvent : rightSessionEvent.getComparisonEvents()) {
 
-		for (int i = 0; i < leftLines.size(); i++) {
+							System.out.println(leftEvent.getEventString() + " vs " + rightEvent.getEventString());
 
-			Line leftLine = leftLines.get(i);
-			Line rightLine = rightLines.get(i);
-
-			if (leftLine.getSign() != rightLine.getSign()) {
-				isDifferent = true;
-				if (leftLine.getSign() != Line.SIGN_NEUTRAL && rightLine.getSign() != Line.SIGN_NEUTRAL) {
-					isConflict = true;
+							if (leftEvent.getEventType().equals(SetEAttributeEvent.class)
+									&& rightEvent.getEventType().equals(SetEAttributeEvent.class)
+									&& leftEvent.getTargetId().equals(rightEvent.getTargetId())
+									&& leftEvent.getFeatureName().equals(rightEvent.getFeatureName())
+									&& leftEvent.getValue() != null && rightEvent.getValue() != null
+									&& !leftEvent.getValue().equals(rightEvent.getValue())) {
+								ConflictedEvents conflictedEvents = new ConflictedEvents(leftLineCount, leftEvent,
+										rightLineCount, rightEvent, ConflictedEvents.TYPE_DIFFERENT_VALUES);
+								conflictedEventsList.add(conflictedEvents);
+								leftEvent.setIsConflicted(true);
+								leftEvent.setConflictedEvents(conflictedEvents);
+								rightEvent.setIsConflicted(true);
+								rightEvent.setConflictedEvents(conflictedEvents);
+							} else if (leftEvent.getEventType().equals(EReferenceEvent.class)
+									&& rightEvent.getEventType().equals(EReferenceEvent.class)
+									&& leftEvent.getTargetId().equals(rightEvent.getTargetId())
+									&& leftEvent.getFeatureName().equals(rightEvent.getFeatureName())
+									&& leftEvent.getValue() != null && rightEvent.getValue() != null
+									&& !leftEvent.getValueId().equals(rightEvent.getValueId())) {
+								ConflictedEvents conflictedEvents = new ConflictedEvents(leftLineCount, leftEvent,
+										rightLineCount, rightEvent, ConflictedEvents.TYPE_DIFFERENT_VALUES);
+								conflictedEventsList.add(conflictedEvents);
+								leftEvent.setIsConflicted(true);
+								leftEvent.setConflictedEvents(conflictedEvents);
+								rightEvent.setIsConflicted(true);
+								rightEvent.setConflictedEvents(conflictedEvents);
+							} else if (((leftEvent.getEventType().equals(SetEAttributeEvent.class)
+									|| leftEvent.getEventType().equals(SetEReferenceEvent.class)
+									|| leftEvent.getEventType().equals(AddToEAttributeEvent.class)
+									|| leftEvent.getEventType().equals(AddToEReferenceEvent.class)
+									|| leftEvent.getEventType().equals(RemoveFromEAttributeEvent.class)
+									|| leftEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
+									|| leftEvent.getEventType().equals(MoveWithinEAttributeEvent.class)
+									|| leftEvent.getEventType().equals(MoveWithinEReferenceEvent.class)
+									|| leftEvent.getEventType().equals(AddToResourceEvent.class)
+									|| leftEvent.getEventType().equals(RemoveFromResourceEvent.class))
+									&& rightEvent.getEventType().equals(DeleteEObjectEvent.class)
+									&& (rightEvent.getValueId().equals(leftEvent.getTargetId())
+											|| rightEvent.getValueId().equals(leftEvent.getValueId())))
+									|| (rightEvent.getEventType().equals(SetEAttributeEvent.class)
+											|| rightEvent.getEventType().equals(SetEReferenceEvent.class)
+											|| rightEvent.getEventType().equals(AddToEAttributeEvent.class)
+											|| rightEvent.getEventType().equals(AddToEReferenceEvent.class)
+											|| rightEvent.getEventType().equals(RemoveFromEAttributeEvent.class)
+											|| rightEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
+											|| rightEvent.getEventType().equals(MoveWithinEAttributeEvent.class)
+											|| rightEvent.getEventType().equals(MoveWithinEReferenceEvent.class)
+											|| rightEvent.getEventType().equals(AddToResourceEvent.class)
+											|| rightEvent.getEventType().equals(RemoveFromResourceEvent.class))
+											&& leftEvent.getEventType().equals(DeleteEObjectEvent.class)
+											&& (leftEvent.getValueId().equals(rightEvent.getTargetId())
+													|| leftEvent.getValueId().equals(rightEvent.getValueId()))) {
+								ConflictedEvents conflictedEvents = new ConflictedEvents(leftLineCount, leftEvent,
+										rightLineCount, rightEvent, ConflictedEvents.TYPE_INAPPLICABLE);
+								conflictedEventsList.add(conflictedEvents);
+								leftEvent.setIsConflicted(true);
+								leftEvent.setConflictedEvents(conflictedEvents);
+								rightEvent.setIsConflicted(true);
+								rightEvent.setConflictedEvents(conflictedEvents);
+							}
+						}
+					}
 				}
+				rightLineCount += rightSessionEvent.getComparisonEvents().size();
 			}
-
-			leftLine.setLineNumber(i + 1);
-			rightLine.setLineNumber(i + 1);
-			ComparisonLine comparisonLine = new ComparisonLine(i + 1, isDifferent, isConflict, leftLine, rightLine);
-			comparisonLines.add(comparisonLine);
+			leftLineCount += leftSessionEvent.getComparisonEvents().size();
 		}
+
+		leftChannel.close();
+		leftRaf.close();
+		rightChannel.close();
+		rightRaf.close();
+
 	}
 
 	/**
-	 * @param currentSign
-	 * @param prevSign
-	 * @param eventString
-	 * @param lineNumber
-	 * @param leftSourceLineNumber
-	 * @param rightSourceLineNumber
-	 * @return
+	 * @param fileChannel
+	 * @param byteBuffer
+	 * @throws IOException
+	 * @throws XMLStreamException
 	 */
-	private void addToComparisonList(char currentSign, List<String> leftText, List<String> rightText,
-			int leftSourceLineNumber, int rightSourceLineNumber) {
+	private void createChangeEvents(FileChannel fileChannel, List<ComparisonEvent> comparisonEvents,
+			List<SessionEvent> sessionEvents) throws IOException, XMLStreamException {
+		SessionEvent previousSessionEvent = null;
+		ByteBuffer byteBuffer = ByteBuffer.allocate(1);
+		CharBuffer charBuffer;
+		char c;
+		StringBuilder stringBuilder = new StringBuilder();
+		while (fileChannel.read(byteBuffer) != -1) {
+			byteBuffer.flip();
+			charBuffer = Charset.defaultCharset().decode(byteBuffer);
+			c = charBuffer.get();
+			byteBuffer.clear();
+			if (c == (char) 13) {
+				String lineString = stringBuilder.toString().trim();
+				System.out.println(lineString);
+				ComparisonEvent comparisonEvent = createEvent(lineString, leftResource);
 
-		if (currentSign == Line.SIGN_DELETE) {
-			Line leftLine = new Line(0, leftSourceLineNumber, currentSign, leftText.get(leftSourceLineNumber));
-			leftLines.add(0, leftLine);
-		} else if (currentSign == Line.SIGN_ADD) {
-			Line rightLine = new Line(0, rightSourceLineNumber, currentSign, rightText.get(rightSourceLineNumber));
-			rightLines.add(0, rightLine);
-		} else if (currentSign == Line.SIGN_NEUTRAL) {
-			if (leftLines.size() != rightLines.size()) {
-				equaliseNumberOfLines();
-			}
-			Line leftLine = new Line(0, leftSourceLineNumber, currentSign, leftText.get(leftSourceLineNumber));
-			leftLines.add(0, leftLine);
-			Line rightLine = new Line(0, rightSourceLineNumber, currentSign, rightText.get(rightSourceLineNumber));
-			rightLines.add(0, rightLine);
-		}
-	}
-
-	/**
-	 * 
-	 */
-	private void equaliseNumberOfLines() {
-		List<Line> bottomLines;
-		List<Line> topLines;
-		if (leftLines.size() < rightLines.size()) {
-			bottomLines = leftLines;
-			topLines = rightLines;
-		} else {
-			bottomLines = rightLines;
-			topLines = leftLines;
-		}
-		int min = bottomLines.size();
-		int max = topLines.size();
-		for (; min < max; min++) {
-			Line line = new Line(0, -1, Line.SIGN_NEUTRAL, "");
-			bottomLines.add(0, line);
-		}
-	}
-
-	// /**
-	// * @param currentSign
-	// * @param prevSign
-	// * @param text
-	// * @param lineNumber
-	// * @param leftSourceLineNumber
-	// * @param rightSourceLineNumber
-	// * @return
-	// */
-	// private int addToComparisonList(char currentSign, char prevSign, int
-	// lineNumber, List<String> leftText,
-	// List<String> rightText, int leftSourceLineNumber, int
-	// rightSourceLineNumber) {
-	//
-	// if (prevSign == Line.SIGN_NEUTRAL && currentSign == Line.SIGN_NEUTRAL) {
-	// Line leftLine = new Line(lineNumber + 1, leftSourceLineNumber,
-	// currentSign,
-	// leftText.get(leftSourceLineNumber));
-	// Line rightLine = new Line(lineNumber + 1, rightSourceLineNumber,
-	// currentSign,
-	// rightText.get(rightSourceLineNumber));
-	// ComparisonLine comparisonLine = new ComparisonLine(lineNumber + 1, false,
-	// false, leftLine, rightLine);
-	// comparisonLines.add(0, comparisonLine);
-	// leftLines.add(0, leftLine);
-	// rightLines.add(0, rightLine);
-	// lineNumber += 1;
-	// } else if ((prevSign == Line.SIGN_INITIAL || prevSign ==
-	// Line.SIGN_NEUTRAL || prevSign == Line.SIGN_DELETE) && currentSign ==
-	// Line.SIGN_DELETE) {
-	// Line leftLine = new Line(0, leftSourceLineNumber, currentSign,
-	// leftText.get(leftSourceLineNumber));
-	// Line rightLine = new Line(0, -1, Line.SIGN_NEUTRAL, " ");
-	// ComparisonLine comparisonLine = new ComparisonLine(0, false, false,
-	// leftLine, rightLine);
-	// comparisonLines.add(0, comparisonLine);
-	// leftLines.add(0, leftLine);
-	// rightLines.add(0, rightLine);
-	// lineNumber += 1;
-	// } else if ((prevSign == Line.SIGN_INITIAL || prevSign ==
-	// Line.SIGN_NEUTRAL || prevSign == Line.SIGN_ADD) && currentSign ==
-	// Line.SIGN_ADD) {
-	// Line leftLine = new Line(0, -1, Line.SIGN_NEUTRAL, " ");
-	// Line rightLine = new Line(0, rightSourceLineNumber, currentSign,
-	// rightText.get(rightSourceLineNumber));
-	// ComparisonLine comparisonLine = new ComparisonLine(0, false, false,
-	// leftLine, rightLine);
-	// comparisonLines.add(0, comparisonLine);
-	// leftLines.add(0, leftLine);
-	// rightLines.add(0, rightLine);
-	// lineNumber += 1;
-	// } else if (prevSign == Line.SIGN_ADD && currentSign == Line.SIGN_DELETE)
-	// {
-	// Line leftLine = new Line(0, leftSourceLineNumber, currentSign,
-	// leftText.get(leftSourceLineNumber));
-	// Line rightLine = new Line(0, rightSourceLineNumber, prevSign,
-	// rightText.get(rightSourceLineNumber));
-	// ComparisonLine comparisonLine = new ComparisonLine(0, false, false,
-	// leftLine, rightLine);
-	// comparisonLines.add(0, comparisonLine);
-	// leftLines.add(0, leftLine);
-	// rightLines.add(0, rightLine);
-	// }
-	// lineNumber += 1;
-	// return lineNumber;
-	// }
-
-	public List<ComparisonLine> diff(List<String> leftList, List<String> rightList) {
-
-		comparisonLines.clear();
-
-		final int N = leftList.size();
-		final int M = rightList.size();
-		final int MAX = N + M;
-		int[] V = new int[2 * (MAX + 1)];
-		// offset is a middle index to shift the k to the middle of the array
-		// since array index cannot be negative (less than 0)
-		int offset = (2 * (MAX + 1)) / 2;
-		V[1 + offset] = 0;
-		int x = 0;
-		int y = 0;
-		int D = -1;
-
-		List<int[]> VS = new ArrayList<>();
-
-		for (D = 0; D <= MAX; D++) {
-			VS.add(V.clone());
-			for (int k = -D; k <= D; k += 2) {
-
-				int lower = V[k - 1 + offset];
-				int upper = V[k + 1 + offset];
-				// lower < upper -> downward, else rightward
-				if (k == -D || (k != D && lower < upper)) {
-					x = V[k + 1 + offset];
+				if (comparisonEvent.getEventType().equals(StartNewSessionEvent.class)) {
+					SessionEvent sessionEvent = new SessionEvent(comparisonEvent);
+					StartNewSessionEvent event = (StartNewSessionEvent) comparisonEvent.getChangeEvent();
+					sessionEvent.setSessionId(event.getSessionId());
+					sessionEvent.setStringTime(event.getTime());
+					sessionEvent.getComparisonEvents().add(comparisonEvent);
+					sessionEvents.add(sessionEvent);
+					previousSessionEvent = sessionEvent;
 				} else {
-					x = V[k - 1 + offset] + 1;
-				}
-				y = x - k;
-
-				while (x < N && y < M && leftList.get(x).equals(rightList.get(y))) {
-					x = x + 1;
-					y = y + 1;
+					previousSessionEvent.getComparisonEvents().add(comparisonEvent);
 				}
 
-				V[k + offset] = x;
-
-				if (x >= N && y >= M) {
-					backtrack(leftList, rightList, VS);
-					return comparisonLines;
-				}
+				comparisonEvents.add(comparisonEvent);
+				stringBuilder.setLength(0);
+			} else {
+				stringBuilder.append(c);
 			}
-
 		}
-		return comparisonLines;
+	}
+
+	public void updateLeftWithAllLeftSolutions(boolean createNewFile)
+			throws FileNotFoundException, IOException, TransformerException, ParserConfigurationException {
+
+		File targetFile = null;
+		if (createNewFile) {
+			String path = leftCbpFile.getParentFile().getAbsolutePath();
+			String fileName = leftCbpFile.getName();
+			int pos = fileName.lastIndexOf(".");
+			String extension = "";
+			if (pos > -1) {
+				extension = fileName.substring(pos, fileName.length());
+			}
+			fileName = fileName.substring(0, pos);
+			fileName = (new StringBuilder()).append(fileName).append("-merged").append(extension).toString();
+			targetFile = new File(path + File.separator + fileName);
+			Files.copy(new FileInputStream(leftCbpFile), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} else {
+			targetFile = leftCbpFile;
+		}
+
+		// create session event to group solution event
+		StartNewSessionEvent startNewSessionEvent = new StartNewSessionEvent(EcoreUtil.generateUUID());
+		String eventString = createEventString((ChangeEvent<?>) startNewSessionEvent);
+		ComparisonEvent sessionComparisonEvent = new ComparisonEvent(startNewSessionEvent.getClass(),
+				startNewSessionEvent, null, null, null, -1, eventString, null, null, null);
+		reconciliationSessionEvent = new SessionEvent(sessionComparisonEvent);
+		reconciliationSessionEvent.getComparisonEvents().add(sessionComparisonEvent);
+
+		for (ComparisonEvent rightEvent : rightChangeEvents) {
+			if (rightEvent.isConflicted()) {
+				if (rightEvent.getConflictedEvents().getType() == ConflictedEvents.TYPE_DIFFERENT_VALUES) {
+					fillReconciliationSessionEvent(rightEvent);
+				} else if (rightEvent.getConflictedEvents().getType() == ConflictedEvents.TYPE_INAPPLICABLE) {
+					fillReconciliationSessionEvent(rightEvent);
+				}
+			} else {
+
+			}
+		}
+
+		
+		
+		int indexReconcileEvent = 0;
+		int sizeReconcileEvents = reconciliationSessionEvent.getComparisonEvents().size() + leftChangeEvents.size();
+		int indexCancelledEvent = 0;
+		for (ComparisonEvent comparisonEvent : reconciliationSessionEvent.getComparisonEvents()) {
+			if (comparisonEvent instanceof ReconcileEvent) {
+				ReconcileEvent reconcileEvent = (ReconcileEvent) comparisonEvent;
+				ComparisonEvent cancelledEvent = reconcileEvent.getCancelledEvent();
+				indexCancelledEvent = rightChangeEvents.indexOf(cancelledEvent);
+				int offset = sizeReconcileEvents - indexReconcileEvent + indexCancelledEvent;
+
+				CancelEvent cancelEvent = (CancelEvent) reconcileEvent.getChangeEvent();
+				cancelEvent.setLineToCancelOffset(offset);
+				String temp = createEventString(cancelEvent);
+				reconcileEvent.setEventString(temp);
+			}
+			mergedEvents.add(comparisonEvent);
+			indexReconcileEvent += 1;
+		}
+		for (ComparisonEvent comparisonEvent : leftChangeEvents) {
+			mergedEvents.add(comparisonEvent);
+		}
+		for (ComparisonEvent comparisonEvent : rightChangeEvents) {
+			mergedEvents.add(comparisonEvent);
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("");
+		for (ComparisonEvent comparisonEvent: mergedEvents) {
+			sb.append(comparisonEvent.getEventString());
+			sb.append(System.lineSeparator());
+		}
+		
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(targetFile, true));
+		bos.write(sb.toString().getBytes());
+		bos.flush();
+		bos.close();
+	
+	}
+
+	/**
+	 * @param reconciliationSessionEvent
+	 * @throws ParserConfigurationException
+	 * @throws TransformerException
+	 */
+	private void fillReconciliationSessionEvent(ComparisonEvent cancelledComparisonEvent)
+			throws ParserConfigurationException, TransformerException {
+		CancelEvent cancelEvent = new CancelEvent();
+		String cancelEventString = "";
+		ComparisonEvent cancelingComparisonEvent = new ComparisonEvent(cancelEvent.getClass(), cancelEvent, null, null,
+				null, -1, cancelEventString, null, null, null);
+		ReconcileEvent reconcileEvent = new ReconcileEvent(cancelingComparisonEvent, cancelledComparisonEvent);
+		reconciliationSessionEvent.getComparisonEvents().add(reconcileEvent);
+	}
+
+	public List<ConflictedEvents> getConflictedEventPairs() {
+		return this.conflictedEventsList;
 	}
 
 	public List<Line> getLeftLines() {
@@ -537,22 +410,17 @@ public class CBPComparison {
 		return comparisonLines;
 	}
 
-	private ChangeEvent<?> createEvent(String line, Resource mainResource, Resource otherResource)
-			throws XMLStreamException {
-		ChangeEvent<?> changeEvent = null;
+	private ComparisonEvent createEvent(String eventString, Resource mainResource) throws XMLStreamException {
+		ComparisonEvent comparisonEvent = null;
 
-		int eventNumber = 0;
-
-		// ByteArrayInputStream headerStream = new ByteArrayInputStream(
-		// "<?xml version='1.0' encoding='ISO-8859-1' ?>".getBytes());
 		ByteArrayInputStream headerStream = new ByteArrayInputStream(new byte[0]);
-		ByteArrayInputStream contentStream = new ByteArrayInputStream(line.getBytes());
+		ByteArrayInputStream contentStream = new ByteArrayInputStream(eventString.getBytes());
 		InputStream stream = new SequenceInputStream(headerStream, contentStream);
 
 		XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 		XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
 
-		ChangeEvent<?> event = null;
+		ChangeEvent<?> changeEvent = null;
 		boolean ignore = false;
 
 		while (xmlReader.hasNext()) {
@@ -571,13 +439,17 @@ public class CBPComparison {
 						case "session": {
 							String sessionId = e.getAttributeByName(new QName("id")).getValue();
 							String time = e.getAttributeByName(new QName("time")).getValue();
-							event = new StartNewSessionEvent(sessionId, time);
+							changeEvent = new StartNewSessionEvent(sessionId, time);
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, null, null, null,
+									-1, eventString, null, null, null);
 						}
 							break;
 						case "register": {
 							String packageName = e.getAttributeByName(new QName("epackage")).getValue();
 							EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
-							event = new RegisterEPackageEvent(ePackage, null);
+							changeEvent = new RegisterEPackageEvent(ePackage, null);
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, null, null, null,
+									-1, eventString, null, null, null);
 						}
 							break;
 						case "create": {
@@ -586,46 +458,61 @@ public class CBPComparison {
 							String id = e.getAttributeByName(new QName("id")).getValue();
 							EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 							EClass eClass = (EClass) ePackage.getEClassifier(className);
-							event = new CreateEObjectEvent(eClass, (CBPResource) mainResource, id);
-							EObject eObject = getEObject(id, mainResource, otherResource);
-							event.setValues(eObject);
+							changeEvent = new CreateEObjectEvent(eClass, (CBPResource) mainResource, id);
+							EObject eObject = getEObject(id, mainResource);
+							changeEvent.setValues(eObject);
+
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, null,
+									changeEvent.getValue(), null, -1, eventString, null, id, null);
 						}
 							break;
 						case "add-to-resource":
-							event = new AddToResourceEvent();
+							changeEvent = new AddToResourceEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "remove-from-resource":
-							event = new RemoveFromResourceEvent();
+							changeEvent = new RemoveFromResourceEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "add-to-ereference":
-							event = new AddToEReferenceEvent();
+							changeEvent = new AddToEReferenceEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "remove-from-ereference":
-							event = new RemoveFromEReferenceEvent();
+							changeEvent = new RemoveFromEReferenceEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "set-eattribute":
-							event = new SetEAttributeEvent();
+							changeEvent = new SetEAttributeEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "set-ereference":
-							event = new SetEReferenceEvent();
+							changeEvent = new SetEReferenceEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "unset-eattribute":
-							event = new UnsetEAttributeEvent();
+							changeEvent = new UnsetEAttributeEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "unset-ereference":
-							event = new UnsetEReferenceEvent();
+							changeEvent = new UnsetEReferenceEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "add-to-eattribute":
-							event = new AddToEAttributeEvent();
+							changeEvent = new AddToEAttributeEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "remove-from-eattribute":
-							event = new RemoveFromEAttributeEvent();
+							changeEvent = new RemoveFromEAttributeEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "move-in-eattribute":
-							event = new MoveWithinEAttributeEvent();
+							changeEvent = new MoveWithinEAttributeEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "move-in-ereference":
-							event = new MoveWithinEReferenceEvent();
+							changeEvent = new MoveWithinEReferenceEvent();
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 							break;
 						case "delete": {
 							String packageName = e.getAttributeByName(new QName("epackage")).getValue();
@@ -633,47 +520,68 @@ public class CBPComparison {
 							String id = e.getAttributeByName(new QName("id")).getValue();
 							EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 							EClass eClass = (EClass) ePackage.getEClassifier(className);
-							event = new DeleteEObjectEvent(eClass, (CBPResource) mainResource, id);
-							EObject eObject = getEObject(id, mainResource, otherResource);
-							event.setValues(eObject);
+							if (mainResource != null) {
+								changeEvent = new DeleteEObjectEvent(eClass, (CBPResource) mainResource, id);
+							} else {
+								changeEvent = new DeleteEObjectEvent();
+							}
+							EObject eObject = getEObject(id, mainResource);
+							changeEvent.setValues(eObject);
+
+							comparisonEvent = new ComparisonEvent(changeEvent.getClass(), changeEvent, null,
+									changeEvent.getValue(), null, -1, eventString, null, id, null);
 						}
 							break;
 						}
 
-						if (event instanceof EStructuralFeatureEvent<?>) {
+						if (changeEvent instanceof EStructuralFeatureEvent<?>) {
 							String sTarget = e.getAttributeByName(new QName("target")).getValue();
 							String sName = e.getAttributeByName(new QName("name")).getValue();
-							EObject target = getEObject(sTarget, mainResource, otherResource);
+							EObject target = getEObject(sTarget, mainResource);
 							if (target != null) {
 								EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(sName);
-								((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
-								((EStructuralFeatureEvent<?>) event).setTarget(target);
+								((EStructuralFeatureEvent<?>) changeEvent).setEStructuralFeature(eStructuralFeature);
+								((EStructuralFeatureEvent<?>) changeEvent).setTarget(target);
+
+								comparisonEvent.setFeature(eStructuralFeature);
 							}
-						} else if (event instanceof ResourceEvent) {
+							if (sTarget != null) {
+								comparisonEvent.setFeatureName(sName);
+								comparisonEvent.setTarget(target);
+								comparisonEvent.setTargetId(sTarget);
+							}
 						}
 
-						if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent
-								|| event instanceof AddToResourceEvent) {
+						if (changeEvent instanceof AddToEAttributeEvent || changeEvent instanceof AddToEReferenceEvent
+								|| changeEvent instanceof AddToResourceEvent) {
 							String sPosition = e.getAttributeByName(new QName("position")).getValue();
-							event.setPosition(Integer.parseInt(sPosition));
+							changeEvent.setPosition(Integer.parseInt(sPosition));
+
+							comparisonEvent.setPosition(changeEvent.getPosition());
 						}
-						if (event instanceof FromPositionEvent) {
+						if (changeEvent instanceof FromPositionEvent) {
 							String sTo = e.getAttributeByName(new QName("to")).getValue();
 							String sFrom = e.getAttributeByName(new QName("from")).getValue();
-							event.setPosition(Integer.parseInt(sTo));
-							((FromPositionEvent) event).setFromPosition(Integer.parseInt(sFrom));
+							changeEvent.setPosition(Integer.parseInt(sTo));
+							((FromPositionEvent) changeEvent).setFromPosition(Integer.parseInt(sFrom));
+
+							comparisonEvent.setFrom(((FromPositionEvent) changeEvent).getFromPosition());
+							comparisonEvent.setTo(changeEvent.getPosition());
 						}
 					}
 
 				} else if (name.equals("value")) {
 					if (ignore == false) {
-						if (event instanceof EObjectValuesEvent) {
-							EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
+						if (changeEvent instanceof EObjectValuesEvent) {
+							EObjectValuesEvent valuesEvent = (EObjectValuesEvent) changeEvent;
 							String seobject = e.getAttributeByName(new QName("eobject")).getValue();
-							EObject eob = resolveXRef(seobject, mainResource, otherResource);
+							EObject eob = resolveXRef(seobject, mainResource);
 							valuesEvent.getValues().add(eob);
-						} else if (event instanceof EAttributeEvent) {
-							EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
+
+							comparisonEvent.setValueId(seobject);
+							comparisonEvent.setValue(eob);
+						} else if (changeEvent instanceof EAttributeEvent) {
+							EAttributeEvent eAttributeEvent = (EAttributeEvent) changeEvent;
 							String sliteral = e.getAttributeByName(new QName("literal")).getValue();
 
 							if (eAttributeEvent.getEStructuralFeature() != null) {
@@ -682,6 +590,8 @@ public class CBPComparison {
 										sliteral);
 								eAttributeEvent.getValues().add(value);
 							}
+
+							comparisonEvent.setValue(sliteral);
 						}
 					}
 				}
@@ -689,26 +599,24 @@ public class CBPComparison {
 			if (xmlEvent.getEventType() == XMLStreamConstants.END_ELEMENT) {
 				EndElement ee = xmlEvent.asEndElement();
 				String name = ee.getName().getLocalPart();
-				if (event != null && !name.equals("value") && !name.equals("m")) {
+				if (changeEvent != null && !name.equals("value") && !name.equals("m")) {
 					if (ignore == false) {
-
-						changeEvent = event;
-
+						// comparisonEvent = event;
 					} else {
 						ignore = false;
 					}
-					eventNumber += 1;
+					// eventNumber += 1;
 				}
 			}
 		}
 		xmlReader.close();
 
-		return changeEvent;
+		return comparisonEvent;
 	}
 
-	private EObject resolveXRef(final String sEObjectURI, Resource mainResource, Resource otherResource) {
-		EObject eob = getEObject(sEObjectURI, mainResource, otherResource);
-		if (eob == null) {
+	private EObject resolveXRef(final String sEObjectURI, Resource mainResource) {
+		EObject eob = getEObject(sEObjectURI, mainResource);
+		if (mainResource != null && eob == null) {
 			URI uri = URI.createURI(sEObjectURI);
 
 			String nsURI = uri.trimFragment().toString();
@@ -732,16 +640,44 @@ public class CBPComparison {
 		return eob;
 	}
 
-	private EObject getEObject(String uriFragment, Resource mainResource, Resource otherResource) {
+	private EObject getEObject(String uriFragment, Resource mainResource) {
 		EObject eObject = null;
-		EObject mainEObject = mainResource.getEObject(uriFragment);
-		EObject otherEObject = otherResource.getEObject(uriFragment);
-
-		if (mainEObject != null) {
-			eObject = mainEObject;
-		} else if (otherEObject != null) {
-			eObject = otherEObject;
+		if (mainResource != null) {
+			eObject = mainResource.getEObject(uriFragment);
 		}
 		return eObject;
+	}
+
+	private String createEventString(ChangeEvent<?> changeEvent)
+			throws ParserConfigurationException, TransformerException {
+		String eventString = "";
+		DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		Document document = documentBuilder.newDocument();
+		Element e = null;
+
+		if (changeEvent instanceof StartNewSessionEvent) {
+			StartNewSessionEvent s = (StartNewSessionEvent) changeEvent;
+			e = document.createElement("session");
+			e.setAttribute("id", s.getSessionId());
+			e.setAttribute("time", s.getTime());
+		}
+		if (changeEvent instanceof CancelEvent) {
+			CancelEvent c = ((CancelEvent) changeEvent);
+			e = document.createElement("cancel");
+			e.setAttribute("offset", String.valueOf(c.getLineToCancelOffset()));
+		}
+		if (e != null)
+			document.appendChild(e);
+
+		DOMSource source = new DOMSource(document);
+		StringWriter writer = new StringWriter();
+		StreamResult result = new StreamResult(writer);
+		transformer.transform(source, result);
+		eventString = writer.toString();
+
+		return eventString;
 	}
 }
