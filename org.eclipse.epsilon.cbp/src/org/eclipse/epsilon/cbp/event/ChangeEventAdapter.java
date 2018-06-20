@@ -5,8 +5,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EAttribute;
@@ -18,6 +21,7 @@ import org.eclipse.emf.ecore.impl.BasicEObjectImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.DanglingHREFException;
 import org.eclipse.epsilon.cbp.history.ModelHistory;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
@@ -49,6 +53,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 	protected int createCount = 0;
 
 	protected EObject monitoredObject;
+	
+	protected String compositeId = null;
 
 	public boolean isEnabled() {
 		return enabled;
@@ -149,8 +155,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	@Override
 	public void notifyChanged(Notification n) {
-
+		
 		super.notifyChanged(n);
+//		debugEvents(n);
 
 		if (n.isTouch() || !enabled) {
 			return;
@@ -173,6 +180,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			if (n.getNotifier() instanceof Resource) {
 				if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
 					event = new AddToResourceEvent();
+					event.setComposite(compositeId);
 					addResCount++;
 				}
 			} else if (n.getNotifier() instanceof EObject) {
@@ -180,13 +188,16 @@ public class ChangeEventAdapter extends EContentAdapter {
 					EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 					if (feature instanceof EAttribute) {
 						event = new AddToEAttributeEvent();
+						event.setComposite(compositeId);
 						addAttCount++;
 					} else if (n.getFeature() instanceof EReference) {
 						event = new AddToEReferenceEvent();
+						event.setComposite(compositeId);
 						addRefCount++;
 					}
 				} else {
 					event = new AddToResourceEvent();
+					event.setComposite(compositeId);
 					addResCount++;
 				}
 			}
@@ -199,9 +210,12 @@ public class ChangeEventAdapter extends EContentAdapter {
 				EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 				if (feature instanceof EAttribute) {
 					event = new UnsetEAttributeEvent();
+					event.setComposite(compositeId);
+					event.setValues(n.getOldValue());
 					unsetAttCount++;
 				} else if (feature instanceof EReference) {
 					event = new UnsetEReferenceEvent();
+					event.setComposite(compositeId);
 					event.setValues(n.getOldValue());
 					unsetRefCount++;
 				}
@@ -215,6 +229,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 				if (n.getNewValue() != null) {
 					if (feature instanceof EAttribute) {
 						event = new SetEAttributeEvent();
+						event.setComposite(compositeId);
 						setAttCount++;
 					} else if (feature instanceof EReference) {
 						EReference opposite = ((EReference) feature).getEOpposite();
@@ -224,6 +239,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 							// ignore the "1" side as it contains less
 							// information.
 							event = new SetEReferenceEvent();
+							event.setComposite(compositeId);
 							setRefCount++;
 						}
 					}
@@ -234,9 +250,12 @@ public class ChangeEventAdapter extends EContentAdapter {
 				} else {
 					if (feature instanceof EAttribute) {
 						event = new UnsetEAttributeEvent();
+						event.setComposite(compositeId);
+						event.setValues(n.getOldValue());
 						unsetAttCount++;
 					} else if (feature instanceof EReference) {
 						event = new UnsetEReferenceEvent();
+						event.setComposite(compositeId);
 						event.setValues(n.getOldValue());
 						unsetRefCount++;
 					}
@@ -253,13 +272,16 @@ public class ChangeEventAdapter extends EContentAdapter {
 				ChangeEvent<?> evt = null;
 				if (n.getNotifier() instanceof Resource) {
 					evt = new AddToResourceEvent();
+					event.setComposite(compositeId);
 					addResCount++;
 				} else if (n.getNotifier() instanceof EObject) {
 					if (n.getFeature() instanceof EAttribute) {
 						evt = new AddToEAttributeEvent();
+						event.setComposite(compositeId);
 						addAttCount++;
 					} else if (n.getFeature() instanceof EReference) {
 						evt = new AddToEReferenceEvent();
+						event.setComposite(compositeId);
 						addRefCount++;
 					}
 				}
@@ -276,13 +298,16 @@ public class ChangeEventAdapter extends EContentAdapter {
 			if (n.getOldValue() instanceof EObject) {
 				if (n.getNotifier() instanceof Resource) {
 					event = new RemoveFromResourceEvent();
+					event.setComposite(compositeId);
 					removeResCount++;
 				} else if (n.getNotifier() instanceof EObject) {
 					event = new RemoveFromEReferenceEvent();
+					event.setComposite(compositeId);
 					removeRefCount++;
 				}
 			} else if (n.getFeature() instanceof EAttribute) {
 				event = new RemoveFromEAttributeEvent();
+				event.setComposite(compositeId);
 				removeAttCount++;
 			}
 			event.setValues(n.getOldValue());
@@ -300,13 +325,16 @@ public class ChangeEventAdapter extends EContentAdapter {
 				ChangeEvent<?> evt = null;
 				if (n.getNotifier() instanceof Resource) {
 					evt = new RemoveFromResourceEvent();
+					event.setComposite(compositeId);
 					removeResCount++;
 				} else if (n.getNotifier() instanceof EObject) {
 					if (n.getFeature() instanceof EAttribute) {
 						evt = new RemoveFromEAttributeEvent();
+						event.setComposite(compositeId);
 						removeAttCount++;
 					} else if (n.getFeature() instanceof EReference) {
 						evt = new RemoveFromEReferenceEvent();
+						event.setComposite(compositeId);
 						removeRefCount++;
 					}
 				}
@@ -322,12 +350,14 @@ public class ChangeEventAdapter extends EContentAdapter {
 				FromPositionEvent fromEv = null;
 				if (n.getFeature() instanceof EAttribute) {
 					MoveWithinEAttributeEvent moveEvent = new MoveWithinEAttributeEvent();
+					moveEvent.setComposite(compositeId);
 					moveAttCount++;
 					fromEv = moveEvent;
 					event = moveEvent;
 					event.setValues(n.getNewValue());
 				} else if (n.getFeature() instanceof EReference) {
 					MoveWithinEReferenceEvent moveEvent = new MoveWithinEReferenceEvent();
+					moveEvent.setComposite(compositeId);
 					moveRefCount++;
 					fromEv = moveEvent;
 					event = moveEvent;
@@ -347,6 +377,70 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 		this.addEventToList(event, n);
 
+	}
+
+	/**
+	 * @param n
+	 */
+	private void debugEvents(Notification n) {
+		switch (n.getEventType()) {
+		case Notification.SET: {
+			System.out.print("SET");
+		}
+			break;
+		case Notification.UNSET: {
+			System.out.print("UNSET");
+		}
+			break;
+		case Notification.ADD: {
+			System.out.print("ADD");
+		}
+			break;
+		case Notification.REMOVE: {
+			System.out.print("REMOVE");
+		}
+			break;
+		case Notification.ADD_MANY: {
+			System.out.print("ADD_MANY");
+		}
+			break;
+		case Notification.REMOVE_MANY: {
+			System.out.print("REMOVE_MANY");
+		}
+			break;
+		case Notification.MOVE: {
+			System.out.print("MOVE");
+		}
+			break;
+		case Notification.REMOVING_ADAPTER: {
+			System.out.print("REMOVING_ADAPTER");
+		}
+			break;
+		case Notification.RESOLVE: {
+			System.out.print("RESOLVE");
+		}
+			break;
+		case Notification.EVENT_TYPE_COUNT: {
+			System.out.print("EVENT_TYPE_COUNT");
+		}
+			break;
+		case Notification.CREATE: {
+			System.out.print("CREATE");
+		}
+			break;
+
+		case Notification.NO_FEATURE_ID: {
+			System.out.print("NO_FEATURE_ID");
+		}
+			break;
+		default: {
+			System.out.print("OTHER");
+		}
+			break;
+		}
+		System.out.print(": ");
+		System.out.print(n.getNotifier());
+		System.out.println(" : " + n.getOldValue());
 	}
 
 	protected void addEventToList(ChangeEvent<?> event, Notification n) {
@@ -381,7 +475,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 			((EStructuralFeatureEvent<?>) event).setTarget(n.getNotifier());
 		}
 
-		if (event != null) {
+		if (event != null && !(event instanceof UnsetEReferenceEvent) && !(event instanceof RemoveFromResourceEvent)
+				&& !(event instanceof RemoveFromEReferenceEvent)) {
 			if (position > 0) {
 				event.setPosition(position);
 			} else {
@@ -395,9 +490,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 			if (event instanceof UnsetEReferenceEvent || event instanceof RemoveFromResourceEvent
 					|| event instanceof RemoveFromEReferenceEvent) {
 				if (n.getOldValue() instanceof EObject) {
-					handleDeletedEObject((EObject) n.getOldValue());
+					handleDeletedEObject(event, (EObject) n.getOldValue());
 				} else if (n.getOldValue() instanceof EList) {
-					handleDeletedEObject((EObject) event.getValue());
+					handleDeletedEObject(event, (EObject) event.getValue());
 				}
 			}
 		}
@@ -408,39 +503,34 @@ public class ChangeEventAdapter extends EContentAdapter {
 		if (!ePackages.contains(ePackage)) {
 			ePackages.add(ePackage);
 			ChangeEvent<?> event = new RegisterEPackageEvent(ePackage, this);
+			event.setComposite(compositeId);
 			packageCount++;
 			changeEvents.add(event);
 			// this.addToModelHistory(event, -1);
 		}
 	}
 
-	public void handleDeletedEObject(EObject removedObject) {
-		this.handleDeletedEObject(removedObject, null, null);
+	public void handleDeletedEObject(ChangeEvent<?> event, EObject removedObject) {
+		this.handleDeletedEObject(event, removedObject, null, null);
 	}
 
-	public void handleDeletedEObject(EObject removedObject, Object parent, Object feature) {
-		if (removedObject.eResource() == null && removedObject.eCrossReferences().size() == 0) {
+	public void handleDeletedEObject(ChangeEvent<?> event, EObject removedObject, Object parent, Object feature) {
+		if (removedObject.eResource() == null
+//				&& removedObject.eAdapters().stream().noneMatch(adapter -> adapter instanceof ChangeEventAdapter)
+				) {
+			// System.out.println(removedObject + " : " +
+			// removedObject.eCrossReferences().size());
+			// && (removedObject.eCrossReferences() == null ||
+			// removedObject.eCrossReferences().size() == 0)) {
 
-			for (EReference eRef : removedObject.eClass().getEAllReferences()) {
-				if (eRef.isContainment() == true) {
-					if (eRef.isMany()) {
-						List<EObject> values = (List<EObject>) removedObject.eGet(eRef);
-						while(values.size() > 0) {
-							EObject value = values.get(values.size() - 1);
-							values.remove(value);
-							handleDeletedEObject(value);
-						}
-					} else {
-						EObject value = (EObject) removedObject.eGet(eRef);
-						handleCreateEObject(value);
-					}
-				}
-			}
-
+			changeEvents.add(event);
+			
 			String id = resource.getURIFragment(removedObject);
-			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
-			deleteCount++;
-			changeEvents.add(e);
+			ChangeEvent<?> deletedEvent = new DeleteEObjectEvent(removedObject, id);
+			deletedEvent.setComposite(compositeId);
+			changeEvents.add(deletedEvent);
+		} else {
+			changeEvents.add(event);
 		}
 	}
 
@@ -462,6 +552,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	public void handleCreateEObject(EObject obj) {
 		if (!resource.isRegistered(obj)) {
 			ChangeEvent<?> event = new CreateEObjectEvent(obj, resource.register(obj));
+			event.setComposite(compositeId);
 			createCount++;
 			changeEvents.add(event);
 			// this.addToModelHistory(event, -1);
@@ -474,6 +565,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 						int i = 0;
 						for (Object value : values) {
 							AddToEAttributeEvent e = new AddToEAttributeEvent();
+							event.setComposite(compositeId);
 							addAttCount++;
 							e.setEStructuralFeature(eAttr);
 							e.setValue(value);
@@ -486,6 +578,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 						Object value = obj.eGet(eAttr);
 
 						SetEAttributeEvent e = new SetEAttributeEvent();
+						event.setComposite(compositeId);
 						setAttCount++;
 						e.setEStructuralFeature(eAttr);
 						e.setValue(value);
@@ -517,6 +610,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 							}
 
 							AddToEReferenceEvent e = new AddToEReferenceEvent();
+							event.setComposite(compositeId);
 							addRefCount++;
 							e.setEStructuralFeature(eRef);
 							e.setValue(value);
@@ -531,6 +625,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 							handleCreateEObject(value);
 						}
 						SetEReferenceEvent e = new SetEReferenceEvent();
+						event.setComposite(compositeId);
 						setRefCount++;
 						e.setEStructuralFeature(eRef);
 						e.setValue(value);
@@ -540,6 +635,14 @@ public class ChangeEventAdapter extends EContentAdapter {
 				}
 			}
 		}
+	}
+	
+	public void startCompositeOperation() {
+		compositeId = EcoreUtil.generateUUID();
+	}
+	
+	public void endCompositeOperation() {
+		compositeId = null;
 	}
 
 }

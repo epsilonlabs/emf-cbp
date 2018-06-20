@@ -7,7 +7,17 @@ public abstract class ChangeEvent<T> {
 	
 	protected Collection<T> values = new ArrayList<T>();
 	protected int position = -1;
+	protected String composite = null;
 	
+
+	public String getComposite() {
+		return composite;
+	}
+
+	public void setComposite(String composite) {
+		this.composite = composite;
+	}
+
 	public Collection<T> getValues() {
 		return values;
 	}

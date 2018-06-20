@@ -16,13 +16,18 @@ import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.ContentHandler;
 import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.URIHandler;
@@ -33,8 +38,11 @@ import org.eclipse.emf.ecore.resource.impl.PlatformResourceURIHandlerImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEventAdapter;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
 import org.eclipse.epsilon.cbp.history.ModelHistory;
 import org.eclipse.epsilon.cbp.util.AppendFileURIHandlerImpl;
 import org.eclipse.epsilon.cbp.util.AppendingURIHandler;
@@ -51,6 +59,11 @@ public abstract class CBPResource extends ResourceImpl {
 	protected ModelHistory modelHistory;
 	protected int persistedIgnoredEvents = 0;
 	protected int idCounter = 0;
+	protected IdType idType = IdType.NUMERIC;
+
+	public enum IdType {
+		NUMERIC, UUID
+	}
 
 	public CBPResource() {
 		this.ignoreSet = new HashSet<>();
@@ -147,14 +160,16 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 
 	public String register(EObject eObject) {
-		while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
-			idCounter += 1;
+		String id = null;
+		if (idType == IdType.NUMERIC) {
+			while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
+				idCounter += 1;
+			}
+			id = String.valueOf(idCounter);
+			idCounter = idCounter + 1;
+		} else if (idType == IdType.UUID) {
+			id = EcoreUtil.generateUUID();
 		}
-		String id = String.valueOf(idCounter);
-		idCounter = idCounter + 1;
-		
-		id = EcoreUtil.generateUUID();
-		
 		adopt(eObject, id);
 		return id;
 	}
@@ -238,7 +253,7 @@ public abstract class CBPResource extends ResourceImpl {
 			intBuffer.get(result);
 			ignoreSet.clear();
 			ignoreList.clear();
-			for (int i: result)
+			for (int i : result)
 				ignoreSet.add(i);
 			ignoreList = new ArrayList<>(ignoreSet);
 		} else {
@@ -254,17 +269,6 @@ public abstract class CBPResource extends ResourceImpl {
 			ignoreList = new ArrayList<>(ignoreSet);
 		}
 
-		// Old way to read ignore list => slow
-		// DataInputStream dis = new DataInputStream(new
-		// BufferedInputStream(inputStream));
-		// ignoreSet.clear();
-		// ignoreList.clear();
-		// while (dis.available() > 0) {
-		// int value = dis.readInt();
-		// if (ignoreSet.add(value)) {
-		// ignoreList.add(value);
-		// }
-		// }
 		persistedIgnoredEvents = ignoreList.size();
 	}
 
@@ -303,6 +307,116 @@ public abstract class CBPResource extends ResourceImpl {
 
 	public void startNewSession() {
 		changeEventAdapter.handleStartNewSession();
+	}
+
+	public IdType getIdType() {
+		return idType;
+	}
+
+	public void setIdType(IdType idType) {
+		this.idType = idType;
+	}
+
+	public void doDeleteEvent(EObject targetEObject) {
+		this.startCompositeOperation();
+		
+		recursiveDeleteEvent(targetEObject);
+		removeFromExternalRefferences(targetEObject);
+		unsetAllReferences(targetEObject);
+		unsetAllAttributes(targetEObject);
+		EcoreUtil.remove(targetEObject);
+		
+		this.endCompositeOperation();
+	}
+
+	private void recursiveDeleteEvent(EObject targetEObject) {
+		for (EReference eRef : targetEObject.eClass().getEAllReferences()) {
+			if (eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived() && eRef.isContainment()) {
+				if (eRef.isMany()) {
+					List<EObject> values = (List<EObject>) targetEObject.eGet(eRef);
+					while (values.size() > 0) {
+						EObject value = values.get(values.size() - 1);
+						recursiveDeleteEvent(value);
+						removeFromExternalRefferences(value);
+						unsetAllReferences(value);
+						unsetAllAttributes(value);
+						values.remove(value);
+					}
+				} else {
+					EObject value = (EObject) targetEObject.eGet(eRef);
+					if (value != null) {
+						recursiveDeleteEvent(value);
+						removeFromExternalRefferences(value);
+						unsetAllReferences(value);
+						unsetAllAttributes(value);
+						targetEObject.eUnset(eRef);
+					}
+				}
+			}
+		}
+	}
+
+	private void unsetAllReferences(EObject targetEObject) {
+		for (EReference eRef : targetEObject.eClass().getEAllReferences()) {
+			if (eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived() && eRef.isContainment() == false) {
+				if (eRef.isMany()) {
+					List<EObject> values = (List<EObject>) targetEObject.eGet(eRef);
+					while (values.size() > 0) {
+						EObject value = values.get(values.size() - 1);
+						values.remove(value);
+					}
+				} else {
+					EObject value = (EObject) targetEObject.eGet(eRef);
+					if (value != null) {
+						targetEObject.eUnset(eRef);
+					}
+				}
+			}
+		}
+	}
+
+	private void unsetAllAttributes(EObject targetEObject) {
+		for (EAttribute eAttr : targetEObject.eClass().getEAllAttributes()) {
+			if (eAttr.isChangeable() && targetEObject.eIsSet(eAttr) && !eAttr.isDerived()) {
+				if (eAttr.isMany()) {
+					EList<?> valueList = (EList<?>) targetEObject.eGet(eAttr);
+					while (valueList.size() > 0) {
+						valueList.remove(valueList.size() - 1);
+					}
+				} else {
+					Object value = targetEObject.eGet(eAttr);
+					targetEObject.eUnset(eAttr);
+				}
+			}
+		}
+	}
+
+	private void removeFromExternalRefferences(EObject refferedEObject) {
+		Iterator<EObject> iterator = this.getAllContents();
+		while (iterator.hasNext()) {
+			EObject refferingEObject = iterator.next();
+			for (EReference eRef : refferedEObject.eClass().getEAllReferences()) {
+				if (eRef.isContainment() == false) {
+					if (eRef.isMany()) {
+						List<EObject> valueList = (List<EObject>) refferingEObject.eGet(eRef);
+						valueList.remove(refferedEObject);
+					} else {
+						EObject value = (EObject) refferingEObject.eGet(eRef);
+						if (value != null && value.equals(refferedEObject)) {
+							refferingEObject.eUnset(eRef);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public void startCompositeOperation() {
+		getChangeEventAdapter().startCompositeOperation();
+	}
+	
+	public void endCompositeOperation() {
+		getChangeEventAdapter().startCompositeOperation();
 	}
 
 }

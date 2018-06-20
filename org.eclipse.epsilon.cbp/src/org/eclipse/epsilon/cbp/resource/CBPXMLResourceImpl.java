@@ -161,7 +161,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	@Override
 	public void doSave(OutputStream out, Map<?, ?> options) throws IOException {
 
-		boolean optimised = true;
+		boolean optimised = false;
 		if (options != null && options.containsKey(OPTION_OPTIMISE_LOAD)) {
 			optimised = (Boolean) options.get(OPTION_OPTIMISE_LOAD);
 		}
@@ -315,6 +315,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 						o.setAttribute("literal", object + "");
 						e.appendChild(o);
 					}
+				}
+				if (event.getComposite() != null && e != null) {
+					e.setAttribute("composite", event.getComposite());
 				}
 
 				if (e != null)
