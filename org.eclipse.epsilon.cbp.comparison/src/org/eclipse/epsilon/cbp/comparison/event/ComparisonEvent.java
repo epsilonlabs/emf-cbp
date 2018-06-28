@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.comparison;
+package org.eclipse.epsilon.cbp.comparison.event;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -18,7 +18,9 @@ public class ComparisonEvent {
 	Class<?> eventType = null;
 	String eventString = null;
 	boolean isConflicted = false;
-	ConflictedEvents conflictedEventPair = null;
+	ConflictedEventPair conflictedEventPair = null;
+	String composite = null;
+
 
 	public ComparisonEvent() {
 	}
@@ -147,13 +149,20 @@ public class ComparisonEvent {
 		this.isConflicted = isConflicted;
 	}
 
-	public ConflictedEvents getConflictedEvents() {
+	public ConflictedEventPair getConflictedEventPair() {
 		return conflictedEventPair;
 	}
 
-	public void setConflictedEvents(ConflictedEvents conflictedEventPair) {
+	public void setConflictedEventPair(ConflictedEventPair conflictedEventPair) {
 		this.conflictedEventPair = conflictedEventPair;
 	}
 
-	
+	public String getComposite() {
+		return this.composite;
+	}
+
+	public void setComposite(String composite) {
+		this.composite = composite;
+	}
+
 }

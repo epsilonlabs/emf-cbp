@@ -317,7 +317,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.idType = idType;
 	}
 
-	public void doDeleteEvent(EObject targetEObject) {
+	public void deleteElement(EObject targetEObject) {
 		this.startCompositeOperation();
 		
 		recursiveDeleteEvent(targetEObject);
@@ -395,7 +395,7 @@ public abstract class CBPResource extends ResourceImpl {
 		Iterator<EObject> iterator = this.getAllContents();
 		while (iterator.hasNext()) {
 			EObject refferingEObject = iterator.next();
-			for (EReference eRef : refferedEObject.eClass().getEAllReferences()) {
+			for (EReference eRef : refferingEObject.eClass().getEAllReferences()) {
 				if (eRef.isContainment() == false) {
 					if (eRef.isMany()) {
 						List<EObject> valueList = (List<EObject>) refferingEObject.eGet(eRef);
@@ -416,7 +416,7 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 	
 	public void endCompositeOperation() {
-		getChangeEventAdapter().startCompositeOperation();
+		getChangeEventAdapter().endCompositeOperation();
 	}
 
 }

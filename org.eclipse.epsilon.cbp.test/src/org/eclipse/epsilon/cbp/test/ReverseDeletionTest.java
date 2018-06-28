@@ -77,7 +77,7 @@ public class ReverseDeletionTest {
 			while(iterator.hasNext()) {
 				Node node = (Node) iterator.next();
 				if (node.getName() != null && node.getName().equals("n1")) {
-					cbpResource.doDeleteEvent(node);
+					cbpResource.deleteElement(node);
 //					EcoreUtil.delete(node, true);
 					break;
 				}

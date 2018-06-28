@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.comparison;
+package org.eclipse.epsilon.cbp.comparison.event;
 
 public class ReconcileEvent extends ComparisonEvent {
 	

@@ -47,4 +47,5 @@ public class StartNewSessionEvent extends ChangeEvent<NullType> {
 	public <U> U accept(IChangeEventVisitor<U> visitor) {
 		return visitor.visit(this);
 	}
+	
 }

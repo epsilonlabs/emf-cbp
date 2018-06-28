@@ -29,7 +29,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.comparison.CBPComparison;
-import org.eclipse.epsilon.cbp.comparison.ConflictedEvents;
+import org.eclipse.epsilon.cbp.comparison.event.ConflictedEventPair;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.junit.Test;
@@ -94,8 +94,8 @@ public class CBPComparisonTest {
 
 		System.out.println();
 		System.out.println("CONFLICTS:");
-		List<ConflictedEvents> conflictedEventPairs = cbpComparison.getConflictedEventPairs();
-		for (ConflictedEvents pair : conflictedEventPairs) {
+		List<ConflictedEventPair> conflictedEventPairs = cbpComparison.getConflictedEventPairs();
+		for (ConflictedEventPair pair : conflictedEventPairs) {
 			System.out.println(pair.getLeftEvent().getEventString() + " != " + pair.getRightEvent().getEventString());
 		}
 
@@ -214,6 +214,20 @@ public class CBPComparisonTest {
 				}
 			}
 
+			// delete package
+			iterator2 = rightResource.getAllContents();
+			while (iterator2.hasNext()) {
+				EObject eObject = iterator2.next();
+				if (eObject instanceof UserGroup) {
+					UserGroup tempGroup = (UserGroup) eObject;
+					if (tempGroup.getName().equals("Group 01")) {
+						rightResource.deleteElement(tempGroup);
+						// EcoreUtil.delete(tempGroup, true);
+						break;
+					}
+				}
+			}
+
 			// Rename package 1 to A
 			iterator2 = rightResource.getAllContents();
 			while (iterator2.hasNext()) {
@@ -224,19 +238,6 @@ public class CBPComparisonTest {
 						tempTask.setName("Task A");
 					}
 					break;
-				}
-			}
-
-			// delete package
-			iterator2 = rightResource.getAllContents();
-			while (iterator2.hasNext()) {
-				EObject eObject = iterator2.next();
-				if (eObject instanceof UserGroup) {
-					UserGroup tempGroup = (UserGroup) eObject;
-					if (tempGroup.getName().equals("Group 01")) {
-						EcoreUtil.delete(tempGroup, true);
-						break;
-					}
 				}
 			}
 

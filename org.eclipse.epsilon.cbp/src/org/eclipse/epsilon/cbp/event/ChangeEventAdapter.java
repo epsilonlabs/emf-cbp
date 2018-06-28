@@ -325,16 +325,16 @@ public class ChangeEventAdapter extends EContentAdapter {
 				ChangeEvent<?> evt = null;
 				if (n.getNotifier() instanceof Resource) {
 					evt = new RemoveFromResourceEvent();
-					event.setComposite(compositeId);
+					evt.setComposite(compositeId);
 					removeResCount++;
 				} else if (n.getNotifier() instanceof EObject) {
 					if (n.getFeature() instanceof EAttribute) {
 						evt = new RemoveFromEAttributeEvent();
-						event.setComposite(compositeId);
+						evt.setComposite(compositeId);
 						removeAttCount++;
 					} else if (n.getFeature() instanceof EReference) {
 						evt = new RemoveFromEReferenceEvent();
-						event.setComposite(compositeId);
+						evt.setComposite(compositeId);
 						removeRefCount++;
 					}
 				}
