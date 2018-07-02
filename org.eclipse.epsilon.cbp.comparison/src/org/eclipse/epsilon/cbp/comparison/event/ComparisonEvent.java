@@ -77,7 +77,7 @@ public class ComparisonEvent {
 	protected String eventString = null;
 	protected boolean isConflicted = false;
 	protected String compositeId = null;
-	protected List<ConflictedEventPair> conflictedEventPairList = new ArrayList<>();  
+	protected List<ConflictedEventPair> conflictedEventPairList = new ArrayList<>();
 
 	public ComparisonEvent() {
 	}
@@ -279,6 +279,10 @@ public class ComparisonEvent {
 	}
 
 	public ComparisonEvent reverse() throws ParserConfigurationException, TransformerException {
+		return this.reverse(null);
+	}
+
+	public ComparisonEvent reverse(String compositeId) throws ParserConfigurationException, TransformerException {
 		ChangeEvent<?> reverseChangeEvent = this.getChangeEvent().reverse();
 		ComparisonEvent newComparisonEvent = new ComparisonEvent();
 
@@ -292,11 +296,17 @@ public class ComparisonEvent {
 		newComparisonEvent.setValueId(this.valueId);
 		newComparisonEvent.setOldValue(this.oldValue);
 		newComparisonEvent.setOldValueId(this.oldValueId);
-		newComparisonEvent.setCompositeId(this.compositeId);
 		newComparisonEvent.seteClassName(this.eClassName);
 		newComparisonEvent.setPackageName(this.packageName);
 		newComparisonEvent.setTime(this.time);
 		newComparisonEvent.setSessionId(this.sessionId);
+
+		if (compositeId != null) {
+			newComparisonEvent.setCompositeId(compositeId);
+			reverseChangeEvent.setComposite(compositeId);
+		} else {
+			newComparisonEvent.setCompositeId(this.compositeId);
+		}
 
 		if (this.getChangeEvent() instanceof SetEAttributeEvent) {
 			newComparisonEvent.setOldValue(this.value);
@@ -332,7 +342,7 @@ public class ComparisonEvent {
 
 		newComparisonEvent.setChangeEvent(reverseChangeEvent);
 		newComparisonEvent.getEventString();
-//		String eventString = newComparisonEvent.getEventString();
+		// String eventString = newComparisonEvent.getEventString();
 
 		return newComparisonEvent;
 	}

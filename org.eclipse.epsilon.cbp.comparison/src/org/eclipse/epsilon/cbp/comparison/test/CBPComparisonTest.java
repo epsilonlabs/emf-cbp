@@ -103,10 +103,13 @@ public class CBPComparisonTest {
 		File targetFile = cbpComparison.updateLeftWithAllLeftSolutions(true);
 
 		
-		CBPResource resource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(targetFile.getAbsolutePath()));
-		resource.load(null);
+		CBPResource cbpResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(targetFile.getAbsolutePath()));
+		cbpResource.load(null);
+		
+		Resource xmiResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("dummy.xmi"));
+		xmiResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
 		StringOutputStream output = new StringOutputStream();
-		resource.save(output, null);
+		xmiResource.save(output, null);
 		System.out.println();
 		System.out.println(output.toString());
 		assertEquals(true, true);

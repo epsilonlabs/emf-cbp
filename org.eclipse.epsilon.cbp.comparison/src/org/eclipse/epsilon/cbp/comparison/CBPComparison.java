@@ -494,9 +494,9 @@ public class CBPComparison {
 		CompositeEvent newCompositeEvent = new CompositeEvent(EcoreUtil.generateUUID());
 		for (ComparisonEvent comparisonEvent : compositeEvent.getComparisonEvents()) {
 			String eventString = comparisonEvent.getEventString();
-			ComparisonEvent newComparisonEvent = comparisonEvent.reverse();
-			newComparisonEvent.setCompositeId(newCompositeEvent.getCompositeId());
-			newComparisonEvent.getChangeEvent().setComposite(newCompositeEvent.getCompositeId());
+			ComparisonEvent newComparisonEvent = comparisonEvent.reverse(newCompositeEvent.getCompositeId());
+//			newComparisonEvent.setCompositeId(newCompositeEvent.getCompositeId());
+//			newComparisonEvent.getChangeEvent().setComposite(newCompositeEvent.getCompositeId());
 			String reverseEventString = newComparisonEvent.getEventString();
 			newCompositeEvent.getComparisonEvents().add(newComparisonEvent);
 		}
