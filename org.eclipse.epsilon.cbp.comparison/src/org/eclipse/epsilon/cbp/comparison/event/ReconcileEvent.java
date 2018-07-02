@@ -1,10 +1,13 @@
 package org.eclipse.epsilon.cbp.comparison.event;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 public class ReconcileEvent extends ComparisonEvent {
 	
 	private ComparisonEvent cancelledEvent;
 	
-	public ReconcileEvent(ComparisonEvent cancelingComparisonEvent, ComparisonEvent cancelledComparisonEvent) {
+	public ReconcileEvent(ComparisonEvent cancelingComparisonEvent, ComparisonEvent cancelledComparisonEvent) throws ParserConfigurationException, TransformerException {
 		this.cancelledEvent = cancelledComparisonEvent;
 		this.setEventType(cancelingComparisonEvent.getEventType());
 		this.setTarget(cancelingComparisonEvent.getTarget());

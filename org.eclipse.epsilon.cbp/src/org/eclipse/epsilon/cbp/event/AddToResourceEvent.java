@@ -12,4 +12,12 @@ public class AddToResourceEvent extends ResourceEvent {
 		return visitor.visit(this);
 	}
 	
+	@Override
+	public ChangeEvent<?> reverse(){
+		RemoveFromResourceEvent event = new RemoveFromResourceEvent();
+		event.setValues(this.getValues());
+		event.setOldValues(this.getOldValue());
+		event.setPosition(this.getPosition());;
+		return event;
+	}
 }

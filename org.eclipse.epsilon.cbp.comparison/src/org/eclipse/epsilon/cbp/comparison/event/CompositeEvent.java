@@ -1,7 +1,10 @@
 package org.eclipse.epsilon.cbp.comparison.event;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 public class CompositeEvent extends ComparisonEvent {
 
@@ -28,6 +31,8 @@ public class CompositeEvent extends ComparisonEvent {
 		this.comparisonEvents = comparisonEvents;
 	}
 
+	
+	
 	
 	
 

@@ -1,19 +1,8 @@
 package org.eclipse.epsilon.cbp.comparison.event;
 
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.epsilon.cbp.comparison.CBPComparison;
-import org.eclipse.epsilon.cbp.comparison.CBPComparisonUtil;
-import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
-
 public class ConflictedEventPair {
 
-	enum SolutionOptions {
+	public enum SolutionOptions {
 		CHOOSE_LEFT,
 		CHOOSE_RIGHT
 	}
@@ -63,45 +52,11 @@ public class ConflictedEventPair {
 		return isResolved;
 	}
 
-	public void resolve(List<ComparisonEvent> leftComparisonEvents, List<CompositeEvent> leftCompositeEvents,
-			List<ComparisonEvent> rightComparisonEvents, List<CompositeEvent> rightCompositeEvents,
-			SolutionOptions selectedSolution) throws ParserConfigurationException, TransformerException {
-		
-		
-		//initialise Before SessionEvent
-		StartNewSessionEvent beforeStartNewSessionEvent = new StartNewSessionEvent();
-		ComparisonEvent beforeComparisonEvent = new ComparisonEvent();
-		beforeComparisonEvent.setChangeEvent(beforeStartNewSessionEvent);
-		beforeComparisonEvent.setEventString(CBPComparisonUtil.getEventString(beforeStartNewSessionEvent));
-		
-		SessionEvent beforeSessionEvent = new SessionEvent(beforeComparisonEvent);
-		beforeSessionEvent.setSessionId(beforeSessionEvent.getSessionId());
-		beforeSessionEvent.setStringTime(beforeSessionEvent.getStringTime());
-		beforeSessionEvent.getComparisonEvents().add(beforeComparisonEvent);
-		
-		
-		//initialise  After SessionEvent
-		StartNewSessionEvent afterStartNewSessionEvent = new StartNewSessionEvent();
-		ComparisonEvent afterComparisonEvent = new ComparisonEvent();
-		afterComparisonEvent.setChangeEvent(afterStartNewSessionEvent);
-		afterComparisonEvent.setEventString(CBPComparisonUtil.getEventString(afterStartNewSessionEvent));
-		
-		SessionEvent afterSessionEvent = new SessionEvent(afterComparisonEvent);
-		afterSessionEvent.setSessionId(afterSessionEvent.getSessionId());
-		afterSessionEvent.setStringTime(afterSessionEvent.getStringTime());
-		afterSessionEvent.getComparisonEvents().add(afterComparisonEvent);
-		
-		
-		if (selectedSolution == SolutionOptions.CHOOSE_LEFT) {
-			if (this.type == ConflictedEventPair.TYPE_DIFFERENT_VALUES) {
-				isResolved = true;
-			} else if (this.type == ConflictedEventPair.TYPE_INAPPLICABLE) {
-				if (rightEvent.getComposite()!= null) {
-					
-				}
-				isResolved = true;
-			}
-		}
+	public void setResolved(boolean isResolved) {
+		this.isResolved = isResolved;
 	}
+
+	
+	
 
 }

@@ -34,4 +34,16 @@ public class MoveWithinEAttributeEvent extends EAttributeEvent implements FromPo
 		return visitor.visit(this);
 	}
 
+	@Override
+	public ChangeEvent<?> reverse(){
+		MoveWithinEAttributeEvent event = new MoveWithinEAttributeEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getOldValue());
+		event.setPosition(this.getFromPosition());
+		event.setFromPosition(this.getPosition());
+		event.setTarget(this.getTarget());
+		event.setComposite(this.getComposite());
+		return event;
+	}
 }

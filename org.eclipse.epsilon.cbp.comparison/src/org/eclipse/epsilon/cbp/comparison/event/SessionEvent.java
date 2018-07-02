@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
@@ -22,7 +23,7 @@ public class SessionEvent extends ComparisonEvent {
 	private List<ComparisonEvent> comparisonEvents = new ArrayList<>();
 
 	public SessionEvent(ComparisonEvent sessionComparisonEvent)
-			throws ParserConfigurationException, TransformerConfigurationException {
+			throws ParserConfigurationException, TransformerException {
 		this.sessionComparisonEvent = sessionComparisonEvent;
 		this.setEventType(sessionComparisonEvent.getEventType());
 		this.setTarget(sessionComparisonEvent.getTarget());

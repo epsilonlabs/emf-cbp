@@ -12,4 +12,15 @@ public class SetEAttributeEvent extends EAttributeEvent {
 		return visitor.visit(this);
 	}
 	
+	@Override
+	public ChangeEvent<?> reverse(){
+		SetEAttributeEvent event = new SetEAttributeEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getValues());
+		event.setValues(this.getOldValues());
+		event.setPosition(this.getPosition());
+		event.setTarget(this.getTarget());
+		return event;
+	}
 }

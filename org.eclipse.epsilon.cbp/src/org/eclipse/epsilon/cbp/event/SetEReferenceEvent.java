@@ -1,5 +1,9 @@
 package org.eclipse.epsilon.cbp.event;
 
+import java.util.Collection;
+
+import org.eclipse.emf.ecore.EObject;
+
 public class SetEReferenceEvent extends EReferenceEvent implements EObjectValuesEvent {
 	
 	@Override
@@ -15,4 +19,15 @@ public class SetEReferenceEvent extends EReferenceEvent implements EObjectValues
 		return visitor.visit(this);
 	}
 	
+	@Override
+	public ChangeEvent<?> reverse(){
+		SetEReferenceEvent event = new SetEReferenceEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getValues());
+		event.setValues(this.getOldValues());
+		event.setPosition(this.getPosition());
+		event.setTarget(this.getTarget());
+		return event;
+	}
 }

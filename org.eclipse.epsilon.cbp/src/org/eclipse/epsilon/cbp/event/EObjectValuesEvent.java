@@ -8,4 +8,6 @@ public interface EObjectValuesEvent {
 	
 	public Collection<EObject> getValues();
 	
+	public Collection<EObject> getOldValues();
+	
 }

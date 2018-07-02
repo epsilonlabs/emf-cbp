@@ -32,6 +32,7 @@ import org.eclipse.epsilon.cbp.comparison.CBPComparison;
 import org.eclipse.epsilon.cbp.comparison.event.ConflictedEventPair;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.junit.Test;
 
 import com.eclipsesource.makeithappen.model.task.Task;
@@ -99,8 +100,15 @@ public class CBPComparisonTest {
 			System.out.println(pair.getLeftEvent().getEventString() + " != " + pair.getRightEvent().getEventString());
 		}
 
-		cbpComparison.updateLeftWithAllLeftSolutions(true);
+		File targetFile = cbpComparison.updateLeftWithAllLeftSolutions(true);
 
+		
+		CBPResource resource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(targetFile.getAbsolutePath()));
+		resource.load(null);
+		StringOutputStream output = new StringOutputStream();
+		resource.save(output, null);
+		System.out.println();
+		System.out.println(output.toString());
 		assertEquals(true, true);
 	}
 

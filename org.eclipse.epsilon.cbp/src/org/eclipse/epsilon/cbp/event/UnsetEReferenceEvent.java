@@ -12,4 +12,15 @@ public class UnsetEReferenceEvent extends EReferenceEvent implements EObjectValu
 		return visitor.visit(this);
 	}
 	
+	@Override
+	public ChangeEvent<?> reverse(){
+		SetEReferenceEvent event = new SetEReferenceEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getValues());
+		event.setValues(this.getOldValues());
+		event.setPosition(this.getPosition());
+		event.setTarget(this.getTarget());
+		return event;
+	}
 }

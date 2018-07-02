@@ -18,4 +18,16 @@ public class RemoveFromEReferenceEvent extends EReferenceEvent implements EObjec
 	public <U> U accept(IChangeEventVisitor<U> visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public ChangeEvent<?> reverse(){
+		AddToEReferenceEvent event = new AddToEReferenceEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getOldValue());
+		event.setPosition(this.getPosition());;
+		event.setTarget(this.getTarget());
+		event.setComposite(this.getComposite());
+		return event;
+	}
 }

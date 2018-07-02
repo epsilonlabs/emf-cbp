@@ -19,4 +19,14 @@ public class AddToEAttributeEvent extends EAttributeEvent {
 		return visitor.visit(this);
 	}
 
+	@Override
+	public ChangeEvent<?> reverse(){
+		RemoveFromEAttributeEvent event = new RemoveFromEAttributeEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getOldValue());
+		event.setPosition(this.getPosition());;
+		event.setTarget(this.getTarget());
+		return event;
+	}
 }

@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.cbp.event;
 
+import java.util.Collection;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
@@ -41,4 +43,16 @@ public class MoveWithinEReferenceEvent extends EReferenceEvent implements FromPo
 		return visitor.visit(this);
 	}
 
+	@Override
+	public ChangeEvent<?> reverse(){
+		MoveWithinEReferenceEvent event = new MoveWithinEReferenceEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getOldValue());
+		event.setPosition(this.getFromPosition());
+		event.setFromPosition(this.getPosition());
+		event.setTarget(this.getTarget());
+		event.setComposite(this.getComposite());
+		return event;
+	}
 }

@@ -318,7 +318,7 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 
 	public void deleteElement(EObject targetEObject) {
-		this.startCompositeOperation();
+		this.startCompositeEvent();
 		
 		recursiveDeleteEvent(targetEObject);
 		removeFromExternalRefferences(targetEObject);
@@ -326,7 +326,7 @@ public abstract class CBPResource extends ResourceImpl {
 		unsetAllAttributes(targetEObject);
 		EcoreUtil.remove(targetEObject);
 		
-		this.endCompositeOperation();
+		this.endCompositeEvent();
 	}
 
 	private void recursiveDeleteEvent(EObject targetEObject) {
@@ -411,11 +411,11 @@ public abstract class CBPResource extends ResourceImpl {
 		}
 	}
 	
-	public void startCompositeOperation() {
+	public void startCompositeEvent() {
 		getChangeEventAdapter().startCompositeOperation();
 	}
 	
-	public void endCompositeOperation() {
+	public void endCompositeEvent() {
 		getChangeEventAdapter().endCompositeOperation();
 	}
 

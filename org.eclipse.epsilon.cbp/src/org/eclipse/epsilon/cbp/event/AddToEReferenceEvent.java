@@ -25,4 +25,15 @@ public class AddToEReferenceEvent extends EReferenceEvent implements EObjectValu
 		return visitor.visit(this);
 	}
 
+	@Override
+	public ChangeEvent<?> reverse(){
+		RemoveFromEReferenceEvent event = new RemoveFromEReferenceEvent();
+		event.setEStructuralFeature(this.getEStructuralFeature());
+		event.setValues(this.getValues());
+		event.setOldValues(this.getOldValue());
+		event.setPosition(this.getPosition());;
+		event.setTarget(this.getTarget());
+		event.setComposite(this.getComposite());
+		return event;
+	}
 }

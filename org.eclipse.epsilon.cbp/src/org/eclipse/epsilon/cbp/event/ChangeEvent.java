@@ -6,6 +6,8 @@ import java.util.Collection;
 public abstract class ChangeEvent<T> {
 	
 	protected Collection<T> values = new ArrayList<T>();
+	protected Collection<T> oldValues = new ArrayList<T>();
+	
 	protected int position = -1;
 	protected String composite = null;
 	
@@ -20,6 +22,10 @@ public abstract class ChangeEvent<T> {
 
 	public Collection<T> getValues() {
 		return values;
+	}
+	
+	public Collection<T> getOldValues() {
+		return oldValues;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -46,6 +52,30 @@ public abstract class ChangeEvent<T> {
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void setOldValues(Object t) {
+		if (t instanceof Collection<?>) {
+			oldValues.addAll((Collection) t);
+		}
+		else {
+			oldValues.add((T) t);
+		}
+	}
+	
+	public void setOldValue(T value) {
+		oldValues.add(value);
+	}
+	
+	public T getOldValue() {
+		//assert values.size() < 2;
+		if (oldValues.isEmpty()) {
+			return null;
+		}
+		else {
+			return oldValues.iterator().next();
+		}
+	}
+	
 	public int getPosition() {
 		return position;
 	}
@@ -58,4 +88,9 @@ public abstract class ChangeEvent<T> {
 	public abstract void replay();
 
 	public abstract <U> U accept(IChangeEventVisitor<U> visitor);
+	
+	public ChangeEvent<?> reverse(){
+		this.setComposite(null);
+		return this;
+	}
 }

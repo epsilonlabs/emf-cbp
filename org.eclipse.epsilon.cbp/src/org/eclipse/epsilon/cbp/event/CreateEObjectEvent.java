@@ -61,4 +61,12 @@ public class CreateEObjectEvent extends ChangeEvent<EObject> {
 		return visitor.visit(this);
 	}
 
+	@Override
+	public ChangeEvent<?> reverse(){
+		DeleteEObjectEvent event = new DeleteEObjectEvent(eClass, resource, id);
+		return event;
+	}
+	
+	
+
 }

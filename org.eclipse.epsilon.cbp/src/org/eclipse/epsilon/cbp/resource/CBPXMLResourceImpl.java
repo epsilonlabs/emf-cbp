@@ -27,7 +27,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
@@ -186,11 +185,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				Document document = documentBuilder.newDocument();
 				Element e = null;
 
-				if (event instanceof CancelEvent) {
-					CancelEvent c = ((CancelEvent) event);
-					e = document.createElement("session");
-					e.setAttribute("offset", String.valueOf(c.getLineToCancelOffset()));
-				} else if (event instanceof StartNewSessionEvent) {
+				if (event instanceof StartNewSessionEvent) {
 					StartNewSessionEvent s = ((StartNewSessionEvent) event);
 					e = document.createElement("session");
 					e.setAttribute("id", s.getSessionId());
@@ -298,22 +293,47 @@ public class CBPXMLResourceImpl extends CBPResource {
 						|| event instanceof AddToResourceEvent) {
 					e.setAttribute("position", event.getPosition() + "");
 				}
+
+				if (event instanceof RemoveFromEReferenceEvent || event instanceof RemoveFromEAttributeEvent
+						|| event instanceof RemoveFromResourceEvent) {
+					e.setAttribute("position", event.getPosition() + "");
+				}
+
 				if (event instanceof FromPositionEvent) {
 					e.setAttribute("from", ((FromPositionEvent) event).getFromPosition() + "");
 					e.setAttribute("to", event.getPosition() + "");
 				}
 
 				if (event instanceof EObjectValuesEvent) {
+
+					for (EObject eObject : ((EObjectValuesEvent) event).getOldValues()) {
+						if (eObject != null) {
+							Element o = document.createElement("old-value");
+							o.setAttribute("eobject", getURIFragment(eObject));
+							e.appendChild(o);
+						}
+					}
 					for (EObject eObject : ((EObjectValuesEvent) event).getValues()) {
-						Element o = document.createElement("value");
-						o.setAttribute("eobject", getURIFragment(eObject));
-						e.appendChild(o);
+						if (eObject != null) {
+							Element o = document.createElement("value");
+							o.setAttribute("eobject", getURIFragment(eObject));
+							e.appendChild(o);
+						}
 					}
 				} else if (event instanceof EAttributeEvent) {
+					for (Object object : ((EAttributeEvent) event).getOldValues()) {
+						if (object != null) {
+							Element o = document.createElement("old-value");
+							o.setAttribute("literal", object + "");
+							e.appendChild(o);
+						}
+					}
 					for (Object object : ((EAttributeEvent) event).getValues()) {
-						Element o = document.createElement("value");
-						o.setAttribute("literal", object + "");
-						e.appendChild(o);
+						if (object != null) {
+							Element o = document.createElement("value");
+							o.setAttribute("literal", object + "");
+							e.appendChild(o);
+						}
 					}
 				}
 				if (event.getComposite() != null && e != null) {
@@ -466,7 +486,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 						continue;
 					}
 
-					if (!name.equals("value")) {
+					if (!name.equals("value") && !name.equals("old-value")) {
 						if (optimised == true) {
 							if (ignoreSet.remove(eventNumber)) { // remove is to
 																	// save
@@ -591,22 +611,42 @@ public class CBPXMLResourceImpl extends CBPResource {
 							}
 						}
 
-					} else if (name.equals("value")) {
+					} else if (name.equals("old-value") || name.equals("value")) {
 						if (ignore == false) {
-							if (event instanceof EObjectValuesEvent) {
-								EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
-								String seobject = e.getAttributeByName(new QName("eobject")).getValue();
-								errorMessage = errorMessage + ", value: " + seobject;
-								EObject eob = resolveXRef(seobject);
-								valuesEvent.getValues().add(eob);
-							} else if (event instanceof EAttributeEvent) {
-								EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
-								String sliteral = e.getAttributeByName(new QName("literal")).getValue();
-								errorMessage = errorMessage + ", value: " + sliteral;
-								EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature().getEType());
-								Object value = eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType,
-										sliteral);
-								eAttributeEvent.getValues().add(value);
+							if (name.equals("old-value")) {
+								if (event instanceof EObjectValuesEvent) {
+									EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
+									String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+									errorMessage = errorMessage + ", old-value: " + seobject;
+									EObject eob = resolveXRef(seobject);
+									valuesEvent.getOldValues().add(eob);
+								} else if (event instanceof EAttributeEvent) {
+									EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
+									String sliteral = e.getAttributeByName(new QName("literal")).getValue();
+									errorMessage = errorMessage + ", old-value: " + sliteral;
+									EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
+											.getEType());
+									Object value = eDataType.getEPackage().getEFactoryInstance()
+											.createFromString(eDataType, sliteral);
+									eAttributeEvent.getOldValues().add(value);
+								}
+							} else if (name.equals("value")) {
+								if (event instanceof EObjectValuesEvent) {
+									EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
+									String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+									errorMessage = errorMessage + ", value: " + seobject;
+									EObject eob = resolveXRef(seobject);
+									valuesEvent.getValues().add(eob);
+								} else if (event instanceof EAttributeEvent) {
+									EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
+									String sliteral = e.getAttributeByName(new QName("literal")).getValue();
+									errorMessage = errorMessage + ", value: " + sliteral;
+									EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
+											.getEType());
+									Object value = eDataType.getEPackage().getEFactoryInstance()
+											.createFromString(eDataType, sliteral);
+									eAttributeEvent.getValues().add(value);
+								}
 							}
 						}
 					}
@@ -614,7 +654,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 				if (xmlEvent.getEventType() == XMLStreamConstants.END_ELEMENT) {
 					EndElement ee = xmlEvent.asEndElement();
 					String name = ee.getName().getLocalPart();
-					if (event != null && !name.equals("value") && !name.equals("m")) {
+					if (event != null && !name.equals("old-value") && !name.equals("value") && !name.equals("m")) {
 						if (ignore == false) {
 
 							event.replay();
