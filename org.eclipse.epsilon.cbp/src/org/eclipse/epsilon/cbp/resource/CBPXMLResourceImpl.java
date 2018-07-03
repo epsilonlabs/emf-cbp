@@ -588,9 +588,12 @@ public class CBPXMLResourceImpl extends CBPResource {
 								String sName = e.getAttributeByName(new QName("name")).getValue();
 								errorMessage = errorMessage + ", target: " + sTarget + ", name: " + sName;
 								EObject target = getEObject(sTarget);
-								EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(sName);
-								((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
-								((EStructuralFeatureEvent<?>) event).setTarget(target);
+								if (target != null) {
+									EStructuralFeature eStructuralFeature = target.eClass()
+											.getEStructuralFeature(sName);
+									((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
+									((EStructuralFeatureEvent<?>) event).setTarget(target);
+								}
 							} else if (event instanceof ResourceEvent) {
 								((ResourceEvent) event).setResource(this);
 							}
@@ -624,11 +627,15 @@ public class CBPXMLResourceImpl extends CBPResource {
 									EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
 									String sliteral = e.getAttributeByName(new QName("literal")).getValue();
 									errorMessage = errorMessage + ", old-value: " + sliteral;
-									EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
-											.getEType());
-									Object value = eDataType.getEPackage().getEFactoryInstance()
-											.createFromString(eDataType, sliteral);
-									eAttributeEvent.getOldValues().add(value);
+
+									EStructuralFeature sf = eAttributeEvent.getEStructuralFeature();
+									if (sf != null) {
+										EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
+												.getEType());
+										Object value = eDataType.getEPackage().getEFactoryInstance()
+												.createFromString(eDataType, sliteral);
+										eAttributeEvent.getOldValues().add(value);
+									}
 								}
 							} else if (name.equals("value")) {
 								if (event instanceof EObjectValuesEvent) {
@@ -641,11 +648,14 @@ public class CBPXMLResourceImpl extends CBPResource {
 									EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
 									String sliteral = e.getAttributeByName(new QName("literal")).getValue();
 									errorMessage = errorMessage + ", value: " + sliteral;
-									EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
-											.getEType());
-									Object value = eDataType.getEPackage().getEFactoryInstance()
-											.createFromString(eDataType, sliteral);
-									eAttributeEvent.getValues().add(value);
+									EStructuralFeature sf = eAttributeEvent.getEStructuralFeature();
+									if (sf != null) {
+										EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
+												.getEType());
+										Object value = eDataType.getEPackage().getEFactoryInstance()
+												.createFromString(eDataType, sliteral);
+										eAttributeEvent.getValues().add(value);
+									}
 								}
 							}
 						}
@@ -778,7 +788,9 @@ public class CBPXMLResourceImpl extends CBPResource {
 			} else {
 				persistedEvents = eventNumber;
 			}
-		} catch (Exception ex) {
+		} catch (
+
+		Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Error: Event Number " + eventNumber + " : " + errorMessage);
 			throw new IOException(

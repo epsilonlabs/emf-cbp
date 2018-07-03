@@ -12,4 +12,12 @@
       </application>
    </extension>
 
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated node -->
+      <package
+            uri="node"
+            class="org.eclipse.epsilon.cbp.comparison.model.node.NodePackage"
+            genModel="model/node.genmodel"/>
+   </extension>
+
 </plugin>

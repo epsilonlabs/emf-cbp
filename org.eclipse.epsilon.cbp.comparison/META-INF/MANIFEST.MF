@@ -1,9 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Comparison
+Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.epsilon.cbp.comparison;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Export-Package: org.eclipse.epsilon.cbp.comparison.test
+Bundle-ClassPath: .
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.eclipse.epsilon.cbp.comparison.model.node,
+ org.eclipse.epsilon.cbp.comparison.model.node.impl,
+ org.eclipse.epsilon.cbp.comparison.model.node.util,
+ org.eclipse.epsilon.cbp.comparison.test
 Require-Bundle: org.eclipse.emf.common,
  org.eclipse.emf.compare,
  org.junit,
@@ -16,5 +23,7 @@ Require-Bundle: org.eclipse.emf.common,
  org.eclipse.emf.emfstore.client,
  org.eclipse.emf.emfstore.examplemodel,
  com.eclipsesource.makeithappen.model,
- org.eclipse.emf.ecore
+ org.eclipse.core.runtime,
+ org.eclipse.emf.ecore;visibility:=reexport
+Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.uml2.uml
