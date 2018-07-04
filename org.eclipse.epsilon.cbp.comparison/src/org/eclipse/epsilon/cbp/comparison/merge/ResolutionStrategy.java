@@ -39,7 +39,8 @@ public abstract class ResolutionStrategy {
 						beforeSessionEvent.getComparisonEvents().addAll(reversedCompositeEvent.getComparisonEvents());
 					}
 				} else {
-
+					ComparisonEvent reversedComparisonEvent = conflictedEventPair.getRightEvent().reverse();
+					beforeSessionEvent.getComparisonEvents().add(reversedComparisonEvent);
 				}
 				conflictedEventPair.setResolved(true);
 			}

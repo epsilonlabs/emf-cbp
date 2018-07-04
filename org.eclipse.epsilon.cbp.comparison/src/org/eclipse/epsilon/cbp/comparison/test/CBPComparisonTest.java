@@ -20,6 +20,7 @@ import javax.xml.transform.TransformerException;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
@@ -27,30 +28,40 @@ import org.eclipse.epsilon.cbp.comparison.CBPComparison;
 import org.eclipse.epsilon.cbp.comparison.event.ComparisonEvent;
 import org.eclipse.epsilon.cbp.comparison.event.ConflictedEventPair;
 import org.eclipse.epsilon.cbp.comparison.model.node.Node;
-import org.eclipse.epsilon.cbp.comparison.model.node.NodeFactory;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
+import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
+import org.eclipse.epsilon.eol.EolModule;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.eclipsesource.makeithappen.model.task.TaskPackage;
-
 public class CBPComparisonTest {
+
+	public enum MergeMode {
+		UpdateLeftWithAllLeftSolutions, UpdateLeftWithAllRightSolutions, UpdateRightWithAllLeftSolutions, UpdateRightWithAllRightSolutions
+	}
 
 	private File originFile;
 	private File leftFile;
 	private File rightFile;
-	private NodeFactory factory;
 	private CBPResource originResource;
 	private CBPResource leftResource;
 	private CBPResource rightResource;
 	private CBPComparison cbpComparison;
 	private File targetFile;
+	private EPackage ePackage = NodePackage.eINSTANCE;
+	private EolModule module;
+	private InMemoryEmfModel model;
+	private Script rightScript;
+	private Script leftScript;
+	private Script originalScript;
+	private File targetCbpFile;
+	private String actualValue;
+	private String expectedValue;
 
-	@Test
+	// @Test
 	public void testTextFileReader() throws IOException, XMLStreamException {
 		File file = new File("D:\\TEMP\\COMPARISON\\cbp-root\\cbp-comparison\\model.cbpxml");
 
@@ -90,20 +101,20 @@ public class CBPComparisonTest {
 		assertEquals(true, true);
 	}
 
-	@Before
-	public void setUp() {
-		originFile = new File("D:\\TEMP\\COMPARISON\\origin.cbpxml");
+	public void initialise(String testName) {
+		System.out
+				.println("\n###### " + testName + " ##############################################################\n");
+		originFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-root.cbpxml");
 		if (originFile.exists())
 			originFile.delete();
-		leftFile = new File("D:\\TEMP\\COMPARISON\\left.cbpxml");
+		leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-left.cbpxml");
 		if (leftFile.exists())
 			leftFile.delete();
-		rightFile = new File("D:\\TEMP\\COMPARISON\\right.cbpxml");
+		rightFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-right.cbpxml");
 		if (rightFile.exists())
 			rightFile.delete();
 
 		NodePackage.eINSTANCE.eClass();
-		factory = NodeFactory.eINSTANCE;
 
 		originResource = (CBPResource) (new CBPXMLResourceFactory())
 				.createResource(URI.createFileURI(originFile.getPath()));
@@ -111,6 +122,10 @@ public class CBPComparisonTest {
 				.createResource(URI.createFileURI(leftFile.getPath()));
 		rightResource = (CBPResource) (new CBPXMLResourceFactory())
 				.createResource(URI.createFileURI(rightFile.getPath()));
+
+		originalScript = new Script(originResource);
+		leftScript = new Script(leftResource);
+		rightScript = new Script(rightResource);
 	}
 
 	@After
@@ -143,86 +158,289 @@ public class CBPComparisonTest {
 			System.out.println(event.getEventString());
 		}
 
+		System.out.println();
+		System.out.println("MERGED XMI:");
+		System.out.println(actualValue);
+
+		originResource.unload();
+		leftResource.unload();
+		rightResource.unload();
+
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	protected String getXMIString(File targetFile) throws IOException {
 		// test reload
 		CBPResource cbpResource = (CBPResource) (new CBPXMLResourceFactory())
 				.createResource(URI.createFileURI(targetFile.getAbsolutePath()));
 		cbpResource.load(null);
 
-		System.out.println();
-		System.out.println("MERGED XMI:");
 		Resource xmiMergedResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("dummy.xmi"));
 		xmiMergedResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
 		StringOutputStream output = new StringOutputStream();
 		xmiMergedResource.save(output, null);
-		System.out.println(output.toString());
+		String outputString = output.toString();
+		// System.out.println(outputString);
+		return outputString.trim();
 	}
 
 	@Test
-	public void testConflictSetVsDeleteEvents() throws IOException {
+	public void testConflictSetVsDeleteEventsWithAllLeftSolutions() throws IOException {
+		initialise("testConflictSetVsDeleteEventsWithAllLeftSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Node A\"/>";
 		try {
-
-			// ROOT--------------------------------------------------
-			originResource.startNewSession("ROOT");
-			Node node01 = factory.createNode();
-			node01.setName("Node 1");
-			originResource.getContents().add(node01);
-			originResource.save(null);
-			originResource.unload();
-
-			// LEFT--------------------------------------------------
-			Files.copy(new FileInputStream(originFile), leftFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			leftResource.load(null);
-			leftResource.startNewSession("LEFT");
-
-			TreeIterator<EObject> leftIterator = leftResource.getAllContents();
-			while (leftIterator.hasNext()) {
-				Node node = (Node) leftIterator.next();
-				node.setName("Node A");
-			}
-
-			leftResource.save(null);
-			Resource xmiResource = (new XMIResourceFactoryImpl())
-					.createResource(URI.createFileURI("D:\\TEMP\\COMPARISON\\left.xmi"));
-			xmiResource.getContents().addAll(leftResource.getContents());
-			xmiResource.save(null);
-			xmiResource.unload();
-			leftResource.unload();
-
-			// RIGHT--------------------------------------------------
-			Files.copy(new FileInputStream(originFile), rightFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			rightResource.load(null);
-			rightResource.startNewSession("RIGHT");
-
-			TreeIterator<EObject> rightIterator = rightResource.getAllContents();
-			while (rightIterator.hasNext()) {
-				Node node = (Node) rightIterator.next();
-				rightResource.deleteElement(node);
-			}
-
-			rightResource.save(null);
-			xmiResource = (new XMIResourceFactoryImpl())
-					.createResource(URI.createFileURI("D:\\TEMP\\COMPARISON\\right.xmi"));
-			xmiResource.getContents().addAll(rightResource.getContents());
-			xmiResource.save(null);
-			xmiResource.unload();
-			rightResource.unload();
-
-			// COMPARE--------------------------------------------------
-			cbpComparison = new CBPComparison(leftFile, rightFile);
-			cbpComparison.compare();
-
-			// MERGE/UPDATE--------------------------------------------------
-			targetFile = cbpComparison.updateLeftWithAllLeftSolutions(true);
-//			targetFile = cbpComparison.updateLeftWithAllRightSolutions(true);
-
+			// origin
+			originalScript.add("var node = new Node;");
+			originalScript.add("node.name = \"Node 01\";");
+			// left
+			leftScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("node.name = \"Node A\";");
+			// right
+			rightScript = new Script(rightResource);
+			rightScript.deleteElement("Node 01");
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
 		} catch (Exception e) {
 			e.printStackTrace();
-			assertEquals(false, true);
-			return;
 		}
-
-		assertEquals(true, true);
+		assertEquals(expectedValue, actualValue);
 	}
 
+	@Test
+	public void testConflictSetVsDeleteEventsWithAllRightSolutions() throws IOException {
+		initialise("testConflictSetVsDeleteEventsWithAllRightSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\"/>";
+		try {
+			// origin
+			originalScript.add("var node = new Node;");
+			originalScript.add("node.name = \"Node 01\";");
+			// left
+			leftScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("node.name = \"Node A\";");
+			// right
+			rightScript = new Script(rightResource);
+			rightScript.deleteElement("Node 01");
+			//merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllRightSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		assertEquals(expectedValue, actualValue);
+	}
 	
+	@Test
+	public void testConflictSetVsSetEventsWithAllLeftSolutions() throws IOException {
+		initialise("testConflictSetVsSetEventsWithAllLeftSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Left Node\"/>";
+		try {
+			// origin
+			originalScript.add("var node = new Node;");
+			originalScript.add("node.name = \"Original Node\";");
+			// left
+			leftScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			leftScript.add("node.name = \"Left Node\";");
+			// right
+			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			rightScript.add("node.name = \"Right Node\";");
+			//merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
+	public void testConflictSetVsSetEventsWithAllRightSolutions() throws IOException {
+		initialise("testConflictSetVsSetEventsWithAllRightSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Right Node\"/>";
+		try {
+			// origin
+			originalScript.add("var node = new Node;");
+			originalScript.add("node.name = \"Original Node\";");
+			// left
+			leftScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			leftScript.add("node.name = \"Left Node\";");
+			// right
+			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			rightScript.add("node.name = \"Right Node\";");
+			//merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllRightSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
+	public void testConflictSetVsUnsetEventsWithAllLeftSolutions() throws IOException {
+		initialise("testConflictSetVsUnsetEventsWithAllLeftSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Left Node\"/>";
+		try {
+			// origin
+			originalScript.add("var node = new Node;");
+			originalScript.add("node.name = \"Original Node\";");
+			// left
+			leftScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			leftScript.add("node.name = \"Left Node\";");
+			// right
+			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			rightScript.add("node.name = null;");
+			//merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
+	public void testConflictSetVsUnsetEventsWithAllRightSolutions() throws IOException {
+		initialise("testConflictSetVsUnsetEventsWithAllRightSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\"/>";
+		try {
+			// origin
+			originalScript.add("var node = new Node;");
+			originalScript.add("node.name = \"Original Node\";");
+			// left
+			leftScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			leftScript.add("node.name = \"Left Node\";");
+			// right
+			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
+			rightScript.add("node.name = null;");
+			//merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllRightSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+
+	public File executeTest(Script originalScript, Script leftScript, Script rightScript, MergeMode mergeMode)
+			throws Exception {
+		// ROOT--------------------------------------------------
+		originResource.startNewSession("ROOT");
+		originalScript.run();
+		originResource.save(null);
+		originResource.unload();
+
+		// LEFT--------------------------------------------------
+		Files.copy(new FileInputStream(originFile), leftFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		leftResource.load(null);
+		leftResource.startNewSession("LEFT");
+
+		leftScript.run();
+
+		leftResource.save(null);
+		Resource xmiResource = (new XMIResourceFactoryImpl())
+				.createResource(URI.createFileURI("D:\\TEMP\\COMPARISON\\left.xmi"));
+		xmiResource.getContents().addAll(leftResource.getContents());
+		xmiResource.save(null);
+		xmiResource.unload();
+		leftResource.unload();
+
+		// RIGHT--------------------------------------------------
+		Files.copy(new FileInputStream(originFile), rightFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		rightResource.load(null);
+		rightResource.startNewSession("RIGHT");
+
+		rightScript.run();
+
+		rightResource.save(null);
+		xmiResource = (new XMIResourceFactoryImpl())
+				.createResource(URI.createFileURI("D:\\TEMP\\COMPARISON\\right.xmi"));
+		xmiResource.getContents().addAll(rightResource.getContents());
+		xmiResource.save(null);
+		xmiResource.unload();
+		rightResource.unload();
+
+		// COMPARE--------------------------------------------------
+		cbpComparison = new CBPComparison(leftFile, rightFile);
+		cbpComparison.compare();
+
+		// MERGE/UPDATE--------------------------------------------------
+		switch (mergeMode) {
+		case UpdateLeftWithAllLeftSolutions:
+			targetFile = cbpComparison.updateLeftWithAllLeftSolutions(true);
+			break;
+		case UpdateLeftWithAllRightSolutions:
+			targetFile = cbpComparison.updateLeftWithAllRightSolutions(true);
+			break;
+		case UpdateRightWithAllLeftSolutions:
+			targetFile = cbpComparison.updateLeftWithAllLeftSolutions(true);
+			break;
+		case UpdateRightWithAllRightSolutions:
+			targetFile = cbpComparison.updateLeftWithAllRightSolutions(true);
+			break;
+		default:
+			break;
+		}
+
+		return targetFile;
+	}
+
+	class Script {
+		private String text = new String();
+		private String toBeDeletedName = null;
+		private Resource resource;
+
+		public Script(Resource resource) {
+			this.resource = resource;
+		}
+
+		public void add(String line) {
+			text = text.concat(line).concat(System.lineSeparator());
+		}
+
+		public void clear() {
+			text = "";
+		}
+
+		public String toString() {
+			return text;
+		}
+
+		public void run() throws Exception {
+			if (toBeDeletedName != null) {
+				TreeIterator<EObject> rightIterator = resource.getAllContents();
+				while (rightIterator.hasNext()) {
+					Node node = (Node) rightIterator.next();
+					((CBPResource) resource).deleteElement(node);
+				}
+				toBeDeletedName = null;
+			} else {
+				module = new EolModule();
+				module.parse(text);
+				model = new InMemoryEmfModel("M", resource, ePackage);
+				module.getContext().getModelRepository().addModel(model);
+				module.execute();
+			}
+		}
+
+		public void deleteElement(String elementName) {
+			toBeDeletedName = elementName;
+		}
+	}
 }
