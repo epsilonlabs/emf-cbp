@@ -8,7 +8,7 @@ public class ConflictedEventPair {
 	}
 	
 	public static final int TYPE_UNDEFINED = 0;
-	public static final int TYPE_DIFFERENT_VALUES = 1;
+	public static final int TYPE_DIFFERENT_STATES = 1;
 	public static final int TYPE_INAPPLICABLE = 2; 
 
 	int leftLineNumber = -1;

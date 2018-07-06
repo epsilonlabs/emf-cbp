@@ -14,6 +14,8 @@ import org.eclipse.epsilon.cbp.comparison.event.ConflictedEventPair;
 import org.eclipse.epsilon.cbp.comparison.event.ConflictedEventPair.SolutionOptions;
 import org.eclipse.epsilon.cbp.comparison.event.SessionEvent;
 import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.cbp.event.MoveWithinEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 
 public abstract class ResolutionStrategy {
 
@@ -28,7 +30,12 @@ public abstract class ResolutionStrategy {
 		Map<String, CompositeEvent> rightCompositeEvents = inputCompositeEvents;
 
 		if (selectedSolution == SolutionOptions.CHOOSE_LEFT) {
-			if (conflictedEventPair.getType() == ConflictedEventPair.TYPE_DIFFERENT_VALUES) {
+			if (conflictedEventPair.getType() == ConflictedEventPair.TYPE_DIFFERENT_STATES) {
+				if (conflictedEventPair.getLeftEvent().getEventType() == RemoveFromEReferenceEvent.class
+						&& conflictedEventPair.getRightEvent().getEventType() == MoveWithinEReferenceEvent.class) {
+					beforeSessionEvent.getComparisonEvents().add(conflictedEventPair.getRightEvent().reverse());
+				} else {
+				}
 				conflictedEventPair.setResolved(true);
 			} else if (conflictedEventPair.getType() == ConflictedEventPair.TYPE_INAPPLICABLE) {
 				if (conflictedEventPair.getRightEvent().getCompositeId() != null) {
@@ -37,6 +44,7 @@ public abstract class ResolutionStrategy {
 						CompositeEvent compositeEvent = rightCompositeEvents.get(compositeId);
 						CompositeEvent reversedCompositeEvent = reverseCompositeEvent(compositeEvent);
 						beforeSessionEvent.getComparisonEvents().addAll(reversedCompositeEvent.getComparisonEvents());
+						resolveRelatedConflicts(conflictedEventPair, SolutionOptions.CHOOSE_LEFT);
 					}
 				} else {
 					ComparisonEvent reversedComparisonEvent = conflictedEventPair.getRightEvent().reverse();
@@ -45,30 +53,42 @@ public abstract class ResolutionStrategy {
 				conflictedEventPair.setResolved(true);
 			}
 
-			// set other related conflict pairs to resolved
-			if (conflictedEventPair.isResolved()) {
-				for (ConflictedEventPair conflictPair : conflictedEventPair.getLeftEvent()
-						.getConflictedEventPairList()) {
-					conflictPair.setResolved(true);
-				}
-
-			}
 		}
 
 		else if (selectedSolution == SolutionOptions.CHOOSE_RIGHT) {
-			if (conflictedEventPair.getType() == ConflictedEventPair.TYPE_DIFFERENT_VALUES) {
-				conflictedEventPair.setResolved(true);
-				afterSessionEvent.getComparisonEvents().add(conflictedEventPair.getRightEvent());
-			}else if (conflictedEventPair.getType() == ConflictedEventPair.TYPE_INAPPLICABLE) {
-				
-			}
-			
-			// set other related conflict pairs to resolved
-			if (conflictedEventPair.isResolved()) {
-				for (ConflictedEventPair conflictPair : conflictedEventPair.getLeftEvent()
-						.getConflictedEventPairList()) {
-					conflictPair.setResolved(true);
+			if (conflictedEventPair.getType() == ConflictedEventPair.TYPE_DIFFERENT_STATES) {
+				if (conflictedEventPair.getLeftEvent().getEventType() == RemoveFromEReferenceEvent.class
+						&& conflictedEventPair.getRightEvent().getEventType() == MoveWithinEReferenceEvent.class) {
+					beforeSessionEvent.getComparisonEvents().add(conflictedEventPair.getRightEvent().reverse());
+					afterSessionEvent.getComparisonEvents().add(conflictedEventPair.getLeftEvent().reverse());
+					afterSessionEvent.getComparisonEvents().add(conflictedEventPair.getRightEvent());
+				} else {
+					afterSessionEvent.getComparisonEvents().add(conflictedEventPair.getRightEvent());
 				}
+				conflictedEventPair.setResolved(true);
+			} else if (conflictedEventPair.getType() == ConflictedEventPair.TYPE_INAPPLICABLE) {
+
+			}
+
+		}
+	}
+
+	private void resolveRelatedConflicts(ConflictedEventPair conflictedEventPair, SolutionOptions selectedSolution) {
+		// if the right event is selected as a solution then every another
+		// conflict that is caused by the left event should be
+		// marked also as resolved. This is to prevent double solutions for the
+		// same conflict.
+		if (selectedSolution == SolutionOptions.CHOOSE_RIGHT) {
+			for (ConflictedEventPair conflictPair : conflictedEventPair.getLeftEvent().getConflictedEventPairList()) {
+				conflictPair.setResolved(true);
+			}
+			// if the left event is selected as a solution then every another
+			// conflict that is caused by the right event should be
+			// marked also as resolved. This is to prevent double solutions for
+			// the same conflict.
+		} else if (selectedSolution == SolutionOptions.CHOOSE_LEFT) {
+			for (ConflictedEventPair conflictPair : conflictedEventPair.getRightEvent().getConflictedEventPairList()) {
+				conflictPair.setResolved(true);
 			}
 		}
 	}

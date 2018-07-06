@@ -187,6 +187,209 @@ public class CBPComparisonTest {
 	}
 
 	@Test
+	public void testConflictMoveVsRemoveWithAllRightSolutions() throws IOException {
+		initialise("testConflictMoveVsRemoveWithAllLeftSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
+				"  <Node name=\"Node 01\" refNodes=\"/3 /1 /2 /4\"/>\r\n" + 
+				"  <Node name=\"Node 02\"/>\r\n" + 
+				"  <Node name=\"Node 03\"/>\r\n" + 
+				"  <Node name=\"Node 04\"/>\r\n" + 
+				"  <Node name=\"Node 05\"/>\r\n" + 
+				"</xmi:XMI>";
+		try {
+			// origin
+			originalScript.add("var node1 = new Node;");
+			originalScript.add("node1.name = \"Node 01\";");
+			originalScript.add("var node2 = new Node;");
+			originalScript.add("node2.name = \"Node 02\";");
+			originalScript.add("var node3 = new Node;");
+			originalScript.add("node3.name = \"Node 03\";");
+			originalScript.add("var node4 = new Node;");
+			originalScript.add("node4.name = \"Node 04\";");
+			originalScript.add("var node5 = new Node;");
+			originalScript.add("node5.name = \"Node 05\";");
+			originalScript.add("node1.refNodes.add(node2);");
+			originalScript.add("node1.refNodes.add(node3);");
+			originalScript.add("node1.refNodes.add(node4);");
+			originalScript.add("node1.refNodes.add(node5);");
+			
+			// left
+			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
+			leftScript.add("node1.refNodes.remove(node4);");
+			
+			// right
+			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			rightScript.add("node1.refNodes.move(0,2);");
+			
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllRightSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
+	public void testConflictMoveVsRemoveWithAllLeftSolutions() throws IOException {
+		initialise("testConflictMoveVsRemoveWithAllLeftSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
+				"  <Node name=\"Node 01\" refNodes=\"/1 /2 /4\"/>\r\n" + 
+				"  <Node name=\"Node 02\"/>\r\n" + 
+				"  <Node name=\"Node 03\"/>\r\n" + 
+				"  <Node name=\"Node 04\"/>\r\n" + 
+				"  <Node name=\"Node 05\"/>\r\n" + 
+				"</xmi:XMI>";
+		try {
+			// origin
+			originalScript.add("var node1 = new Node;");
+			originalScript.add("node1.name = \"Node 01\";");
+			originalScript.add("var node2 = new Node;");
+			originalScript.add("node2.name = \"Node 02\";");
+			originalScript.add("var node3 = new Node;");
+			originalScript.add("node3.name = \"Node 03\";");
+			originalScript.add("var node4 = new Node;");
+			originalScript.add("node4.name = \"Node 04\";");
+			originalScript.add("var node5 = new Node;");
+			originalScript.add("node5.name = \"Node 05\";");
+			originalScript.add("node1.refNodes.add(node2);");
+			originalScript.add("node1.refNodes.add(node3);");
+			originalScript.add("node1.refNodes.add(node4);");
+			originalScript.add("node1.refNodes.add(node5);");
+			
+			// left
+			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
+			leftScript.add("node1.refNodes.remove(node4);");
+			
+			// right
+			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			rightScript.add("node1.refNodes.move(0,2);");
+			
+			
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
+	public void testConflictAddVsRemoveWithAllLeftSolutions() throws IOException {
+		initialise("testConflictAddVsRemoveWithAllLeftSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
+				"  <Node name=\"Node 01\" refNodes=\"/1\"/>\r\n" + 
+				"  <Node name=\"Node 02\"/>\r\n" + 
+				"  <Node name=\"Node 03\"/>\r\n" + 
+				"</xmi:XMI>";
+		try {
+			// origin
+			originalScript.add("var node1 = new Node;");
+			originalScript.add("node1.name = \"Node 01\";");
+			originalScript.add("var node2 = new Node;");
+			originalScript.add("node2.name = \"Node 02\";");
+			originalScript.add("var node3 = new Node;");
+			originalScript.add("node3.name = \"Node 03\";");
+			originalScript.add("node1.refNodes.add(node2);");
+			originalScript.add("node1.refNodes.add(node3);");
+			
+			// left
+			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
+			leftScript.add("node1.refNodes.remove(node3);");
+			
+			// right
+			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			rightScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
+			rightScript.add("node1.refNodes.remove(node3);");
+			rightScript.add("node1.refNodes.add(node3);");
+			
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
+	public void testConflictAddVsRemoveWithAllRightSolutions() throws IOException {
+		initialise("testConflictAddVsRemoveWithAllRightSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
+				"  <Node name=\"Node 01\" refNodes=\"/1 /2\"/>\r\n" + 
+				"  <Node name=\"Node 02\"/>\r\n" + 
+				"  <Node name=\"Node 03\"/>\r\n" + 
+				"</xmi:XMI>";
+		try {
+			// origin
+			originalScript.add("var node1 = new Node;");
+			originalScript.add("node1.name = \"Node 01\";");
+			originalScript.add("var node2 = new Node;");
+			originalScript.add("node2.name = \"Node 02\";");
+			originalScript.add("var node3 = new Node;");
+			originalScript.add("node3.name = \"Node 03\";");
+			originalScript.add("node1.refNodes.add(node2);");
+			originalScript.add("node1.refNodes.add(node3);");
+			
+			// left
+			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
+			leftScript.add("node1.refNodes.remove(node3);");
+			
+			// right
+			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			rightScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
+			rightScript.add("node1.refNodes.remove(node3);");
+			rightScript.add("node1.refNodes.add(node3);");
+			
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllRightSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
+	public void testDoubleConflictsSetVsDeleteEventsWithAllLeftSolutions() throws IOException {
+		initialise("testDoubleConflictsSetVsDeleteEventsWithAllLeftSolutions");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Node B\"/>";
+		try {
+			// origin
+			originalScript.add("var node = new Node;");
+			originalScript.add("node.name = \"Node 01\";");
+			// left
+			leftScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("node.name = \"Node A\";");
+			leftScript.add("node.name = \"Node B\";");
+			// right
+			rightScript = new Script(rightResource);
+			rightScript.deleteElement("Node 01");
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(expectedValue, actualValue);
+	}
+	
+	@Test
 	public void testConflictSetVsDeleteEventsWithAllLeftSolutions() throws IOException {
 		initialise("testConflictSetVsDeleteEventsWithAllLeftSolutions");
 		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
