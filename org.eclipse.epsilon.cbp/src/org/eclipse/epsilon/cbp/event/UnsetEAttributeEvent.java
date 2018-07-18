@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.cbp.event;
 
-public class UnsetEAttributeEvent extends EAttributeEvent {
+public class UnsetEAttributeEvent extends SingleValueEAttributeEvent {
 
 	@Override
 	public void replay() {

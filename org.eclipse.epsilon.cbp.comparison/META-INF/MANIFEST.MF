@@ -7,7 +7,9 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.eclipse.epsilon.cbp.comparison.model.node,
+Export-Package: org.eclipse.epsilon.cbp.comparison,
+ org.eclipse.epsilon.cbp.comparison.event,
+ org.eclipse.epsilon.cbp.comparison.model.node,
  org.eclipse.epsilon.cbp.comparison.model.node.impl,
  org.eclipse.epsilon.cbp.comparison.model.node.util,
  org.eclipse.epsilon.cbp.comparison.test
@@ -22,7 +24,6 @@ Require-Bundle: org.eclipse.emf.common,
  org.eclipse.emf.compare.uml2,
  org.eclipse.emf.emfstore.client,
  org.eclipse.emf.emfstore.examplemodel,
- com.eclipsesource.makeithappen.model,
  org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.epsilon.eol.engine,

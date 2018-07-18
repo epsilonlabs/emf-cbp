@@ -73,7 +73,7 @@ import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
-import org.eclipse.epsilon.cbp.hybrid.HybridXMIResourceImpl;
+import org.eclipse.epsilon.cbp.hybrid.xmi.HybridXMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;

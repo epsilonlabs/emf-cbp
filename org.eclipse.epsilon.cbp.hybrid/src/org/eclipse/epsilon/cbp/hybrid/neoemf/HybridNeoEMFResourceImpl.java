@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.hybrid;
+package org.eclipse.epsilon.cbp.hybrid.neoemf;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -25,9 +25,9 @@ import org.eclipse.emf.ecore.impl.EReferenceImpl;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl;
 import org.eclipse.emf.ecore.impl.EStoreEObjectImpl.EStoreEList;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 
 import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
-import fr.inria.atlanmod.neoemf.resource.DefaultPersistentResource;
 import fr.inria.atlanmod.neoemf.resource.PersistentResource;
 
 public class HybridNeoEMFResourceImpl extends HybridResource implements PersistentResource {

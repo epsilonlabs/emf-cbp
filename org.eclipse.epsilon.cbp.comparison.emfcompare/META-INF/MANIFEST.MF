@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Emfcompare
+Bundle-SymbolicName: org.eclipse.epsilon.cbp.comparison.emfcompare;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.eclipse.epsilon.cbp.comparison.emfcompare.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.compare,
+ org.eclipse.emf.compare.rcp
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

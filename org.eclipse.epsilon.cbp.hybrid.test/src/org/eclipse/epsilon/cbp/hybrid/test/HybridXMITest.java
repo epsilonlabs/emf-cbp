@@ -28,7 +28,7 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
-import org.eclipse.epsilon.cbp.hybrid.HybridXMIResourceImpl;
+import org.eclipse.epsilon.cbp.hybrid.xmi.HybridXMIResourceImpl;
 import org.eclipse.gmt.modisco.xml.Node;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.NamedElement;
@@ -114,6 +114,7 @@ public class HybridXMITest {
 				long startTime = System.nanoTime();
 
 				 hybridResource.load(xmiOptions);
+//				 hybridResource.getContents();
 
 				long endTime = System.nanoTime();
 				endTime = System.nanoTime();

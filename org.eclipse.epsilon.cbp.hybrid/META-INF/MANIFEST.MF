@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hybrid
 Bundle-SymbolicName: org.eclipse.epsilon.cbp.hybrid
 Bundle-Version: 1.0.0.qualifier
-Export-Package: org.eclipse.epsilon.cbp.hybrid
+Export-Package: org.eclipse.epsilon.cbp.hybrid,
+ org.eclipse.epsilon.cbp.hybrid.xmi
 Require-Bundle: org.eclipse.uml2.uml.cbp,
  org.eclipse.emf.ecore,
  org.eclipse.epsilon.cbp,

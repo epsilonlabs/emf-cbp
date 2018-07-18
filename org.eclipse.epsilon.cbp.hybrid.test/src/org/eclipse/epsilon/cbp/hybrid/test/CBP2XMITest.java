@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import org.eclipse.epsilon.cbp.hybrid.CBP2XMIResource;
+import org.eclipse.epsilon.cbp.hybrid.xmi.CBP2XMIResource;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.junit.Test;
 

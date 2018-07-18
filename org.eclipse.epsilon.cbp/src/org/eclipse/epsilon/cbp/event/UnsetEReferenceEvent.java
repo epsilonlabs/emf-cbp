@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.cbp.event;
 
-public class UnsetEReferenceEvent extends EReferenceEvent implements EObjectValuesEvent {
+public class UnsetEReferenceEvent extends SingleValueEReferenceEvent {
 	
 	@Override
 	public void replay() {

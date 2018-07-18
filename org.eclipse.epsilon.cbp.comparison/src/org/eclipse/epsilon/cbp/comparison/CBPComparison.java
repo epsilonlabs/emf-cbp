@@ -481,4 +481,13 @@ public class CBPComparison {
 		return mergedEvents;
 	}
 
+	public List<ComparisonEvent> getLeftComparisonEvents() {
+		return leftComparisonEvents;
+	}
+
+	public List<ComparisonEvent> getRightComparisonEvents() {
+		return rightComparisonEvents;
+	}
+	
+
 }

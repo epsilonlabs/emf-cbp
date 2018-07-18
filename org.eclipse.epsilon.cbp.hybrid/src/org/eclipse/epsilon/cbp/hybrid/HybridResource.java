@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.SequenceInputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,13 +29,16 @@ import javax.xml.transform.stream.StreamResult;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -72,10 +76,18 @@ public abstract class HybridResource extends ResourceImpl {
 
 	protected Resource stateBasedResource;
 	protected OutputStream cbpOutputStream;
-	
+
 	protected HybridChangeEventAdapter hybridChangeEventAdapter;
 	protected BiMap<EObject, String> eObjectToIdMap;
 	protected Map<EObject, String> deletedEObjectToIdMap;
+
+	protected boolean hasJustBeenLoaded = false;
+
+	protected IdType idType = IdType.NUMERIC;
+
+	public enum IdType {
+		NUMERIC, UUID, FRAGMENT
+	}
 
 	public HybridResource() {
 		this(null);
@@ -90,8 +102,8 @@ public abstract class HybridResource extends ResourceImpl {
 	public Resource getStateBasedResource() {
 		return stateBasedResource;
 	}
-	
-	public BiMap<EObject, String> getEObjectToIdMap(){
+
+	public BiMap<EObject, String> getEObjectToIdMap() {
 		return eObjectToIdMap;
 	}
 
@@ -131,7 +143,7 @@ public abstract class HybridResource extends ResourceImpl {
 			stream = new SequenceInputStream(stream, begin);
 			stream = new SequenceInputStream(stream, inputStream);
 			stream = new SequenceInputStream(stream, end);
-
+			
 			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 			XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
 
@@ -279,8 +291,8 @@ public abstract class HybridResource extends ResourceImpl {
 					String name = ee.getName().getLocalPart();
 					if (event != null && !name.equals("value") && !name.equals("m")) {
 
-//						if (eventNumber % 1000 == 0)
-//							System.out.println(eventNumber);
+						// if (eventNumber % 1000 == 0)
+						// System.out.println(eventNumber);
 
 						event.replay();
 						errorMessage = "";
@@ -446,6 +458,7 @@ public abstract class HybridResource extends ResourceImpl {
 		eObjectToIdMap.clear();
 		deletedEObjectToIdMap.clear();
 		hybridChangeEventAdapter.getChangeEvents().clear();
+		hasJustBeenLoaded = false;
 		try {
 			cbpOutputStream.close();
 		} catch (IOException e) {
@@ -471,17 +484,18 @@ public abstract class HybridResource extends ResourceImpl {
 	}
 
 	public String register(EObject eObject) {
-		// if (eObjectToIdMap.containsKey(eObject)) {
-		// String id = getURIFragment(eObject);
-		// adopt(eObject, id);
-		// }
-
-		// while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
-		// idCounter += 1;
-		// }
-		// String id = String.valueOf(idCounter);
-		// idCounter = idCounter + 1;
-		String id = getURIFragment(eObject);
+		String id = null;
+		if (idType == IdType.NUMERIC) {
+			while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
+				idCounter += 1;
+			}
+			id = String.valueOf(idCounter);
+			idCounter = idCounter + 1;
+		} else if (idType == IdType.UUID) {
+			id = EcoreUtil.generateUUID();
+		} else if (idType == IdType.FRAGMENT) {
+			id = getURIFragment(eObject);
+		}
 		adopt(eObject, id);
 		return id;
 	}
@@ -559,8 +573,127 @@ public abstract class HybridResource extends ResourceImpl {
 		}
 		return null;
 	}
-	
+
 	public OutputStream getCBPOutputStream() {
 		return cbpOutputStream;
+	}
+
+	public void deleteElement(EObject targetEObject) {
+		this.startCompositeEvent();
+
+		recursiveDeleteEvent(targetEObject);
+		removeFromExternalRefferences(targetEObject);
+		unsetAllReferences(targetEObject);
+		unsetAllAttributes(targetEObject);
+		EcoreUtil.remove(targetEObject);
+
+		this.endCompositeEvent();
+	}
+
+	private void recursiveDeleteEvent(EObject targetEObject) {
+		for (EReference eRef : targetEObject.eClass().getEAllReferences()) {
+			if (eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived() && eRef.isContainment()) {
+				if (eRef.isMany()) {
+					List<EObject> values = (List<EObject>) targetEObject.eGet(eRef);
+					while (values.size() > 0) {
+						EObject value = values.get(values.size() - 1);
+						recursiveDeleteEvent(value);
+						removeFromExternalRefferences(value);
+						unsetAllReferences(value);
+						unsetAllAttributes(value);
+						values.remove(value);
+					}
+				} else {
+					EObject value = (EObject) targetEObject.eGet(eRef);
+					if (value != null) {
+						recursiveDeleteEvent(value);
+						removeFromExternalRefferences(value);
+						unsetAllReferences(value);
+						unsetAllAttributes(value);
+						targetEObject.eUnset(eRef);
+					}
+				}
+			}
+		}
+	}
+
+	private void unsetAllReferences(EObject targetEObject) {
+		for (EReference eRef : targetEObject.eClass().getEAllReferences()) {
+			if (eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived()
+					&& eRef.isContainment() == false) {
+				if (eRef.isMany()) {
+					List<EObject> values = (List<EObject>) targetEObject.eGet(eRef);
+					while (values.size() > 0) {
+						EObject value = values.get(values.size() - 1);
+						values.remove(value);
+					}
+				} else {
+					EObject value = (EObject) targetEObject.eGet(eRef);
+					if (value != null) {
+						targetEObject.eUnset(eRef);
+					}
+				}
+			}
+		}
+	}
+
+	private void unsetAllAttributes(EObject targetEObject) {
+		for (EAttribute eAttr : targetEObject.eClass().getEAllAttributes()) {
+			if (eAttr.isChangeable() && targetEObject.eIsSet(eAttr) && !eAttr.isDerived()) {
+				if (eAttr.isMany()) {
+					EList<?> valueList = (EList<?>) targetEObject.eGet(eAttr);
+					while (valueList.size() > 0) {
+						valueList.remove(valueList.size() - 1);
+					}
+				} else {
+					Object value = targetEObject.eGet(eAttr);
+					targetEObject.eUnset(eAttr);
+				}
+			}
+		}
+	}
+
+	private void removeFromExternalRefferences(EObject refferedEObject) {
+		Iterator<EObject> iterator = this.getAllContents();
+		while (iterator.hasNext()) {
+			EObject refferingEObject = iterator.next();
+			for (EReference eRef : refferingEObject.eClass().getEAllReferences()) {
+				if (eRef.isContainment() == false) {
+					if (eRef.isMany()) {
+						List<EObject> valueList = (List<EObject>) refferingEObject.eGet(eRef);
+						valueList.remove(refferedEObject);
+					} else {
+						EObject value = (EObject) refferingEObject.eGet(eRef);
+						if (value != null && value.equals(refferedEObject)) {
+							refferingEObject.eUnset(eRef);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void startCompositeEvent() {
+		getHybridChangeEventAdapter().startCompositeOperation();
+	}
+
+	public void endCompositeEvent() {
+		getHybridChangeEventAdapter().endCompositeOperation();
+	}
+
+	public HybridChangeEventAdapter getHybridChangeEventAdapter() {
+		return hybridChangeEventAdapter;
+	}
+
+	public void setHybridChangeEventAdapter(HybridChangeEventAdapter hybridChangeEventAdapter) {
+		this.hybridChangeEventAdapter = hybridChangeEventAdapter;
+	}
+
+	public void closeCBPOutputStream() throws IOException {
+		cbpOutputStream.close();
+	}
+
+	public void openCBPOutputStream(OutputStream cbpOutputStream) {
+		this.cbpOutputStream = cbpOutputStream;
 	}
 }

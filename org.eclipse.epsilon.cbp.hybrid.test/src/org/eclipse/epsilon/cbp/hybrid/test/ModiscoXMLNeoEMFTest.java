@@ -20,7 +20,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
-import org.eclipse.epsilon.cbp.hybrid.HybridNeoEMFResourceImpl;
+import org.eclipse.epsilon.cbp.hybrid.neoemf.HybridNeoEMFResourceImpl;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
 import org.eclipse.gmt.modisco.xml.Element;
 import org.eclipse.gmt.modisco.xml.Root;

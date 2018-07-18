@@ -1,13 +1,16 @@
-package org.eclipse.epsilon.cbp.hybrid;
+package org.eclipse.epsilon.cbp.hybrid.xmi;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 
 public class HybridXMIResourceImpl extends HybridResource {
 
@@ -34,11 +37,34 @@ public class HybridXMIResourceImpl extends HybridResource {
 	public void doLoad(InputStream out, Map<?, ?> options) throws IOException {
 		hybridChangeEventAdapter.setEnabled(false);
 		stateBasedResource.load(options);
-//		if (stateBasedResource.eAdapters().contains(hybridChangeEventAdapter)) {
-//			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
-//		}
+		hasJustBeenLoaded = true;
 		hybridChangeEventAdapter.setEnabled(true);
 	}
 	
+	@Override
+	public EList<EObject> getContents() {
+		if (hasJustBeenLoaded == true) {
+			hasJustBeenLoaded = false;
+			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
+			stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
+		}
+		return stateBasedResource.getContents();
+	}
+	
+	@Override
+	public TreeIterator<EObject> getAllContents() {
+		if (hasJustBeenLoaded == true) {
+			hasJustBeenLoaded = false;
+			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
+			stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
+		}
+		return stateBasedResource.getAllContents();
+	}
+	
+	@Override
+	public void adopt(EObject eObject, String id) {
+		super.adopt(eObject, id);
+		((XMIResource) stateBasedResource).setID(eObject, id);
+	}
 	
 }

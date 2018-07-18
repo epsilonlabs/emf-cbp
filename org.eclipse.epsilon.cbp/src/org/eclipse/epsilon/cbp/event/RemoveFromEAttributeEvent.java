@@ -2,7 +2,7 @@ package org.eclipse.epsilon.cbp.event;
 
 import java.util.Collection;
 
-public class RemoveFromEAttributeEvent extends EAttributeEvent {
+public class RemoveFromEAttributeEvent extends MultiValueEAttributeEvent {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void replay() {

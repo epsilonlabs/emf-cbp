@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -11,6 +13,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,12 +26,29 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.comparison.CBPComparison;
 import org.eclipse.epsilon.cbp.comparison.event.ComparisonEvent;
 import org.eclipse.epsilon.cbp.comparison.event.ConflictedEventPair;
 import org.eclipse.epsilon.cbp.comparison.model.node.Node;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.MoveWithinEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
+import org.eclipse.epsilon.cbp.hybrid.HybridResource;
+import org.eclipse.epsilon.cbp.hybrid.xmi.HybridXMIResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
@@ -43,12 +63,18 @@ public class CBPComparisonTest {
 		UpdateLeftWithAllLeftSolutions, UpdateLeftWithAllRightSolutions, UpdateRightWithAllLeftSolutions, UpdateRightWithAllRightSolutions
 	}
 
-	private File originFile;
-	private File leftFile;
-	private File rightFile;
-	private CBPResource originResource;
-	private CBPResource leftResource;
-	private CBPResource rightResource;
+	private File originCbpFile;
+	private File leftCbpFile;
+	private File rightCbpFile;
+	private File originXmiFile;
+	private File leftXmiFile;
+	private File rightXmiFile;
+	private HybridResource originResource;
+	private HybridResource leftResource;
+	private HybridResource rightResource;
+	private XMIResource originXmiResource;
+	private XMIResource leftXmiResource;
+	private XMIResource rightXmiResource;
 	private CBPComparison cbpComparison;
 	private File targetFile;
 	private EPackage ePackage = NodePackage.eINSTANCE;
@@ -101,38 +127,50 @@ public class CBPComparisonTest {
 		assertEquals(true, true);
 	}
 
-	public void initialise(String testName) {
+	public void initialise(String testName) throws FileNotFoundException {
 		System.out
 				.println("\n###### " + testName + " ##############################################################\n");
-		originFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-root.cbpxml");
-		if (originFile.exists())
-			originFile.delete();
-		leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-left.cbpxml");
-		if (leftFile.exists())
-			leftFile.delete();
-		rightFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-right.cbpxml");
-		if (rightFile.exists())
-			rightFile.delete();
+
+		originCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-root.cbpxml");
+		if (originCbpFile.exists())
+			originCbpFile.delete();
+		leftCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-left.cbpxml");
+		if (leftCbpFile.exists())
+			leftCbpFile.delete();
+		rightCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-right.cbpxml");
+		if (rightCbpFile.exists())
+			rightCbpFile.delete();
+
+		originXmiFile = new File("D:\\TEMP\\COMPARISON\\origin.xmi");
+		if (originXmiFile.exists())
+			originCbpFile.delete();
+		leftXmiFile = new File("D:\\TEMP\\COMPARISON\\left.xmi");
+		if (leftXmiFile.exists())
+			leftXmiFile.delete();
+		rightXmiFile = new File("D:\\TEMP\\COMPARISON\\right.xmi");
+		if (rightXmiFile.exists())
+			rightXmiFile.delete();
 
 		NodePackage.eINSTANCE.eClass();
 
-		originResource = (CBPResource) (new CBPXMLResourceFactory())
-				.createResource(URI.createFileURI(originFile.getPath()));
-		leftResource = (CBPResource) (new CBPXMLResourceFactory())
-				.createResource(URI.createFileURI(leftFile.getPath()));
-		rightResource = (CBPResource) (new CBPXMLResourceFactory())
-				.createResource(URI.createFileURI(rightFile.getPath()));
-
+		originXmiResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiFile.getAbsolutePath()));
+		originResource = new HybridXMIResourceImpl(originXmiResource, new FileOutputStream(originCbpFile, false));
 		originalScript = new Script(originResource);
+		
+		leftXmiResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
+		leftResource = new HybridXMIResourceImpl(leftXmiResource, new FileOutputStream(leftCbpFile, false));
 		leftScript = new Script(leftResource);
+		
+		rightXmiResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
+		rightResource = new HybridXMIResourceImpl(rightXmiResource, new FileOutputStream(rightCbpFile, false));
 		rightScript = new Script(rightResource);
 	}
 
 	@After
 	public void tearDown() throws IOException, XMLStreamException, ParserConfigurationException, TransformerException {
 		// print results
-		List<String> leftLines = Files.readAllLines(leftFile.toPath());
-		List<String> rightLines = Files.readAllLines(rightFile.toPath());
+		List<String> leftLines = Files.readAllLines(leftCbpFile.toPath());
+		List<String> rightLines = Files.readAllLines(rightCbpFile.toPath());
 
 		System.out.println("LEFT:");
 		for (String line : leftLines) {
@@ -173,12 +211,9 @@ public class CBPComparisonTest {
 	 */
 	protected String getXMIString(File targetFile) throws IOException {
 		// test reload
-		CBPResource cbpResource = (CBPResource) (new CBPXMLResourceFactory())
-				.createResource(URI.createFileURI(targetFile.getAbsolutePath()));
-		cbpResource.load(null);
-
 		Resource xmiMergedResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("dummy.xmi"));
-		xmiMergedResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
+		HybridResource hybridResource = new HybridXMIResourceImpl(xmiMergedResource, new FileOutputStream(targetFile, true));
+		hybridResource.loadFromCBP(new FileInputStream(targetFile));
 		StringOutputStream output = new StringOutputStream();
 		xmiMergedResource.save(output, null);
 		String outputString = output.toString();
@@ -186,17 +221,90 @@ public class CBPComparisonTest {
 		return outputString.trim();
 	}
 
+	public void findConflicts() {
+		List<String> eventTypes = new ArrayList<>();
+		eventTypes.add("var %s = new Node;");
+		eventTypes.add("%s.%s = %s;");
+
+		// eventTypes.add(DeleteEObjectEvent.class);
+
+		List<String> featureList = new ArrayList<>();
+		featureList.add("defName");
+		featureList.add("values");
+		featureList.add("valNode");
+		featureList.add("refNode");
+		featureList.add("valNodes");
+		featureList.add("refNodes");
+
+		List<String> targetList = new ArrayList<>();
+		targetList.add("node1");
+		targetList.add("node6");
+
+		List<String> objValueList1 = new ArrayList<>();
+		objValueList1.add("node2");
+		objValueList1.add("node3");
+		objValueList1.add("node4");
+		objValueList1.add("node5");
+
+		List<String> objValueList2 = new ArrayList<>();
+		objValueList2.add("node7");
+		objValueList2.add("node8");
+		objValueList2.add("node9");
+		objValueList2.add("node10");
+
+	}
+
+	@Test
+	public void testGenerateTwoDifferentModels() throws IOException {
+		initialise("testGenerateTwoDifferentModels");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n"
+				+ "  <Node name=\"Node A\"/>\r\n" + "  <Node name=\"Node 02\">\r\n"
+				+ "    <valNodes name=\"Node 03\"/>\r\n" + "    <valNodes name=\"Node 04\"/>\r\n" + "  </Node>\r\n"
+				+ "  <Node name=\"Node 05\"/>\r\n" + "</xmi:XMI>";
+		try {
+			// origin
+			originalScript.add("var node1 = new Node;");
+			originalScript.add("node1.name = \"Node 01\";");
+			originalScript.add("var node2 = new Node;");
+			originalScript.add("node2.name = \"Node 02\";");
+			originalScript.add("var node3 = new Node;");
+			originalScript.add("node3.name = \"Node 03\";");
+			originalScript.add("var node4 = new Node;");
+			originalScript.add("node4.name = \"Node 04\";");
+			originalScript.add("node2.valNodes.add(node3);");
+			originalScript.add("var node5 = new Node;");
+			originalScript.add("node5.name = \"Node 05\";");
+
+			// left
+			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			leftScript.add("node1.name = \"Node A\";");
+			leftScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"Node 02\");");
+			leftScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
+			leftScript.add("node2.valNodes.add(node4);");
+
+			// right
+			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
+			rightScript.add("node1.name = \"Node B\";");
+
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(actualValue, actualValue);
+	}
+
 	@Test
 	public void testConflictMoveVsRemoveWithAllRightSolutions() throws IOException {
 		initialise("testConflictMoveVsRemoveWithAllLeftSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
-				"  <Node name=\"Node 01\" refNodes=\"/3 /1 /2 /4\"/>\r\n" + 
-				"  <Node name=\"Node 02\"/>\r\n" + 
-				"  <Node name=\"Node 03\"/>\r\n" + 
-				"  <Node name=\"Node 04\"/>\r\n" + 
-				"  <Node name=\"Node 05\"/>\r\n" + 
-				"</xmi:XMI>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n"
+				+ "  <Node name=\"Node 01\" refNodes=\"/3 /1 /2 /4\"/>\r\n" + "  <Node name=\"Node 02\"/>\r\n"
+				+ "  <Node name=\"Node 03\"/>\r\n" + "  <Node name=\"Node 04\"/>\r\n" + "  <Node name=\"Node 05\"/>\r\n"
+				+ "</xmi:XMI>";
 		try {
 			// origin
 			originalScript.add("var node1 = new Node;");
@@ -213,16 +321,16 @@ public class CBPComparisonTest {
 			originalScript.add("node1.refNodes.add(node3);");
 			originalScript.add("node1.refNodes.add(node4);");
 			originalScript.add("node1.refNodes.add(node5);");
-			
+
 			// left
 			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			leftScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
 			leftScript.add("node1.refNodes.remove(node4);");
-			
+
 			// right
 			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			rightScript.add("node1.refNodes.move(0,2);");
-			
+
 			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllRightSolutions);
@@ -232,18 +340,15 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictMoveVsRemoveWithAllLeftSolutions() throws IOException {
 		initialise("testConflictMoveVsRemoveWithAllLeftSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
-				"  <Node name=\"Node 01\" refNodes=\"/1 /2 /4\"/>\r\n" + 
-				"  <Node name=\"Node 02\"/>\r\n" + 
-				"  <Node name=\"Node 03\"/>\r\n" + 
-				"  <Node name=\"Node 04\"/>\r\n" + 
-				"  <Node name=\"Node 05\"/>\r\n" + 
-				"</xmi:XMI>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n"
+				+ "  <Node name=\"Node 01\" refNodes=\"/1 /2 /4\"/>\r\n" + "  <Node name=\"Node 02\"/>\r\n"
+				+ "  <Node name=\"Node 03\"/>\r\n" + "  <Node name=\"Node 04\"/>\r\n" + "  <Node name=\"Node 05\"/>\r\n"
+				+ "</xmi:XMI>";
 		try {
 			// origin
 			originalScript.add("var node1 = new Node;");
@@ -260,17 +365,16 @@ public class CBPComparisonTest {
 			originalScript.add("node1.refNodes.add(node3);");
 			originalScript.add("node1.refNodes.add(node4);");
 			originalScript.add("node1.refNodes.add(node5);");
-			
+
 			// left
 			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			leftScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
 			leftScript.add("node1.refNodes.remove(node4);");
-			
+
 			// right
 			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			rightScript.add("node1.refNodes.move(0,2);");
-			
-			
+
 			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllLeftSolutions);
@@ -280,16 +384,14 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictAddVsRemoveWithAllLeftSolutions() throws IOException {
 		initialise("testConflictAddVsRemoveWithAllLeftSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
-				"  <Node name=\"Node 01\" refNodes=\"/1\"/>\r\n" + 
-				"  <Node name=\"Node 02\"/>\r\n" + 
-				"  <Node name=\"Node 03\"/>\r\n" + 
-				"</xmi:XMI>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n"
+				+ "  <Node name=\"Node 01\" refNodes=\"/1\"/>\r\n" + "  <Node name=\"Node 02\"/>\r\n"
+				+ "  <Node name=\"Node 03\"/>\r\n" + "</xmi:XMI>";
 		try {
 			// origin
 			originalScript.add("var node1 = new Node;");
@@ -300,18 +402,18 @@ public class CBPComparisonTest {
 			originalScript.add("node3.name = \"Node 03\";");
 			originalScript.add("node1.refNodes.add(node2);");
 			originalScript.add("node1.refNodes.add(node3);");
-			
+
 			// left
 			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			leftScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
 			leftScript.add("node1.refNodes.remove(node3);");
-			
+
 			// right
 			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			rightScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
 			rightScript.add("node1.refNodes.remove(node3);");
 			rightScript.add("node1.refNodes.add(node3);");
-			
+
 			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllLeftSolutions);
@@ -321,16 +423,14 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictAddVsRemoveWithAllRightSolutions() throws IOException {
 		initialise("testConflictAddVsRemoveWithAllRightSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + 
-				"  <Node name=\"Node 01\" refNodes=\"/1 /2\"/>\r\n" + 
-				"  <Node name=\"Node 02\"/>\r\n" + 
-				"  <Node name=\"Node 03\"/>\r\n" + 
-				"</xmi:XMI>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n"
+				+ "  <Node name=\"Node 01\" refNodes=\"/1 /2\"/>\r\n" + "  <Node name=\"Node 02\"/>\r\n"
+				+ "  <Node name=\"Node 03\"/>\r\n" + "</xmi:XMI>";
 		try {
 			// origin
 			originalScript.add("var node1 = new Node;");
@@ -341,18 +441,18 @@ public class CBPComparisonTest {
 			originalScript.add("node3.name = \"Node 03\";");
 			originalScript.add("node1.refNodes.add(node2);");
 			originalScript.add("node1.refNodes.add(node3);");
-			
+
 			// left
 			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			leftScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
 			leftScript.add("node1.refNodes.remove(node3);");
-			
+
 			// right
 			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			rightScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 03\");");
 			rightScript.add("node1.refNodes.remove(node3);");
 			rightScript.add("node1.refNodes.add(node3);");
-			
+
 			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllRightSolutions);
@@ -362,7 +462,7 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testDoubleConflictsSetVsDeleteEventsWithAllLeftSolutions() throws IOException {
 		initialise("testDoubleConflictsSetVsDeleteEventsWithAllLeftSolutions");
@@ -388,7 +488,7 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictSetVsDeleteEventsWithAllLeftSolutions() throws IOException {
 		initialise("testConflictSetVsDeleteEventsWithAllLeftSolutions");
@@ -429,7 +529,7 @@ public class CBPComparisonTest {
 			// right
 			rightScript = new Script(rightResource);
 			rightScript.deleteElement("Node 01");
-			//merge
+			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllRightSolutions);
 			actualValue = getXMIString(targetCbpFile);
@@ -439,12 +539,12 @@ public class CBPComparisonTest {
 
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictSetVsSetEventsWithAllLeftSolutions() throws IOException {
 		initialise("testConflictSetVsSetEventsWithAllLeftSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Left Node\"/>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Left Node\"/>";
 		try {
 			// origin
 			originalScript.add("var node = new Node;");
@@ -455,7 +555,7 @@ public class CBPComparisonTest {
 			// right
 			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
 			rightScript.add("node.name = \"Right Node\";");
-			//merge
+			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllLeftSolutions);
 			actualValue = getXMIString(targetCbpFile);
@@ -464,12 +564,12 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictSetVsSetEventsWithAllRightSolutions() throws IOException {
 		initialise("testConflictSetVsSetEventsWithAllRightSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Right Node\"/>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Right Node\"/>";
 		try {
 			// origin
 			originalScript.add("var node = new Node;");
@@ -480,7 +580,7 @@ public class CBPComparisonTest {
 			// right
 			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
 			rightScript.add("node.name = \"Right Node\";");
-			//merge
+			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllRightSolutions);
 			actualValue = getXMIString(targetCbpFile);
@@ -489,12 +589,12 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictSetVsUnsetEventsWithAllLeftSolutions() throws IOException {
 		initialise("testConflictSetVsUnsetEventsWithAllLeftSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Left Node\"/>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Left Node\"/>";
 		try {
 			// origin
 			originalScript.add("var node = new Node;");
@@ -505,7 +605,7 @@ public class CBPComparisonTest {
 			// right
 			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
 			rightScript.add("node.name = null;");
-			//merge
+			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllLeftSolutions);
 			actualValue = getXMIString(targetCbpFile);
@@ -514,12 +614,12 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
+
 	@Test
 	public void testConflictSetVsUnsetEventsWithAllRightSolutions() throws IOException {
 		initialise("testConflictSetVsUnsetEventsWithAllRightSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
-				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\"/>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\"/>";
 		try {
 			// origin
 			originalScript.add("var node = new Node;");
@@ -530,7 +630,7 @@ public class CBPComparisonTest {
 			// right
 			rightScript.add("var node = Node.allInstances.selectOne(node | node.name == \"Original Node\");");
 			rightScript.add("node.name = null;");
-			//merge
+			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
 					MergeMode.UpdateLeftWithAllRightSolutions);
 			actualValue = getXMIString(targetCbpFile);
@@ -539,7 +639,6 @@ public class CBPComparisonTest {
 		}
 		assertEquals(expectedValue, actualValue);
 	}
-	
 
 	public File executeTest(Script originalScript, Script leftScript, Script rightScript, MergeMode mergeMode)
 			throws Exception {
@@ -550,37 +649,31 @@ public class CBPComparisonTest {
 		originResource.unload();
 
 		// LEFT--------------------------------------------------
-		Files.copy(new FileInputStream(originFile), leftFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		leftResource.load(null);
+		leftResource.closeCBPOutputStream();
+		Files.copy(new FileInputStream(originCbpFile), leftCbpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		leftResource.openCBPOutputStream(new FileOutputStream(leftCbpFile, true));
+		leftResource.loadFromCBP(new FileInputStream(leftCbpFile));
 		leftResource.startNewSession("LEFT");
 
 		leftScript.run();
 
 		leftResource.save(null);
-		Resource xmiResource = (new XMIResourceFactoryImpl())
-				.createResource(URI.createFileURI("D:\\TEMP\\COMPARISON\\left.xmi"));
-		xmiResource.getContents().addAll(leftResource.getContents());
-		xmiResource.save(null);
-		xmiResource.unload();
 		leftResource.unload();
 
 		// RIGHT--------------------------------------------------
-		Files.copy(new FileInputStream(originFile), rightFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		rightResource.load(null);
+		rightResource.closeCBPOutputStream();
+		Files.copy(new FileInputStream(originCbpFile), rightCbpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		rightResource.openCBPOutputStream(new FileOutputStream(rightCbpFile, true));
+		rightResource.loadFromCBP(new FileInputStream(rightCbpFile));
 		rightResource.startNewSession("RIGHT");
 
 		rightScript.run();
 
 		rightResource.save(null);
-		xmiResource = (new XMIResourceFactoryImpl())
-				.createResource(URI.createFileURI("D:\\TEMP\\COMPARISON\\right.xmi"));
-		xmiResource.getContents().addAll(rightResource.getContents());
-		xmiResource.save(null);
-		xmiResource.unload();
 		rightResource.unload();
 
 		// COMPARE--------------------------------------------------
-		cbpComparison = new CBPComparison(leftFile, rightFile);
+		cbpComparison = new CBPComparison(leftCbpFile, rightCbpFile);
 		cbpComparison.compare();
 
 		// MERGE/UPDATE--------------------------------------------------
@@ -630,7 +723,7 @@ public class CBPComparisonTest {
 				TreeIterator<EObject> rightIterator = resource.getAllContents();
 				while (rightIterator.hasNext()) {
 					Node node = (Node) rightIterator.next();
-					((CBPResource) resource).deleteElement(node);
+					((HybridResource) resource).deleteElement(node);
 				}
 				toBeDeletedName = null;
 			} else {

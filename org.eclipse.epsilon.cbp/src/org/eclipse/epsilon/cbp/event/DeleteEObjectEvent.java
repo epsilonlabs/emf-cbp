@@ -5,7 +5,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
-public class DeleteEObjectEvent extends ChangeEvent<EObject> {
+public class DeleteEObjectEvent extends EObjectEvent {
 
 	protected EClass eClass;
 	protected CBPResource resource;

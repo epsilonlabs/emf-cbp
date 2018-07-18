@@ -2,7 +2,7 @@ package org.eclipse.epsilon.cbp.event;
 
 import org.eclipse.emf.common.util.EList;
 
-public class MoveWithinEAttributeEvent extends EAttributeEvent implements FromPositionEvent {
+public class MoveWithinEAttributeEvent extends MultiValueEAttributeEvent implements FromPositionEvent {
 
 	private int fromPosition;
 

@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.hybrid;
+package org.eclipse.epsilon.cbp.hybrid.neoemf;
 
 import java.util.Collection;
 
@@ -13,6 +13,7 @@ import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
+import org.eclipse.epsilon.cbp.hybrid.HybridChangeEventAdapter;
 
 import fr.inria.atlanmod.neoemf.core.DefaultPersistentEObject;
 

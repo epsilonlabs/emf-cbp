@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import org.eclipse.epsilon.cbp.hybrid.CBP2XMIResource;
+import org.eclipse.epsilon.cbp.hybrid.xmi.CBP2XMIResource;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
 

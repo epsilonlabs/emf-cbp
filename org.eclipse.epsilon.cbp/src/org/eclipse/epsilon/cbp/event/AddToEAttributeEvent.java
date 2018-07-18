@@ -2,7 +2,7 @@ package org.eclipse.epsilon.cbp.event;
 
 import java.util.List;
 
-public class AddToEAttributeEvent extends EAttributeEvent {
+public class AddToEAttributeEvent extends MultiValueEAttributeEvent {
 	
 	@SuppressWarnings("unchecked")
 	@Override
