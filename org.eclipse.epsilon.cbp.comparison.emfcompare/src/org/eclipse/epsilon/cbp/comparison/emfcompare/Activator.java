@@ -1,5 +1,9 @@
 package org.eclipse.epsilon.cbp.comparison.emfcompare;
 
+import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin;
+import org.eclipse.emf.compare.scope.DefaultComparisonScope;
+import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 

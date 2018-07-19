@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         point="org.eclipse.emf.compare.rcp.diffEngine">
+      <descriptor
+            description="DiffEngine for CBP"
+            id="org.eclipse.emf.compare.rcp.default.diffEngine"
+            impl="org.eclipse.epsilon.cbp.comparison.emfcompare.CBPDiffEngine"
+            label="CBPDiffEngine"
+            ranking="100">
+      </descriptor>
+   </extension>
 	<extension
          point="org.eclipse.emf.compare.rcp.matchEngine">
       <engineFactory
@@ -9,7 +19,7 @@
             ranking="30">
       </engineFactory>
    </extension>
-   <extension
+   <!--<extension
          id="product"
          point="org.eclipse.core.runtime.products">
       <product
@@ -20,7 +30,7 @@
                value="platform:/plugin/org.eclipse.epsilon.cbp.comparison.emfcompare2/css/default.css">
          </property>
       </product>
-   </extension>
+   </extension>-->
    
 
 </plugin>
