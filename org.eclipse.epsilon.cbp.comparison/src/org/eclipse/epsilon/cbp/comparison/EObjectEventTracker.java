@@ -30,12 +30,24 @@ public class EObjectEventTracker {
 			} else {
 				List<ComparisonEvent> comparisonEventList = eventTypes2events
 						.get(comparisonEvent.getEventType().getSuperclass());
+				
+				// temporarily this only allows one
+				// member, it will be updated
+				// later once more andvance
+				// algorithm has been defined to
+				// identify the change
+				comparisonEventList.clear();
 				comparisonEventList.add(comparisonEvent);
 			}
 		}
 	}
-	
+
 	public Set<EObject> getTrackedEObjects() {
 		return eObjects2eventTypes.keySet();
+	}
+
+	public Map<Class<?>, List<ComparisonEvent>> getEObjectEvents(EObject eObject) {
+		Map<Class<?>, List<ComparisonEvent>> result = eObjects2eventTypes.get(eObject);
+		return result;
 	}
 }

@@ -585,7 +585,7 @@ public class ComparisonEvent {
 						if (name.equals("value")) {
 							if (changeEvent instanceof EObjectValuesEvent) {
 								String seobject = e.getAttributeByName(new QName("eobject")).getValue();
-
+								
 								this.setValueId(seobject);
 							} else if (changeEvent instanceof EAttributeEvent) {
 								EAttributeEvent eAttributeEvent = (EAttributeEvent) changeEvent;
