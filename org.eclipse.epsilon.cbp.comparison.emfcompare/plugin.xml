@@ -19,18 +19,7 @@
             ranking="30">
       </engineFactory>
    </extension>
-   <!--<extension
-         id="product"
-         point="org.eclipse.core.runtime.products">
-      <product
-            name="org.eclipse.epsilon.cbp.comparison.emfcompare"
-            application="org.eclipse.e4.ui.workbench.swt.E4Application">
-         <property
-               name="applicationCSS"
-               value="platform:/plugin/org.eclipse.epsilon.cbp.comparison.emfcompare2/css/default.css">
-         </property>
-      </product>
-   </extension>-->
+   
    
 
 </plugin>

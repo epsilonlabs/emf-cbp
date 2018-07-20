@@ -69,6 +69,8 @@ public class CBPComparisonTest {
 	private File originXmiFile;
 	private File leftXmiFile;
 	private File rightXmiFile;
+	private File leftXmiFileNoId;
+	private File rightXmiFileNoId;
 	private HybridResource originResource;
 	private HybridResource leftResource;
 	private HybridResource rightResource;
@@ -150,6 +152,13 @@ public class CBPComparisonTest {
 		rightXmiFile = new File("D:\\TEMP\\COMPARISON\\right.xmi");
 		if (rightXmiFile.exists())
 			rightXmiFile.delete();
+		
+		leftXmiFileNoId = new File("D:\\TEMP\\COMPARISON\\left-no-id.xmi");
+		if (leftXmiFileNoId.exists())
+			leftXmiFileNoId.delete();
+		rightXmiFileNoId = new File("D:\\TEMP\\COMPARISON\\right-no-id.xmi");
+		if (rightXmiFileNoId.exists())
+			rightXmiFileNoId.delete();
 
 		NodePackage.eINSTANCE.eClass();
 
@@ -273,19 +282,28 @@ public class CBPComparisonTest {
 			originalScript.add("var node4 = new Node;");
 			originalScript.add("node4.name = \"Node 04\";");
 			originalScript.add("node2.valNodes.add(node3);");
+			
 			originalScript.add("var node5 = new Node;");
 			originalScript.add("node5.name = \"Node 05\";");
+			originalScript.add("var node6 = new Node;");
+			originalScript.add("node6.name = \"Node 06\";");
 
 			// left
 			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			leftScript.add("node1.name = \"Node A\";");
 			leftScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"Node 02\");");
-			leftScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
-			leftScript.add("node2.valNodes.add(node4);");
+			leftScript.add("var node5 = Node.allInstances.selectOne(node | node.name == \"Node 05\");");
+			leftScript.add("node2.valNodes.add(1, node5);");
 
 			// right
 			rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			rightScript.add("node1.name = \"Node B\";");
+			rightScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"Node 02\");");
+			rightScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
+			rightScript.add("node2.valNodes.add(node4);");
+			rightScript.add("node2.valNodes.move(0,1);");
+			rightScript.add("var node7 = new Node;");
+			rightScript.add("node7.name = \"Node 07\";");
 
 			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
@@ -658,6 +676,12 @@ public class CBPComparisonTest {
 		leftScript.run();
 
 		leftResource.save(null);
+		
+		Resource resource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFileNoId.getAbsolutePath()));
+		resource.getContents().addAll(EcoreUtil.copyAll(leftResource.getContents()));
+		resource.save(null);
+		resource.unload();
+		
 		leftResource.unload();
 
 		// RIGHT--------------------------------------------------
@@ -670,6 +694,12 @@ public class CBPComparisonTest {
 		rightScript.run();
 
 		rightResource.save(null);
+		
+		resource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFileNoId.getAbsolutePath()));
+		resource.getContents().addAll(EcoreUtil.copyAll(rightResource.getContents()));
+		resource.save(null);
+		resource.unload();
+		
 		rightResource.unload();
 
 		// COMPARE--------------------------------------------------

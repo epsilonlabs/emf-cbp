@@ -37,8 +37,17 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.epsilon.cbp.comparison.CBPComparison;
 import org.eclipse.epsilon.cbp.comparison.EObjectEventTracker;
 import org.eclipse.epsilon.cbp.comparison.event.ComparisonEvent;
+import org.eclipse.epsilon.cbp.comparison.model.node.Node;
+import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.EObjectEvent;
 import org.eclipse.epsilon.cbp.event.MultiValueEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.ResourceEvent;
 import org.eclipse.epsilon.cbp.event.SingleValueEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.SingleValueEReferenceEvent;
 
 public class CBPDiffEngine extends DefaultDiffEngine {
 
@@ -52,6 +61,17 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
 	@Override
 	public void diff(Comparison comparison, Monitor monitor) {
+		for (Match match : comparison.getMatches()) {
+			Object left = match.getLeft();
+			Object right = match.getRight();
+			String leftName = null;
+			String rightName = null;
+			if (left != null)
+				leftName = ((Node) match.getLeft()).getName();
+			if (right != null)
+				rightName = ((Node) match.getRight()).getName();
+			System.out.println(leftName + " vs " + rightName);
+		}
 		// super.diff(comparison, monitor);
 		this.cbpDiff(comparison, monitor);
 	}
@@ -81,7 +101,7 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 			EObjectEventTracker rightTracker = createEObjectEventTracker(right, rightComparisonEvents);
 
 			computeDifferences(comparison, left, leftTracker, DifferenceSource.LEFT, monitor);
-//			computeDifferences(comparison, right, rightTracker, DifferenceSource.RIGHT, monitor);
+			computeDifferences(comparison, right, rightTracker, DifferenceSource.RIGHT, monitor);
 
 		} catch (IOException | XMLStreamException e) {
 			e.printStackTrace();
@@ -108,36 +128,86 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
 			Map<Class<?>, List<ComparisonEvent>> eObjectEvents = leftTracker.getEObjectEvents(eObject);
 			for (Entry<Class<?>, List<ComparisonEvent>> entry : eObjectEvents.entrySet()) {
-//				Class<?> eventType = entry.getKey();
+				Class<?> eventType = entry.getKey();
 				List<ComparisonEvent> eventList = entry.getValue();
-				
-				for (ComparisonEvent comparisonEvent : eventList) {
-					if (comparisonEvent.getFeatureName() != null) {
-						EStructuralFeature feature = eObject.eClass()
-								.getEStructuralFeature(comparisonEvent.getFeatureName());
-						checkForDifferences(match, monitor, feature);
-					}
 
-					// if (eventType == SingleValueEAttributeEvent.class) {
-					// EAttribute attribute = (EAttribute) eObject.eClass()
+				for (ComparisonEvent comparisonEvent : eventList) {
+					// if (comparisonEvent.getFeatureName() != null) {
+					// EStructuralFeature feature = eObject.eClass()
 					// .getEStructuralFeature(comparisonEvent.getFeatureName());
-					// Object value = comparisonEvent.getValue();
-					// getDiffProcessor().attributeChange(match, attribute,
-					// value, DifferenceKind.CHANGE, source);
-					// } else if (eventType == MultiValueEReferenceEvent.class)
-					// {
-					// EReference reference = (EReference) eObject.eClass()
-					// .getEStructuralFeature(comparisonEvent.getFeatureName());
-					// EObject value = ((XMIResource)
-					// left).getEObject(comparisonEvent.getValueId());
-					// getDiffProcessor().referenceChange(match, reference,
-					// value, DifferenceKind.ADD, source);
+					// checkForDifferences(match, monitor, feature);
 					// }
+
+					checkForDifferences(left, source, eObject, match, eventType, comparisonEvent, monitor);
 				}
 
 			}
 
 		}
+	}
+
+	/**
+	 * @param left
+	 * @param source
+	 * @param eObject
+	 * @param match
+	 * @param eventType
+	 * @param comparisonEvent
+	 */
+	protected void checkForDifferences(Resource left, DifferenceSource source, EObject eObject, Match match,
+			Class<?> eventType, ComparisonEvent comparisonEvent, Monitor monitor) {
+
+		if (monitor.isCanceled()) {
+			throw new ComparisonCanceledException();
+		}
+//		checkResourceAttachment(match, monitor);
+
+		if (eventType == SingleValueEAttributeEvent.class) {
+
+			EAttribute attribute = (EAttribute) eObject.eClass()
+					.getEStructuralFeature(comparisonEvent.getFeatureName());
+			Object value = comparisonEvent.getValue();
+			getDiffProcessor().attributeChange(match, attribute, value, DifferenceKind.CHANGE, source);
+
+		} else if (eventType == SingleValueEReferenceEvent.class) {
+
+			EReference attribute = (EReference) eObject.eClass()
+					.getEStructuralFeature(comparisonEvent.getFeatureName());
+			EObject value = ((XMIResource) left).getEObject(comparisonEvent.getValueId());
+			getDiffProcessor().referenceChange(match, attribute, value, DifferenceKind.CHANGE, source);
+
+		} else if (eventType == MultiValueEReferenceEvent.class) {
+
+			EReference reference = (EReference) eObject.eClass()
+					.getEStructuralFeature(comparisonEvent.getFeatureName());
+			EObject value = ((XMIResource) left).getEObject(comparisonEvent.getValueId());
+			DifferenceKind kind = null;
+
+			if (comparisonEvent.getEventType() == AddToEReferenceEvent.class) {
+				kind = DifferenceKind.ADD;
+			} else if (comparisonEvent.getEventType() == RemoveFromEReferenceEvent.class) {
+				kind = DifferenceKind.DELETE;
+			}
+			getDiffProcessor().referenceChange(match, reference, value, kind, source);
+
+		} else if (eventType == ResourceEvent.class) {
+
+			DifferenceKind kind = null;
+
+			if (comparisonEvent.getEventType() == AddToResourceEvent.class) {
+				kind = DifferenceKind.ADD;
+			} else if (comparisonEvent.getEventType() == RemoveFromResourceEvent.class) {
+				kind = DifferenceKind.DELETE;
+			}
+
+			getDiffProcessor().resourceAttachmentChange(match, left.getURI().toString(), kind, source);
+
+		}
+
+		// for (Match submatch : match.getSubmatches()) {
+		// checkForDifferences(left, source, eObject, submatch, eventType,
+		// comparisonEvent, monitor);
+		// }
 	}
 
 	protected void checkForDifferences(Match match, Monitor monitor, EStructuralFeature feature) {
@@ -172,16 +242,16 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 					EObject eObject = ((XMIResourceImpl) resource).getEObject(targetId);
 					tracker.addComparisonEvent(eObject, comparisonEvent);
 				}
-
-				// String valueId = comparisonEvent.getValueId();
-				// if (valueId != null) {
-				// EObject eObject = ((XMIResourceImpl)
-				// resource).getEObject(valueId);
-				// tracker.addComparisonEvent(eObject, comparisonEvent);
-				// }
+				if (comparisonEvent.getEventType().getSuperclass() == ResourceEvent.class
+						|| comparisonEvent.getEventType().getSuperclass() == EObjectEvent.class) {
+					String valueId = comparisonEvent.getValueId();
+					if (valueId != null) {
+						EObject eObject = ((XMIResourceImpl) resource).getEObject(valueId);
+						tracker.addComparisonEvent(eObject, comparisonEvent);
+					}
+				}
 			}
 		}
-
 		return tracker;
 	}
 }

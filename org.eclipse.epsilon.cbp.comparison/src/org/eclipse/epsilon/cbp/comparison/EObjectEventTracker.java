@@ -25,7 +25,7 @@ public class EObjectEventTracker {
 			Map<Class<?>, List<ComparisonEvent>> eventTypes2events = eObjects2eventTypes.get(eObject);
 			if (!eventTypes2events.containsKey(comparisonEvent.getEventType().getSuperclass())) {
 				List<ComparisonEvent> comparisonEventList = new ArrayList<>();
-				eventTypes2events.put(comparisonEvent.getEventType(), comparisonEventList);
+				eventTypes2events.put(comparisonEvent.getEventType().getSuperclass(), comparisonEventList);
 				comparisonEventList.add(comparisonEvent);
 			} else {
 				List<ComparisonEvent> comparisonEventList = eventTypes2events
