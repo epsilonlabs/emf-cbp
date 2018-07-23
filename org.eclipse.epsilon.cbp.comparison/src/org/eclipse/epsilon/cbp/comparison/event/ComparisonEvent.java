@@ -57,6 +57,8 @@ import org.w3c.dom.Element;
 
 public class ComparisonEvent {
 
+	public static final String RESOURCE_STRING = "resource";
+	
 	protected ChangeEvent<?> changeEvent = null;
 	protected String eClassName = null;
 	protected String packageName = null;
@@ -360,11 +362,11 @@ public class ComparisonEvent {
 		} else if (changeEvent instanceof CreateEObjectEvent) {
 			String id = ((CreateEObjectEvent) changeEvent).getId();
 			this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, null, changeEvent.getValue(), null,
-					-1, eventString, null, id, null);
+					-1, eventString, RESOURCE_STRING, id, null);
 		} else if (changeEvent instanceof DeleteEObjectEvent) {
 			String id = ((DeleteEObjectEvent) changeEvent).getId();
 			this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, null, changeEvent.getValue(), null,
-					-1, eventString, null, id, null);
+					-1, eventString, RESOURCE_STRING, id, null);
 		} else if (changeEvent instanceof AddToResourceEvent) {
 			this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
 		} else if (changeEvent instanceof RemoveFromResourceEvent) {
@@ -451,7 +453,7 @@ public class ComparisonEvent {
 							changeEvent = new CreateEObjectEvent(eClass, id);
 
 							this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, null,
-									changeEvent.getValue(), null, -1, eventString, null, id, null);
+									changeEvent.getValue(), null, -1, eventString, RESOURCE_STRING, id, null);
 
 							this.packageName = packageName;
 							this.eClassName = className;
@@ -526,7 +528,7 @@ public class ComparisonEvent {
 							changeEvent = new DeleteEObjectEvent(eClass, id);
 
 							this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, null,
-									changeEvent.getValue(), null, -1, eventString, null, id, null);
+									changeEvent.getValue(), null, -1, eventString, RESOURCE_STRING, id, null);
 
 							this.packageName = packageName;
 							this.eClassName = className;
@@ -544,8 +546,13 @@ public class ComparisonEvent {
 							}
 						}
 
+						if (changeEvent instanceof AddToResourceEvent || changeEvent instanceof RemoveFromResourceEvent
+								) {
+							this.setTargetId(RESOURCE_STRING);
+						}
+						
 						if (changeEvent instanceof AddToEAttributeEvent || changeEvent instanceof AddToEReferenceEvent
-								|| changeEvent instanceof AddToResourceEvent) {
+								) {
 							String sPosition = e.getAttributeByName(new QName("position")).getValue();
 							changeEvent.setPosition(Integer.parseInt(sPosition));
 							this.setPosition(Integer.valueOf(sPosition));
@@ -553,7 +560,7 @@ public class ComparisonEvent {
 
 						if (changeEvent instanceof RemoveFromEAttributeEvent
 								|| changeEvent instanceof RemoveFromEReferenceEvent
-								|| changeEvent instanceof RemoveFromResourceEvent) {
+								) {
 							String sPosition = e.getAttributeByName(new QName("position")).getValue();
 							changeEvent.setPosition(Integer.parseInt(sPosition));
 							this.setPosition(Integer.valueOf(sPosition));

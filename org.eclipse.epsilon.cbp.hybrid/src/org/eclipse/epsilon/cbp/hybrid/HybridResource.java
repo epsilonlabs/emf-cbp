@@ -143,7 +143,7 @@ public abstract class HybridResource extends ResourceImpl {
 			stream = new SequenceInputStream(stream, begin);
 			stream = new SequenceInputStream(stream, inputStream);
 			stream = new SequenceInputStream(stream, end);
-			
+
 			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 			XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
 
@@ -244,9 +244,11 @@ public abstract class HybridResource extends ResourceImpl {
 							String sName = e.getAttributeByName(new QName("name")).getValue();
 							errorMessage = errorMessage + ", target: " + sTarget + ", name: " + sName;
 							EObject target = getEObject(sTarget);
-							EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(sName);
-							((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
-							((EStructuralFeatureEvent<?>) event).setTarget(target);
+							if (target != null) {
+								EStructuralFeature eStructuralFeature = target.eClass().getEStructuralFeature(sName);
+								((EStructuralFeatureEvent<?>) event).setEStructuralFeature(eStructuralFeature);
+								((EStructuralFeatureEvent<?>) event).setTarget(target);
+							}
 						} else if (event instanceof ResourceEvent) {
 							((ResourceEvent) event).setResource(this);
 						}
@@ -278,10 +280,12 @@ public abstract class HybridResource extends ResourceImpl {
 							EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
 							String sliteral = e.getAttributeByName(new QName("literal")).getValue();
 							errorMessage = errorMessage + ", value: " + sliteral;
-							EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature().getEType());
-							Object value = eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType,
-									sliteral);
-							eAttributeEvent.getValues().add(value);
+							if (eAttributeEvent.getEStructuralFeature() != null) {
+								EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature().getEType());
+								Object value = eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType,
+										sliteral);
+								eAttributeEvent.getValues().add(value);
+							}
 						}
 
 					}
@@ -413,6 +417,9 @@ public abstract class HybridResource extends ResourceImpl {
 						o.setAttribute("literal", object + "");
 						e.appendChild(o);
 					}
+				}
+				if (event.getComposite() != null && e != null) {
+					e.setAttribute("composite", event.getComposite());
 				}
 
 				if (e != null)

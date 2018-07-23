@@ -535,13 +535,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 			// removedObject.eCrossReferences().size());
 			// && (removedObject.eCrossReferences() == null ||
 			// removedObject.eCrossReferences().size() == 0)) {
-
+			
+			if (compositeId == null) {
+				startCompositeOperation();
+			}
+			event.setComposite(compositeId);
 			changeEvents.add(event);
-
 			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> deletedEvent = new DeleteEObjectEvent(removedObject, id);
 			deletedEvent.setComposite(compositeId);
 			changeEvents.add(deletedEvent);
+			
 		} else {
 			changeEvents.add(event);
 		}

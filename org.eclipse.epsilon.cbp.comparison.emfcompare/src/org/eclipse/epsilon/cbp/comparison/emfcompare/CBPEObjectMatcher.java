@@ -11,33 +11,33 @@ import org.eclipse.emf.compare.CompareFactory;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.compare.match.eobject.IEObjectMatcher;
+import org.eclipse.emf.compare.match.eobject.IdentifierEObjectMatcher;
 import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.epsilon.cbp.comparison.ICBPEObjectMatcher;
 
 import com.google.common.collect.Maps;
 
-public class CBPEObjectMatcher implements IEObjectMatcher {
+public class CBPEObjectMatcher extends IdentifierEObjectMatcher implements ICBPEObjectMatcher {
 
 	private final Map<EObject, Match> leftEObjectsToMatch;
 	private final Map<EObject, Match> rightEObjectsToMatch;
-	
+
 	public CBPEObjectMatcher() {
 		this.leftEObjectsToMatch = Maps.newHashMap();
 		this.rightEObjectsToMatch = Maps.newHashMap();
 	}
 
-	@Override
-	public void createMatches(Comparison comparison, Iterator<? extends EObject> leftEObjects,
-			Iterator<? extends EObject> rightEObjects, Iterator<? extends EObject> originEObjects, Monitor monitor) {
-
-		XMIResource leftResource = (XMIResource) CBPMatchEngine.getLeftResource();
-		XMIResource rightResource = (XMIResource) CBPMatchEngine.getRightResource();
+	
+	public void createMatches(Comparison comparison, Resource left, Resource right, Monitor monitor) {
+		
+		XMIResource leftResource = (XMIResource) left;
+		XMIResource rightResource = (XMIResource) right;
 
 		Set<String> matchedId = new HashSet<>();
 
-		
 		TreeIterator<EObject> leftIterator = leftResource.getAllContents();
 		while (leftIterator.hasNext()) {
 			EObject leftEObject = leftIterator.next();

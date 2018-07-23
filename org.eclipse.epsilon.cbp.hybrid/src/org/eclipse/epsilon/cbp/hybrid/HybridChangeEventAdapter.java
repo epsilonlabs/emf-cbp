@@ -38,12 +38,20 @@ public abstract class HybridChangeEventAdapter extends ChangeEventAdapter {
 
 	@Override
 	public void handleDeletedEObject(ChangeEvent<?> event, EObject removedObject, Object parent, Object feature) {
-		if (removedObject.eResource() == null 
-//				&& removedObject.eCrossReferences().size() == 0
-				) {
+		if (removedObject.eResource() == null) {
+			if (compositeId == null) {
+				// to handle removed object that remove the object from the
+				// resource, e.g. remove an object from a containment feature
+				startCompositeOperation();
+			}
+			event.setComposite(compositeId);
+			changeEvents.add(event);
 			String id = resource.getURIFragment(removedObject);
 			ChangeEvent<?> e = new DeleteEObjectEvent(removedObject, id);
+			e.setComposite(compositeId);
 			changeEvents.add(e);
+		} else {
+			changeEvents.add(event);
 		}
 	}
 

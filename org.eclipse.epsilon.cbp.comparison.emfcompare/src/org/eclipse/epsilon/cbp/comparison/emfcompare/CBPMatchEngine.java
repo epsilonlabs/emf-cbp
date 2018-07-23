@@ -30,6 +30,7 @@ import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.epsilon.cbp.comparison.ICBPEObjectMatcher;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -135,6 +136,7 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 				break;
 			}
 		}
+		
 		for (Resource resource : right.getResources()) {
 			if (resource != null) {
 				rightResource = resource;
@@ -142,7 +144,7 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 			}
 		}
 
-		getEObjectMatcher().createMatches(comparison, null, null, null, monitor);
+		((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison, leftResource, rightResource, monitor);
 	}
 
 	public static IEObjectMatcher createDefaultEObjectMatcher(UseIdentifiers useIDs,

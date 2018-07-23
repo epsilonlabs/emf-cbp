@@ -152,7 +152,7 @@ public class CBPComparisonTest {
 		rightXmiFile = new File("D:\\TEMP\\COMPARISON\\right.xmi");
 		if (rightXmiFile.exists())
 			rightXmiFile.delete();
-		
+
 		leftXmiFileNoId = new File("D:\\TEMP\\COMPARISON\\left-no-id.xmi");
 		if (leftXmiFileNoId.exists())
 			leftXmiFileNoId.delete();
@@ -162,15 +162,18 @@ public class CBPComparisonTest {
 
 		NodePackage.eINSTANCE.eClass();
 
-		originXmiResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiFile.getAbsolutePath()));
+		originXmiResource = (XMIResource) (new XMIResourceFactoryImpl())
+				.createResource(URI.createFileURI(originXmiFile.getAbsolutePath()));
 		originResource = new HybridXMIResourceImpl(originXmiResource, new FileOutputStream(originCbpFile, false));
 		originalScript = new Script(originResource);
-		
-		leftXmiResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
+
+		leftXmiResource = (XMIResource) (new XMIResourceFactoryImpl())
+				.createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 		leftResource = new HybridXMIResourceImpl(leftXmiResource, new FileOutputStream(leftCbpFile, false));
 		leftScript = new Script(leftResource);
-		
-		rightXmiResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
+
+		rightXmiResource = (XMIResource) (new XMIResourceFactoryImpl())
+				.createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
 		rightResource = new HybridXMIResourceImpl(rightXmiResource, new FileOutputStream(rightCbpFile, false));
 		rightScript = new Script(rightResource);
 	}
@@ -221,7 +224,8 @@ public class CBPComparisonTest {
 	protected String getXMIString(File targetFile) throws IOException {
 		// test reload
 		Resource xmiMergedResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("dummy.xmi"));
-		HybridResource hybridResource = new HybridXMIResourceImpl(xmiMergedResource, new FileOutputStream(targetFile, true));
+		HybridResource hybridResource = new HybridXMIResourceImpl(xmiMergedResource,
+				new FileOutputStream(targetFile, true));
 		hybridResource.loadFromCBP(new FileInputStream(targetFile));
 		StringOutputStream output = new StringOutputStream();
 		xmiMergedResource.save(output, null);
@@ -282,7 +286,7 @@ public class CBPComparisonTest {
 			originalScript.add("var node4 = new Node;");
 			originalScript.add("node4.name = \"Node 04\";");
 			originalScript.add("node2.valNodes.add(node3);");
-			
+
 			originalScript.add("var node5 = new Node;");
 			originalScript.add("node5.name = \"Node 05\";");
 			originalScript.add("var node6 = new Node;");
@@ -510,8 +514,8 @@ public class CBPComparisonTest {
 	@Test
 	public void testConflictSetVsDeleteEventsWithAllLeftSolutions() throws IOException {
 		initialise("testConflictSetVsDeleteEventsWithAllLeftSolutions");
-		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
-				+ "<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" name=\"Node A\"/>";
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + 
+				"<Node xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\" xmi:id=\"0\" name=\"Node A\"/>";
 		try {
 			// origin
 			originalScript.add("var node = new Node;");
@@ -676,12 +680,13 @@ public class CBPComparisonTest {
 		leftScript.run();
 
 		leftResource.save(null);
-		
-		Resource resource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFileNoId.getAbsolutePath()));
+
+		Resource resource = (new XMIResourceFactoryImpl())
+				.createResource(URI.createFileURI(leftXmiFileNoId.getAbsolutePath()));
 		resource.getContents().addAll(EcoreUtil.copyAll(leftResource.getContents()));
 		resource.save(null);
 		resource.unload();
-		
+
 		leftResource.unload();
 
 		// RIGHT--------------------------------------------------
@@ -694,12 +699,12 @@ public class CBPComparisonTest {
 		rightScript.run();
 
 		rightResource.save(null);
-		
+
 		resource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFileNoId.getAbsolutePath()));
 		resource.getContents().addAll(EcoreUtil.copyAll(rightResource.getContents()));
 		resource.save(null);
 		resource.unload();
-		
+
 		rightResource.unload();
 
 		// COMPARE--------------------------------------------------
@@ -753,7 +758,10 @@ public class CBPComparisonTest {
 				TreeIterator<EObject> rightIterator = resource.getAllContents();
 				while (rightIterator.hasNext()) {
 					Node node = (Node) rightIterator.next();
-					((HybridResource) resource).deleteElement(node);
+					if (node.getName().equals(toBeDeletedName)) {
+						((HybridResource) resource).deleteElement(node);
+						break;
+					}
 				}
 				toBeDeletedName = null;
 			} else {
