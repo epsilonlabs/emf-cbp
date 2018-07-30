@@ -10,14 +10,15 @@ public class DeleteEObjectEvent extends EObjectEvent {
 	protected EClass eClass;
 	protected CBPResource resource;
 	protected String id;
+
 	public void setId(String id) {
 		this.id = id;
 	}
 
 	protected EObject eObject;
-	
+
 	public DeleteEObjectEvent() {
-		
+
 	}
 
 	public DeleteEObjectEvent(EClass eClass, String id) {
@@ -25,7 +26,7 @@ public class DeleteEObjectEvent extends EObjectEvent {
 		this.eClass = eClass;
 		this.id = id;
 	}
-	
+
 	public DeleteEObjectEvent(EObject eObject, String id) {
 		super();
 		this.eObject = eObject;
@@ -39,7 +40,9 @@ public class DeleteEObjectEvent extends EObjectEvent {
 		this.eClass = eClass;
 		this.id = id;
 		this.resource = resource;
-		this.eObject = resource.getEObject(id);
+		if (resource != null) {
+			this.eObject = resource.getEObject(id);
+		}
 	}
 
 	public EClass getEClass() {
@@ -86,9 +89,9 @@ public class DeleteEObjectEvent extends EObjectEvent {
 	public <U> U accept(IChangeEventVisitor<U> visitor) {
 		return visitor.visit(this);
 	}
-	
+
 	@Override
-	public ChangeEvent<?> reverse(){
+	public ChangeEvent<?> reverse() {
 		CreateEObjectEvent event = new CreateEObjectEvent(eClass, resource, id);
 		return event;
 	}

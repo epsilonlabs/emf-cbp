@@ -83,7 +83,7 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 		// super.diff(comparison, monitor);
 		this.cbpDiff(comparison, monitor);
 		// EList<Diff> x = comparison.getDifferences();
-		// System.out.println();
+		System.out.println();
 	}
 
 	/**
@@ -158,10 +158,9 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 			CBPObjectEventTracker leftTracker, CBPObjectEventTracker rightTracker, DifferenceSource source,
 			Monitor monitor) throws ParserConfigurationException, TransformerException {
 
-		// process left tracker and intersection between left and right trackers
-		MapIterator<MultiKey<? extends Object>, List<ComparisonEvent>> leftIterator = leftTracker.mapIterator();
-		while (leftIterator.hasNext()) {
-			MultiKey<? extends Object> multiKey = leftIterator.next();
+		MapIterator<MultiKey<? extends Object>, List<ComparisonEvent>> iterator = leftTracker.mapIterator();
+		while (iterator.hasNext()) {
+			MultiKey<? extends Object> multiKey = iterator.next();
 			Object[] keys = multiKey.getKeys();
 
 			String targetId = (keys.length > 1) ? (String) keys[1] : null;
@@ -236,72 +235,39 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 			}
 
 		}
-		leftTracker.clear();
 
-		// process only right tracker
-		MapIterator<MultiKey<? extends Object>, List<ComparisonEvent>> rightIterator = rightTracker.mapIterator();
-		while (rightIterator.hasNext()) {
-			MultiKey<? extends Object> multiKey = rightIterator.next();
-			Object[] keys = multiKey.getKeys();
-
-			String targetId = (keys.length > 1) ? (String) keys[1] : null;
-			String featureName = (keys.length > 2) ? (String) keys[2] : null;
-			Object value = (keys.length > 3) ? keys[3] : null;
-
-			System.out.println(targetId + ", " + featureName + ", " + value);
-
-			EObject target = right.getEObject(targetId);
-			EStructuralFeature feature = target.eClass().getEStructuralFeature(featureName);
-			if (feature instanceof EReference && value != null) {
-				EObject object = right.getEObject(value.toString());
-				if (object == null) {
-					value = null;
-				}
-			}
-
-			List<ComparisonEvent> rightComparisonEvents = null;
-			List<ComparisonEvent> leftComparisonEvents = new ArrayList<>();
-
-			// get comparison events from left side and possibly also from right
-			// side (if events are also exists on right side)
-			if (feature == null && value == null) {
-				rightComparisonEvents = rightTracker.get(targetId);
-			} else if (feature != null && value != null) {
-				rightComparisonEvents = rightTracker.get(targetId, featureName, value);
-			}
-
-			// handle object events (Create, Delete, AddToResource,
-			// RemoveFromResource)
-			if (target != null && feature == null & value == null) {
-				checkObjectResourceDifferences(comparison, right, source, target, rightComparisonEvents,
-						leftComparisonEvents);
-			}
-			// handle single value feature
-			else if (feature != null && feature.isMany() == false) {
-				checkSingleValueFeatureDifferences(comparison, source, value, target, feature, rightComparisonEvents,
-						leftComparisonEvents);
-			}
-			// handle multi value feature
-			else if (feature != null && feature.isMany() == true) {
-				checkMultiValueFeatureDifferences(comparison, source, value, target, feature, rightComparisonEvents,
-						leftComparisonEvents, right, left);
-			}
-		}
-		rightTracker.clear();
+		// if (rightComparisonEvents != null) {
+		//
+		// for (ComparisonEvent comparisonEvent : rightComparisonEvents) {
+		// Match match = comparison.getMatch(target);
+		// checkForDifferences(right, source, target, match,
+		// comparisonEvent.getEventType().getSuperclass(),
+		// comparisonEvent, monitor);
+		// }
+		// }
+		//
+		// if (leftComparisonEvents != null) {
+		// for (ComparisonEvent comparisonEvent : leftComparisonEvents) {
+		// Match match = comparison.getMatch(target);
+		// checkForDifferences(left, source, target, match,
+		// comparisonEvent.getEventType().getSuperclass(),
+		// comparisonEvent, monitor);
+		// }
+		// }
 	}
 
 	/**
 	 * @param comparison
-	 * @param resource
+	 * @param left
 	 * @param source
 	 * @param target
 	 * @param leftComparisonEvents
 	 * @param rightComparisonEvents
 	 */
-	protected void checkObjectResourceDifferences(Comparison comparison, Resource resource, DifferenceSource source,
+	protected void checkObjectResourceDifferences(Comparison comparison, Resource left, DifferenceSource source,
 			EObject target, List<ComparisonEvent> leftComparisonEvents, List<ComparisonEvent> rightComparisonEvents) {
 		Match match = comparison.getMatch(target);
-		String uri = resource.getURI().toString();
+		String uri = left.getURI().toString();
 		if (leftComparisonEvents != null && leftComparisonEvents.size() > 0) {
 			if (rightComparisonEvents != null && rightComparisonEvents.size() > 0) {
 				for (ComparisonEvent comparisonEvent : rightComparisonEvents) {
@@ -573,28 +539,22 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 			Object value = null;
 
 			// handle target
-			if (/*
-				 * event.getTargetId() == null && event.getFeatureName() == null
-				 * &&
-				 */ event.getValueId() != null) {
+			if (event.getTargetId() == null && event.getFeatureName() == null && event.getValueId() != null) {
 
-				// get the value object using the value id and set the object as
-				// the target
+				// make the value id as target
 				// this is for Create, Delete, AddToResource, RemoveFromResource
 				target = resource.getEObject(event.getValueId());
 				if (target != null) {
 					if (tracker.get(target) == null) {
 						tracker.put(event.getValueId(), new ArrayList<ComparisonEvent>());
-						List<ComparisonEvent> list = tracker.get(event.getValueId());
-						list.add(event);
+						tracker.get(event.getValueId()).add(0, event);
 					} else {
 						List<ComparisonEvent> list = tracker.get(event.getValueId());
 						list.add(event);
 					}
 				}
 
-			}
-			if (event.getTargetId() != null && event.getFeatureName() != null
+			} else if (event.getTargetId() != null && event.getFeatureName() != null
 					&& (event.getValueId() != null || event.getValue() != null)) {
 
 				// this time get the target object from the target id, not value
@@ -637,21 +597,10 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 							targetFeaturelist.add(event);
 						}
 
-						System.out.println(event.getEventString());
-
-						// if (event.getValueId().equals("4") &&
-						// event.getTargetId().equals("0")) {
-						// System.out.println();
-						// }
-
 						// clear targetFeatureValueList and targetFeatureList
 						// from superseded events
-						if (event.getEventType() == RemoveFromEReferenceEvent.class) {
-							targetFeaturelist.removeAll(targetFeatureValueList);
-							targetFeatureValueList.clear();
-							// targetFeaturelist.add(event);
-							// targetFeatureValueList.add(event);
-						} else if (event.getEventType() == AddToEReferenceEvent.class) {
+						if (event.getEventType() == RemoveFromEReferenceEvent.class
+								|| event.getEventType() == AddToEReferenceEvent.class) {
 							targetFeaturelist.removeAll(targetFeatureValueList);
 							targetFeatureValueList.clear();
 							targetFeaturelist.add(event);
@@ -665,6 +614,62 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 		}
 
 		return tracker;
+	}
+
+	private EObjectEventTracker createEObjectEventTracker(final Resource resource,
+			final List<ComparisonEvent> comparisonEvents) {
+		EObjectEventTracker tracker = new EObjectEventTracker();
+
+		if (resource instanceof XMIResourceImpl) {
+			for (ComparisonEvent comparisonEvent : comparisonEvents) {
+				String targetId = comparisonEvent.getTargetId();
+				if (targetId != null) {
+					EObject eObject = ((XMIResourceImpl) resource).getEObject(targetId);
+					tracker.addComparisonEvent(eObject, comparisonEvent);
+				}
+				if (comparisonEvent.getEventType().getSuperclass() == ResourceEvent.class
+						|| comparisonEvent.getEventType().getSuperclass() == EObjectEvent.class) {
+					String valueId = comparisonEvent.getValueId();
+					if (valueId != null) {
+						EObject eObject = ((XMIResourceImpl) resource).getEObject(valueId);
+						tracker.addComparisonEvent(eObject, comparisonEvent);
+					}
+				}
+			}
+		}
+		return tracker;
+	}
+
+	/**
+	 * @param comparison
+	 * @param left
+	 * @param leftTracker
+	 */
+	private void computeDifferences(Comparison comparison, Resource left, EObjectEventTracker leftTracker,
+			DifferenceSource source, Monitor monitor) {
+
+		for (EObject eObject : leftTracker.getTrackedEObjects()) {
+
+			Match match = comparison.getMatch(eObject);
+
+			Map<Class<?>, List<ComparisonEvent>> eObjectEvents = leftTracker.getEObjectEvents(eObject);
+			for (Entry<Class<?>, List<ComparisonEvent>> entry : eObjectEvents.entrySet()) {
+				Class<?> eventType = entry.getKey();
+				List<ComparisonEvent> eventList = entry.getValue();
+
+				for (ComparisonEvent comparisonEvent : eventList) {
+					// if (comparisonEvent.getFeatureName() != null) {
+					// EStructuralFeature feature = eObject.eClass()
+					// .getEStructuralFeature(comparisonEvent.getFeatureName());
+					// checkForDifferences(match, monitor, feature);
+					// }
+
+					checkForDifferences(left, source, eObject, match, eventType, comparisonEvent, monitor);
+				}
+
+			}
+
+		}
 	}
 
 	private List<ComparisonEvent> reverseComparisonEvents(List<ComparisonEvent> comparisonEvents)

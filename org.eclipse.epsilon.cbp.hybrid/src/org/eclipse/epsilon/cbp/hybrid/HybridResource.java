@@ -74,12 +74,22 @@ public abstract class HybridResource extends ResourceImpl {
 	protected int persistedEvents = 0;
 	protected int idCounter = 0;
 
+	public int getIdCounter() {
+		return idCounter;
+	}
+
+	public void setIdCounter(int idCounter) {
+		this.idCounter = idCounter;
+	}
+
 	protected Resource stateBasedResource;
 	protected OutputStream cbpOutputStream;
 
 	protected HybridChangeEventAdapter hybridChangeEventAdapter;
 	protected BiMap<EObject, String> eObjectToIdMap;
 	protected Map<EObject, String> deletedEObjectToIdMap;
+
+	
 
 	protected boolean hasJustBeenLoaded = false;
 
@@ -114,12 +124,6 @@ public abstract class HybridResource extends ResourceImpl {
 		getChangeEvents().clear();
 		persistedEvents = 0;
 		replayEvents(inputStream);
-		// TreeIterator<EObject> iterator = this.getAllContents();
-		// while (iterator.hasNext()) {
-		// EObject eObject = iterator.next();
-		// String id = eObjectToIdMap.get(eObject);
-		// ((XMIResourceImpl) stateBasedResource).setID(eObject, id);
-		// }
 		hybridChangeEventAdapter.setEnabled(true);
 	}
 
@@ -252,6 +256,11 @@ public abstract class HybridResource extends ResourceImpl {
 						} else if (event instanceof ResourceEvent) {
 							((ResourceEvent) event).setResource(this);
 						}
+						
+						
+//						if (event instanceof RemoveFromEReferenceEvent || event instanceof RemoveFromResourceEvent) {
+//							EObject eObject = (EObject) event.getValue();
+//						}
 
 						if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent
 								|| event instanceof AddToResourceEvent) {
@@ -398,6 +407,10 @@ public abstract class HybridResource extends ResourceImpl {
 
 				if (event instanceof AddToEReferenceEvent || event instanceof AddToEAttributeEvent
 						|| event instanceof AddToResourceEvent) {
+					e.setAttribute("position", event.getPosition() + "");
+				}
+				if (event instanceof RemoveFromEReferenceEvent || event instanceof RemoveFromEAttributeEvent
+						|| event instanceof RemoveFromResourceEvent) {
 					e.setAttribute("position", event.getPosition() + "");
 				}
 				if (event instanceof FromPositionEvent) {
@@ -702,5 +715,9 @@ public abstract class HybridResource extends ResourceImpl {
 
 	public void openCBPOutputStream(OutputStream cbpOutputStream) {
 		this.cbpOutputStream = cbpOutputStream;
+	}
+	
+	public Map<EObject, String> getDeletedEObjectToIdMap() {
+		return deletedEObjectToIdMap;
 	}
 }

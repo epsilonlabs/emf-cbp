@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.emf.compare.rcp.diffEngine">
+      <descriptor
+            description="DiffEngine for CBP"
+            id="org.eclipse.emf.compare.rcp.default.diffEngine"
+            impl="org.eclipse.epsilon.cbp.comparison.emfcompare.CBPDiffEngine"
+            label="CBPDiffEngine"
+            ranking="100">
+      </descriptor>
+   </extension>
+	<extension
+         point="org.eclipse.emf.compare.rcp.matchEngine">
+      <engineFactory
+            class="org.eclipse.epsilon.cbp.comparison.emfcompare.CBPMatchEngineFactory"
+            label="CBP Match Engine Factory"
+            ranking="30">
+      </engineFactory>
+   </extension>
+   
+   
+
+</plugin>

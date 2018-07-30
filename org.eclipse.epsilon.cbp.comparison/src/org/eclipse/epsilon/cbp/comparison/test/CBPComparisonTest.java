@@ -277,6 +277,8 @@ public class CBPComparisonTest {
 				+ "  <Node name=\"Node 05\"/>\r\n" + "</xmi:XMI>";
 		try {
 			// origin
+			originalScript.add("var root = new Node;");
+			originalScript.add("root.name = \"ROOT\";");
 			originalScript.add("var node1 = new Node;");
 			originalScript.add("node1.name = \"Node 01\";");
 			originalScript.add("var node2 = new Node;");
@@ -291,7 +293,13 @@ public class CBPComparisonTest {
 			originalScript.add("node5.name = \"Node 05\";");
 			originalScript.add("var node6 = new Node;");
 			originalScript.add("node6.name = \"Node 06\";");
-
+			
+			originalScript.add("root.valNodes.add(node1);");
+			originalScript.add("root.valNodes.add(node2);");
+			originalScript.add("root.valNodes.add(node4);");
+			originalScript.add("root.valNodes.add(node5);");
+			originalScript.add("root.valNodes.add(node6);");
+			
 			// left
 			leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
 			leftScript.add("node1.name = \"Node A\";");
@@ -306,8 +314,10 @@ public class CBPComparisonTest {
 			rightScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
 			rightScript.add("node2.valNodes.add(node4);");
 			rightScript.add("node2.valNodes.move(0,1);");
+			rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
 			rightScript.add("var node7 = new Node;");
 			rightScript.add("node7.name = \"Node 07\";");
+			rightScript.add("root.valNodes.add(node7);");
 
 			// merge
 			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
@@ -672,13 +682,13 @@ public class CBPComparisonTest {
 
 		// LEFT--------------------------------------------------
 		leftResource.closeCBPOutputStream();
+		Files.copy(new FileInputStream(originXmiFile), leftXmiFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(new FileInputStream(originCbpFile), leftCbpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		leftResource.openCBPOutputStream(new FileOutputStream(leftCbpFile, true));
-		leftResource.loadFromCBP(new FileInputStream(leftCbpFile));
+//		leftResource.loadFromCBP(new FileInputStream(leftCbpFile));
+		leftResource.load(null);
 		leftResource.startNewSession("LEFT");
-
 		leftScript.run();
-
 		leftResource.save(null);
 
 		Resource resource = (new XMIResourceFactoryImpl())
@@ -691,13 +701,13 @@ public class CBPComparisonTest {
 
 		// RIGHT--------------------------------------------------
 		rightResource.closeCBPOutputStream();
+		Files.copy(new FileInputStream(originXmiFile), rightXmiFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(new FileInputStream(originCbpFile), rightCbpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		rightResource.openCBPOutputStream(new FileOutputStream(rightCbpFile, true));
-		rightResource.loadFromCBP(new FileInputStream(rightCbpFile));
+//		rightResource.loadFromCBP(new FileInputStream(rightCbpFile));
+		rightResource.load(null);
 		rightResource.startNewSession("RIGHT");
-
 		rightScript.run();
-
 		rightResource.save(null);
 
 		resource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFileNoId.getAbsolutePath()));

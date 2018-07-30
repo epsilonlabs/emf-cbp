@@ -6,6 +6,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
@@ -28,7 +29,6 @@ public abstract class HybridChangeEventAdapter extends ChangeEventAdapter {
 	public HybridChangeEventAdapter(HybridResource resource) {
 		super(null);
 		this.resource = resource;
-
 	}
 
 	@Override

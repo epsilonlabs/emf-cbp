@@ -58,7 +58,7 @@ import org.w3c.dom.Element;
 public class ComparisonEvent {
 
 	public static final String RESOURCE_STRING = "resource";
-	
+
 	protected ChangeEvent<?> changeEvent = null;
 	protected String eClassName = null;
 	protected String packageName = null;
@@ -285,7 +285,7 @@ public class ComparisonEvent {
 	}
 
 	public ComparisonEvent reverse(String compositeId) throws ParserConfigurationException, TransformerException {
-		ChangeEvent<?> reverseChangeEvent = this.getChangeEvent().reverse();
+		ChangeEvent<?> reversedChangeEvent = this.getChangeEvent().reverse();
 		ComparisonEvent newComparisonEvent = new ComparisonEvent();
 
 		newComparisonEvent.setTarget(this.target);
@@ -305,7 +305,7 @@ public class ComparisonEvent {
 
 		if (compositeId != null) {
 			newComparisonEvent.setCompositeId(compositeId);
-			reverseChangeEvent.setComposite(compositeId);
+			reversedChangeEvent.setComposite(compositeId);
 		} else {
 			newComparisonEvent.setCompositeId(this.compositeId);
 		}
@@ -313,36 +313,46 @@ public class ComparisonEvent {
 		if (this.getChangeEvent() instanceof SetEAttributeEvent) {
 			newComparisonEvent.setOldValue(this.value);
 			newComparisonEvent.setValue(this.oldValue);
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof SetEReferenceEvent) {
 			newComparisonEvent.setOldValue(this.value);
 			newComparisonEvent.setValue(this.oldValue);
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof UnsetEAttributeEvent) {
 			newComparisonEvent.setOldValue(this.value);
 			newComparisonEvent.setValue(this.oldValue);
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof UnsetEReferenceEvent) {
 			newComparisonEvent.setOldValue(this.value);
 			newComparisonEvent.setValue(this.oldValue);
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof MoveWithinEAttributeEvent) {
 			newComparisonEvent.setFrom(this.to);
 			newComparisonEvent.setTo(this.from);
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof MoveWithinEReferenceEvent) {
 			newComparisonEvent.setFrom(this.to);
 			newComparisonEvent.setTo(this.from);
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof RemoveFromResourceEvent) {
-			newComparisonEvent.setEventType(reverseChangeEvent.getClass());
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof AddToResourceEvent) {
-			newComparisonEvent.setEventType(reverseChangeEvent.getClass());
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof RemoveFromEReferenceEvent) {
-			newComparisonEvent.setEventType(reverseChangeEvent.getClass());
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof AddToEReferenceEvent) {
-			newComparisonEvent.setEventType(reverseChangeEvent.getClass());
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof RemoveFromEAttributeEvent) {
-			newComparisonEvent.setEventType(reverseChangeEvent.getClass());
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof AddToEAttributeEvent) {
-			newComparisonEvent.setEventType(reverseChangeEvent.getClass());
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
+		} else if (this.getChangeEvent() instanceof CreateEObjectEvent) {
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
+		} else if (this.getChangeEvent() instanceof DeleteEObjectEvent) {
+			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		}
 
-		newComparisonEvent.setChangeEvent(reverseChangeEvent);
+		newComparisonEvent.setChangeEvent(reversedChangeEvent);
 		newComparisonEvent.getEventString();
 		// String eventString = newComparisonEvent.getEventString();
 
@@ -546,21 +556,20 @@ public class ComparisonEvent {
 							}
 						}
 
-						if (changeEvent instanceof AddToResourceEvent || changeEvent instanceof RemoveFromResourceEvent
-								) {
+						if (changeEvent instanceof AddToResourceEvent
+								|| changeEvent instanceof RemoveFromResourceEvent) {
 							this.setTargetId(RESOURCE_STRING);
 						}
-						
-						if (changeEvent instanceof AddToEAttributeEvent || changeEvent instanceof AddToEReferenceEvent
-								) {
+
+						if (changeEvent instanceof AddToEAttributeEvent
+								|| changeEvent instanceof AddToEReferenceEvent) {
 							String sPosition = e.getAttributeByName(new QName("position")).getValue();
 							changeEvent.setPosition(Integer.parseInt(sPosition));
 							this.setPosition(Integer.valueOf(sPosition));
 						}
 
 						if (changeEvent instanceof RemoveFromEAttributeEvent
-								|| changeEvent instanceof RemoveFromEReferenceEvent
-								) {
+								|| changeEvent instanceof RemoveFromEReferenceEvent) {
 							String sPosition = e.getAttributeByName(new QName("position")).getValue();
 							changeEvent.setPosition(Integer.parseInt(sPosition));
 							this.setPosition(Integer.valueOf(sPosition));
@@ -592,7 +601,7 @@ public class ComparisonEvent {
 						if (name.equals("value")) {
 							if (changeEvent instanceof EObjectValuesEvent) {
 								String seobject = e.getAttributeByName(new QName("eobject")).getValue();
-								
+
 								this.setValueId(seobject);
 							} else if (changeEvent instanceof EAttributeEvent) {
 								EAttributeEvent eAttributeEvent = (EAttributeEvent) changeEvent;

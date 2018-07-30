@@ -36,7 +36,7 @@ public class CreateEObjectEvent extends org.eclipse.epsilon.cbp.event.CreateEObj
 			resource.register(this.eObject);
 		} else {
 			resource.register(this.eObject, this.id);
-//			((XMIResource)resource.getStateBasedResource()).setID(this.eObject, this.id);
+			((XMIResource)resource.getStateBasedResource()).setID(this.eObject, this.id);
 		}
 	}
 	
