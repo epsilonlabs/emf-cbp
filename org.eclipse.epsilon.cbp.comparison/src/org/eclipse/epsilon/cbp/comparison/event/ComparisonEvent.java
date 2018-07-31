@@ -354,7 +354,6 @@ public class ComparisonEvent {
 
 		newComparisonEvent.setChangeEvent(reversedChangeEvent);
 		newComparisonEvent.getEventString();
-		// String eventString = newComparisonEvent.getEventString();
 
 		return newComparisonEvent;
 	}

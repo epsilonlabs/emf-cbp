@@ -89,46 +89,21 @@ public class CBPComparisonTest {
 	private String actualValue;
 	private String expectedValue;
 
-	// @Test
-	public void testTextFileReader() throws IOException, XMLStreamException {
-		File file = new File("D:\\TEMP\\COMPARISON\\cbp-root\\cbp-comparison\\model.cbpxml");
-
-		RandomAccessFile raf = new RandomAccessFile(file, "rw");
-
-		// FileChannel channel = (FileChannel)
-		// Files.newByteChannel(aFile.toPath(), StandardOpenOption.READ);
-		FileChannel channel = raf.getChannel();
-
-		ByteBuffer buffer = ByteBuffer.allocate(1);
-		long byteCount = 0;
-		while (channel.read(buffer) != -1) {
-			buffer.flip();
-			// System.out.print(Charset.defaultCharset().decode(buffer));
-			String s = Charset.defaultCharset().decode(buffer).toString();
-			System.out.println(s.toCharArray()[0]);
-			buffer.clear();
-			byteCount += 1;
-			if (byteCount == 2000) {
-				System.out.println(channel.position());
-				break;
-			}
-		}
-		System.out.println(byteCount);
-		System.out.println();
-
-		FileChannel channel2 = raf.getChannel();
-		ByteBuffer buffer2 = ByteBuffer.allocate(1);
-		channel2.position(byteCount);
-		while (channel2.read(buffer2) != -1) {
-			buffer2.flip();
-			System.out.print(Charset.defaultCharset().decode(buffer2));
-			buffer2.clear();
-		}
-
-		raf.close();
+	
+	@Test
+	public void testReadingFiles() throws IOException, XMLStreamException, ParserConfigurationException, TransformerException {
+		File originFile = new File("D:\\TEMP\\COMPARISON\\origin.cbpxml");
+		File leftFile = new File("D:\\TEMP\\COMPARISON\\left.cbpxml");
+		File rightFile = new File("D:\\TEMP\\COMPARISON\\right.cbpxml");
+		
+		CBPComparison comparison = new CBPComparison(leftFile, rightFile);
+		comparison.compare();
+		
 		assertEquals(true, true);
+		
 	}
-
+	
+	
 	public void initialise(String testName) throws FileNotFoundException {
 		System.out
 				.println("\n###### " + testName + " ##############################################################\n");

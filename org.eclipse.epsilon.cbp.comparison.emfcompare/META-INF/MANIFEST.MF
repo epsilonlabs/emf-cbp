@@ -9,10 +9,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.compare.rcp,
  org.apache.log4j,
  org.eclipse.core.resources,
- org.eclipse.epsilon.cbp.comparison,
  org.eclipse.emf.ecore.xmi,
+ com.google.guava,
  org.eclipse.epsilon.cbp,
- com.google.guava
+ org.eclipse.epsilon.cbp.comparison
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/commons-collections4-4.2.jar,

@@ -11,7 +11,7 @@
             ranking="100">
       </descriptor>
    </extension>
-	<extension
+       <extension
          point="org.eclipse.emf.compare.rcp.matchEngine">
       <engineFactory
             class="org.eclipse.epsilon.cbp.comparison.emfcompare.CBPMatchEngineFactory"
@@ -19,7 +19,14 @@
             ranking="30">
       </engineFactory>
    </extension>
-   
-   
-
+ <extension
+       point="org.eclipse.emf.compare.rcp.conflictsDetector">
+    <descriptor
+          description="Conflicts Detector for CBP"
+          id="org.eclipse.emf.compare.rcp.conflictsDetector"
+          impl="org.eclipse.epsilon.cbp.comparison.emfcompare.CBPConflictsDetector"
+          label="CBPConflictsDetector"
+          ranking="100">
+    </descriptor>
+ </extension>
 </plugin>

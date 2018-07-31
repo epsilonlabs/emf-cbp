@@ -1,17 +1,16 @@
 package org.eclipse.epsilon.cbp.comparison.emfcompare;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.emf.compare.EMFCompareMessages;
 import org.eclipse.emf.compare.match.IMatchEngine;
 import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin;
 import org.eclipse.emf.compare.rcp.internal.match.DefaultRCPMatchEngineFactory;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
+import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 
 public class CBPMatchEngineFactory extends DefaultRCPMatchEngineFactory {
 	
 	public CBPMatchEngineFactory() {
 		super();
+		NodePackage.eINSTANCE.eClass();
 	}
 	
 	@Override

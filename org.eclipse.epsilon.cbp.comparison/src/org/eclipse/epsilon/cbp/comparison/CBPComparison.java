@@ -105,13 +105,22 @@ public class CBPComparison {
 		CharBuffer rightCharBuffer;
 		int lineCount = 1;
 		long position = -1;
-		char leftChar;
-		char rightChar;
+		char leftChar = ' ';
+		char rightChar = ' ';
 
-		while (true) {
+		boolean continueRead = true; 
+		while (continueRead) {
 			leftInt = leftChannel.read(leftBuffer);
 			rightInt = rightChannel.read(rightBuffer);
-
+			
+			if (leftChar != rightChar || (leftInt == -1 || rightInt == -1)) {
+				continueRead = false;
+				break;
+			} else if (leftChar == (char) 13) {
+				lineCount += 1;
+				position = leftChannel.position();
+			}
+			
 			leftBuffer.flip();
 			leftCharBuffer = Charset.defaultCharset().decode(leftBuffer);
 			leftChar = leftCharBuffer.get();
@@ -122,19 +131,13 @@ public class CBPComparison {
 			rightChar = rightCharBuffer.get();
 			rightBuffer.clear();
 
-			if (leftChar != rightChar || leftInt == -1 && rightInt == -1) {
-				System.out.println();
-				break;
-			} else if (leftChar == (char) 13) {
-				lineCount += 1;
-				position = leftChannel.position();
-			}
 			System.out.print(leftChar);
 		}
+		System.out.println();
 
 		leftChannel.position(position);
 		rightChannel.position(position);
-		truncatePosition = position;
+		truncatePosition = position-1;
 
 		System.out.println();
 		createComparisonEvents(leftChannel, leftComparisonEvents, leftSessionEvents, leftCompositeEvents);
@@ -284,6 +287,7 @@ public class CBPComparison {
 			byteBuffer.clear();
 			if (c == (char) 13) {
 				String lineString = stringBuilder.toString().trim();
+				
 				System.out.println(lineString);
 				ComparisonEvent comparisonEvent = new ComparisonEvent(lineString);
 
