@@ -243,6 +243,36 @@ public class CBPComparisonTest {
 	}
 
 	@Test
+	public void testMoveBetweenTwoContainers() throws IOException {
+		initialise("testGenerateTwoDifferentModels");
+		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"
+				+ "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n"
+				+ "  <Node name=\"Node A\"/>\r\n" + "  <Node name=\"Node 02\">\r\n"
+				+ "    <valNodes name=\"Node 03\"/>\r\n" + "    <valNodes name=\"Node 04\"/>\r\n" + "  </Node>\r\n"
+				+ "  <Node name=\"Node 05\"/>\r\n" + "</xmi:XMI>";
+		try {
+			// origin
+			originalScript.add("var node1 = new Node;");
+			originalScript.add("node1.name = \"Node 01\";");
+			originalScript.add("var node2 = new Node;");
+			originalScript.add("node2.name = \"Node 02\";");
+			originalScript.add("var node3 = new Node;");
+			originalScript.add("node3.name = \"Node 03\";");
+			originalScript.add("node1.valNodes.add(node3);");
+			originalScript.add("node1.valNodes.remove(node3);");
+			originalScript.add("node2.valNodes.add(node3);");
+	
+			// merge
+			targetCbpFile = executeTest(originalScript, leftScript, rightScript,
+					MergeMode.UpdateLeftWithAllLeftSolutions);
+			actualValue = getXMIString(targetCbpFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(actualValue, actualValue);
+	}
+	
+	@Test
 	public void testGenerateTwoDifferentModels() throws IOException {
 		initialise("testGenerateTwoDifferentModels");
 		expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n"

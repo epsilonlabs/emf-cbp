@@ -12,7 +12,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 
-public class HybridXMIResourceImpl extends HybridResource {
+public class HybridXMIResourceImpl extends HybridResource implements Resource {
 
 	public HybridXMIResourceImpl(Resource xmiResource, OutputStream cbpOutputStream) {
 		super(xmiResource.getURI());
@@ -39,37 +39,45 @@ public class HybridXMIResourceImpl extends HybridResource {
 		stateBasedResource.load(options);
 		hasJustBeenLoaded = true;
 		hybridChangeEventAdapter.setEnabled(true);
-
-		//get the maximum id number to set the id counter if the idType is numeric
-		if (idType == HybridResource.IdType.NUMERIC) {
-			TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
-			while (iterator.hasNext()) {
-				EObject obj = iterator.next();
-				int id = Integer.valueOf(((XMIResource) stateBasedResource).getID(obj));
-				if (id > getIdCounter())
-					setIdCounter(id);
-			}
-		}
 	}
 
 	@Override
 	public EList<EObject> getContents() {
-		if (hasJustBeenLoaded == true) {
-			hasJustBeenLoaded = false;
-			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
-			stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
-		}
+		this.attachAdapterAndMapEObjectAndID();
 		return stateBasedResource.getContents();
 	}
 
+	
+	
 	@Override
 	public TreeIterator<EObject> getAllContents() {
+		this.attachAdapterAndMapEObjectAndID();
+		return stateBasedResource.getAllContents();
+	}
+
+	/**
+	 * 
+	 */
+	protected void attachAdapterAndMapEObjectAndID() {
 		if (hasJustBeenLoaded == true) {
 			hasJustBeenLoaded = false;
 			stateBasedResource.eAdapters().remove(hybridChangeEventAdapter);
 			stateBasedResource.eAdapters().add(hybridChangeEventAdapter);
+			
+			//get the maximum id number to set the id counter if the idType is numeric
+			//and put object and id pair to objectToIdMap
+			if (idType == HybridResource.IdType.NUMERIC) {
+				TreeIterator<EObject> iterator = stateBasedResource.getAllContents();
+				while (iterator.hasNext()) {
+					EObject obj = iterator.next();
+					String idString = ((XMIResource) stateBasedResource).getID(obj);
+					this.eObjectToIdMap.put(obj, String.valueOf(idString));
+					int id = Integer.valueOf(idString);
+					if (id > getIdCounter())
+						setIdCounter(id);
+				}
+			}
 		}
-		return stateBasedResource.getAllContents();
 	}
 
 	@Override
@@ -85,6 +93,7 @@ public class HybridXMIResourceImpl extends HybridResource {
 
 	@Override
 	public EObject getEObject(String uriFragment) {
+		this.attachAdapterAndMapEObjectAndID();
 		return super.getEObject(uriFragment);
 	}
 

@@ -35,13 +35,14 @@ public class MoveWithinEAttributeEvent extends MultiValueEAttributeEvent impleme
 	}
 
 	@Override
-	public ChangeEvent<?> reverse(){
+	public ChangeEvent<?> reverse() {
 		MoveWithinEAttributeEvent event = new MoveWithinEAttributeEvent();
 		event.setEStructuralFeature(this.getEStructuralFeature());
 		event.setValues(this.getValues());
 		event.setOldValues(this.getOldValue());
+		int temp = this.getPosition();
 		event.setPosition(this.getFromPosition());
-		event.setFromPosition(this.getPosition());
+		event.setFromPosition(temp);
 		event.setTarget(this.getTarget());
 		event.setComposite(this.getComposite());
 		return event;

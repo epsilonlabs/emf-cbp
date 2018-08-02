@@ -449,9 +449,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 			break;
 		}
-		System.out.print(": ");
-		System.out.print(n.getNotifier());
-		System.out.println(" : " + n.getOldValue());
+		System.out.print(": " + n.getNotifier());
+		System.out.print(" : " + n.getOldValue());
+		
+		if (n.getOldValue()!= null && n.getOldValue() instanceof EObject) {
+			System.out.print(" XX: " + ((EObject)n.getOldValue()).eResource());
+		}
+		if (n.getNewValue()!= null && n.getNewValue() instanceof EObject) {
+			System.out.print(" YY: " + ((EObject)n.getNewValue()).eResource());
+		}
+		
+		System.out.println(" : " + n.getNewValue());
 	}
 
 	protected void addEventToList(ChangeEvent<?> event, Notification n) {

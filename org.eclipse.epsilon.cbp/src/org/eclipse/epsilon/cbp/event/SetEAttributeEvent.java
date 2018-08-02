@@ -18,9 +18,9 @@ public class SetEAttributeEvent extends SingleValueEAttributeEvent {
 	public ChangeEvent<?> reverse() {
 		SetEAttributeEvent event = new SetEAttributeEvent();
 		event.setEStructuralFeature(this.getEStructuralFeature());
-		event.setValues(this.getValues());
-		event.setOldValues(this.getValues());
+		Object temp = this.getValues();
 		event.setValues(this.getOldValues());
+		event.setOldValues(temp);
 		event.setPosition(this.getPosition());
 		event.setTarget(this.getTarget());
 		return event;

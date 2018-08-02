@@ -49,8 +49,9 @@ public class MoveWithinEReferenceEvent extends MultiValueEReferenceEvent impleme
 		event.setEStructuralFeature(this.getEStructuralFeature());
 		event.setValues(this.getValues());
 		event.setOldValues(this.getOldValue());
+		int temp = this.getPosition();
 		event.setPosition(this.getFromPosition());
-		event.setFromPosition(this.getPosition());
+		event.setFromPosition(temp);
 		event.setTarget(this.getTarget());
 		event.setComposite(this.getComposite());
 		return event;

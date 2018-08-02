@@ -23,9 +23,9 @@ public class SetEReferenceEvent extends EReferenceEvent implements EObjectValues
 	public ChangeEvent<?> reverse(){
 		SetEReferenceEvent event = new SetEReferenceEvent();
 		event.setEStructuralFeature(this.getEStructuralFeature());
-		event.setValues(this.getValues());
-		event.setOldValues(this.getValues());
+		Object temp = this.getValues();
 		event.setValues(this.getOldValues());
+		event.setOldValues(temp);
 		event.setPosition(this.getPosition());
 		event.setTarget(this.getTarget());
 		return event;

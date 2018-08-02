@@ -1,58 +1,26 @@
 package org.eclipse.epsilon.cbp.comparison.emfcompare;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.collections4.map.MultiKeyMap;
 import org.eclipse.epsilon.cbp.comparison.event.ComparisonEvent;
 
-public class CBPObjectEventTracker extends MultiKeyMap<Object, List<ComparisonEvent>> {
+public class CBPObjectEventTracker extends HashMap<String, List<ComparisonEvent>> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final static String DUMMY = "A";
-
-	public List<ComparisonEvent> put(String target, List<ComparisonEvent> events) {
-		return super.put(DUMMY, target, events);
-	}
-
-	public List<ComparisonEvent> put(String target, String feature, List<ComparisonEvent> events) {
-		return super.put(DUMMY, target, feature, events);
-	}
-
-	public List<ComparisonEvent> put(String target, String feature, Object value, List<ComparisonEvent> events) {
-		return super.put(DUMMY, target, feature, value, events);
-	}
-
-	public List<ComparisonEvent> get(String target) {
-		return super.get(DUMMY, target);
-	}
-
-	public List<ComparisonEvent> get(String target, String feature) {
-		return super.get(DUMMY, target, feature);
-	}
-
-	public List<ComparisonEvent> get(String target, String feature, Object value) {
-		return super.get(DUMMY, target, feature, value);
-	}
-
-	public boolean containsKey(String target) {
-		return super.containsKey(DUMMY, target);
-	}
-
-	public boolean containsKey(String target, String feature) {
-		return super.containsKey(DUMMY, target, feature);
-	}
-
-	public boolean containsKey(String target, String feature, Object value) {
-		return super.containsKey(DUMMY, target, feature, value);
-	}
-
-	public List<ComparisonEvent> removeMultiKey(String target, String feature) {
-		return super.removeMultiKey(DUMMY, target, feature);
-	}
-
-	public boolean removeAll(String target, String feature, Object value) {
-		return super.removeAll(DUMMY, target, feature, value);
-	}
+    public List<ComparisonEvent> addEvent(String key, ComparisonEvent comparisonEvent) {
+	List<ComparisonEvent> eventList = this.get(key);
+	if (eventList == null) {
+	    eventList = new ArrayList<>();
+	    this.put(key, eventList);
+	} 
+//	else if (eventList.size() > 1) {
+//	    eventList.remove(0);
+//	}
+	eventList.add(comparisonEvent);
+	return eventList;
+    }
 
 }

@@ -285,6 +285,7 @@ public class ComparisonEvent {
 	}
 
 	public ComparisonEvent reverse(String compositeId) throws ParserConfigurationException, TransformerException {
+		
 		ChangeEvent<?> reversedChangeEvent = this.getChangeEvent().reverse();
 		ComparisonEvent newComparisonEvent = new ComparisonEvent();
 
@@ -315,16 +316,16 @@ public class ComparisonEvent {
 			newComparisonEvent.setValue(this.oldValue);
 			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof SetEReferenceEvent) {
-			newComparisonEvent.setOldValue(this.value);
-			newComparisonEvent.setValue(this.oldValue);
+			newComparisonEvent.setOldValueId(this.valueId);
+			newComparisonEvent.setValueId(this.oldValueId);
 			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof UnsetEAttributeEvent) {
 			newComparisonEvent.setOldValue(this.value);
 			newComparisonEvent.setValue(this.oldValue);
 			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof UnsetEReferenceEvent) {
-			newComparisonEvent.setOldValue(this.value);
-			newComparisonEvent.setValue(this.oldValue);
+			newComparisonEvent.setOldValueId(this.valueId);
+			newComparisonEvent.setValueId(this.oldValueId);
 			newComparisonEvent.setEventType(reversedChangeEvent.getClass());
 		} else if (this.getChangeEvent() instanceof MoveWithinEAttributeEvent) {
 			newComparisonEvent.setFrom(this.to);
@@ -407,7 +408,7 @@ public class ComparisonEvent {
 	}
 
 	public ComparisonEvent(String eventString) throws XMLStreamException {
-
+		
 		ByteArrayInputStream headerStream = new ByteArrayInputStream(new byte[0]);
 		ByteArrayInputStream contentStream = new ByteArrayInputStream(eventString.getBytes());
 		InputStream stream = new SequenceInputStream(headerStream, contentStream);
@@ -558,6 +559,9 @@ public class ComparisonEvent {
 						if (changeEvent instanceof AddToResourceEvent
 								|| changeEvent instanceof RemoveFromResourceEvent) {
 							this.setTargetId(RESOURCE_STRING);
+							String sPosition = e.getAttributeByName(new QName("position")).getValue();
+							changeEvent.setPosition(Integer.parseInt(sPosition));
+							this.setPosition(Integer.valueOf(sPosition));
 						}
 
 						if (changeEvent instanceof AddToEAttributeEvent

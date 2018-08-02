@@ -89,8 +89,6 @@ public abstract class HybridResource extends ResourceImpl {
 	protected BiMap<EObject, String> eObjectToIdMap;
 	protected Map<EObject, String> deletedEObjectToIdMap;
 
-	
-
 	protected boolean hasJustBeenLoaded = false;
 
 	protected IdType idType = IdType.NUMERIC;
@@ -256,11 +254,11 @@ public abstract class HybridResource extends ResourceImpl {
 						} else if (event instanceof ResourceEvent) {
 							((ResourceEvent) event).setResource(this);
 						}
-						
-						
-//						if (event instanceof RemoveFromEReferenceEvent || event instanceof RemoveFromResourceEvent) {
-//							EObject eObject = (EObject) event.getValue();
-//						}
+
+						// if (event instanceof RemoveFromEReferenceEvent ||
+						// event instanceof RemoveFromResourceEvent) {
+						// EObject eObject = (EObject) event.getValue();
+						// }
 
 						if (event instanceof AddToEAttributeEvent || event instanceof AddToEReferenceEvent
 								|| event instanceof AddToResourceEvent) {
@@ -277,23 +275,48 @@ public abstract class HybridResource extends ResourceImpl {
 							((FromPositionEvent) event).setFromPosition(Integer.parseInt(sFrom));
 						}
 
-					} else if (name.equals("value")) {
+					} else if (name.equals("old-value") || name.equals("value")) {
 
-						if (event instanceof EObjectValuesEvent) {
-							EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
-							String seobject = e.getAttributeByName(new QName("eobject")).getValue();
-							errorMessage = errorMessage + ", value: " + seobject;
-							EObject eob = resolveXRef(seobject);
-							valuesEvent.getValues().add(eob);
-						} else if (event instanceof EAttributeEvent) {
-							EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
-							String sliteral = e.getAttributeByName(new QName("literal")).getValue();
-							errorMessage = errorMessage + ", value: " + sliteral;
-							if (eAttributeEvent.getEStructuralFeature() != null) {
-								EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature().getEType());
-								Object value = eDataType.getEPackage().getEFactoryInstance().createFromString(eDataType,
-										sliteral);
-								eAttributeEvent.getValues().add(value);
+						if (name.equals("old-value")) {
+							if (event instanceof EObjectValuesEvent) {
+								EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
+								String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+								errorMessage = errorMessage + ", old-value: " + seobject;
+								EObject eob = resolveXRef(seobject);
+								valuesEvent.getOldValues().add(eob);
+							} else if (event instanceof EAttributeEvent) {
+								EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
+								String sliteral = e.getAttributeByName(new QName("literal")).getValue();
+								errorMessage = errorMessage + ", old-value: " + sliteral;
+
+								EStructuralFeature sf = eAttributeEvent.getEStructuralFeature();
+								if (sf != null) {
+									EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
+											.getEType());
+									Object value = eDataType.getEPackage().getEFactoryInstance()
+											.createFromString(eDataType, sliteral);
+									eAttributeEvent.getOldValues().add(value);
+								}
+							}
+						} else if (name.equals("value")) {
+							if (event instanceof EObjectValuesEvent) {
+								EObjectValuesEvent valuesEvent = (EObjectValuesEvent) event;
+								String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+								errorMessage = errorMessage + ", value: " + seobject;
+								EObject eob = resolveXRef(seobject);
+								valuesEvent.getValues().add(eob);
+							} else if (event instanceof EAttributeEvent) {
+								EAttributeEvent eAttributeEvent = (EAttributeEvent) event;
+								String sliteral = e.getAttributeByName(new QName("literal")).getValue();
+								errorMessage = errorMessage + ", value: " + sliteral;
+								EStructuralFeature sf = eAttributeEvent.getEStructuralFeature();
+								if (sf != null) {
+									EDataType eDataType = ((EDataType) eAttributeEvent.getEStructuralFeature()
+											.getEType());
+									Object value = eDataType.getEPackage().getEFactoryInstance()
+											.createFromString(eDataType, sliteral);
+									eAttributeEvent.getValues().add(value);
+								}
 							}
 						}
 
@@ -302,7 +325,7 @@ public abstract class HybridResource extends ResourceImpl {
 				if (xmlEvent.getEventType() == XMLStreamConstants.END_ELEMENT) {
 					EndElement ee = xmlEvent.asEndElement();
 					String name = ee.getName().getLocalPart();
-					if (event != null && !name.equals("value") && !name.equals("m")) {
+					if (event != null && !name.equals("value") && !name.equals("old-value") && !name.equals("m")) {
 
 						// if (eventNumber % 1000 == 0)
 						// System.out.println(eventNumber);
@@ -419,12 +442,26 @@ public abstract class HybridResource extends ResourceImpl {
 				}
 
 				if (event instanceof EObjectValuesEvent) {
+					for (EObject eObject : ((EObjectValuesEvent) event).getOldValues()) {
+						if (eObject != null) {
+							Element o = document.createElement("old-value");
+							o.setAttribute("eobject", getURIFragment(eObject));
+							e.appendChild(o);
+						}
+					}
 					for (EObject eObject : ((EObjectValuesEvent) event).getValues()) {
 						Element o = document.createElement("value");
 						o.setAttribute("eobject", getURIFragment(eObject));
 						e.appendChild(o);
 					}
 				} else if (event instanceof EAttributeEvent) {
+					for (Object object : ((EAttributeEvent) event).getOldValues()) {
+						if (object != null) {
+							Element o = document.createElement("old-value");
+							o.setAttribute("literal", object + "");
+							e.appendChild(o);
+						}
+					}
 					for (Object object : ((EAttributeEvent) event).getValues()) {
 						Element o = document.createElement("value");
 						o.setAttribute("literal", object + "");
@@ -716,7 +753,7 @@ public abstract class HybridResource extends ResourceImpl {
 	public void openCBPOutputStream(OutputStream cbpOutputStream) {
 		this.cbpOutputStream = cbpOutputStream;
 	}
-	
+
 	public Map<EObject, String> getDeletedEObjectToIdMap() {
 		return deletedEObjectToIdMap;
 	}
