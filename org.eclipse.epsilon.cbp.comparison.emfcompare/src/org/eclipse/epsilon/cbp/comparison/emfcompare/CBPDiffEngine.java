@@ -154,11 +154,7 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 	ids.addAll(rightTrackedObjects.keySet());
 
 	for (String id : ids) {
-	    
-	    if (id.equals("5")) {
-		int x = 1;
-	    }
-	    
+
 	    System.out.println("Identifying differences of object with id = " + id);
 
 	    TrackedObject leftTrackedObject = leftTrackedObjects.get(id);
@@ -175,6 +171,12 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 		if (rightEObject != null) {
 		    rightTrackedObject = createTrackedEObject(id, left, rightEObject, rightTrackedObjects);
 		}
+	    }
+
+	    // set right container of the right tracked object based on the left
+	    // object container
+	    if (rightTrackedObject.getContainer() == null && leftTrackedObject.getOldContainer() != null) {
+		rightTrackedObject.setContainer(leftTrackedObject.getOldContainer());
 	    }
 
 	    // if an object only exists in one of the resources or does not
@@ -204,7 +206,8 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 	    else {
 
 		// handle objects that have been moved cross containers
-		if (leftTrackedObject.getContainer() != null 
+		if (leftTrackedObject.getContainer() != null && rightTrackedObject.getContainer() != null && leftTrackedObject.getContainingFeature() != null
+			&& rightTrackedObject.getContainingFeature() != null
 			&& !leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer()) ^ !leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature())) {
 		    EObject value = right.getEObject(id);
 		    Match match = comparison.getMatch(value);
@@ -328,45 +331,6 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
 	}
 
-	// // set all values
-	// for (EStructuralFeature feature :
-	// eObject.eClass().getEStructuralFeatures()) {
-	// if (feature instanceof EAttribute) {
-	// if (feature.isMany() == false) {
-	// Object value = eObject.eGet(feature);
-	// trackedObject.addValue(feature.getName(), value.toString());
-	// } else {
-	// List<?> values = (List<?>) eObject.eGet(feature);
-	// int pos = 0;
-	// for (Object value : values) {
-	// trackedObject.addValue(feature.getName(), value.toString(), pos);
-	// pos += 1;
-	// }
-	// }
-	// } else if (feature instanceof EReference) {
-	// if (feature.isMany() == false) {
-	// EObject value = (EObject) eObject.eGet(feature);
-	// String valueId = null;
-	// if (resource instanceof XMIResource) {
-	// valueId = ((XMIResource) resource).getID(value);
-	// }
-	// trackedObject.addValue(feature.getName(), valueId);
-	// } else {
-	// List<EObject> values = (List<EObject>) eObject.eGet(feature);
-	// int pos = 0;
-	// for (EObject value : values) {
-	// String valueId = null;
-	// if (resource instanceof XMIResource) {
-	// valueId = ((XMIResource) resource).getID(value);
-	// }
-	// trackedObject.addValue(feature.getName(), valueId);
-	// trackedObject.addValue(feature.getName(), value.toString(), pos);
-	// pos += 1;
-	// }
-	// }
-	// }
-	// }
-
 	trackedObjects.put("id", trackedObject);
 	return trackedObject;
     }
@@ -384,76 +348,52 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 		trackedObjects.put(id, trackedObject);
 	    }
 
-	    // ComparisonEvent firstEvent = (eventList.size() > 1) ?
-	    // eventList.get(eventList.size() - 2) : null;
 	    int eventPos = eventList.size() - 1;
-	    ComparisonEvent lastEvent = null;
 
-	    while (eventPos >= 0) {
-		lastEvent = eventList.get(eventPos);
+	    for (ComparisonEvent event : eventList) {
 
 		// handle from the the value object's point of view
-		if (lastEvent.getTargetId() != null && trackedObject.getContainer() == null && !id.equals(lastEvent.getTargetId())) {
-		    trackedObject.setContainer(lastEvent.getTargetId());
+		if (event.getTargetId() != null && trackedObject.getContainer() == null && !id.equals(event.getTargetId())) {
+		    if (trackedObject.getOldContainer() == null) {
+			trackedObject.setOldContainer(event.getTargetId());
+		    }
+		    trackedObject.setContainer(event.getTargetId());
 		}
 
 		// set position
-		if (lastEvent.getPosition() != -1 && trackedObject.getPosition() == -1) {
-		    trackedObject.setPosition(lastEvent.getPosition());
-		} else if (lastEvent.getTo() != -1 && trackedObject.getPosition() == -1) {
-		    trackedObject.setPosition(lastEvent.getTo());
+		if (event.getPosition() != -1 && trackedObject.getPosition() == -1) {
+		    trackedObject.setPosition(event.getPosition());
+		} else if (event.getTo() != -1 && trackedObject.getPosition() == -1) {
+		    trackedObject.setPosition(event.getTo());
 		}
 
 		// set containing feature name
-		if (lastEvent.getFeatureName() != null && trackedObject.getContainingFeature() == null) {
-		    trackedObject.setContainingFeature(lastEvent.getFeatureName());
+		if (id.equals(event.getValueId()) && event.getFeatureName() != null && trackedObject.getContainingFeature() == null) {
+		    if (trackedObject.getOldContainingFeature() == null) {
+			trackedObject.setOldContainingFeature(event.getFeatureName());
+		    }
+		    trackedObject.setContainingFeature(event.getFeatureName());
 		}
 
 		if (trackedObject.getContainer() != null && trackedObject.getPosition() != -1 && trackedObject.getContainingFeature() != null) {
 		    break;
 		}
-		eventPos--;
-	    }
 
-	    // handle from the target object point of view
-	    if (lastEvent.getTargetId() != null) {
-		TrackedObject targetTrackedObject = trackedObjects.get(lastEvent.getTargetId());
-		String value = (lastEvent.getValue() == null) ? lastEvent.getValueId() : lastEvent.getValue().toString();
-		int pos = (lastEvent.getPosition() == -1) ? lastEvent.getPosition() : lastEvent.getTo();
-		if (pos == -1) {
-		    targetTrackedObject.addValue(lastEvent.getFeatureName(), value, false);
-		} else {
-		    targetTrackedObject.addValue(lastEvent.getFeatureName(), value, pos, false);
+		// handle from the target object point of view
+		if (event.getTargetId() != null) {
+		    TrackedObject targetTrackedObject = trackedObjects.get(event.getTargetId());
+		    String value = (event.getValue() == null) ? event.getValueId() : event.getValue().toString();
+		    int pos = (event.getPosition() == -1) ? event.getPosition() : event.getTo();
+		    if (pos == -1) {
+			targetTrackedObject.addValue(event.getFeatureName(), value, false);
+		    } else {
+			targetTrackedObject.addValue(event.getFeatureName(), value, pos, false);
+		    }
 		}
 	    }
-
 	}
 
 	return trackedObjects;
-    }
-
-    private void computeDifferences(Comparison comparison, Resource left, Resource right, CBPObjectEventTracker tracker, DifferenceSource source, Monitor monitor)
-	    throws ParserConfigurationException, TransformerException {
-
-	// // handle object events (Create, Delete, AddToResource,
-	// // RemoveFromResource)
-	// if (target != null && feature == null & value == null) {
-	// checkObjectResourceDifferences(comparison, left, source, target,
-	// leftComparisonEvents,
-	// rightComparisonEvents);
-	// }
-	// // handle single value feature
-	// else if (feature != null && feature.isMany() == false) {
-	// checkSingleValueFeatureDifferences(comparison, source, value, target,
-	// feature, leftComparisonEvents,
-	// rightComparisonEvents);
-	// }
-	// // handle multi value feature
-	// else if (feature != null && feature.isMany() == true) {
-	// checkMultiValueFeatureDifferences(comparison, source, value, target,
-	// feature, leftComparisonEvents,
-	// rightComparisonEvents, left, right);
-	// }
     }
 
     /**
@@ -705,9 +645,9 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 	CBPObjectEventTracker tracker = new CBPObjectEventTracker();
 
 	// reverse if the comparison events come from the right side
-//	if (isRight) {
-//	    comparisonEvents = this.reverseComparisonEvents(comparisonEvents);
-//	}
+	// if (isRight) {
+	// comparisonEvents = this.reverseComparisonEvents(comparisonEvents);
+	// }
 
 	for (ComparisonEvent event : comparisonEvents) {
 	    if (event.getTargetId() != null && !event.getTargetId().equals(ComparisonEvent.RESOURCE_STRING)) {

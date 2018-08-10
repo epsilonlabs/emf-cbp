@@ -6,7 +6,9 @@ import java.util.Map;
 public class TrackedObject {
 	private String id;
 	private String container;
+	private String oldContainer;
 	private String containingFeature;
+	private String oldContainingFeature;
 	private int position;
 	private Map<String, TrackedFeature> features = new HashMap<>();
 	
@@ -63,6 +65,9 @@ public class TrackedObject {
 		return container;
 	}
 	public void setContainer(String container) {
+	    	if (this.oldContainer == null) {
+	    	    this.oldContainer = container;
+	    	}
 		this.container = container;
 	}
 	public int getPosition() {
@@ -77,7 +82,26 @@ public class TrackedObject {
 	}
 
 	public void setContainingFeature(String containingFeature) {
+	    if (this.oldContainingFeature == null) {
+	    	    this.oldContainingFeature = containingFeature;
+	    	}
 		this.containingFeature = containingFeature;
+	}
+
+	public String getOldContainer() {
+	    return oldContainer;
+	}
+
+	public void setOldContainer(String oldContainer) {
+	    this.oldContainer = oldContainer;
+	}
+
+	public String getOldContainingFeature() {
+	    return oldContainingFeature;
+	}
+
+	public void setOldContainingFeature(String oldContainingFeature) {
+	    this.oldContainingFeature = oldContainingFeature;
 	}	
 	
 }
