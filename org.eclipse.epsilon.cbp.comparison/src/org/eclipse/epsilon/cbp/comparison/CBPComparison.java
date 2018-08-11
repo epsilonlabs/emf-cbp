@@ -38,6 +38,7 @@ import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
@@ -49,6 +50,9 @@ import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
 
 public class CBPComparison {
 
+    
+    	private String leftNsURI = null;
+    	private String rightNsURI = null;
 	private Map<String, CompositeEvent> leftCompositeEvents = new HashMap<>();
 	private Map<String, CompositeEvent> rightCompositeEvents = new HashMap<>();
 	private List<ComparisonEvent> mergedEvents = new ArrayList<>();
@@ -140,9 +144,9 @@ public class CBPComparison {
 		truncatePosition = position-1;
 
 		System.out.println();
-		createComparisonEvents(leftChannel, leftComparisonEvents, leftSessionEvents, leftCompositeEvents);
+		leftNsURI = createComparisonEvents(leftChannel, leftComparisonEvents, leftSessionEvents, leftCompositeEvents);
 		System.out.println();
-		createComparisonEvents(rightChannel, rightComparisonEvents, rightSessionEvents, rightCompositeEvents);
+		rightNsURI = createComparisonEvents(rightChannel, rightComparisonEvents, rightSessionEvents, rightCompositeEvents);
 
 		int leftLineCount = lineCount;
 		int rightLineCount = lineCount;
@@ -270,9 +274,10 @@ public class CBPComparison {
 	 * @throws ParserConfigurationException
 	 * @throws TransformerException
 	 */
-	private void createComparisonEvents(FileChannel fileChannel, List<ComparisonEvent> comparisonEvents,
+	private String createComparisonEvents(FileChannel fileChannel, List<ComparisonEvent> comparisonEvents,
 			List<SessionEvent> sessionEvents, Map<String, CompositeEvent> compositeEvents)
 			throws IOException, XMLStreamException, ParserConfigurationException, TransformerException {
+	    	String nsURI = null;
 		SessionEvent previousSessionEvent = null;
 		CompositeEvent previousCompositeEvent = null;
 		String previousCompositeId = null;
@@ -302,7 +307,8 @@ public class CBPComparison {
 					previousCompositeEvent.getComparisonEvents().add(comparisonEvent);
 					previousCompositeId = comparisonEvent.getCompositeId();
 				}
-
+				
+				
 				if (comparisonEvent.getEventType().equals(StartNewSessionEvent.class)) {
 					SessionEvent sessionEvent = new SessionEvent(comparisonEvent);
 					StartNewSessionEvent event = (StartNewSessionEvent) comparisonEvent.getChangeEvent();
@@ -311,6 +317,10 @@ public class CBPComparison {
 					sessionEvent.getComparisonEvents().add(comparisonEvent);
 					sessionEvents.add(sessionEvent);
 					previousSessionEvent = sessionEvent;
+				} else if (comparisonEvent.getEventType().equals(RegisterEPackageEvent.class)) {
+				    	if (nsURI  == null && comparisonEvent.getPackageName() != null) {
+				    	    nsURI = comparisonEvent.getPackageName();
+				    	}
 				} else {
 					previousSessionEvent.getComparisonEvents().add(comparisonEvent);
 				}
@@ -321,7 +331,8 @@ public class CBPComparison {
 				stringBuilder.append(c);
 			}
 		}
-		System.out.println();
+		
+		return nsURI;
 	}
 
 	/***
@@ -491,6 +502,14 @@ public class CBPComparison {
 
 	public List<ComparisonEvent> getRightComparisonEvents() {
 		return rightComparisonEvents;
+	}
+
+	public String getLeftNsURI() {
+	    return leftNsURI;
+	}
+
+	public String getRightNsURI() {
+	    return rightNsURI;
 	}
 	
 

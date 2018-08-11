@@ -60,7 +60,7 @@ public class ComparisonEvent {
 	public static final String RESOURCE_STRING = "resource";
 
 	protected ChangeEvent<?> changeEvent = null;
-	protected String eClassName = null;
+	protected String className = null;
 	protected String packageName = null;
 	protected String sessionId = null;
 	protected String time = null;
@@ -105,12 +105,12 @@ public class ComparisonEvent {
 		this.valueId = valueId;
 	}
 
-	public String geteClassName() {
-		return eClassName;
+	public String getClassName() {
+		return className;
 	}
 
-	public void seteClassName(String eClassName) {
-		this.eClassName = eClassName;
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 	public String getPackageName() {
@@ -299,7 +299,7 @@ public class ComparisonEvent {
 		newComparisonEvent.setValueId(this.valueId);
 		newComparisonEvent.setOldValue(this.oldValue);
 		newComparisonEvent.setOldValueId(this.oldValueId);
-		newComparisonEvent.seteClassName(this.eClassName);
+		newComparisonEvent.setClassName(this.className);
 		newComparisonEvent.setPackageName(this.packageName);
 		newComparisonEvent.setTime(this.time);
 		newComparisonEvent.setSessionId(this.sessionId);
@@ -466,7 +466,7 @@ public class ComparisonEvent {
 									changeEvent.getValue(), null, -1, eventString, RESOURCE_STRING, id, null);
 
 							this.packageName = packageName;
-							this.eClassName = className;
+							this.className = className;
 						}
 							break;
 						case "add-to-resource": {
@@ -541,7 +541,7 @@ public class ComparisonEvent {
 									changeEvent.getValue(), null, -1, eventString, RESOURCE_STRING, id, null);
 
 							this.packageName = packageName;
-							this.eClassName = className;
+							this.className = className;
 						}
 							break;
 						}
@@ -679,12 +679,12 @@ public class ComparisonEvent {
 		} else if (event instanceof CreateEObjectEvent) {
 			e = document.createElement("create");
 			e.setAttribute("epackage", this.packageName);
-			e.setAttribute("eclass", this.eClassName);
+			e.setAttribute("eclass", this.className);
 			e.setAttribute("id", this.valueId);
 		} else if (event instanceof DeleteEObjectEvent) {
 			e = document.createElement("delete");
 			e.setAttribute("epackage", this.packageName);
-			e.setAttribute("eclass", this.eClassName);
+			e.setAttribute("eclass", this.className);
 			e.setAttribute("id", this.valueId);
 		} else if (event instanceof AddToResourceEvent) {
 			e = document.createElement("add-to-resource");

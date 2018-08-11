@@ -34,6 +34,13 @@ public class TrackedFeature {
 	this.addValue(value, pos);
     }
 
+    public String getValue() {
+	if (values.size() > 0) {
+	    return values.get(values.size()-1);
+	}
+	return null; 
+    }
+    
     public String getValue(int pos) {
 	return values.get(pos);
     }

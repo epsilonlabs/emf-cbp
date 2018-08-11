@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class TrackedObject {
 	private String id;
+	private String className;
 	private String container;
 	private String oldContainer;
 	private String containingFeature;
@@ -102,6 +103,16 @@ public class TrackedObject {
 
 	public void setOldContainingFeature(String oldContainingFeature) {
 	    this.oldContainingFeature = oldContainingFeature;
-	}	
+	}
+
+	public String getClassName() {
+	    return className;
+	}
+
+	public void setClassName(String className) {
+	    this.className = className;
+	}
+	
+	
 	
 }

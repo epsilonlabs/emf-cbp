@@ -10,7 +10,6 @@ public class CBPMatchEngineFactory extends DefaultRCPMatchEngineFactory {
 	
 	public CBPMatchEngineFactory() {
 		super();
-		NodePackage.eINSTANCE.eClass();
 	}
 	
 	@Override
