@@ -60,13 +60,7 @@ public class TrackedFeature {
 	return values;
     }
 
-    public String getName() {
-	return featureName;
-    }
-
-    public void setName(String featureName) {
-	this.featureName = featureName;
-    }
+    
 
     public String getOldValue(int pos) {
 	return oldValues.get(pos);

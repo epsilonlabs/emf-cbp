@@ -10,7 +10,7 @@ public class TrackedObject {
 	private String oldContainer;
 	private String containingFeature;
 	private String oldContainingFeature;
-	private int position;
+	private int position = -1;
 	private Map<String, TrackedFeature> features = new HashMap<>();
 	
 	public TrackedObject(String id) {
