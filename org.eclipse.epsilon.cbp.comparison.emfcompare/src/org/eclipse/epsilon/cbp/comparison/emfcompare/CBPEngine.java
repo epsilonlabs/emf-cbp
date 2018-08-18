@@ -34,6 +34,8 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.comparison.CBPComparison;
 import org.eclipse.epsilon.cbp.comparison.event.ComparisonEvent;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
+import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
 
 public class CBPEngine {
 
@@ -43,62 +45,69 @@ public class CBPEngine {
     private static EPackage ePackage;
 
     private static String mode = FULL_MODE;
-    private static Resource leftResource;
-    private static Resource rightResource;
-    private static Resource leftPartialResource;
-    private static Resource rightPartialResource;
-    private static List<ComparisonEvent> leftComparisonEvents;
-    private static List<ComparisonEvent> rightComparisonEvents;
-    private static CBPObjectEventTracker rightTracker;
-    private static CBPObjectEventTracker leftTracker;
-    private static Map<String, TrackedObject> rightTrackedObjects;
-    private static Map<String, TrackedObject> leftTrackedObjects;
+    private static Resource localResource;
+    private static Resource masterResource;
+    private static Resource localPartialResource;
+    private static Resource masterPartialResource;
+    private static List<ComparisonEvent> localComparisonEvents;
+    private static List<ComparisonEvent> masterComparisonEvents;
+    private static CBPObjectEventTracker masterTracker;
+    private static CBPObjectEventTracker localTracker;
+    private static Map<String, TrackedObject> masterTrackedObjects;
+    private static Map<String, TrackedObject> localTrackedObjects;
     private static Set<EObject> dummyObjects = new HashSet<>();
 
-    public static void createCBPEngine(Resource left, Resource right, String treeMode) {
+    public enum CurrentResourceOrigin {
+	LOCAL, MASTER
+    }
+
+    public static void createCBPEngine(Resource local, Resource master, String treeMode) {
 	try {
 
 	    mode = treeMode;
-	    leftResource = left;
-	    rightResource = right;
+	    localResource = local;
+	    masterResource = master;
 
-	    String leftPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(left.getURI().toPlatformString(true))).getRawLocation().toOSString();
-	    leftPath = leftPath.replaceAll(".xmi", ".cbpxml");
-	    String rightPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(right.getURI().toPlatformString(true))).getRawLocation().toOSString();
-	    rightPath = rightPath.replaceAll(".xmi", ".cbpxml");
+	    String localPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(local.getURI().toPlatformString(true))).getRawLocation().toOSString();
+	    localPath = localPath.replaceAll(".xmi", ".cbpxml");
+	    String masterPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(master.getURI().toPlatformString(true))).getRawLocation().toOSString();
+	    masterPath = masterPath.replaceAll(".xmi", ".cbpxml");
 
-	    CBPComparison cbpComparison = new CBPComparison(new File(leftPath), new File(rightPath));
+	    CBPComparison cbpComparison = new CBPComparison(new File(localPath), new File(masterPath));
 	    cbpComparison.compare();
 
 	    if (ePackage == null && cbpComparison.getRightNsURI() != null) {
 		ePackage = EPackage.Registry.INSTANCE.getEPackage(cbpComparison.getRightNsURI());
 	    } else if (ePackage == null && cbpComparison.getLeftNsURI() != null) {
 		ePackage = EPackage.Registry.INSTANCE.getEPackage(cbpComparison.getLeftNsURI());
-	    } else if (ePackage == null && left.getContents().size() > 0) {
-		ePackage = left.getContents().get(0).eClass().getEPackage();
+	    } else if (ePackage == null && local.getContents().size() > 0) {
+		ePackage = local.getContents().get(0).eClass().getEPackage();
 	    }
 
-	    leftComparisonEvents = cbpComparison.getLeftComparisonEvents();
-	    rightComparisonEvents = cbpComparison.getRightComparisonEvents();
+	    localComparisonEvents = cbpComparison.getLeftComparisonEvents();
+	    masterComparisonEvents = cbpComparison.getRightComparisonEvents();
 
-	    leftTracker = addLeftSideObjectEventsToTracker(left, leftComparisonEvents);
-	    rightTracker = addRightSideObjectEventsToTracker(right, rightComparisonEvents);
+	    localTracker = addLeftSideObjectEventsToTracker(local, localComparisonEvents);
+	    masterTracker = addRightSideObjectEventsToTracker(master, masterComparisonEvents);
 
-	    leftTrackedObjects = createTrackedObjectList(leftTracker);
-	    rightTrackedObjects = createTrackedObjectList(rightTracker, leftTrackedObjects);
+	    localTrackedObjects = createTrackedObjectList(localTracker);
+	    masterTrackedObjects = createTrackedObjectList(masterTracker, localTrackedObjects);
+
+	    localPartialResource = (new XMIResourceFactoryImpl()).createResource(localResource.getURI());
+	    masterPartialResource = (new XMIResourceFactoryImpl()).createResource(masterResource.getURI());
 
 	    if (CBPEngine.mode == CBPEngine.PARTIAL_MODE) {
 		System.out.println("Left Partial Resource");
-		leftPartialResource = createLeftPartialResource(leftResource, leftResource.getURI(), leftTrackedObjects);
+		localPartialResource = createPartialResource(localResource, localPartialResource, masterPartialResource, localTrackedObjects, masterTrackedObjects, CurrentResourceOrigin.LOCAL);
 		System.out.println("\nRight Partial Resource");
-		rightPartialResource = createLeftPartialResource(leftResource, rightResource.getURI(), rightTrackedObjects);
+		masterPartialResource = createPartialResource(localResource, masterPartialResource, localPartialResource, masterTrackedObjects, localTrackedObjects, CurrentResourceOrigin.MASTER);
 		System.out.println("");
-		// rightPartialResource = createPartialResource(leftResource,
-		// rightResource.getURI(), rightTrackedObjects,
-		// leftPartialResource);
+		// masterPartialResource = createPartialResource(localResource,
+		// masterResource.getURI(), masterTrackedObjects,
+		// localPartialResource);
 	    } else {
-		leftPartialResource = leftResource;
-		rightPartialResource = rightResource;
+		localPartialResource = localResource;
+		masterPartialResource = masterResource;
 	    }
 
 	} catch (IOException | XMLStreamException e) {
@@ -110,16 +119,31 @@ public class CBPEngine {
 	}
     }
 
-    private static EObject recursiveCreateLeftPartialObject(Resource leftResource, Resource leftPartialResource, Map<String, TrackedObject> trackedObjects, TrackedObject trackedObject) {
-	XMIResource partialResource = (XMIResource) leftPartialResource;
-	XMIResource xmiLeftResource = ((XMIResource) leftResource);
+    private static Resource createPartialResource(Resource localResource, Resource partialResource, Resource otherPartialResource, Map<String, TrackedObject> trackedObjects,
+	    Map<String, TrackedObject> otherTrackedObjects, CurrentResourceOrigin resourceOrigin) {
+
+	for (TrackedObject trackedObject : trackedObjects.values()) {
+	    System.out.println(trackedObject.getId() + " pos = " + trackedObject.getPosition());
+	    recursiveCreatePartialObject(localResource, partialResource, trackedObjects, trackedObject, otherPartialResource, otherTrackedObjects, resourceOrigin);
+	}
+
+	printTree(partialResource);
+
+	return partialResource;
+    }
+
+    private static EObject recursiveCreatePartialObject(Resource resource, Resource partialResource, Map<String, TrackedObject> trackedObjects, TrackedObject trackedObject,
+	    Resource otherPartialResource, Map<String, TrackedObject> otherTrackedObjects, CurrentResourceOrigin currentResourceOrigin) {
+	XMIResource xmipartialResource = (XMIResource) partialResource;
+	XMIResource xmiOtherPartialResource = (XMIResource) otherPartialResource;
+	XMIResource xmiResource = ((XMIResource) resource);
 
 	String id = null;
 	String className = null;
 	String container = null;
 	String containingFeature = null;
 	EObject partialEObject = null;
-	EObject leftResourceEObject = null;
+	EObject localResourceEObject = null;
 	int pos = -1;
 
 	if (trackedObject != null) {
@@ -128,7 +152,7 @@ public class CBPEngine {
 	    container = trackedObject.getContainer();
 	    containingFeature = trackedObject.getContainingFeature();
 	    pos = trackedObject.getPosition();
-	    partialEObject = partialResource.getEObject(id);
+	    partialEObject = xmipartialResource.getEObject(id);
 	    if (partialEObject != null && partialEObject.eContainingFeature() != null) {
 		containingFeature = partialEObject.eContainingFeature().getName();
 	    }
@@ -142,28 +166,32 @@ public class CBPEngine {
 		EClass eClass = (EClass) ePackage.getEClassifier(className);
 		partialEObject = ePackage.getEFactoryInstance().create(eClass);
 	    } else {
-		leftResourceEObject = xmiLeftResource.getEObject(id);
-		if (leftResourceEObject != null) {
-		    EClass eClass = leftResourceEObject.eClass();
+		localResourceEObject = xmiResource.getEObject(id);
+		if (localResourceEObject != null) {
+		    EClass eClass = localResourceEObject.eClass();
 		    partialEObject = ePackage.getEFactoryInstance().create(eClass);
 		    trackedObject.setClassName(eClass.getName());
 
-		    if (leftResourceEObject.eContainingFeature() != null) {
-			containingFeature = leftResourceEObject.eContainingFeature().getName();
+		    if (localResourceEObject.eContainingFeature() != null) {
+			containingFeature = localResourceEObject.eContainingFeature().getName();
+			trackedObject.setContainingFeature(containingFeature);
 		    }
 
-		    if (container == null && leftResourceEObject.eContainer() != null) {
-			container = xmiLeftResource.getID(leftResourceEObject.eContainer());
+		    if (container == null && localResourceEObject.eContainer() != null) {
+			container = xmiResource.getID(localResourceEObject.eContainer());
+			trackedObject.setContainer(container);
 		    }
 
 		    if (pos == -1) {
-			if (leftResourceEObject.eContainingFeature() != null && leftResourceEObject.eContainingFeature().isMany()) {
-			    EList<EObject> list = (EList<EObject>) leftResourceEObject.eContainer().eGet(leftResourceEObject.eContainingFeature());
-			    int newPos = list.indexOf(leftResourceEObject);
+			if (localResourceEObject.eContainingFeature() != null && localResourceEObject.eContainingFeature().isMany()) {
+			    EList<EObject> list = (EList<EObject>) localResourceEObject.eContainer().eGet(localResourceEObject.eContainingFeature());
+			    int newPos = list.indexOf(localResourceEObject);
 			    pos = newPos;
-			} else if (leftResourceEObject.eResource() != null) {
-			    int newPos = leftResourceEObject.eResource().getContents().indexOf(leftResourceEObject);
+			    trackedObject.setPosition(pos);
+			} else if (localResourceEObject.eResource() != null) {
+			    int newPos = localResourceEObject.eResource().getContents().indexOf(localResourceEObject);
 			    pos = newPos;
+			    trackedObject.setPosition(pos);
 			}
 		    }
 		}
@@ -178,43 +206,79 @@ public class CBPEngine {
 	    // should check container, if it's not null then create
 	    // container object
 	    if (container != null && containingFeature != null) {
+		
 		TrackedObject containerTrackedObject = trackedObjects.get(container);
-		EObject containerEObject = recursiveCreateLeftPartialObject(xmiLeftResource, leftPartialResource, trackedObjects, containerTrackedObject);
+		if (containerTrackedObject == null) {
+		    TrackedObject otherTrackedObject = otherTrackedObjects.get(container);
+		    if (otherTrackedObject != null) {
+			containerTrackedObject = new TrackedObject(container);
+			containerTrackedObject.copyTheOldStateOfOtherTrackedObject(otherTrackedObject);
+			trackedObjects.put(container, containerTrackedObject);
+		    }
+		}
+		EObject containerEObject = recursiveCreatePartialObject(xmiResource, partialResource, trackedObjects, containerTrackedObject, otherPartialResource, otherTrackedObjects,
+			currentResourceOrigin);
 
-		addEObjectToItsContainer(partialResource, id, containingFeature, partialEObject, pos, containerEObject);
+		addEObjectToItsContainer(xmipartialResource, id, containingFeature, partialEObject, pos, containerEObject,  trackedObjects);
+
+		TrackedObject otherTrackedObject = otherTrackedObjects.get(id);
+		if (otherTrackedObject == null && trackedObject.isNew() == false && trackedObject.isDeleted() == false) {
+		    otherTrackedObject = new TrackedObject(id);		    
+		    otherTrackedObject.copyTheOldStateOfOtherTrackedObject(trackedObject);
+		    otherTrackedObjects.put(id, otherTrackedObject);
+		}
 	    }
 	    // if the eObject is contained in the
-	    else if (leftResourceEObject != null && leftResourceEObject.eContainer() != null) {
-		String containerId = xmiLeftResource.getID(leftResourceEObject);
+	    else if (localResourceEObject != null && localResourceEObject.eContainer() != null) {
+		String containerId = xmiResource.getID(localResourceEObject);
 		TrackedObject containerTrackedObject = trackedObjects.get(containerId);
-		EObject containerEObject = recursiveCreateLeftPartialObject(xmiLeftResource, leftPartialResource, trackedObjects, containerTrackedObject);
+		EObject containerEObject = recursiveCreatePartialObject(xmiResource, partialResource, trackedObjects, containerTrackedObject, otherPartialResource, otherTrackedObjects,
+			currentResourceOrigin);
+		
+		trackedObject.setContainer(containerId);
 
-		addEObjectToItsContainer(partialResource, id, containingFeature, partialEObject, pos, containerEObject);
+		addEObjectToItsContainer(xmipartialResource, id, containingFeature, partialEObject, pos, containerEObject, trackedObjects);
+		
+		TrackedObject otherTrackedObject = otherTrackedObjects.get(id);
+		if (otherTrackedObject == null && trackedObject.isNew() == false && trackedObject.isDeleted() == false) {
+		    otherTrackedObject = new TrackedObject(id);		    
+		    otherTrackedObject.copyTheOldStateOfOtherTrackedObject(trackedObject);
+		    otherTrackedObjects.put(id, otherTrackedObject);
+		}
 
 	    }
 	    // add the object to partial resource if it doesn't have any
 	    // container
 	    else if (partialEObject != null) {
 
-		if (pos > partialResource.getContents().size()) {
-		    for (int i = partialResource.getContents().size(); i < pos; i++) {
+		if (pos > xmipartialResource.getContents().size()) {
+		    for (int i = xmipartialResource.getContents().size(); i < pos; i++) {
 			EClass eClass = partialEObject.eClass();
 			EObject dummy = ePackage.getEFactoryInstance().create(eClass);
-			partialResource.getContents().add(i, dummy);
+			xmipartialResource.getContents().add(i, dummy);
 			String dummyId = "resource." + i;
-			partialResource.setID(dummy, dummyId);
+			xmipartialResource.setID(dummy, dummyId);
 			setEObjectName(dummy, id);
 		    }
 		}
 
-		if (pos < partialResource.getContents().size() && dummyObjects.contains(partialResource.getContents().get(pos))) {
-		    dummyObjects.remove(partialResource.getContents().get(pos));
-		    partialResource.getContents().set(pos, partialEObject);
-		} else {
-		    partialResource.getContents().add(pos, partialEObject);
+		if (pos > -1 && pos < xmipartialResource.getContents().size() && dummyObjects.contains(xmipartialResource.getContents().get(pos))) {
+		    dummyObjects.remove(xmipartialResource.getContents().get(pos));
+		    xmipartialResource.getContents().set(pos, partialEObject);
+		} else if (pos > -1){
+		    xmipartialResource.getContents().add(pos, partialEObject);
+		}else {
+		    xmipartialResource.getContents().add(partialEObject);
 		}
-		partialResource.setID(partialEObject, id);
+		xmipartialResource.setID(partialEObject, id);
 		setEObjectName(partialEObject, id);
+		
+		TrackedObject otherTrackedObject = otherTrackedObjects.get(id);
+		if (otherTrackedObject == null && trackedObject.isNew() == false && trackedObject.isDeleted() == false) {
+		    otherTrackedObject = new TrackedObject(id);		    
+		    otherTrackedObject.copyTheOldStateOfOtherTrackedObject(trackedObject);
+		    otherTrackedObjects.put(id, otherTrackedObject);
+		}
 	    }
 	}
 
@@ -229,7 +293,8 @@ public class CBPEngine {
      * @param pos
      * @param containerEObject
      */
-    protected static void addEObjectToItsContainer(XMIResource partialResource, String id, String containingFeature, EObject partialEObject, int pos, EObject containerEObject) {
+    protected static void addEObjectToItsContainer(XMIResource partialResource, String id, String containingFeature, EObject partialEObject, int pos, EObject containerEObject,
+	    Map<String, TrackedObject> trackedObjects) {
 	// add current object to it's container
 	EStructuralFeature feature = containerEObject.eClass().getEStructuralFeature(containingFeature);
 	if (feature instanceof EReference && ((EReference) feature).isContainment()) {
@@ -245,18 +310,27 @@ public class CBPEngine {
 		    setEObjectName(partialEObject, id);
 		} else {
 		    if (pos > list.size()) {
+			String containerId = partialResource.getID(containerEObject);
 			for (int i = list.size(); i < pos; i++) {
 			    EClass eClass = (EClass) feature.getEType();
 			    EObject dummy = ePackage.getEFactoryInstance().create(eClass);
 			    list.add(i, dummy);
-			    String dummyId = partialResource.getID(containerEObject) + "." + feature.getName() + "." + i;
-			    partialResource.setID(dummy, "dummy");
-			    setEObjectName(dummy, "dummy");
+			    String dummyId = containerId + "." + feature.getName() + "." + i;
+			    partialResource.setID(dummy, dummyId);
+			    setEObjectName(dummy, dummyId);
 			    dummyObjects.add(dummy);
+			    
+			    TrackedObject obj = new TrackedObject(dummyId);
+			    obj.setContainer(containerId);
+			    obj.setContainingFeature(feature.getName());
+			    obj.setPosition(i);
+			    trackedObjects.put(containerId, obj);
+			   
 			}
 		    }
 		    if (pos < list.size() && dummyObjects.contains(list.get(pos))) {
 			dummyObjects.remove(list.get(pos));
+			trackedObjects.remove(containerId);
 			list.set(pos, partialEObject);
 		    } else {
 			list.add(pos, partialEObject);
@@ -266,20 +340,6 @@ public class CBPEngine {
 		}
 	    }
 	}
-    }
-
-    private static Resource createLeftPartialResource(Resource leftResource, URI uri, Map<String, TrackedObject> trackedObjects) {
-	XMIResource partialResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(uri);
-	XMIResource xmiLeftResource = ((XMIResource) leftResource);
-
-	for (TrackedObject trackedObject : trackedObjects.values()) {
-	    System.out.println(trackedObject.getId() + " pos = " + trackedObject.getPosition());
-	    recursiveCreateLeftPartialObject(xmiLeftResource, partialResource, trackedObjects, trackedObject);
-	}
-
-	printTree(partialResource);
-
-	return partialResource;
     }
 
     private static Resource createPartialResource(Resource leftResource, URI uri, Map<String, TrackedObject> trackedObjects) {
@@ -470,7 +530,7 @@ public class CBPEngine {
 	// if (container == null) {
 	// createPartialEObject(xmiLeftResource, partialResource,
 	// trackedObjects, trackedObjects.get(trackedObject.getContainer()),
-	// leftPartialResource);
+	// localPartialResource);
 	// container = partialResource.getEObject(trackedObject.getContainer());
 	// if (container == null) {
 	// container =
@@ -587,6 +647,16 @@ public class CBPEngine {
 			}
 			trackedObject.setContainingFeature(event.getFeatureName());
 		    }
+		    
+		    //set flag isNew if the object is new or created in the recent changes
+		    if (event.getEventType() == CreateEObjectEvent.class) {
+			trackedObject.setNew(true);
+		    }
+		    
+		    //set flag isDeleted if the object is deleted in the recent changes
+		    if (event.getEventType() == DeleteEObjectEvent.class) {
+			trackedObject.setDeleted(true);
+		    }
 
 		    // if (trackedObject.getContainer() != null &&
 		    // trackedObject.getPosition() != -1 &&
@@ -614,43 +684,43 @@ public class CBPEngine {
     }
 
     public static Resource getLeftResource() {
-	return leftResource;
+	return localResource;
     }
 
     public static Resource getRightResource() {
-	return rightResource;
+	return masterResource;
     }
 
     public static List<ComparisonEvent> getLeftComparisonEvents() {
-	return leftComparisonEvents;
+	return localComparisonEvents;
     }
 
     public static List<ComparisonEvent> getRightComparisonEvents() {
-	return rightComparisonEvents;
+	return masterComparisonEvents;
     }
 
     public static CBPObjectEventTracker getRightTracker() {
-	return rightTracker;
+	return masterTracker;
     }
 
     public static CBPObjectEventTracker getLeftTracker() {
-	return leftTracker;
+	return localTracker;
     }
 
     public static Map<String, TrackedObject> getRightTrackedObjects() {
-	return rightTrackedObjects;
+	return masterTrackedObjects;
     }
 
     public static Map<String, TrackedObject> getLeftTrackedObjects() {
-	return leftTrackedObjects;
+	return localTrackedObjects;
     }
 
     public static Resource getLeftPartialResource() {
-	return leftPartialResource;
+	return localPartialResource;
     }
 
     public static Resource getRightPartialResource() {
-	return rightPartialResource;
+	return masterPartialResource;
     }
 
     public static String getMode() {
@@ -661,15 +731,15 @@ public class CBPEngine {
 	CBPEngine.mode = mode;
     }
 
-    private static void printTree(XMIResource resource) {
+    private static void printTree(Resource resource) {
 	for (EObject eObject : resource.getContents()) {
 	    int level = 0;
 	    recursivePrint(level, resource, eObject);
 	}
     }
 
-    private static void recursivePrint(int level, XMIResource resource, EObject eObject) {
-	String id = resource.getID(eObject);
+    private static void recursivePrint(int level, Resource resource, EObject eObject) {
+	String id = ((XMIResource) resource).getID(eObject);
 	for (int i = 0; i < level; i++) {
 	    System.out.print("+--");
 	}
