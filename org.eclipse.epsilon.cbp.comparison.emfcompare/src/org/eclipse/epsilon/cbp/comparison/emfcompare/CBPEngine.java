@@ -59,7 +59,7 @@ public class CBPEngine {
     private static Map<String, TrackedObject> masterTrackedObjects;
     private static Map<String, TrackedObject> localTrackedObjects;
     private static final Map<String, TrackedObject> tempTrackedObjects = new HashMap<>();
-    private static Map<EObject, String> dummyObjects = new HashMap<>();
+    private static Set<String> dummyObjects = new HashSet<>();
 
     public enum CurrentResourceOrigin {
 	LOCAL, MASTER
@@ -143,24 +143,25 @@ public class CBPEngine {
 	    recursiveCreatePartialObject(localResource, partialResource, trackedObjects, trackedObject, otherPartialResource, otherTrackedObjects, resourceOrigin);
 	}
 
-	for (TrackedObject trackedObject : trackedObjects.values()) {
-	    if (trackedObject.getOldPosition() != -1 && trackedObject.getOldPosition() != trackedObject.getPosition()) {
-		EObject oldEObject = partialResource.getEObject(trackedObject.getOldContainer());
-		if (oldEObject != null) {
-		    EStructuralFeature oldFeature = oldEObject.eClass().getEStructuralFeature(trackedObject.getOldContainingFeature());
-		    if (oldFeature instanceof EReference && oldFeature.isMany()) {
-			EList<EObject> list = (EList<EObject>) oldEObject.eGet(oldFeature);
-			if (trackedObject.getOldPosition() < list.size()) {
-			    EObject eObject = list.get(trackedObject.getOldPosition());
-			    if (dummyObjects.containsKey(eObject)) {
-				dummyObjects.remove(eObject);
-				list.remove(trackedObject.getOldPosition());
-			    }
-			}
-		    }
-		}
-	    }
-	}
+//	for (TrackedObject trackedObject : trackedObjects.values()) {
+//	    if (trackedObject.getOldContainer() != null && trackedObject.getOldPosition() != -1) {
+//		EObject oldEObjectContainer = partialResource.getEObject(trackedObject.getOldContainer());
+//		if (oldEObjectContainer != null) {
+//		    EStructuralFeature oldFeature = oldEObjectContainer.eClass().getEStructuralFeature(trackedObject.getOldContainingFeature());
+//		    if (oldFeature instanceof EReference && oldFeature.isMany()) {
+//			EList<EObject> list = (EList<EObject>) oldEObjectContainer.eGet(oldFeature);
+//			if (trackedObject.getOldPosition() < list.size()) {
+//			    EObject eObject = list.get(trackedObject.getOldPosition());
+//			    String dummyId = ((XMIResource) partialResource).getID(eObject);
+//			    if (dummyObjects.contains(dummyId)) {
+//				dummyObjects.remove(dummyId);
+//				list.remove(trackedObject.getOldPosition());
+//			    }
+//			}
+//		    }
+//		}
+//	    }
+//	}
 
 	printTree(partialResource);
 
@@ -297,9 +298,12 @@ public class CBPEngine {
 		    }
 		}
 
-		if (pos > -1 && pos < xmipartialResource.getContents().size() && dummyObjects.containsKey(xmipartialResource.getContents().get(pos))) {
-		    dummyObjects.remove(xmipartialResource.getContents().get(pos));
-		    xmipartialResource.getContents().set(pos, partialEObject);
+		if (pos > -1 && xmipartialResource.getContents().size() > 0 && pos < xmipartialResource.getContents().size()) {
+		    String dummyId = xmipartialResource.getID(xmipartialResource.getContents().get(pos));
+		    if (dummyId != null && dummyObjects.contains(dummyId)) {
+			dummyObjects.remove(dummyId);
+			xmipartialResource.getContents().set(pos, partialEObject);
+		    }
 		} else if (pos > -1) {
 		    xmipartialResource.getContents().add(pos, partialEObject);
 		} else {
@@ -354,7 +358,7 @@ public class CBPEngine {
 			    String dummyId = containerId + "." + feature.getName() + "." + i;
 			    partialResource.setID(dummy, dummyId);
 			    setEObjectName(dummy, dummyId);
-			    dummyObjects.put(dummy, dummyId);
+			    dummyObjects.add(dummyId);
 
 			    TrackedObject obj = new TrackedObject(dummyId);
 			    obj.setContainer(containerId);
@@ -365,13 +369,17 @@ public class CBPEngine {
 
 			}
 		    }
-		    if (pos < list.size() && dummyObjects.containsKey(list.get(pos))) {
-			String dummyId = dummyObjects.get(list.get(pos));
-			dummyObjects.remove(list.get(pos));
-			tempTrackedObjects.remove(dummyId);
-			list.set(pos, partialEObject);
-		    } else {
+		    if (pos != -1 && list.size() > 0 && pos < list.size()) {
+			String dummyId = partialResource.getID(list.get(pos));
+			if (dummyId != null && dummyObjects.contains(dummyId)) {
+			    dummyObjects.remove(dummyId);
+			    tempTrackedObjects.remove(dummyId);
+			    list.set(pos, partialEObject);
+			}
+		    } else if (pos > -1) {
 			list.add(pos, partialEObject);
+		    } else {
+			list.add(partialEObject);
 		    }
 		    partialResource.setID(partialEObject, id);
 		    setEObjectName(partialEObject, id);
@@ -411,7 +419,7 @@ public class CBPEngine {
 		    if (feature instanceof EReference && ((EReference) feature).isContainment()) {
 			if (feature.isMany() == true) {
 			    int pos = trackedObject.getPosition();
-			    if (pos == -1) {
+			    if (pos != -1) {
 				((EList<EObject>) container.eGet(feature)).add(pos, eObject);
 			    } else {
 				((EList<EObject>) container.eGet(feature)).add(eObject);
