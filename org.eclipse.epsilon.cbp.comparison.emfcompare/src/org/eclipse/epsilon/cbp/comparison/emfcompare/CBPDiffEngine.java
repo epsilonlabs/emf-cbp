@@ -117,6 +117,9 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 	    if (id.equals(ComparisonEvent.RESOURCE_STRING)) {
 		continue;
 	    }
+//	    if (CBPEngine.getDummyObjects().contains(id)) {
+//		continue;
+//	    }
 
 	    System.out.println("Identifying differences of object with id = " + id);
 
@@ -166,98 +169,98 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 	    }
 
 	    // if an object exists in both resources
-//	    else {
-//
-//		// handle objects that have been moved cross containers
-//		if (leftTrackedObject.getContainer() != null && rightTrackedObject.getContainer() != null && leftTrackedObject.getContainingFeature() != null
-//			&& rightTrackedObject.getContainingFeature() != null
-//			&& !leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer()) ^ !leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature())) {
-//		    EObject value = right.getEObject(id);
-//		    Match match = comparison.getMatch(value);
-//		    EReference reference = (EReference) value.eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
-//		    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
-//		}
-//		// handle objects that have been moved in the same containers
-//		else if (leftTrackedObject.getContainer() != null && rightTrackedObject.getContainer() != null && leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer())
-//			&& leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature()) && leftTrackedObject.getPosition() != rightTrackedObject.getPosition()) {
-//		    EObject value = right.getEObject(id);
-//		    Match match = comparison.getMatch(value);
-//		    EReference reference = (EReference) value.eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
-//		    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
-//		}
-//
-//		// handle objects that have been modified on their features
-//		EObject leftTargetEObject = left.getEObject(id);
-//		Match match = comparison.getMatch(leftTargetEObject);
-//		EObject rightTargetEObject = match != null ? match.getRight() : null;
-//		EObject targetEObject = leftTargetEObject != null ? leftTargetEObject : rightTargetEObject;
-//
-//		Set<String> featureNameSet = new HashSet<>(leftTrackedObject.getFeatures().keySet());
-//		featureNameSet.addAll(rightTrackedObject.getFeatures().keySet());
-//
-//		for (String featureName : featureNameSet) {
-//		    TrackedFeature leftFeature = leftTrackedObject.getFeature(featureName);
-//		    TrackedFeature rightFeature = rightTrackedObject.getFeature(featureName);
-//
-//		    EStructuralFeature leftEStructuralFeature = null;
-//		    EStructuralFeature rightEStructuralFeature = null;
-//		    EStructuralFeature feature = null;
-//		    boolean isMany = false;
-//		    boolean isAttribute = true;
-//
-//		    if (leftFeature != null) {
-//			leftEStructuralFeature = leftTargetEObject.eClass().getEStructuralFeature(leftFeature.getName());
-//			feature = leftEStructuralFeature;
-//			isMany = leftEStructuralFeature.isMany();
-//			if (leftEStructuralFeature instanceof EReference) {
-//			    isAttribute = false;
-//			}
-//		    }
-//		    if (rightFeature != null) {
-//			rightEStructuralFeature = rightTargetEObject.eClass().getEStructuralFeature(rightFeature.getName());
-//			if (leftEStructuralFeature == null) {
-//			    feature = rightEStructuralFeature;
-//			    isMany = rightEStructuralFeature.isMany();
-//			    if (rightEStructuralFeature instanceof EReference) {
-//				isAttribute = false;
-//			    }
-//			}
-//		    }
-//
-//		    // handle single-value attribute
-//		    if (isMany == false && isAttribute == true) {
-//			Object value = targetEObject.eGet(feature);
-//			getDiffProcessor().attributeChange(match, (EAttribute) feature, value, DifferenceKind.CHANGE, source);
-//		    }
-//
-//		    // handle multi-value attribute
-//		    else if (isMany == true && isAttribute == true) {
-//			Map<Integer, String> leftValues = leftFeature.getValues();
-//			Map<Integer, String> rightValues = rightFeature.getValues();
-//
-//			Set<Integer> positions = new HashSet<>(leftValues.keySet());
-//			positions.addAll(rightValues.keySet());
-//
-//			for (int pos : positions) {
-//			    String leftValue = leftFeature.getValue(pos);
-//			    String rightValue = rightFeature.getValue(pos);
-//			    if (leftValue != null && rightValue != null && !leftValue.equals(rightValue)) {
-//				getDiffProcessor().featureMapChange(match, (EAttribute) feature, leftValue, DifferenceKind.CHANGE, source);
-//			    } else if (leftValue != null && rightValue == null) {
-//				getDiffProcessor().featureMapChange(match, (EAttribute) feature, rightValue, DifferenceKind.DELETE, source);
-//			    } else if (leftValue == null && rightValue != null) {
-//				getDiffProcessor().featureMapChange(match, (EAttribute) feature, leftValue, DifferenceKind.ADD, source);
-//			    }
-//			}
-//
-//		    }
-//		    // handle singe-value reference
-//		    else if (isMany == false && isAttribute == false) {
-//			EObject value = (EObject) targetEObject.eGet(feature);
-//			getDiffProcessor().referenceChange(match, (EReference) feature, value, DifferenceKind.CHANGE, source);
-//		    }
-//		}
-//	    }
+	    else {
+
+		// handle objects that have been moved cross containers
+		if (leftTrackedObject.getContainer() != null && rightTrackedObject.getContainer() != null && leftTrackedObject.getContainingFeature() != null
+			&& rightTrackedObject.getContainingFeature() != null
+			&& !leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer()) ^ !leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature())) {
+		    EObject value = right.getEObject(id);
+		    Match match = comparison.getMatch(value);
+		    EReference reference = (EReference) value.eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
+		    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
+		}
+		// handle objects that have been moved in the same containers
+		else if (leftTrackedObject.getContainer() != null && rightTrackedObject.getContainer() != null && leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer())
+			&& leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature()) && leftTrackedObject.getPosition() != rightTrackedObject.getPosition()) {
+		    EObject value = right.getEObject(id);
+		    Match match = comparison.getMatch(value);
+		    EReference reference = (EReference) value.eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
+		    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
+		}
+
+		// handle objects that have been modified on their features
+		EObject leftTargetEObject = left.getEObject(id);
+		Match match = comparison.getMatch(leftTargetEObject);
+		EObject rightTargetEObject = match != null ? match.getRight() : null;
+		EObject targetEObject = leftTargetEObject != null ? leftTargetEObject : rightTargetEObject;
+
+		Set<String> featureNameSet = new HashSet<>(leftTrackedObject.getFeatures().keySet());
+		featureNameSet.addAll(rightTrackedObject.getFeatures().keySet());
+
+		for (String featureName : featureNameSet) {
+		    TrackedFeature leftFeature = leftTrackedObject.getFeature(featureName);
+		    TrackedFeature rightFeature = rightTrackedObject.getFeature(featureName);
+
+		    EStructuralFeature leftEStructuralFeature = null;
+		    EStructuralFeature rightEStructuralFeature = null;
+		    EStructuralFeature feature = null;
+		    boolean isMany = false;
+		    boolean isAttribute = true;
+
+		    if (leftFeature != null) {
+			leftEStructuralFeature = leftTargetEObject.eClass().getEStructuralFeature(leftFeature.getFeatureName());
+			feature = leftEStructuralFeature;
+			isMany = leftEStructuralFeature.isMany();
+			if (leftEStructuralFeature instanceof EReference) {
+			    isAttribute = false;
+			}
+		    }
+		    if (rightFeature != null) {
+			rightEStructuralFeature = rightTargetEObject.eClass().getEStructuralFeature(rightFeature.getFeatureName());
+			if (leftEStructuralFeature == null) {
+			    feature = rightEStructuralFeature;
+			    isMany = rightEStructuralFeature.isMany();
+			    if (rightEStructuralFeature instanceof EReference) {
+				isAttribute = false;
+			    }
+			}
+		    }
+
+		    // handle single-value attribute
+		    if (isMany == false && isAttribute == true) {
+			Object value = targetEObject.eGet(feature);
+			getDiffProcessor().attributeChange(match, (EAttribute) feature, value, DifferenceKind.CHANGE, source);
+		    }
+
+		    // handle multi-value attribute
+		    else if (isMany == true && isAttribute == true) {
+			Map<Integer, String> leftValues = leftFeature.getValues();
+			Map<Integer, String> rightValues = rightFeature.getValues();
+
+			Set<Integer> positions = new HashSet<>(leftValues.keySet());
+			positions.addAll(rightValues.keySet());
+
+			for (int pos : positions) {
+			    String leftValue = leftFeature.getValue(pos);
+			    String rightValue = rightFeature.getValue(pos);
+			    if (leftValue != null && rightValue != null && !leftValue.equals(rightValue)) {
+				getDiffProcessor().featureMapChange(match, (EAttribute) feature, leftValue, DifferenceKind.CHANGE, source);
+			    } else if (leftValue != null && rightValue == null) {
+				getDiffProcessor().featureMapChange(match, (EAttribute) feature, rightValue, DifferenceKind.DELETE, source);
+			    } else if (leftValue == null && rightValue != null) {
+				getDiffProcessor().featureMapChange(match, (EAttribute) feature, leftValue, DifferenceKind.ADD, source);
+			    }
+			}
+
+		    }
+		    // handle singe-value reference
+		    else if (isMany == false && isAttribute == false) {
+			EObject value = (EObject) targetEObject.eGet(feature);
+			getDiffProcessor().referenceChange(match, (EReference) feature, value, DifferenceKind.CHANGE, source);
+		    }
+		}
+	    }
 
 	}
 
