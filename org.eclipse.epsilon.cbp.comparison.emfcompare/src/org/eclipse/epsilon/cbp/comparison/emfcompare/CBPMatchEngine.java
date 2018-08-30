@@ -92,11 +92,12 @@ public class CBPMatchEngine extends DefaultMatchEngine {
      * @param monitor
      */
     private void cbpMatch(Comparison comparison, IComparisonScope scope, ResourceSet left, ResourceSet right, ResourceSet origin, Monitor monitor) {
-	
-	//custom initialisation
+
+	// custom initialisation
 	Resource leftResource = null;
 	Resource rightResource = null;
-	
+	Resource originResource = null;
+
 	for (Resource resource : left.getResources()) {
 	    if (resource != null) {
 		leftResource = resource;
@@ -110,17 +111,26 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 		break;
 	    }
 	}
-	
-	CBPEngine.createCBPEngine(leftResource, rightResource, CBPEngine.PARTIAL_MODE);
-//	CBPEngine.createCBPEngine(leftResource, rightResource, CBPEngine.FULL_MODE);
-	
+
+	if (origin != null) {
+	    for (Resource resource : origin.getResources()) {
+		if (resource != null) {
+		    originResource = resource;
+		    break;
+		}
+	    }
+	}
+
+	CBPEngine.createCBPEngine(leftResource, rightResource, originResource, CBPEngine.PARTIAL_MODE);
+	// CBPEngine.createCBPEngine(leftResource, rightResource,
+	// CBPEngine.FULL_MODE);
+
 	left.getResources().clear();
 	left.getResources().add(CBPEngine.getLeftPartialResource());
 	right.getResources().clear();
 	right.getResources().add(CBPEngine.getRightPartialResource());
-	
-	
-	//override parent's initialisation
+
+	// override parent's initialisation
 	final Iterator<? extends Resource> leftChildren = scope.getCoveredResources(left);
 	final Iterator<? extends Resource> rightChildren = scope.getCoveredResources(right);
 	final Iterator<? extends Resource> originChildren;
@@ -159,9 +169,10 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 		originIterators.add(scope.getCoveredEObjects(originRes));
 	    }
 	}
-	
+
 	((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison, CBPEngine.getLeftPartialResource(), CBPEngine.getRightPartialResource(), monitor);
-//	((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison, CBPEngine.getLeftResource(), CBPEngine.getRightResource(), monitor);
+	// ((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison,
+	// CBPEngine.getLeftResource(), CBPEngine.getRightResource(), monitor);
     }
 
     public static IEObjectMatcher createDefaultEObjectMatcher(UseIdentifiers useIDs, WeightProvider.Descriptor.Registry weightProviderRegistry) {
