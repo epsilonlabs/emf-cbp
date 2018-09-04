@@ -23,11 +23,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.emf.compare.uml2,
  org.eclipse.uml2.common,
  org.junit,
- org.eclipse.epsilon.cbp,
- org.eclipse.gmt.modisco.xml.neoemf.backup
+ org.eclipse.epsilon.cbp
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.collect,
  org.apache.commons.io;resolution:=optional,
+ org.eclipse.gmt.modisco.xml.emf,
  org.eclipse.uml2.uml,
  org.eclipse.uml2.uml.internal.resource,
  org.eclipse.uml2.uml.resource

@@ -11,7 +11,12 @@ import org.junit.Test;
 
 public class State2ChangeConverterTest {
 
-	private File xmiDirectory = new File("D:\\TEMP\\COMPARISON\\xmi-without-id\\");
+//	private File xmiDirectory = new File("D:\\TEMP\\COMPARISON2\\xmis\\");
+//	private File diffDirectory = new File("D:\\TEMP\\COMPARISON\\diffs\\");
+//	private File cbpFile = new File("D:\\TEMP\\COMPARISON2\\cbp\\bpmn2.cbpxml");
+	
+//	private File xmiDirectory = new File("D:\\TEMP\\COMPARISON\\xmi-without-id\\");
+	private File xmiDirectory = new File("D:\\TEMP\\BPMN2\\xmi\\");
 	private File diffDirectory = new File("D:\\TEMP\\COMPARISON\\diff\\");
 	private File cbpFile = new File("D:\\TEMP\\COMPARISON\\target-cbpxml\\BPMN2-id.cbpxml");
 	

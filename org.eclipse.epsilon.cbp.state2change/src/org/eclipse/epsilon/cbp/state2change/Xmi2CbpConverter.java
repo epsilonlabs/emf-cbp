@@ -46,14 +46,14 @@ public class Xmi2CbpConverter {
 		if (cbpDirectory.exists() == false)
 			cbpDirectory.mkdir();
 		File cbpFile = new File(cbpDirectory.getAbsolutePath() + File.separator + cbpFileName);
-//		if (cbpFile.exists()) {
-//			cbpFile.delete();
-//		}
+		if (cbpFile.exists()) {
+			cbpFile.delete();
+		}
 		cbpFile.createNewFile();
 		File ignoreFile = new File(cbpDirectory.getAbsolutePath() + File.separator + ignoreFileName);
-//		if (ignoreFile.exists()) {
-//			ignoreFile.delete();
-//		}
+		if (ignoreFile.exists()) {
+			ignoreFile.delete();
+		}
 
 		Map<Object, Object> saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
 		saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
@@ -89,23 +89,37 @@ public class Xmi2CbpConverter {
 
 			((CBPXMLResourceImpl) runningCbpResource).startNewSession(xmiFile.getName());
 
-//			int prevDiffs = diffs.size() + 1;
-//			while (diffs.size() > 0 && prevDiffs > diffs.size()) {
-//				prevDiffs = diffs.size();
+			int prevDiffs = diffs.size() + 1;
+			while (diffs.size() > 0 && prevDiffs > diffs.size()) {
+				prevDiffs = diffs.size();
 
 				System.out.println("Merge ...");
 				System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
 				batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
 				System.out.println("   End: " + State2ChangeTool.getTimeStamp());
 
-//				System.out.println("Re-compare again for validation ...");
-//				System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
-//				scope = new DefaultComparisonScope(runningCbpResource, xmiResource, null);
-//				comparison = comparator.compare(scope);
-//				diffs = comparison.getDifferences();
-//				System.out.println("   End: " + State2ChangeTool.getTimeStamp());
-//				System.out.println("   Diffs: " + diffs.size());
-//			}
+				
+//				Resource tempResource = (new XMIResourceFactoryImpl()).createResource(URI.createURI("temp.xmi"));
+//				tempResource.getContents().addAll(runningCbpResource.getContents());
+//				
+//				StringOutputStream tempOutput = new StringOutputStream();
+//				tempResource.save(tempOutput, saveOptions);
+//				StringOutputStream tempOutput2 = new StringOutputStream();
+//				xmiResource.save(tempOutput2, saveOptions);
+//				
+//				System.out.println(tempOutput);
+//				System.out.println("-----");
+//				System.out.println(tempOutput2);
+				
+				
+				System.out.println("Re-compare again for validation ...");
+				System.out.println("   Start: " + State2ChangeTool.getTimeStamp());
+				scope = new DefaultComparisonScope(runningCbpResource, xmiResource, null);
+				comparison = comparator.compare(scope);
+				diffs = comparison.getDifferences();
+				System.out.println("   End: " + State2ChangeTool.getTimeStamp());
+				System.out.println("   Diffs: " + diffs.size());
+			}
 			// saving CBP
 			FileOutputStream ignoreFileOutputStream = new FileOutputStream(ignoreFile, true);
 			runningCbpResource.save(saveOptions);

@@ -124,9 +124,9 @@ public class State2ChangeConverter {
 		cbpResource = new CBPXMLResourceImpl();
 		URI cbpUri = URI.createFileURI(cbpFile.getAbsolutePath());
 		File file = new File(cbpUri.toFileString());
-		if (file.exists()) {
-			file.delete();
-		}
+//		if (file.exists()) {
+//			file.delete();
+//		}
 		file.createNewFile();
 
 		cbpResource.setURI(cbpUri);

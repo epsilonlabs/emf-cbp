@@ -82,6 +82,10 @@ public class CBPComparison {
 	}
 
 	public void compare() throws IOException, XMLStreamException, ParserConfigurationException, TransformerException {
+	    	System.out.println("Start reading from CBP files ...");
+	    
+	    	long start = System.nanoTime();
+	    	
 		// leftResource = (CBPResource) (new CBPXMLResourceFactory())
 		// .createResource(URI.createFileURI(leftCbpFile.getAbsolutePath()));
 		// System.out.println("Loading " + leftResource.getURI().lastSegment() +
@@ -122,6 +126,7 @@ public class CBPComparison {
 				break;
 			} else if (leftChar == (char) 13) {
 				lineCount += 1;
+//				System.out.println(lineCount);
 				position = leftChannel.position();
 			}
 			
@@ -135,129 +140,132 @@ public class CBPComparison {
 			rightChar = rightCharBuffer.get();
 			rightBuffer.clear();
 
-			System.out.print(leftChar);
+//			System.out.print(leftChar);
 		}
-		System.out.println();
+//		System.out.println();
 
 		leftChannel.position(position);
 		rightChannel.position(position);
 		truncatePosition = position-1;
+		
+		long end = System.nanoTime();
+		System.out.println("Reading Line Time  = " + (end - start) / 1000000000.0);
 
-		System.out.println();
+		System.out.println("Create events for comparison from left CBP file ...");
 		leftNsURI = createComparisonEvents(leftChannel, leftComparisonEvents, leftSessionEvents, leftCompositeEvents);
-		System.out.println();
+		System.out.println("Read diffs from right CBP file ...");
 		rightNsURI = createComparisonEvents(rightChannel, rightComparisonEvents, rightSessionEvents, rightCompositeEvents);
 
 		int leftLineCount = lineCount;
 		int rightLineCount = lineCount;
 
 		System.out.println();
-		System.out.println("COMPARISON:");
-		for (SessionEvent leftSessionEvent : leftSessionEvents) {
-			for (SessionEvent rightSessionEvent : rightSessionEvents) {
-				if (!leftSessionEvent.getSessionId().equals(rightSessionEvent.getSessionId())) {
-
-					for (ComparisonEvent leftEvent : leftSessionEvent.getComparisonEvents()) {
-						for (ComparisonEvent rightEvent : rightSessionEvent.getComparisonEvents()) {
-
-							System.out.println(leftEvent.getEventString() + " vs " + rightEvent.getEventString());
-
-							// SET, UNSET, ATTRIBUTE
-							if ((leftEvent.getEventType().equals(SetEAttributeEvent.class)
-									|| leftEvent.getEventType().equals(UnsetEAttributeEvent.class))
-									&& (rightEvent.getEventType().equals(SetEAttributeEvent.class)
-											|| rightEvent.getEventType().equals(UnsetEAttributeEvent.class))
-									&& leftEvent.getTargetId().equals(rightEvent.getTargetId())
-									&& leftEvent.getFeatureName().equals(rightEvent.getFeatureName())
-									&& (leftEvent.getValue() != null || rightEvent.getValue() != null)
-									&& !leftEvent.getValue().equals(rightEvent.getValue())) {
-								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
-										rightLineCount, rightEvent, ConflictedEventPair.TYPE_DIFFERENT_STATES);
-								conflictedEventsList.add(conflictedEvents);
-								leftEvent.setIsConflicted(true);
-								leftEvent.getConflictedEventPairList().add(conflictedEvents);
-								rightEvent.setIsConflicted(true);
-								rightEvent.getConflictedEventPairList().add(conflictedEvents);
-
-								// SET, UNSET, REFERENCE
-							} else if ((leftEvent.getEventType().equals(SetEReferenceEvent.class)
-									|| leftEvent.getEventType().equals(UnsetEReferenceEvent.class))
-									&& (rightEvent.getEventType().equals(SetEReferenceEvent.class)
-											|| rightEvent.getEventType().equals(UnsetEReferenceEvent.class))
-									&& leftEvent.getTargetId().equals(rightEvent.getTargetId())
-									&& leftEvent.getFeatureName().equals(rightEvent.getFeatureName())
-									&& (leftEvent.getValueId() != null || rightEvent.getValueId() != null)
-									&& !leftEvent.getValueId().equals(rightEvent.getValueId())) {
-								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
-										rightLineCount, rightEvent, ConflictedEventPair.TYPE_DIFFERENT_STATES);
-								conflictedEventsList.add(conflictedEvents);
-								leftEvent.setIsConflicted(true);
-								leftEvent.getConflictedEventPairList().add(conflictedEvents);
-								rightEvent.setIsConflicted(true);
-								rightEvent.getConflictedEventPairList().add(conflictedEvents);
-
-								// REMOVE, ADD, MOVE REFERENCE
-							} else if (((leftEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
-									&& (rightEvent.getEventType().equals(AddToEReferenceEvent.class)
-											|| rightEvent.getEventType().equals(MoveWithinEReferenceEvent.class)))
-									|| (rightEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
-											&& (leftEvent.getEventType().equals(AddToEReferenceEvent.class) || leftEvent
-													.getEventType().equals(MoveWithinEReferenceEvent.class))))
-									&& rightEvent.getFeatureName().equals(leftEvent.getFeatureName())
-									&& rightEvent.getTargetId().equals(leftEvent.getTargetId())
-									&& rightEvent.getValueId().equals(leftEvent.getValueId())
-
-							) {
-								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
-										rightLineCount, rightEvent, ConflictedEventPair.TYPE_DIFFERENT_STATES);
-								conflictedEventsList.add(conflictedEvents);
-								leftEvent.setIsConflicted(true);
-								leftEvent.getConflictedEventPairList().add(conflictedEvents);
-								rightEvent.setIsConflicted(true);
-								rightEvent.getConflictedEventPairList().add(conflictedEvents);
-
-								// DELETE
-							} else if (((leftEvent.getEventType().equals(SetEAttributeEvent.class)
-									|| leftEvent.getEventType().equals(SetEReferenceEvent.class)
-									|| leftEvent.getEventType().equals(AddToEAttributeEvent.class)
-									|| leftEvent.getEventType().equals(AddToEReferenceEvent.class)
-									|| leftEvent.getEventType().equals(RemoveFromEAttributeEvent.class)
-									|| leftEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
-									|| leftEvent.getEventType().equals(MoveWithinEAttributeEvent.class)
-									|| leftEvent.getEventType().equals(MoveWithinEReferenceEvent.class)
-									|| leftEvent.getEventType().equals(AddToResourceEvent.class)
-									|| leftEvent.getEventType().equals(RemoveFromResourceEvent.class))
-									&& rightEvent.getEventType().equals(DeleteEObjectEvent.class)
-									&& (rightEvent.getValueId().equals(leftEvent.getTargetId())
-											|| rightEvent.getValueId().equals(leftEvent.getValueId())))
-									|| (rightEvent.getEventType().equals(SetEAttributeEvent.class)
-											|| rightEvent.getEventType().equals(SetEReferenceEvent.class)
-											|| rightEvent.getEventType().equals(AddToEAttributeEvent.class)
-											|| rightEvent.getEventType().equals(AddToEReferenceEvent.class)
-											|| rightEvent.getEventType().equals(RemoveFromEAttributeEvent.class)
-											|| rightEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
-											|| rightEvent.getEventType().equals(MoveWithinEAttributeEvent.class)
-											|| rightEvent.getEventType().equals(MoveWithinEReferenceEvent.class)
-											|| rightEvent.getEventType().equals(AddToResourceEvent.class)
-											|| rightEvent.getEventType().equals(RemoveFromResourceEvent.class))
-											&& leftEvent.getEventType().equals(DeleteEObjectEvent.class)
-											&& (leftEvent.getValueId().equals(rightEvent.getTargetId())
-													|| leftEvent.getValueId().equals(rightEvent.getValueId()))) {
-								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
-										rightLineCount, rightEvent, ConflictedEventPair.TYPE_INAPPLICABLE);
-								conflictedEventsList.add(conflictedEvents);
-								leftEvent.setIsConflicted(true);
-								leftEvent.getConflictedEventPairList().add(conflictedEvents);
-								rightEvent.setIsConflicted(true);
-								rightEvent.getConflictedEventPairList().add(conflictedEvents);
-							}
-						}
-					}
-				}
-				rightLineCount += rightSessionEvent.getComparisonEvents().size();
-			}
-			leftLineCount += leftSessionEvent.getComparisonEvents().size();
-		}
+		System.out.println("Do CBP Comparison:");
+//		for (SessionEvent leftSessionEvent : leftSessionEvents) {
+//			for (SessionEvent rightSessionEvent : rightSessionEvents) {
+//				if (!leftSessionEvent.getSessionId().equals(rightSessionEvent.getSessionId())) {
+//
+//					for (ComparisonEvent leftEvent : leftSessionEvent.getComparisonEvents()) {
+//						for (ComparisonEvent rightEvent : rightSessionEvent.getComparisonEvents()) {
+//
+////							System.out.println(leftEvent.getEventString() + " vs " + rightEvent.getEventString());
+//
+//							// SET, UNSET, ATTRIBUTE
+//							if ((leftEvent.getEventType().equals(SetEAttributeEvent.class)
+//									|| leftEvent.getEventType().equals(UnsetEAttributeEvent.class))
+//									&& (rightEvent.getEventType().equals(SetEAttributeEvent.class)
+//											|| rightEvent.getEventType().equals(UnsetEAttributeEvent.class))
+//									&& leftEvent.getTargetId().equals(rightEvent.getTargetId())
+//									&& leftEvent.getFeatureName().equals(rightEvent.getFeatureName())
+//									&& (leftEvent.getValue() != null || rightEvent.getValue() != null)
+//									&& !leftEvent.getValue().equals(rightEvent.getValue())) {
+//								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
+//										rightLineCount, rightEvent, ConflictedEventPair.TYPE_DIFFERENT_STATES);
+//								conflictedEventsList.add(conflictedEvents);
+//								leftEvent.setIsConflicted(true);
+//								leftEvent.getConflictedEventPairList().add(conflictedEvents);
+//								rightEvent.setIsConflicted(true);
+//								rightEvent.getConflictedEventPairList().add(conflictedEvents);
+//
+//								// SET, UNSET, REFERENCE
+//							} else if ((leftEvent.getEventType().equals(SetEReferenceEvent.class)
+//									|| leftEvent.getEventType().equals(UnsetEReferenceEvent.class))
+//									&& (rightEvent.getEventType().equals(SetEReferenceEvent.class)
+//											|| rightEvent.getEventType().equals(UnsetEReferenceEvent.class))
+//									&& leftEvent.getTargetId().equals(rightEvent.getTargetId())
+//									&& leftEvent.getFeatureName().equals(rightEvent.getFeatureName())
+//									&& (leftEvent.getValueId() != null || rightEvent.getValueId() != null)
+//									&& !leftEvent.getValueId().equals(rightEvent.getValueId())) {
+//								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
+//										rightLineCount, rightEvent, ConflictedEventPair.TYPE_DIFFERENT_STATES);
+//								conflictedEventsList.add(conflictedEvents);
+//								leftEvent.setIsConflicted(true);
+//								leftEvent.getConflictedEventPairList().add(conflictedEvents);
+//								rightEvent.setIsConflicted(true);
+//								rightEvent.getConflictedEventPairList().add(conflictedEvents);
+//
+//								// REMOVE, ADD, MOVE REFERENCE
+//							} else if (((leftEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
+//									&& (rightEvent.getEventType().equals(AddToEReferenceEvent.class)
+//											|| rightEvent.getEventType().equals(MoveWithinEReferenceEvent.class)))
+//									|| (rightEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
+//											&& (leftEvent.getEventType().equals(AddToEReferenceEvent.class) || leftEvent
+//													.getEventType().equals(MoveWithinEReferenceEvent.class))))
+//									&& rightEvent.getFeatureName().equals(leftEvent.getFeatureName())
+//									&& rightEvent.getTargetId().equals(leftEvent.getTargetId())
+//									&& rightEvent.getValueId().equals(leftEvent.getValueId())
+//
+//							) {
+//								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
+//										rightLineCount, rightEvent, ConflictedEventPair.TYPE_DIFFERENT_STATES);
+//								conflictedEventsList.add(conflictedEvents);
+//								leftEvent.setIsConflicted(true);
+//								leftEvent.getConflictedEventPairList().add(conflictedEvents);
+//								rightEvent.setIsConflicted(true);
+//								rightEvent.getConflictedEventPairList().add(conflictedEvents);
+//
+//								// DELETE
+//							} else if (((leftEvent.getEventType().equals(SetEAttributeEvent.class)
+//									|| leftEvent.getEventType().equals(SetEReferenceEvent.class)
+//									|| leftEvent.getEventType().equals(AddToEAttributeEvent.class)
+//									|| leftEvent.getEventType().equals(AddToEReferenceEvent.class)
+//									|| leftEvent.getEventType().equals(RemoveFromEAttributeEvent.class)
+//									|| leftEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
+//									|| leftEvent.getEventType().equals(MoveWithinEAttributeEvent.class)
+//									|| leftEvent.getEventType().equals(MoveWithinEReferenceEvent.class)
+//									|| leftEvent.getEventType().equals(AddToResourceEvent.class)
+//									|| leftEvent.getEventType().equals(RemoveFromResourceEvent.class))
+//									&& rightEvent.getEventType().equals(DeleteEObjectEvent.class)
+//									&& (rightEvent.getValueId().equals(leftEvent.getTargetId())
+//											|| rightEvent.getValueId().equals(leftEvent.getValueId())))
+//									|| (rightEvent.getEventType().equals(SetEAttributeEvent.class)
+//											|| rightEvent.getEventType().equals(SetEReferenceEvent.class)
+//											|| rightEvent.getEventType().equals(AddToEAttributeEvent.class)
+//											|| rightEvent.getEventType().equals(AddToEReferenceEvent.class)
+//											|| rightEvent.getEventType().equals(RemoveFromEAttributeEvent.class)
+//											|| rightEvent.getEventType().equals(RemoveFromEReferenceEvent.class)
+//											|| rightEvent.getEventType().equals(MoveWithinEAttributeEvent.class)
+//											|| rightEvent.getEventType().equals(MoveWithinEReferenceEvent.class)
+//											|| rightEvent.getEventType().equals(AddToResourceEvent.class)
+//											|| rightEvent.getEventType().equals(RemoveFromResourceEvent.class))
+//											&& leftEvent.getEventType().equals(DeleteEObjectEvent.class)
+//											&& (leftEvent.getValueId().equals(rightEvent.getTargetId())
+//													|| leftEvent.getValueId().equals(rightEvent.getValueId()))) {
+//								ConflictedEventPair conflictedEvents = new ConflictedEventPair(leftLineCount, leftEvent,
+//										rightLineCount, rightEvent, ConflictedEventPair.TYPE_INAPPLICABLE);
+//								conflictedEventsList.add(conflictedEvents);
+//								leftEvent.setIsConflicted(true);
+//								leftEvent.getConflictedEventPairList().add(conflictedEvents);
+//								rightEvent.setIsConflicted(true);
+//								rightEvent.getConflictedEventPairList().add(conflictedEvents);
+//							}
+//						}
+//					}
+//				}
+//				rightLineCount += rightSessionEvent.getComparisonEvents().size();
+//			}
+//			leftLineCount += leftSessionEvent.getComparisonEvents().size();
+//		}
 
 		leftChannel.close();
 		leftRaf.close();
@@ -293,7 +301,7 @@ public class CBPComparison {
 			if (c == (char) 13) {
 				String lineString = stringBuilder.toString().trim();
 				
-				System.out.println(lineString);
+//				System.out.println(lineString);
 				ComparisonEvent comparisonEvent = new ComparisonEvent(lineString);
 
 				if (comparisonEvent.getCompositeId() != null

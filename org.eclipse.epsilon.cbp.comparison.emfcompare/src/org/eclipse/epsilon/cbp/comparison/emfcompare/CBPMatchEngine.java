@@ -13,6 +13,8 @@ import java.util.Map;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.Monitor;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.compare.CompareFactory;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.ComparisonCanceledException;
 import org.eclipse.emf.compare.EMFCompareMessages;
@@ -56,6 +58,10 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 	this.resourceMatcher = super.getResourceMatcher();
     }
 
+    public static IMatchEngine create(UseIdentifiers useIDs) {
+	return create(useIDs, null, null);
+    }
+
     public static IMatchEngine create(UseIdentifiers useIDs, WeightProvider.Descriptor.Registry weightProviderRegistry) {
 	return create(useIDs, weightProviderRegistry, null);
     }
@@ -76,21 +82,87 @@ public class CBPMatchEngine extends DefaultMatchEngine {
     }
 
     @Override
+    protected void match(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin, Monitor monitor) {
+//	super.match(comparison, scope, left, right, origin, monitor);
+	this.cbpMatch(comparison, scope, left, right, origin, monitor);
+    }
+
+    @Override
     protected void match(Comparison comparison, IComparisonScope scope, ResourceSet left, ResourceSet right, ResourceSet origin, Monitor monitor) {
-
 	// super.match(comparison, scope, left, right, origin, monitor);
-
 	cbpMatch(comparison, scope, left, right, origin, monitor);
     }
 
-    /**
-     * @param comparison
-     * @param scope
-     * @param left
-     * @param right
-     * @param origin
-     * @param monitor
-     */
+    private void cbpMatch(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin, Monitor monitor) {
+
+	CBPEngine.createCBPEngine(left, right, origin, CBPEngine.PARTIAL_MODE);
+	// CBPEngine.createCBPEngine(leftResource, rightResource,
+	// CBPEngine.FULL_MODE);
+
+	left = CBPEngine.getLeftPartialResource();
+	right = CBPEngine.getRightPartialResource();
+
+	// Our "roots" are Resources. Consider them matched
+	final MatchResource match = CompareFactory.eINSTANCE.createMatchResource();
+
+	match.setLeft(left);
+	match.setRight(right);
+	match.setOrigin(origin);
+
+	if (left != null) {
+	    URI uri = left.getURI();
+	    if (uri != null) {
+		match.setLeftURI(uri.toString());
+	    }
+	}
+
+	if (right != null) {
+	    URI uri = right.getURI();
+	    if (uri != null) {
+		match.setRightURI(uri.toString());
+	    }
+	}
+
+	if (origin != null) {
+	    URI uri = origin.getURI();
+	    if (uri != null) {
+		match.setOriginURI(uri.toString());
+	    }
+	}
+
+	comparison.getMatchedResources().add(match);
+
+	// We need at least two resources to match them
+	if (atLeastTwo(left == null, right == null, origin == null)) {
+	    /*
+	     * TODO But if we have only one resource, which is then unmatched,
+	     * should we not still do something with it?
+	     */
+	    return;
+	}
+
+	final Iterator<? extends EObject> leftEObjects;
+	if (left != null) {
+	    leftEObjects = scope.getCoveredEObjects(left);
+	} else {
+	    leftEObjects = emptyIterator();
+	}
+	final Iterator<? extends EObject> rightEObjects;
+	if (right != null) {
+	    rightEObjects = scope.getCoveredEObjects(right);
+	} else {
+	    rightEObjects = emptyIterator();
+	}
+	final Iterator<? extends EObject> originEObjects;
+	if (origin != null) {
+	    originEObjects = scope.getCoveredEObjects(origin);
+	} else {
+	    originEObjects = emptyIterator();
+	}
+
+	((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison, left, right, monitor);
+    }
+
     private void cbpMatch(Comparison comparison, IComparisonScope scope, ResourceSet left, ResourceSet right, ResourceSet origin, Monitor monitor) {
 
 	// custom initialisation
@@ -179,5 +251,25 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 	final IEObjectMatcher matcher;
 	matcher = new CBPEObjectMatcher();
 	return matcher;
+    }
+
+    /**
+     * This will check that at least two of the three given booleans are
+     * <code>true</code>.
+     * 
+     * @param condition1
+     *            First of the three booleans.
+     * @param condition2
+     *            Second of the three booleans.
+     * @param condition3
+     *            Third of the three booleans.
+     * @return <code>true</code> if at least two of the three given booleans are
+     *         <code>true</code>, <code>false</code> otherwise.
+     */
+    private static boolean atLeastTwo(boolean condition1, boolean condition2, boolean condition3) {
+	// CHECKSTYLE:OFF This expression is alone in its method, and
+	// documented.
+	return condition1 && (condition2 || condition3) || (condition2 && condition3);
+	// CHECKSTYLE:ON
     }
 }

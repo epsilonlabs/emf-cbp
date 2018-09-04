@@ -14,7 +14,7 @@
        <extension
          point="org.eclipse.emf.compare.rcp.matchEngine">
       <engineFactory
-            class="org.eclipse.epsilon.cbp.comparison.emfcompare.CBPMatchEngineFactory"
+            class="org.eclipse.epsilon.cbp.comparison.emfcompare.CBPRCPMatchEngineFactory"
             label="CBP Match Engine Factory"
             ranking="30">
       </engineFactory>

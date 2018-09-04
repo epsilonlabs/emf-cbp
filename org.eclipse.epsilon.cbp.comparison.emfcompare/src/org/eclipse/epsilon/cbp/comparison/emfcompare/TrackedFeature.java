@@ -22,31 +22,48 @@ public class TrackedFeature {
 	this.isContainment = isContainment;
     }
 
-    public TrackedFeature(String featureName, String value, boolean isContaiment) {
+    public TrackedFeature(String featureName, String oldValue, String value, boolean isContaiment) {
 	this.featureName = featureName;
 	this.isContainment = isContaiment;
+	this.addOldValue(oldValue);
 	this.addValue(value);
     }
 
-    public TrackedFeature(String featureName, String value, int pos, boolean isContaiment) {
+    public TrackedFeature(String featureName, String oldValue, String value, int pos, boolean isContaiment) {
 	this.featureName = featureName;
 	this.isContainment = isContaiment;
+	this.addOldValue(oldValue, pos);
 	this.addValue(value, pos);
     }
 
     public String getValue() {
 	if (values.size() > 0) {
-	    return values.get(values.size()-1);
+	    return values.get(values.size() - 1);
 	}
-	return null; 
+	return null;
     }
-    
+
+    public String getOldValue() {
+	if (oldValues.size() > 0) {
+	    return oldValues.get(oldValues.size() - 1);
+	}
+	return null;
+    }
+
     public String getValue(int pos) {
 	return values.get(pos);
+    }
+    
+    public String getOldValue(int pos) {
+	return oldValues.get(pos);
     }
 
     public void addValue(String value) {
 	this.addValue(value, values.size());
+    }
+
+    public void addOldValue(String oldValue) {
+	this.addOldValue(oldValue, oldValues.size());
     }
 
     public void addValue(String value, int pos) {
@@ -56,15 +73,17 @@ public class TrackedFeature {
 	values.put(pos, value);
     }
 
+    public void addOldValue(String oldValue, int pos) {
+	if (oldValues.get(pos) == null) {
+	    oldValues.put(pos, oldValue);
+	}
+    }
+
     public Map<Integer, String> getValues() {
 	return values;
     }
 
     
-
-    public String getOldValue(int pos) {
-	return oldValues.get(pos);
-    }
 
     public String getFeatureName() {
 	return featureName;

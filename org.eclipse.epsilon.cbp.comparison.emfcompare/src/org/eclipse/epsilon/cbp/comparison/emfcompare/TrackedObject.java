@@ -33,23 +33,25 @@ public class TrackedObject {
 	return features.get(featureName);
     }
 
-    public TrackedFeature addValue(String featureName, String value, boolean isContainment) {
+    public TrackedFeature addValue(String featureName, String oldValue, String value, boolean isContainment) {
 	TrackedFeature feature = features.get(featureName);
 	if (feature == null) {
-	    feature = new TrackedFeature(featureName, value, isContainment);
+	    feature = new TrackedFeature(featureName, oldValue, value, isContainment);
 	    features.put(featureName, feature);
 	} else {
+	    feature.addOldValue(oldValue);
 	    feature.addValue(value);
 	}
 	return feature;
     }
 
-    public TrackedFeature addValue(String featureName, String value, int pos, boolean isContainment) {
+    public TrackedFeature addValue(String featureName, String oldValue, String value, int pos, boolean isContainment) {
 	TrackedFeature feature = features.get(featureName);
 	if (feature == null) {
-	    feature = new TrackedFeature(featureName, value, pos, isContainment);
+	    feature = new TrackedFeature(featureName, oldValue, value, pos, isContainment);
 	    features.put(featureName, feature);
 	} else {
+	    feature.addOldValue(oldValue, pos);
 	    feature.addValue(value, pos);
 	}
 	return feature;
