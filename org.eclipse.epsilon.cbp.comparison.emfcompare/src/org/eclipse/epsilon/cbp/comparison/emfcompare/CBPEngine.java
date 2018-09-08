@@ -114,7 +114,7 @@ public class CBPEngine {
 
 		constructPartialResources();
 
-//		originResource = leftPartialResource;
+		// originResource = leftPartialResource;
 	    } else {
 		leftPartialResource = leftResource;
 		rightPartialResource = rightResource;
@@ -236,15 +236,24 @@ public class CBPEngine {
 	String className = null;
 	String oldContainer = null;
 	String oldContainingFeature = null;
+	String newContainer = null;
+	String newContainingFeature = null;
 	EObject partialEObject = null;
 	EObject localResourceEObject = null;
 	int oldPos = -1;
 
 	if (trackedObject != null) {
 	    id = trackedObject.getId();
+
+	    if (id.equals("_xtVfyrEHEeidH-can7XH6A")) {
+		System.out.println();
+	    }
+
 	    className = trackedObject.getClassName();
 	    oldContainer = trackedObject.getOldContainer();
 	    oldContainingFeature = trackedObject.getOldContainingFeature();
+	    newContainer = trackedObject.getContainer();
+	    newContainingFeature = trackedObject.getContainingFeature();
 	    oldPos = trackedObject.getOldPosition();
 	    partialEObject = xmipartialResource.getEObject(id);
 	    if (partialEObject != null && partialEObject.eContainingFeature() != null) {
@@ -292,11 +301,20 @@ public class CBPEngine {
 	    }
 	    // get the eObject from the xmiLeftResource / local resource
 	    else if (oldContainer != null && oldContainingFeature != null) {
-		EObject containerEObject = xmiResource.getEObject(oldContainer);
-		if (containerEObject != null) {
-		    EClass eClass = (EClass) containerEObject.eClass().getEStructuralFeature(oldContainingFeature).getEType();
+		EObject oldContainerEObject = xmiResource.getEObject(oldContainer);
+		if (oldContainerEObject != null) {
+		    EClass eClass = (EClass) oldContainerEObject.eClass().getEStructuralFeature(oldContainingFeature).getEContainingClass();
 		    partialEObject = ePackage.getEFactoryInstance().create(eClass);
 		    trackedObject.setClassName(eClass.getName());
+		} else {
+		    if (newContainer != null && newContainingFeature != null) {
+			EObject newContainerEObject = xmiResource.getEObject(newContainer);
+			if (newContainerEObject != null) {
+			    EClass eClass = (EClass) newContainerEObject.eClass().getEStructuralFeature(newContainingFeature).getEContainingClass();
+			    partialEObject = ePackage.getEFactoryInstance().create(eClass);
+			    trackedObject.setClassName(eClass.getName());
+			}
+		    }
 		}
 	    }
 
@@ -312,6 +330,10 @@ public class CBPEngine {
 		}
 
 		EObject containerEObject = recursiveCreateOldPartialObject(xmipartialResource, trackedObjects, containerTrackedObject);
+
+		if (partialEObject == null) {
+		    System.out.println();
+		}
 
 		oldPos = addEObjectToItsContainer(xmipartialResource, id, oldContainingFeature, partialEObject, oldPos, containerEObject, trackedObjects);
 		trackedObject.setOldPosition(oldPos);
@@ -402,11 +424,18 @@ public class CBPEngine {
 		    }
 		} else {
 		    EReference eReference = (EReference) eFeature;
-		    if (eReference.isMany() == false && eReference.isContainment() == false) {
+		    
+		    if (eFeature == null) {
+			System.out.println();
+		    }
+		    
+		    if (eReference.isMany() == false && eReference.isContainment() == false && trackedFeature.getOldValues().size() > 0) {
 			String objectId = trackedFeature.getOldValue();
-			EObject eObject = partialResource.getEObject(objectId);
-			partialEObject.eSet(eReference, eObject);
-		    } else if (eReference.isContainment() == false) {
+			if (objectId != null) {
+			    EObject eObject = partialResource.getEObject(objectId);
+			    partialEObject.eSet(eReference, eObject);
+			}
+		    } else if (eReference.isContainment() == false && trackedFeature.getOldValues().size() > 0) {
 			Map<Integer, String> values = trackedFeature.getOldValues();
 			EList<Object> eList = (EList<Object>) partialEObject.eGet(eReference);
 			for (Entry<Integer, String> entry : values.entrySet()) {
@@ -440,11 +469,11 @@ public class CBPEngine {
 
 	if (trackedObject != null) {
 	    id = trackedObject.getId();
-	    
-//	    if (id.equals("3765")) {
-//		System.out.println();
-//	    }
-	    
+
+	    // if (id.equals("3765")) {
+	    // System.out.println();
+	    // }
+
 	    className = trackedObject.getClassName();
 	    container = trackedObject.getContainer();
 	    containingFeature = trackedObject.getContainingFeature();
@@ -646,7 +675,7 @@ public class CBPEngine {
 		    if (pos > list.size()) {
 			String containerId = partialResource.getID(containerEObject);
 			for (int i = list.size(); i < pos; i++) {
-			    EClass eClass = (EClass) feature.getEContainingClass(); 
+			    EClass eClass = (EClass) feature.getEContainingClass();
 			    EObject dummy = ePackage.getEFactoryInstance().create(eClass);
 			    list.add(i, dummy);
 			    String dummyId = containerId + "." + feature.getName() + "." + i;
@@ -689,17 +718,18 @@ public class CBPEngine {
 
 	for (ComparisonEvent event : comparisonEvents) {
 
-	    if (event.getTargetId() != null /*
-					     * && !event.getTargetId().equals(
-					     * ComparisonEvent.RESOURCE_STRING)
-					     */) {
+	    if (event.getTargetId() != null) {
 
+		// if (event.getTargetId().equals("_xtyLtrEHEeidH-can7XH6A")) {
+		// System.out.println();
+		// }
 		tracker.addEvent(event.getTargetId(), event);
 	    }
-	    if (event.getValueId() != null /*
-					    * && !event.getTargetId().equals(
-					    * ComparisonEvent.RESOURCE_STRING)
-					    */) {
+	    if (event.getValueId() != null) {
+
+		// if (event.getValueId().equals("_xtyLtrEHEeidH-can7XH6A")) {
+		// System.out.println();
+		// }
 		tracker.addEvent(event.getValueId(), event);
 	    }
 	}
@@ -717,6 +747,7 @@ public class CBPEngine {
 
 	for (Entry<String, List<ComparisonEvent>> entry : rightTracker.entrySet()) {
 	    String id = entry.getKey();
+
 	    List<ComparisonEvent> eventList = entry.getValue();
 
 	    TrackedObject trackedObject = trackedObjects.get(id);
@@ -781,6 +812,10 @@ public class CBPEngine {
 		// id as a target object
 		if (event.getTargetId() != null) {
 		    TrackedObject targetTrackedObject = trackedObjects.get(event.getTargetId());
+		    if (targetTrackedObject == null) {
+			targetTrackedObject = new TrackedObject(event.getTargetId());
+			trackedObjects.put(event.getTargetId(), targetTrackedObject);
+		    }
 		    String value = (event.getValue() == null) ? event.getValueId() : event.getValue().toString();
 		    String oldValue = (event.getOldValue() == null) ? event.getValueId() : event.getOldValue().toString();
 		    int pos = (event.getPosition() != -1) ? event.getPosition() : event.getTo();

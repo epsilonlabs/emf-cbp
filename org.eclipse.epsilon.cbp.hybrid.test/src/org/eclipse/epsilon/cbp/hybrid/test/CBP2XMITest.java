@@ -14,10 +14,11 @@ public class CBP2XMITest {
 	public void testGeneateAllSessionsXMIs() {
 		try {
 			org.eclipse.uml2.uml.UMLPackage.eINSTANCE.eClass();
+			MoDiscoXMLPackage.eINSTANCE.eClass();
 //			UML.UMLPackage.eINSTANCE.eClass();
 			
-			File cbpFile = new File("D:\\TEMP\\COMPARISON\\source-cbpxml\\BPMN2.cbpxml");
-			File targetDir = new File("D:\\TEMP\\COMPARISON\\xmi-with-id\\");
+			File cbpFile = new File("D:\\TEMP\\COMPARISON3\\cbp-with-uuid\\wikipedia-uuid-010-012.cbpxml");
+			File targetDir = new File("D:\\TEMP\\COMPARISON3\\");
 //			File cbpFile = new File("D:\\TEMP\\ASE\\bpmn2.192.cbpxml");
 //			File targetDir = new File("D:\\TEMP\\ASE\\bpmn2_xmi");
 //			File cbpFile = new File("D:\\TEMP\\XMI_GENERATOR\\input.cbpxml");

@@ -4,10 +4,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.compare.AttributeChange;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.EMFCompare.Builder;
+import org.eclipse.emf.compare.ReferenceChange;
 import org.eclipse.emf.compare.diff.IDiffEngine;
 import org.eclipse.emf.compare.match.DefaultComparisonFactory;
 import org.eclipse.emf.compare.match.DefaultEqualityHelperFactory;
@@ -103,8 +105,8 @@ public class ModelGeneratorTest {
 	Logger.getRootLogger().setLevel(Level.OFF);
 
 	System.out.println("Compare using XMI extension");
-	String leftPath = "D:\\TEMP\\COMPARISON3\\left.xmi";
-	String rightPath = "D:\\TEMP\\COMPARISON3\\right.xmi";
+	String leftPath = "D:\\TEMP\\COMPARISON3\\xmi-with-uuid\\wikipedia-011.xmi";
+	String rightPath = "D:\\TEMP\\COMPARISON3\\xmi-with-uuid\\wikipedia-010.xmi";
 
 	Resource leftResource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftPath));
 	Resource rightResource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightPath));
@@ -133,14 +135,19 @@ public class ModelGeneratorTest {
 	  String rightId = null;
 	  if (diff.getMatch().getLeft() != null ) {
 	      leftId = leftResource.getURIFragment(diff.getMatch().getLeft());
-	      if (leftId.equals("123")) {
-		  System.out.println();
-	      }
 	  }
 	  if (diff.getMatch().getRight() != null ) {
 	      rightId = rightResource.getURIFragment(diff.getMatch().getRight());
 	  }
-	  String output = leftId + " - " + rightId + " : " + diff.getKind();
+	  
+	  String name  = "";
+	  if (diff instanceof ReferenceChange) {
+	      name = ((ReferenceChange) diff).getReference().getName();
+	  } else if( diff instanceof AttributeChange) {
+	      name = ((AttributeChange) diff).getAttribute().getName();
+	  }
+	  
+	  String output = leftId + " - " + rightId + " : " + diff.getKind() + " : " + name;
 	  System.out.println(output);
 	}
 	
@@ -206,8 +213,8 @@ public class ModelGeneratorTest {
 	Logger.getRootLogger().setLevel(Level.OFF);
 
 	System.out.println("Compare using CBP extension");
-	String leftPath = "D:\\TEMP\\COMPARISON3\\left.xmi";
-	String rightPath = "D:\\TEMP\\COMPARISON3\\right.xmi";
+	String leftPath = "D:\\TEMP\\COMPARISON3\\test\\wikipedia-011.xmi";
+	String rightPath = "D:\\TEMP\\COMPARISON3\\test\\wikipedia-010.xmi";
 
 	Resource cbpLeftResource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftPath));
 	Resource cbpRightResource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightPath));

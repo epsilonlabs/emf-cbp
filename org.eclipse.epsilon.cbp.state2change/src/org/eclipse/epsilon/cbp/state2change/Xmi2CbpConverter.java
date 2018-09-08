@@ -29,6 +29,8 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
+import org.eclipse.epsilon.cbp.resource.CBPResource;
+import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.epsilon.cbp.util.StringOutputStream;
@@ -46,14 +48,14 @@ public class Xmi2CbpConverter {
 		if (cbpDirectory.exists() == false)
 			cbpDirectory.mkdir();
 		File cbpFile = new File(cbpDirectory.getAbsolutePath() + File.separator + cbpFileName);
-		if (cbpFile.exists()) {
-			cbpFile.delete();
-		}
-		cbpFile.createNewFile();
+//		if (cbpFile.exists()) {
+//			cbpFile.delete();
+//		}
+//		cbpFile.createNewFile();
 		File ignoreFile = new File(cbpDirectory.getAbsolutePath() + File.separator + ignoreFileName);
-		if (ignoreFile.exists()) {
-			ignoreFile.delete();
-		}
+//		if (ignoreFile.exists()) {
+//			ignoreFile.delete();
+//		}
 
 		Map<Object, Object> saveOptions = (new XMIResourceImpl()).getDefaultSaveOptions();
 		saveOptions.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
@@ -63,6 +65,7 @@ public class Xmi2CbpConverter {
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 
 		Resource runningCbpResource = resourceSet.createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
+		((CBPResource) runningCbpResource).setIdType(IdType.UUID);
 		runningCbpResource.load(null);
 
 		// iteration through all xmi files
@@ -73,6 +76,8 @@ public class Xmi2CbpConverter {
 			System.out.println(State2ChangeTool.getTimeStamp() + ": Processing file " + xmiFile.getName() + " to CBP");
 			Resource xmiResource = resourceSet.createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
 			xmiResource.load(null);
+			
+			String id = xmiResource.getURIFragment(xmiResource.getContents().get(0));
 
 			IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
 			IBatchMerger batchMerger = new BatchMerger(registry);

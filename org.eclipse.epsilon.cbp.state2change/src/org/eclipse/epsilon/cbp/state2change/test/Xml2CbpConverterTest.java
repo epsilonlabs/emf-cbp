@@ -19,8 +19,8 @@ public class Xml2CbpConverterTest {
 	System.out.println(State2ChangeTool.getTimeStamp() + ": Starting Xmi 2 Cbp Test ...");
 	System.out.println();
 
-	File cbpDirectory = new File("D:/TEMP/WIKIPEDIA/cbp/");
-	File xmiDirectory = new File("D:/TEMP/WIKIPEDIA/xmi/");
+	File cbpDirectory = new File("D:/TEMP/COMPARISON3/cbp-with-uuid/");
+	File xmiDirectory = new File("D:\\TEMP\\COMPARISON3\\xmi-original\\");
 
 	Xmi2CbpConverter converter = new Xmi2CbpConverter();
 	converter.convertXmiToCbp(xmiDirectory, cbpDirectory);
