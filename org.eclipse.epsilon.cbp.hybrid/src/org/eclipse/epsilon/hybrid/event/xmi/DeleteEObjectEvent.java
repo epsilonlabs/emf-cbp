@@ -7,30 +7,32 @@ import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 
 public class DeleteEObjectEvent extends org.eclipse.epsilon.cbp.event.DeleteEObjectEvent {
 
-	protected HybridResource resource;
+    protected HybridResource resource;
 
-	public DeleteEObjectEvent(EObject eObject, String id) {
-		super(eObject, id);
-		this.eObject = eObject;
-		this.eClass = eObject.eClass();
-		this.id = id;
-		this.setValue(eObject);
-	}
+    public DeleteEObjectEvent(EObject eObject, String id) {
+	super(eObject, id);
+	this.eObject = eObject;
+	this.eClass = eObject.eClass();
+	this.id = id;
+	this.setValue(eObject);
+    }
 
-	public DeleteEObjectEvent(EClass eClass, HybridResource resource, String id) {
-		super();
-		this.eClass = eClass;
-		this.id = id;
-		this.resource = resource;
-		this.eObject = resource.getEObject(id);
-	}
+    public DeleteEObjectEvent(EClass eClass, HybridResource resource, String id) {
+	super();
+	this.eClass = eClass;
+	this.id = id;
+	this.resource = resource;
+	this.eObject = resource.getEObject(id);
+    }
 
-	@Override
-	public void replay() {
-		this.eObject = resource.getEObject(this.id);
-		this.setValue(eObject);
-		EcoreUtil.delete(eObject);
-		resource.unregister(eObject);
+    @Override
+    public void replay() {
+	this.eObject = resource.getEObject(this.id);
+	if (this.eObject != null) {
+	    this.setValue(eObject);
+	    EcoreUtil.delete(eObject);
+//	    resource.unregister(eObject);
 	}
+    }
 
 }

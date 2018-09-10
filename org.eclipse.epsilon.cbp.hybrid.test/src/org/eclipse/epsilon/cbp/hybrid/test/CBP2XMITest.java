@@ -17,8 +17,9 @@ public class CBP2XMITest {
 			MoDiscoXMLPackage.eINSTANCE.eClass();
 //			UML.UMLPackage.eINSTANCE.eClass();
 			
-			File cbpFile = new File("D:\\TEMP\\COMPARISON3\\cbp-with-uuid\\wikipedia-uuid-010-012.cbpxml");
-			File targetDir = new File("D:\\TEMP\\COMPARISON3\\");
+//			File cbpFile = new File("D:\\TEMP\\COMPARISON3\\cbp-with-uuid\\wikipedia-uuid-010-012.cbpxml");
+			File cbpFile = new File("D:\\TEMP\\COMPARISON2\\cbp-with-uuid\\bpmn2-uuid-015-016-017.cbpxml");
+			File targetDir = new File("D:\\TEMP\\COMPARISON2\\");
 //			File cbpFile = new File("D:\\TEMP\\ASE\\bpmn2.192.cbpxml");
 //			File targetDir = new File("D:\\TEMP\\ASE\\bpmn2_xmi");
 //			File cbpFile = new File("D:\\TEMP\\XMI_GENERATOR\\input.cbpxml");

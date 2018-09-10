@@ -74,7 +74,7 @@ public abstract class CBPResource extends ResourceImpl {
 		this.eObjectToIdMap = HashBiMap.create();
 	}
 
-	public BiMap<EObject, String> geteObjectToIdMap() {
+	public BiMap<EObject, String> getEObjectToIdMap() {
 		return eObjectToIdMap;
 	}
 

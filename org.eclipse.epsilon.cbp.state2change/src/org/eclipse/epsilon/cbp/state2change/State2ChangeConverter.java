@@ -296,7 +296,7 @@ public class State2ChangeConverter {
 	    System.out.println("Converting file " + xmiFile.getName() + " to CBP");
 	    Resource x = cbpResource;
 	    try {
-//		System.out.println("Reload model from CBP ...");
+		System.out.println("Load model from CBP ...");
 //		cbpResource.unload();
 		cbpResource.load(null);
 	    } catch (IOException e1) {
@@ -320,6 +320,7 @@ public class State2ChangeConverter {
 	    String xmiFilePath = xmiFile.getAbsolutePath();
 	    URI xmiFileUri = URI.createFileURI(xmiFilePath);
 	    Resource xmiResource = (new XMIResourceFactoryImpl()).createResource(xmiFileUri);
+	    System.out.println("Loading XMI ...");
 	    xmiResource.load(saveOptions);
 	    xmiResource.setURI(commonXmiURI);
 	    xmiResourceSet.getResources().clear();
@@ -377,12 +378,12 @@ public class State2ChangeConverter {
 	    // ((CBPResource) cbpResource).getModelHistory().clear();
 	    // ((CBPResource) cbpResource).getIgnoreSet().clear();
 	    // clearCacheAdapter(cbpResource);
-//	    try {
-//		cbpResource.unload();
-//		cbpResource.load(null);
-//	    } catch (IOException e) {
-//		e.printStackTrace();
-//	    }
+	    try {
+		cbpResource.unload();
+		cbpResource.load(null);
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
 
 	    // cbpStateResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
 	    // URI cbpStateFileUri = URI.createFileURI(cbpStatePath +
@@ -414,12 +415,13 @@ public class State2ChangeConverter {
 		    e.printStackTrace();
 		}
 
-//		try {
-//		    System.out.println("Re-load from the CBP again  ...");
-//		    cbpResource.load(null);
-//		} catch (IOException e) {
-//		    e.printStackTrace();
-//		}
+		try {
+		    System.out.println("Re-load from the CBP again  ...");
+		    cbpResource.unload();
+		    cbpResource.load(null);
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
 
 		scope = createComparisonScope(cbpResource, xmiResource);
 		System.out.println("Re-do comparison for validation again ...");

@@ -17,7 +17,7 @@ public class State2ChangeConverterTest {
 
     // private File xmiDirectory = new
     // File("D:\\TEMP\\COMPARISON2\\xmi-uuid\\");
-    private File xmiDirectory = new File("D:\\TEMP\\COMPARISON2\\xmi-original\\");
+    private File xmiDirectory = new File("D:\\TEMP\\COMPARISON2\\xmi-uuid\\");
     private File diffDirectory = new File("D:\\TEMP\\COMPARISON\\diff\\");
     private File cbpFile = new File("D:\\TEMP\\COMPARISON2\\cbp-with-uuid\\bpmn2-uuid.cbpxml");
 
