@@ -101,6 +101,7 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 
 	left = CBPEngine.getLeftPartialResource();
 	right = CBPEngine.getRightPartialResource();
+	origin = CBPEngine.getOriginPartialResource();
 
 	// Our "roots" are Resources. Consider them matched
 	final MatchResource match = CompareFactory.eINSTANCE.createMatchResource();
