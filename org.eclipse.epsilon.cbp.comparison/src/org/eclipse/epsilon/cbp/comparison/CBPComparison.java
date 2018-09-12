@@ -151,7 +151,7 @@ public class CBPComparison {
 
 	System.out.println("Create events for comparison from left CBP file ...");
 	leftNsURI = createComparisonEvents(leftChannel, leftComparisonEvents, leftSessionEvents, leftCompositeEvents);
-	System.out.println("Read diffs from right CBP file ...");
+	System.out.println("Create events for comparison from right CBP file ...");
 	rightNsURI = createComparisonEvents(rightChannel, rightComparisonEvents, rightSessionEvents, rightCompositeEvents);
 
 	int leftLineCount = lineCount;

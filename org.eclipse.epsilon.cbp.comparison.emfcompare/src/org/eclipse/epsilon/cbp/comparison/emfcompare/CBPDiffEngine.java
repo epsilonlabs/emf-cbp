@@ -37,10 +37,13 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
     @Override
     public void diff(Comparison comparison, Monitor monitor) {
-	printMatches(comparison.getMatches(), 0);
+	// printMatches(comparison.getMatches(), 0);
 
+	long start = System.nanoTime();
 	// super.diff(comparison, monitor);
 	this.cbpDiff(comparison, monitor);
+	long end = System.nanoTime();
+	System.out.println("Diffing Time  = " + (end - start) / 1000000000.0);
     }
 
     /**
@@ -84,18 +87,22 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
 	computeDifferences(comparison, leftPartialResource, rightPartialResource, leftTrackedObjects, rightTrackedObjects, DifferenceSource.LEFT, monitor);
 
-	EList<Diff> diffs = comparison.getDifferences();
-	for (Diff diff : diffs) {
-	    if (diff instanceof AttributeChange) {
-		System.out.println(diff);
-	    } else if (diff instanceof ReferenceChange) {
-		ReferenceChange ref = (ReferenceChange) diff;
-		System.out.println(diff);
-	    }else {
-		System.out.println(diff);
-	    }
-	}
-	System.out.println();
+	// EList<Diff> diffs = comparison.getDifferences();
+	// System.out.println("Total Diffs = " + diffs.size());
+	// for (Diff diff : diffs) {
+	// if (diff instanceof AttributeChange) {
+	// System.out.println(diff);
+	// } else if (diff instanceof ReferenceChange) {
+	// ReferenceChange ref = (ReferenceChange) diff;
+	// System.out.println(diff);
+	// if (((ReferenceChange) diff).getValue() == null) {
+	// System.out.println();
+	// }
+	// } else {
+	// System.out.println(diff);
+	// }
+	// }
+	// System.out.println();
     }
 
     private void computeDifferences(Comparison comparison, Resource left, Resource right, Map<String, TrackedObject> leftTrackedObjects, Map<String, TrackedObject> rightTrackedObjects,
@@ -106,7 +113,8 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
 	for (String id : ids) {
 
-	    System.out.println("Identifying differences of object with id = " + id);
+	    // System.out.println("Identifying differences of object with id = "
+	    // + id);
 
 	    TrackedObject leftTrackedObject = leftTrackedObjects.get(id);
 	    TrackedObject rightTrackedObject = rightTrackedObjects.get(id);
@@ -137,19 +145,24 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 		// handle objects that don't exist in one of the resources
 		if (leftTrackedObject == null && rightTrackedObject != null) {
 		    EObject value = right.getEObject(id);
-		    Match match = comparison.getMatch(value.eContainer());
-		    EStructuralFeature feature = value.eContainer().eClass().getEStructuralFeature(rightTrackedObject.getContainingFeature());
-		    if (feature instanceof EReference) {
-			EReference reference = (EReference) feature;
-			getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.DELETE, source);
+		    if (value != null) {
+			Match match = comparison.getMatch(value.eContainer());
+			EStructuralFeature feature = value.eContainer().eClass().getEStructuralFeature(rightTrackedObject.getContainingFeature());
+			if (feature instanceof EReference) {
+			    EReference reference = (EReference) feature;
+			    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.DELETE, source);
+			}
 		    }
 		} else if (leftTrackedObject != null && rightTrackedObject == null) {
+
 		    EObject value = left.getEObject(id);
-		    Match match = comparison.getMatch(value.eContainer());
-		    EStructuralFeature feature = value.eContainer().eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
-		    if (feature instanceof EReference) {
-			EReference reference = (EReference) feature;
-			getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.ADD, source);
+		    if (value != null) {
+			Match match = comparison.getMatch(value.eContainer());
+			EStructuralFeature feature = value.eContainer().eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
+			if (feature instanceof EReference) {
+			    EReference reference = (EReference) feature;
+			    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.ADD, source);
+			}
 		    }
 		}
 	    }
@@ -159,21 +172,25 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
 		// handle objects that have been moved cross containers
 		if (leftTrackedObject.getContainer() != null && rightTrackedObject.getContainer() != null && leftTrackedObject.getContainingFeature() != null
-			&& rightTrackedObject.getContainingFeature() != null
-			&& !leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer()) ^ !leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature())) {
+			&& rightTrackedObject.getContainingFeature() != null && (!leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer())
+				^ !leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature()))) {
 		    EObject value = right.getEObject(id);
-		    Match match = comparison.getMatch(value);
-		    EReference reference = (EReference) value.eContainer().eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
-		    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
+		    if (value != null) {
+			Match match = comparison.getMatch(value);
+			EReference reference = (EReference) value.eContainer().eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
+			getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
+		    }
 		}
 		// handle objects that have been moved in the same containers
 		else if (leftTrackedObject.getPosition() > -1 && rightTrackedObject.getPosition() > -1 && leftTrackedObject.getContainer() != null && rightTrackedObject.getContainer() != null
 			&& leftTrackedObject.getContainer().equals(rightTrackedObject.getContainer()) && leftTrackedObject.getContainingFeature().equals(rightTrackedObject.getContainingFeature())
 			&& leftTrackedObject.getPosition() != rightTrackedObject.getPosition()) {
 		    EObject value = right.getEObject(id);
-		    Match match = comparison.getMatch(value);
-		    EReference reference = (EReference) value.eContainer().eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
-		    getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
+		    if (value != null) {
+			Match match = comparison.getMatch(value);
+			EReference reference = (EReference) value.eContainer().eClass().getEStructuralFeature(leftTrackedObject.getContainingFeature());
+			getDiffProcessor().referenceChange(match, reference, value, DifferenceKind.MOVE, source);
+		    }
 		}
 
 		// handle objects that have been modified on their features
@@ -245,7 +262,9 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 		    else if (isMany == false && isAttribute == false) {
 
 			EObject value = (EObject) targetEObject.eGet(feature);
-			getDiffProcessor().referenceChange(match, (EReference) feature, value, DifferenceKind.CHANGE, source);
+			if (value != null) {
+			    getDiffProcessor().referenceChange(match, (EReference) feature, value, DifferenceKind.CHANGE, source);
+			}
 
 		    } else if (isMany == true && isAttribute == false) {
 

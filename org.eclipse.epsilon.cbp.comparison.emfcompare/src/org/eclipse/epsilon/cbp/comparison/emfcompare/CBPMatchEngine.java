@@ -83,7 +83,7 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 
     @Override
     protected void match(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin, Monitor monitor) {
-//	super.match(comparison, scope, left, right, origin, monitor);
+	// super.match(comparison, scope, left, right, origin, monitor);
 	this.cbpMatch(comparison, scope, left, right, origin, monitor);
     }
 
@@ -95,9 +95,11 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 
     private void cbpMatch(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin, Monitor monitor) {
 
-	CBPEngine.createCBPEngine(left, right, origin, CBPEngine.PARTIAL_MODE);
-	// CBPEngine.createCBPEngine(leftResource, rightResource,
-	// CBPEngine.FULL_MODE);
+	// CBPEngine.createCBPEngine(left, right, origin,
+	// CBPEngine.PARTIAL_MODE);
+	CBPEngine.createCBPEngine(left, right, origin, CBPEngine.FULL_MODE);
+
+	long start = System.nanoTime();
 
 	left = CBPEngine.getLeftPartialResource();
 	right = CBPEngine.getRightPartialResource();
@@ -162,6 +164,9 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 	}
 
 	((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison, left, right, monitor);
+
+	long end = System.nanoTime();
+	System.out.println("Matching Time  = " + (end - start) / 1000000000.0);
     }
 
     private void cbpMatch(Comparison comparison, IComparisonScope scope, ResourceSet left, ResourceSet right, ResourceSet origin, Monitor monitor) {
@@ -194,9 +199,11 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 	    }
 	}
 
-	CBPEngine.createCBPEngine(leftResource, rightResource, originResource, CBPEngine.PARTIAL_MODE);
 	// CBPEngine.createCBPEngine(leftResource, rightResource,
-	// CBPEngine.FULL_MODE);
+	// originResource, CBPEngine.PARTIAL_MODE);
+	CBPEngine.createCBPEngine(leftResource, rightResource, originResource, CBPEngine.FULL_MODE);
+
+	long start = System.nanoTime();
 
 	left.getResources().clear();
 	left.getResources().add(CBPEngine.getLeftPartialResource());
@@ -246,6 +253,9 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 	((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison, CBPEngine.getLeftPartialResource(), CBPEngine.getRightPartialResource(), monitor);
 	// ((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison,
 	// CBPEngine.getLeftResource(), CBPEngine.getRightResource(), monitor);
+
+	long end = System.nanoTime();
+	System.out.println("Matching Time  = " + (end - start) / 1000000000.0);
     }
 
     public static IEObjectMatcher createDefaultEObjectMatcher(UseIdentifiers useIDs, WeightProvider.Descriptor.Registry weightProviderRegistry) {

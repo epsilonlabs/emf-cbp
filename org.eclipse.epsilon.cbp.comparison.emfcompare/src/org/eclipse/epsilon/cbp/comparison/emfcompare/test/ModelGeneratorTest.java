@@ -122,8 +122,11 @@ public class ModelGeneratorTest {
     public void testEMFComparisonXMIExtension() throws IOException {
 
 	System.out.println("Compare using XMI extension");
-	String leftPath = "D:\\TEMP\\COMPARISON2\\test\\left-no-id.xmi";
-	String rightPath = "D:\\TEMP\\COMPARISON2\\test\\right-no-id.xmi";
+	// String leftPath = "D:\\TEMP\\COMPARISON2\\test\\left-no-id.xmi";
+	// String rightPath = "D:\\TEMP\\COMPARISON2\\test\\right-no-id.xmi";
+
+	String leftPath = "D:\\TEMP\\COMPARISON2\\test\\left.xmi";
+	String rightPath = "D:\\TEMP\\COMPARISON2\\test\\right.xmi";
 
 	Resource leftResource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftPath));
 	Resource rightResource = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightPath));
@@ -242,8 +245,8 @@ public class ModelGeneratorTest {
 
 	System.out.println("Loading left resource ...");
 	cbpLeftResource.load(null);
-	// System.out.println("Loading right resource ...");
-	// cbpRightResource.load(null);
+	System.out.println("Loading right resource ...");
+	cbpRightResource.load(null);
 
 	// match engine
 	IMatchEngine.Factory matchEngineFactory = new CBPMatchEngineFactory();
@@ -272,19 +275,20 @@ public class ModelGeneratorTest {
 	cbpLeftResource = CBPEngine.getLeftPartialResource();
 	cbpRightResource = CBPEngine.getRightPartialResource();
 
-	System.out.println("\nList of Diffs: CBP");
-	for (Diff diff : cbpDiffs) {
-	    String leftId = null;
-	    String rightId = null;
-	    if (diff.getMatch().getLeft() != null) {
-		leftId = cbpLeftResource.getURIFragment(diff.getMatch().getLeft());
-	    }
-	    if (diff.getMatch().getRight() != null) {
-		rightId = cbpRightResource.getURIFragment(diff.getMatch().getRight());
-	    }
-	    String output = leftId + " - " + rightId + " : " + diff.getKind();
-	    System.out.println(output);
-	}
+	// System.out.println("\nList of Diffs: CBP");
+	// for (Diff diff : cbpDiffs) {
+	// String leftId = null;
+	// String rightId = null;
+	// if (diff.getMatch().getLeft() != null) {
+	// leftId = cbpLeftResource.getURIFragment(diff.getMatch().getLeft());
+	// }
+	// if (diff.getMatch().getRight() != null) {
+	// rightId =
+	// cbpRightResource.getURIFragment(diff.getMatch().getRight());
+	// }
+	// String output = leftId + " - " + rightId + " : " + diff.getKind();
+	// System.out.println(output);
+	// }
 
 	assertEquals(true, true);
     }
