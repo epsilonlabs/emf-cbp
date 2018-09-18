@@ -14,7 +14,7 @@ public class CBPRCPMatchEngineFactory extends DefaultRCPMatchEngineFactory {
     @Override
     public IMatchEngine getMatchEngine() {
 	// final UseIdentifiers useUdentifier = getUseIdentifierValue();
-	final UseIdentifiers useUdentifier = UseIdentifiers.ONLY;
+	final UseIdentifiers useUdentifier = UseIdentifiers.WHEN_AVAILABLE;
 
 	// IMatchEngine matchEngine = CBPMatchEngine.create(useUdentifier);
 	IMatchEngine matchEngine = CBPMatchEngine.create(useUdentifier, EMFCompareRCPPlugin.getDefault().getWeightProviderRegistry());

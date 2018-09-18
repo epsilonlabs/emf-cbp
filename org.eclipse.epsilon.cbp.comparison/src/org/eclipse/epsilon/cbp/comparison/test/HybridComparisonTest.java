@@ -531,7 +531,7 @@ public class HybridComparisonTest {
 			rightResource.save(null);
 			System.out.println(rightOutput.toString());
 
-			System.out.println("CBP");
+			System.out.println("CBPEAttributeEvent");
 			System.out.println(cbpOutput.toString());
 			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cbpFile));
 			bos.write(cbpOutput.toString().getBytes());

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.Monitor;
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.CompareFactory;
 import org.eclipse.emf.compare.Comparison;
@@ -35,8 +36,7 @@ import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.epsilon.cbp.comparison.CBPComparison;
-import org.eclipse.epsilon.cbp.comparison.ICBPEObjectMatcher;
+import org.eclipse.epsilon.cbp.comparison.CBPComparisonOld;
 import org.eclipse.epsilon.cbp.comparison.event.ComparisonEvent;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
@@ -83,23 +83,61 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 
     @Override
     protected void match(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin, Monitor monitor) {
-	// super.match(comparison, scope, left, right, origin, monitor);
-	this.cbpMatch(comparison, scope, left, right, origin, monitor);
+	try {
+	    CBPEngine.createCBPEngine(left, right, origin, CBPEngine.PARTIAL_MODE);
+
+	    left = CBPEngine.getLeftPartialResource();
+	    right = CBPEngine.getRightPartialResource();
+	    origin = CBPEngine.getOriginPartialResource();
+
+	    long start = System.nanoTime();
+	    super.match(comparison, scope, left, right, origin, monitor);
+	    // this.cbpMatch(comparison, scope, left, right, origin, monitor);
+	    long end = System.nanoTime();
+	    System.out.println("Matching Time  = " + (end - start) / 1000000000.0);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    System.out.println();
+	}
     }
 
     @Override
     protected void match(Comparison comparison, IComparisonScope scope, ResourceSet left, ResourceSet right, ResourceSet origin, Monitor monitor) {
-	// super.match(comparison, scope, left, right, origin, monitor);
-	cbpMatch(comparison, scope, left, right, origin, monitor);
+	try {
+
+	    Resource leftResource = left.getResources().get(0);
+	    Resource rightResource = right.getResources().get(0);
+	    Resource originResource = origin.getResources().get(0);
+	    
+	    countElements(leftResource, "Left");
+	    countElements(rightResource, "Right");
+
+	    long start = System.nanoTime();
+	    CBPEngine.createCBPEngine(leftResource, rightResource, originResource, CBPEngine.PARTIAL_MODE);
+	    long end = System.nanoTime();
+	    System.out.println("Matching Time  = " + (end - start) / 1000000000.0);
+	    
+	    left.getResources().clear();
+	    left.getResources().add(CBPEngine.getLeftPartialResource());
+	    right.getResources().clear();
+	    right.getResources().add(CBPEngine.getRightPartialResource());
+	    origin.getResources().clear();
+	    origin = null;
+
+	    super.match(comparison, scope, left, right, null, monitor);
+
+	    countElements(CBPEngine.getLeftPartialResource(), "Partial Left");
+	    countElements(CBPEngine.getRightPartialResource(), "Partial Right");
+	    
+	    // cbpMatch(comparison, scope, left, right, origin, monitor);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 
     private void cbpMatch(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin, Monitor monitor) {
 
-	// CBPEngine.createCBPEngine(left, right, origin,
-	// CBPEngine.PARTIAL_MODE);
-	CBPEngine.createCBPEngine(left, right, origin, CBPEngine.FULL_MODE);
-
-	long start = System.nanoTime();
+	CBPEngine.createCBPEngine(left, right, origin, CBPEngine.PARTIAL_MODE);
 
 	left = CBPEngine.getLeftPartialResource();
 	right = CBPEngine.getRightPartialResource();
@@ -165,8 +203,6 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 
 	((ICBPEObjectMatcher) getEObjectMatcher()).createMatches(comparison, left, right, monitor);
 
-	long end = System.nanoTime();
-	System.out.println("Matching Time  = " + (end - start) / 1000000000.0);
     }
 
     private void cbpMatch(Comparison comparison, IComparisonScope scope, ResourceSet left, ResourceSet right, ResourceSet origin, Monitor monitor) {
@@ -201,7 +237,7 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 
 	// CBPEngine.createCBPEngine(leftResource, rightResource,
 	// originResource, CBPEngine.PARTIAL_MODE);
-	CBPEngine.createCBPEngine(leftResource, rightResource, originResource, CBPEngine.FULL_MODE);
+	CBPEngine.createCBPEngine(leftResource, rightResource, originResource, CBPEngine.PARTIAL_MODE);
 
 	long start = System.nanoTime();
 
@@ -282,5 +318,15 @@ public class CBPMatchEngine extends DefaultMatchEngine {
 	// documented.
 	return condition1 && (condition2 || condition3) || (condition2 && condition3);
 	// CHECKSTYLE:ON
+    }
+
+    protected void countElements(Resource leftResource, String name) {
+	TreeIterator<EObject> iterator = leftResource.getAllContents();
+	int count = 0;
+	while (iterator.hasNext()) {
+	    iterator.next();
+	    count += 1;
+	}
+	System.out.println(name + " Element Count = " + count);
     }
 }

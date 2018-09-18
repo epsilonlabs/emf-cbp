@@ -30,7 +30,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.epsilon.cbp.comparison.CBPComparison;
+import org.eclipse.epsilon.cbp.comparison.CBPComparisonOld;
 import org.eclipse.epsilon.cbp.comparison.event.ComparisonEvent;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
@@ -66,8 +66,11 @@ public class CBPEngine {
     }
 
     public static void createCBPEngine(Resource left, Resource right, Resource origin, String treeMode) {
+	long start = 0;
+	long end = 0;
 
 	try {
+
 	    mode = treeMode;
 	    leftResource = left;
 	    rightResource = right;
@@ -77,49 +80,59 @@ public class CBPEngine {
 	    String leftPath = null;
 	    String rightPath = null;
 	    try {
-		originPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(left.getURI().toPlatformString(true))).getRawLocation().toOSString();
-		originPath = originPath.replaceAll(".xmi", ".cbpxml");
+		if (origin != null) {
+		    originPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(origin.getURI().toPlatformString(true))).getRawLocation().toOSString();
+		    originPath = originPath.replaceAll(".xmi", ".cbpxml");
+		}
+
 		leftPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(left.getURI().toPlatformString(true))).getRawLocation().toOSString();
 		leftPath = leftPath.replaceAll(".xmi", ".cbpxml");
 		rightPath = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(right.getURI().toPlatformString(true))).getRawLocation().toOSString();
 		rightPath = rightPath.replaceAll(".xmi", ".cbpxml");
 	    } catch (Exception exe) {
-		originPath = origin.getURI().devicePath();
-		originPath = originPath.replaceAll(".xmi", ".cbpxml");
+		if (origin != null) {
+		    originPath = origin.getURI().devicePath();
+		    originPath = originPath.replaceAll(".xmi", ".cbpxml");
+		}
 		leftPath = left.getURI().devicePath();
 		leftPath = leftPath.replaceAll(".xmi", ".cbpxml");
 		rightPath = right.getURI().devicePath();
 		rightPath = rightPath.replaceAll(".xmi", ".cbpxml");
 	    }
 
-	    long start = System.nanoTime();
-	    CBPComparison cbpComparison = new CBPComparison(new File(leftPath), new File(rightPath), new File(originPath));
-	    cbpComparison.compare();
-	    long end = System.nanoTime();
-	    System.out.println("Reading CBP and Convert Them to Comparison events Time  = " + (end - start) / 1000000000.0);
+	    if (origin != null) {
+		start = System.nanoTime();
+		CBPComparisonOld cbpComparison = new CBPComparisonOld(new File(leftPath), new File(rightPath), new File(originPath));
+		cbpComparison.compare();
+		end = System.nanoTime();
+		System.out.println("Reading CBPEAttributeEvent and Convert Them to Comparison events Time  = " + (end - start) / 1000000000.0);
+		System.out.println("Left Event Size " + cbpComparison.getLeftComparisonEvents().size());
+		System.out.println("Right Event Size " + cbpComparison.getRightComparisonEvents().size());
+		
+		start = System.nanoTime();
+		if (cbpComparison.getRightNsURI() != null) {
+		    ePackage = EPackage.Registry.INSTANCE.getEPackage(cbpComparison.getRightNsURI());
+		} else if (cbpComparison.getLeftNsURI() != null) {
+		    ePackage = EPackage.Registry.INSTANCE.getEPackage(cbpComparison.getLeftNsURI());
+		} else if (left.getContents().size() > 0) {
+		    ePackage = left.getContents().get(0).eClass().getEPackage();
+		}
 
-	    if (cbpComparison.getRightNsURI() != null) {
-		ePackage = EPackage.Registry.INSTANCE.getEPackage(cbpComparison.getRightNsURI());
-	    } else if (cbpComparison.getLeftNsURI() != null) {
-		ePackage = EPackage.Registry.INSTANCE.getEPackage(cbpComparison.getLeftNsURI());
-	    } else if (left.getContents().size() > 0) {
-		ePackage = left.getContents().get(0).eClass().getEPackage();
+		localComparisonEvents = cbpComparison.getLeftComparisonEvents();
+		rightComparisonEvents = cbpComparison.getRightComparisonEvents();
+
+		//start = System.nanoTime();
+		localTracker = addLeftSideObjectEventsToTracker(left, localComparisonEvents);
+		rightTracker = addRightSideObjectEventsToTracker(right, rightComparisonEvents);
+//		end = System.nanoTime();
+//		System.out.println("Group Events based on Object Id Time  = " + (end - start) / 1000000000.0);
+
+//		start = System.nanoTime();
+		leftTrackedObjects = createTrackedObjectList(localTracker);
+		rightTrackedObjects = createTrackedObjectList(rightTracker, leftTrackedObjects);
+//		end = System.nanoTime();
+//		System.out.println("Create Tracked Objects  = " + (end - start) / 1000000000.0);
 	    }
-
-	    localComparisonEvents = cbpComparison.getLeftComparisonEvents();
-	    rightComparisonEvents = cbpComparison.getRightComparisonEvents();
-
-	    start = System.nanoTime();
-	    localTracker = addLeftSideObjectEventsToTracker(left, localComparisonEvents);
-	    rightTracker = addRightSideObjectEventsToTracker(right, rightComparisonEvents);
-	    end = System.nanoTime();
-	    System.out.println("Group Events based on Object Id Time  = " + (end - start) / 1000000000.0);
-
-	    start = System.nanoTime();
-	    leftTrackedObjects = createTrackedObjectList(localTracker);
-	    rightTrackedObjects = createTrackedObjectList(rightTracker, leftTrackedObjects);
-	    end = System.nanoTime();
-	    System.out.println("Create Tracked Objects  = " + (end - start) / 1000000000.0);
 
 	    if (CBPEngine.mode == CBPEngine.PARTIAL_MODE) {
 
@@ -130,7 +143,7 @@ public class CBPEngine {
 		rightPartialResource = (new XMIResourceFactoryImpl()).createResource(rightResource.getURI());
 		originPartialResource = (new XMIResourceFactoryImpl()).createResource(originResource.getURI());
 
-		start = System.nanoTime();
+//		start = System.nanoTime();
 		constructPartialResources();
 		end = System.nanoTime();
 		System.out.println("Constructing Partial Resource Time  = " + (end - start) / 1000000000.0);
@@ -148,13 +161,16 @@ public class CBPEngine {
 	} catch (TransformerException e) {
 	    e.printStackTrace();
 	}
+	
+	
+//	printTree(leftPartialResource);
 
     }
 
     private static void constructPartialResources() {
 
 	// System.out.println("Create ORIGIN model using information from LEFT
-	// CBP");
+	// CBPEAttributeEvent");
 	for (TrackedObject trackedObject : leftTrackedObjects.values()) {
 	    // System.out.println("Processing id = " + trackedObject.getId() +
 	    // ", old-pos = " + trackedObject.getOldPosition() + ", new-pos = "
@@ -166,7 +182,7 @@ public class CBPEngine {
 	}
 
 	// System.out.println("Create ORIGIN model using information from RIGHT
-	// CBP");
+	// CBPEAttributeEvent");
 	for (TrackedObject trackedObject : rightTrackedObjects.values()) {
 	    // System.out.println("Processing id = " + trackedObject.getId() +
 	    // ", old-pos = " + trackedObject.getOldPosition() + ", new-pos = "
@@ -191,7 +207,7 @@ public class CBPEngine {
 	}
 
 	// System.out.println("Create LATEST model using information from LEFT
-	// CBP");
+	// CBPEAttributeEvent");
 	Iterator<Entry<String, TrackedObject>> iteratorLeft = leftTrackedObjects.entrySet().iterator();
 	while (iteratorLeft.hasNext()) {
 	    TrackedObject trackedObject = iteratorLeft.next().getValue();
@@ -242,7 +258,7 @@ public class CBPEngine {
 	}
 
 	// System.out.println("Create LATEST model using information from RIGHT
-	// CBP");
+	// CBPEAttributeEvent");
 	Iterator<Entry<String, TrackedObject>> iteratorRight = rightTrackedObjects.entrySet().iterator();
 	while (iteratorRight.hasNext()) {
 	    TrackedObject trackedObject = iteratorRight.next().getValue();
@@ -342,7 +358,7 @@ public class CBPEngine {
 		}
 	    }
 	    // get the eObject from the xmiLeftResource / local resource
-	    else if (oldContainer != null && oldContainingFeature != null) {
+	    else if (oldContainer != null && oldContainingFeature != null && !ComparisonEvent.RESOURCE_STRING.equals(oldContainer)) {
 		EObject oldContainerEObject = xmiResource.getEObject(oldContainer);
 		if (oldContainerEObject != null) {
 		    EClass eClass = (EClass) ((EReference) oldContainerEObject.eClass().getEStructuralFeature(oldContainingFeature)).getEReferenceType();
@@ -672,9 +688,6 @@ public class CBPEngine {
 					    if (eAttribute.getEAttributeType() instanceof EEnum) {
 						EEnum enum1 = (EEnum) eAttribute.getEAttributeType();
 						Object x = enum1.getEEnumLiteral(stringValue);
-						// Object x =
-						// Enum.valueOf(VisibilityKind.class,
-						// stringValue);
 						partialEObject.eSet(eAttribute, x);
 					    }
 					} catch (Exception e5) {
@@ -685,16 +698,6 @@ public class CBPEngine {
 			    }
 			}
 
-			/*
-			 * EClass eClass = (EClass) ((EAttribute)
-			 * eAttribute).getEAttributeType(); Object value = null;
-			 * if (eClass instanceof LiteralUnlimitedNatural) {
-			 * LiteralUnlimitedNatural valueType =
-			 * (LiteralUnlimitedNatural)
-			 * ePackage.getEFactoryInstance().create(eClass);
-			 * valueType.setValue(Integer.valueOf(stringValue));
-			 * value = valueType; } else { value = stringValue; }
-			 */
 		    } else {
 			Map<Integer, String> values = trackedFeature.getValues();
 			EList<Object> eList = (EList<Object>) partialEObject.eGet(eAttribute);
@@ -870,6 +873,8 @@ public class CBPEngine {
 		// id as a value
 		if (id.equals(event.getValueId())) {
 
+		   
+
 		    // handle from the the value object's point of view
 		    if (event.getTargetId() != null && !id.equals(event.getTargetId())) {
 			if (trackedObject.getOldContainer() == null) {
@@ -879,8 +884,8 @@ public class CBPEngine {
 		    }
 
 		    // set class name
-		    if (event.getClassName() != null) {
-			trackedObject.setClassName(event.getClassName());
+		    if (trackedObject.getClassName() == null && event.getValueClassName() != null) {
+			trackedObject.setClassName(event.getValueClassName());
 		    }
 
 		    // set position
@@ -920,10 +925,15 @@ public class CBPEngine {
 		// handle from the target object point of view
 		// id as a target object
 		if (event.getTargetId() != null) {
+
+		   
 		    TrackedObject targetTrackedObject = trackedObjects.get(event.getTargetId());
 		    if (targetTrackedObject == null) {
 			targetTrackedObject = new TrackedObject(event.getTargetId());
 			trackedObjects.put(event.getTargetId(), targetTrackedObject);
+		    }
+		    if (trackedObject.getClassName() == null) {
+			targetTrackedObject.setClassName(event.getClassName());
 		    }
 		    String value = (event.getValue() == null) ? event.getValueId() : event.getValue().toString();
 		    String oldValue = (event.getOldValue() == null) ? event.getValueId() : event.getOldValue().toString();
@@ -1038,6 +1048,14 @@ public class CBPEngine {
 		    eObject.eSet(feature, name);
 	    }
 	}
+    }
+
+    public static EPackage getePackage() {
+        return ePackage;
+    }
+
+    public static void setePackage(EPackage ePackage) {
+        CBPEngine.ePackage = ePackage;
     }
 
 }

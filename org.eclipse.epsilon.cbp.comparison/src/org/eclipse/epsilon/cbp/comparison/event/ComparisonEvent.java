@@ -70,6 +70,7 @@ public class ComparisonEvent {
     protected String oldValueId = null;
     protected Object value = null;
     protected String valueId = null;
+    protected String valueClassName = null;
     protected EStructuralFeature feature = null;
     protected String featureName = null;
     protected int position = -1;
@@ -166,6 +167,14 @@ public class ComparisonEvent {
 
     public String getValueId() {
 	return valueId;
+    }
+
+    public String getValueClassName() {
+        return valueClassName;
+    }
+
+    public void setValueClassName(String valueClassName) {
+        this.valueClassName = valueClassName;
     }
 
     public String getEventString() throws ParserConfigurationException, TransformerException {
@@ -445,7 +454,6 @@ public class ComparisonEvent {
 			    EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(packageName);
 			    changeEvent = new RegisterEPackageEvent(ePackage, null);
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, null, null, null, -1, eventString, null, null, null);
-
 			    this.packageName = packageName;
 			}
 			    break;
@@ -467,61 +475,97 @@ public class ComparisonEvent {
 			case "add-to-resource": {
 			    changeEvent = new AddToResourceEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "remove-from-resource": {
 			    changeEvent = new RemoveFromResourceEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "add-to-ereference": {
 			    changeEvent = new AddToEReferenceEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "remove-from-ereference": {
 			    changeEvent = new RemoveFromEReferenceEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "set-eattribute": {
 			    changeEvent = new SetEAttributeEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "set-ereference": {
 			    changeEvent = new SetEReferenceEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "unset-eattribute": {
 			    changeEvent = new UnsetEAttributeEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "unset-ereference": {
 			    changeEvent = new UnsetEReferenceEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "add-to-eattribute": {
 			    changeEvent = new AddToEAttributeEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "remove-from-eattribute": {
 			    changeEvent = new RemoveFromEAttributeEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "move-in-eattribute": {
 			    changeEvent = new MoveWithinEAttributeEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "move-in-ereference": {
 			    changeEvent = new MoveWithinEReferenceEvent();
 			    this.internalCreateComparisonEvent(changeEvent.getClass(), changeEvent, eventString);
+			    
+			    String className = e.getAttributeByName(new QName("eclass")).getValue();
+			    this.className = className;
 			}
 			    break;
 			case "delete": {
@@ -595,6 +639,7 @@ public class ComparisonEvent {
 			if (name.equals("value")) {
 			    if (changeEvent instanceof EObjectValuesEvent) {
 				String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+				this.valueClassName = e.getAttributeByName(new QName("eclass")).getValue();
 
 				this.setValueId(seobject);
 			    } else if (changeEvent instanceof EAttributeEvent) {
@@ -612,6 +657,7 @@ public class ComparisonEvent {
 			} else if (name.equals("old-value")) {
 			    if (changeEvent instanceof EObjectValuesEvent) {
 				String seobject = e.getAttributeByName(new QName("eobject")).getValue();
+				this.valueClassName = e.getAttributeByName(new QName("eclass")).getValue();
 
 				this.setOldValueId(seobject);
 			    } else if (changeEvent instanceof EAttributeEvent) {

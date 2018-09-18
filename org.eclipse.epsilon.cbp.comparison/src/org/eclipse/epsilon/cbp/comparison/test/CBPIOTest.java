@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.eclipse.epsilon.cbp.comparison.CBPComparison;
+import org.eclipse.epsilon.cbp.comparison.CBPComparisonOld;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.junit.Test;
 
@@ -70,15 +70,15 @@ public class CBPIOTest {
 		File rightFile = new File("D:\\TEMP\\COMPARISON\\right.cbpxml");
 
 		System.out.println("\n===Left vs Right===");
-		CBPComparison comparison = new CBPComparison(leftFile, rightFile);
+		CBPComparisonOld comparison = new CBPComparisonOld(leftFile, rightFile);
 		comparison.compare();
 
 		System.out.println("\n===Origin vs Right===");
-		comparison = new CBPComparison(originFile, rightFile);
+		comparison = new CBPComparisonOld(originFile, rightFile);
 		comparison.compare();
 
 		System.out.println("\n===Left vs Origin===");
-		comparison = new CBPComparison(leftFile, originFile);
+		comparison = new CBPComparisonOld(leftFile, originFile);
 		comparison.compare();
 
 		assertEquals(true, true);

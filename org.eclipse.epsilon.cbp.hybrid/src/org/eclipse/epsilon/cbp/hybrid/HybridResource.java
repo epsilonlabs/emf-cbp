@@ -39,6 +39,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -323,6 +324,13 @@ public abstract class HybridResource extends ResourceImpl {
 			// System.out.println(eventNumber);
 
 			event.replay();
+			if (event instanceof AddToEReferenceEvent) {
+			    EObject eObject = (EObject) event.getValue();
+			    String id = this.getEObjectId(eObject);
+			    ((XMIResource) this.getStateBasedResource()).setID(eObject, id);
+			}
+			
+			
 			errorMessage = "";
 			eventNumber += 1;
 		    }

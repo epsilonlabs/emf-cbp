@@ -37,13 +37,17 @@ public class CBPDiffEngine extends DefaultDiffEngine {
 
     @Override
     public void diff(Comparison comparison, Monitor monitor) {
-	// printMatches(comparison.getMatches(), 0);
+	try {
+	    // printMatches(comparison.getMatches(), 0);
 
-	long start = System.nanoTime();
-	// super.diff(comparison, monitor);
-	this.cbpDiff(comparison, monitor);
-	long end = System.nanoTime();
-	System.out.println("Diffing Time  = " + (end - start) / 1000000000.0);
+	    long start = System.nanoTime();
+	     super.diff(comparison, monitor);
+//	    this.cbpDiff(comparison, monitor);
+	    long end = System.nanoTime();
+	    System.out.println("Diffing Time  = " + (end - start) / 1000000000.0);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 
     /**

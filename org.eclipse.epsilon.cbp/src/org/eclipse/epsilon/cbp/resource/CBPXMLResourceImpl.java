@@ -215,68 +215,80 @@ public class CBPXMLResourceImpl extends CBPResource {
 		} else if (event instanceof AddToResourceEvent) {
 		    e = document.createElement("add-to-resource");
 		    EObject eObject = ((AddToResourceEvent) event).getValue();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 		} else if (event instanceof RemoveFromResourceEvent) {
 		    e = document.createElement("remove-from-resource");
 		    EObject eObject = ((RemoveFromResourceEvent) event).getValue();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 		} else if (event instanceof AddToEReferenceEvent) {
 		    e = document.createElement("add-to-ereference");
 		    EObject eObject = ((AddToEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    EObject value = ((AddToEReferenceEvent) event).getValue();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof RemoveFromEReferenceEvent) {
 		    e = document.createElement("remove-from-ereference");
 		    EObject eObject = ((RemoveFromEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    EObject value = ((RemoveFromEReferenceEvent) event).getValue();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof SetEAttributeEvent) {
 		    e = document.createElement("set-eattribute");
 		    EObject eObject = ((SetEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 		} else if (event instanceof SetEReferenceEvent) {
 		    e = document.createElement("set-ereference");
 		    EObject eObject = ((SetEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    EObject value = ((SetEReferenceEvent) event).getValue();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof UnsetEReferenceEvent) {
 		    e = document.createElement("unset-ereference");
 		    EObject eObject = ((UnsetEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    EObject value = ((UnsetEReferenceEvent) event).getValue();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof UnsetEAttributeEvent) {
-		    e = document.createElement("unset-eattribute");
+		    e = document.createElement("unset-eattribute");		    
 		    EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber);
 		} else if (event instanceof AddToEAttributeEvent) {
 		    e = document.createElement("add-to-eattribute");
 		    EObject eObject = ((AddToEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    Object value = ((AddToEAttributeEvent) event).getValue();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof RemoveFromEAttributeEvent) {
 		    e = document.createElement("remove-from-eattribute");
 		    EObject eObject = ((RemoveFromEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    Object value = ((RemoveFromEAttributeEvent) event).getValue();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof MoveWithinEReferenceEvent) {
 		    e = document.createElement("move-in-ereference");
 		    EObject eObject = ((MoveWithinEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    Object values = ((MoveWithinEReferenceEvent) event).getValues();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, values);
 		} else if (event instanceof MoveWithinEAttributeEvent) {
 		    e = document.createElement("move-in-eattribute");
 		    EObject eObject = ((MoveWithinEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
 		    Object values = ((MoveWithinEAttributeEvent) event).getValues();
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, values);
@@ -308,6 +320,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			if (eObject != null) {
 			    Element o = document.createElement("old-value");
 			    o.setAttribute("eobject", getURIFragment(eObject));
+			    o.setAttribute("eclass", eObject.eClass().getName());			    
 			    e.appendChild(o);
 			}
 		    }
@@ -315,6 +328,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			if (eObject != null) {
 			    Element o = document.createElement("value");
 			    o.setAttribute("eobject", getURIFragment(eObject));
+			    o.setAttribute("eclass", eObject.eClass().getName());
 			    e.appendChild(o);
 			}
 		    }

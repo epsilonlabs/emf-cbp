@@ -13,6 +13,7 @@ public class CBPMatchEngineFactory extends MatchEngineFactoryImpl {
 
     @Override
     public IMatchEngine getMatchEngine() {
+//	final UseIdentifiers useUdentifier = UseIdentifiers.WHEN_AVAILABLE;
 	final UseIdentifiers useUdentifier = UseIdentifiers.ONLY;
 	IMatchEngine matchEngine = CBPMatchEngine.create(useUdentifier);
 	return matchEngine;
