@@ -105,7 +105,7 @@ public class ModelGeneratorTest {
 
     public ModelGeneratorTest() throws FactoryConfigurationError, IOException {
 
-	// Logger.getRootLogger().setLevel(Level.OFF);
+	 Logger.getRootLogger().setLevel(Level.OFF);
 
 	MoDiscoXMLPackage.eINSTANCE.eClass();
 	UMLPackage.eINSTANCE.eClass();
@@ -126,8 +126,8 @@ public class ModelGeneratorTest {
 
 	System.out.println("Compare using XMI extension");
 
-//	 String leftPath = "D:\\TEMP\\COMPARISON2\\xmi-original\\left.xmi";
-//	 String rightPath = "D:\\TEMP\\COMPARISON2\\xmi-original\\right.xmi";
+	// String leftPath = "D:\\TEMP\\COMPARISON2\\xmi-original\\left.xmi";
+	// String rightPath = "D:\\TEMP\\COMPARISON2\\xmi-original\\right.xmi";
 
 	// String leftPath =
 	// "D:\\TEMP\\COMPARISON3\\xmi-original\\wikipedia-012.xmi";
@@ -315,8 +315,7 @@ public class ModelGeneratorTest {
 
 	countElements(cbpLeftResource, "Partial Left");
 	countElements(cbpRightResource, "Partial Right");
-	
-	
+
 	// System.out.println("\nList of Diffs: CBPEAttributeEvent");
 	// for (Diff diff : cbpDiffs) {
 	// String leftId = null;
@@ -351,20 +350,21 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON4\\test\\right.cbpxml";
 
-	    
 	    String originPath = "D:\\TEMP\\COMPARISON\\temp\\origin.xmi";
 	    String leftPath = "D:\\TEMP\\COMPARISON\\temp\\left.xmi";
 	    String rightPath = "D:\\TEMP\\COMPARISON\\temp\\right.xmi";
 	    String originCbpPath = "D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml";
 	    String leftCbpPath = "D:\\TEMP\\COMPARISON\\temp\\left.cbpxml";
 	    String rightCbpPath = "D:\\TEMP\\COMPARISON\\temp\\right.cbpxml";
-	    
-//	    String originPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
-//	    String leftPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
-//	    String rightPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
-//	    String originCbpPath = "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
-//	    String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
-//	    String rightCbpPath = "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
+
+	    // String originPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
+	    // String leftPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
+	    // String rightPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
+	    // String originCbpPath =
+	    // "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
+	    // String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
+	    // String rightCbpPath =
+	    // "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
 
 	    // String originPath = "D:\\TEMP\\COMPARISON2\\test\\origin.xmi";
 	    // String leftPath = "D:\\TEMP\\COMPARISON2\\test\\left.xmi";
@@ -421,11 +421,20 @@ public class ModelGeneratorTest {
 	    Files.copy(originCbpFile, leftCbpFile);
 	    Files.copy(originCbpFile, rightCbpFile);
 
+	    IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+	    IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+	    IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+	    matchEngineFactory.setRanking(100);
+	    IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+	    matchEngineRegistry.add(matchEngineFactory);
+
 	    IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
 	    BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
 	    postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+	    
 	    Builder builder = EMFCompare.builder();
 	    builder.setPostProcessorRegistry(postProcessorRegistry);
+	    builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
 	    EMFCompare comparator = builder.build();
 
 	    IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
@@ -484,9 +493,9 @@ public class ModelGeneratorTest {
 	diffs = comparison.getDifferences();
 	System.out.println("Diffs: " + diffs.size());
 
+	System.out.println("\nMerge ...");
+	targetCbp.startNewSession(targetCbp.getURI().lastSegment());
 	while (diffs.size() > 0) {
-	    System.out.println("\nMerge ...");
-	    targetCbp.startNewSession(targetCbp.getURI().lastSegment());
 	    System.out.println("Start: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
 	    batchMerger.copyAllRightToLeft(diffs, new BasicMonitor());
 	    System.out.println("End: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
@@ -515,13 +524,15 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON4\\test\\right.cbpxml";
 
-//	    String originXmiPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
-//	    String leftXmiPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
-//	    String rightXmiPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
-//	    String originCbpPath = "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
-//	    String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
-//	    String rightCbpPath = "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
-	    
+	    // String originXmiPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
+	    // String leftXmiPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
+	    // String rightXmiPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
+	    // String originCbpPath =
+	    // "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
+	    // String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
+	    // String rightCbpPath =
+	    // "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
+
 	    String originXmiPath = "D:\\TEMP\\COMPARISON\\temp\\origin.xmi";
 	    String leftXmiPath = "D:\\TEMP\\COMPARISON\\temp\\left.xmi";
 	    String rightXmiPath = "D:\\TEMP\\COMPARISON\\temp\\right.xmi";

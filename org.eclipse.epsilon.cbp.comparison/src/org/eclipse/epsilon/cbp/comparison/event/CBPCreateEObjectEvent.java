@@ -9,20 +9,14 @@ public class CBPCreateEObjectEvent extends CBPEObjectEvent {
 	protected String  eClass;
 	protected String resource;
 	protected String id;
-	protected EObject eObject;
-
-	public CBPCreateEObjectEvent(EObject eObject, String id) {
-		super();
-		this.eObject = eObject;
-		this.eClass = eObject.eClass().getName();
-		this.id = id;
-		this.setValue(id);
-	}
+	protected String eObject;
 
 	public CBPCreateEObjectEvent(String eClass, String id) {
 		super();
 		this.eClass = eClass;
 		this.id = id;
+		this.eObject = id;
+		this.setValue(id);
 	}
 
 	public CBPCreateEObjectEvent(String eClass, String resource, String id) {
@@ -30,6 +24,8 @@ public class CBPCreateEObjectEvent extends CBPEObjectEvent {
 		this.eClass = eClass;
 		this.id = id;
 		this.resource = resource;
+		this.eObject = id;
+		this.setValue(id);
 	}
 
 	public CBPCreateEObjectEvent(String eClass) {

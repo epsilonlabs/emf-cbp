@@ -15,7 +15,7 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
 	this.id = id;
     }
 
-    protected EObject eObject;
+    protected String eObject;
 
     public CBPDeleteEObjectEvent() {
 
@@ -25,13 +25,7 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
 	super();
 	this.eClass = eClass;
 	this.id = id;
-    }
-
-    public CBPDeleteEObjectEvent(EObject eObject, String id) {
-	super();
-	this.eObject = eObject;
-	this.eClass = eObject.eClass().getName();
-	this.id = id;
+	this.eObject = id;
 	this.setValue(id);
     }
 
@@ -40,6 +34,8 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
 	this.eClass = eClass;
 	this.id = id;
 	this.resource = resource;
+	this.eObject = id;
+	this.setValue(id);
     }
 
     public String getEClass() {
@@ -66,11 +62,11 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
 	this.resource = resource;
     }
 
-    public EObject geteObject() {
+    public String geteObject() {
 	return eObject;
     }
 
-    public void seteObject(EObject eObject) {
+    public void setEObject(String eObject) {
 	this.eObject = eObject;
     }
 

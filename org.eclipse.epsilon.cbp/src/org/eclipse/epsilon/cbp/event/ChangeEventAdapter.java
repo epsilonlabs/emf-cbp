@@ -2,33 +2,27 @@ package org.eclipse.epsilon.cbp.event;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EventListener;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
-
-import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.impl.BasicEObjectImpl;
-import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.DanglingHREFException;
-import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.epsilon.cbp.history.ModelHistory;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 
 public class ChangeEventAdapter extends EContentAdapter {
 
+    protected Notification previousNotification;
     protected List<ChangeEvent<?>> changeEvents = new ArrayList<ChangeEvent<?>>();
     protected boolean enabled = true;
     protected HashSet<EPackage> ePackages = new HashSet<EPackage>();
@@ -158,7 +152,7 @@ public class ChangeEventAdapter extends EContentAdapter {
     public void notifyChanged(Notification n) {
 
 	super.notifyChanged(n);
-	// this.debugEvents(n);
+//	this.debugEvents(n);
 
 	if (n.isTouch() || !enabled) {
 	    return;
@@ -196,9 +190,13 @@ public class ChangeEventAdapter extends EContentAdapter {
 			event.setComposite(compositeId);
 			addAttCount++;
 		    } else if (n.getFeature() instanceof EReference) {
+			// if (previousNotification.getEventType() ==
+			// Notification.REMOVE) {
+			// } else {
 			event = new AddToEReferenceEvent();
 			event.setComposite(compositeId);
 			addRefCount++;
+			// }
 		    }
 		} else {
 		    event = new AddToResourceEvent();
@@ -312,9 +310,14 @@ public class ChangeEventAdapter extends EContentAdapter {
 		    event.setComposite(compositeId);
 		    removeResCount++;
 		} else if (n.getNotifier() instanceof EObject) {
+//		    if (((EObject) n.getOldValue()).eContainer() != null) {
+//			System.out.println("Mark for move");
+//		    } else {
+//			System.out.println("Mark for deletion");
+//		    }
 		    event = new RemoveFromEReferenceEvent();
-		    event.setComposite(compositeId);
-		    removeRefCount++;
+			event.setComposite(compositeId);
+			removeRefCount++;
 		}
 	    } else if (n.getFeature() instanceof EAttribute) {
 		event = new RemoveFromEAttributeEvent();
@@ -388,6 +391,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
 	this.addEventToList(event, n);
 
+	previousNotification = n;
     }
 
     /**
@@ -542,7 +546,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    // && (removedObject.eCrossReferences() == null ||
 	    // removedObject.eCrossReferences().size() == 0)) {
 
-	    
 	    Boolean localComposite = null;
 	    if (compositeId == null) {
 		localComposite = true;
