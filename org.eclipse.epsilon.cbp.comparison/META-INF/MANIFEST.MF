@@ -29,4 +29,5 @@ Require-Bundle: org.eclipse.emf.common,
  org.eclipse.epsilon.emc.emf,
  org.eclipse.epsilon.cbp
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.uml2.uml
+Import-Package: org.eclipse.gmt.modisco.xml.emf,
+ org.eclipse.uml2.uml

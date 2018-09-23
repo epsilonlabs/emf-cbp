@@ -152,7 +152,7 @@ public class ChangeEventAdapter extends EContentAdapter {
     public void notifyChanged(Notification n) {
 
 	super.notifyChanged(n);
-//	this.debugEvents(n);
+	// this.debugEvents(n);
 
 	if (n.isTouch() || !enabled) {
 	    return;
@@ -205,7 +205,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 	    }
 	    event.setValues(n.getNewValue());
-	    event.setOldValues(n.getOldValue());
+	    if (n.getOldValue() != null) {
+		event.setOldValues(n.getOldValue());
+	    }
 	    break;
 	}
 
@@ -310,14 +312,14 @@ public class ChangeEventAdapter extends EContentAdapter {
 		    event.setComposite(compositeId);
 		    removeResCount++;
 		} else if (n.getNotifier() instanceof EObject) {
-//		    if (((EObject) n.getOldValue()).eContainer() != null) {
-//			System.out.println("Mark for move");
-//		    } else {
-//			System.out.println("Mark for deletion");
-//		    }
+		    // if (((EObject) n.getOldValue()).eContainer() != null) {
+		    // System.out.println("Mark for move");
+		    // } else {
+		    // System.out.println("Mark for deletion");
+		    // }
 		    event = new RemoveFromEReferenceEvent();
-			event.setComposite(compositeId);
-			removeRefCount++;
+		    event.setComposite(compositeId);
+		    removeRefCount++;
 		}
 	    } else if (n.getFeature() instanceof EAttribute) {
 		event = new RemoveFromEAttributeEvent();

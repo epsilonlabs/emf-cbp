@@ -376,79 +376,128 @@ public abstract class HybridResource extends ResourceImpl {
 		    RegisterEPackageEvent r = ((RegisterEPackageEvent) event);
 		    e = document.createElement("register");
 		    e.setAttribute("epackage", r.getEPackage().getNsURI());
+		   
 		} else if (event instanceof CreateEObjectEvent) {
 		    e = document.createElement("create");
 		    e.setAttribute("epackage", ((CreateEObjectEvent) event).getEClass().getEPackage().getNsURI());
 		    e.setAttribute("eclass", ((CreateEObjectEvent) event).getEClass().getName());
 		    e.setAttribute("id", ((CreateEObjectEvent) event).getId());
+		    EObject eObject = ((CreateEObjectEvent) event).getValue();
+		    
 		} else if (event instanceof DeleteEObjectEvent) {
 		    e = document.createElement("delete");
 		    e.setAttribute("epackage", ((DeleteEObjectEvent) event).getEClass().getEPackage().getNsURI());
 		    e.setAttribute("eclass", ((DeleteEObjectEvent) event).getEClass().getName());
 		    e.setAttribute("id", ((DeleteEObjectEvent) event).getId());
-		    // EObject eObject = ((DeleteEObjectEvent)
-		    // event).getValue();
-		    // e.setAttribute("id", getURIFragment(eObject));
+		    EObject eObject = ((DeleteEObjectEvent) event).getValue();
+		    
 		} else if (event instanceof AddToResourceEvent) {
 		    e = document.createElement("add-to-resource");
+		    EObject eObject = ((AddToResourceEvent) event).getValue();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    
 		} else if (event instanceof RemoveFromResourceEvent) {
 		    e = document.createElement("remove-from-resource");
+		    EObject eObject = ((RemoveFromResourceEvent) event).getValue();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    
 		} else if (event instanceof AddToEReferenceEvent) {
 		    e = document.createElement("add-to-ereference");
+		    EObject eObject = ((AddToEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    EObject value = ((AddToEReferenceEvent) event).getValue();
+		    
 		} else if (event instanceof RemoveFromEReferenceEvent) {
 		    e = document.createElement("remove-from-ereference");
+		    EObject eObject = ((RemoveFromEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    EObject value = ((RemoveFromEReferenceEvent) event).getValue();
+		    
 		} else if (event instanceof SetEAttributeEvent) {
 		    e = document.createElement("set-eattribute");
+		    EObject eObject = ((SetEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    
 		} else if (event instanceof SetEReferenceEvent) {
 		    e = document.createElement("set-ereference");
+		    EObject eObject = ((SetEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    EObject value = ((SetEReferenceEvent) event).getValue();
+		    
 		} else if (event instanceof UnsetEReferenceEvent) {
 		    e = document.createElement("unset-ereference");
+		    EObject eObject = ((UnsetEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    EObject value = ((UnsetEReferenceEvent) event).getValue();
+		    
 		} else if (event instanceof UnsetEAttributeEvent) {
-		    e = document.createElement("unset-eattribute");
+		    e = document.createElement("unset-eattribute");		    
+		    EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    
 		} else if (event instanceof AddToEAttributeEvent) {
 		    e = document.createElement("add-to-eattribute");
+		    EObject eObject = ((AddToEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    Object value = ((AddToEAttributeEvent) event).getValue();
+		    
 		} else if (event instanceof RemoveFromEAttributeEvent) {
 		    e = document.createElement("remove-from-eattribute");
+		    EObject eObject = ((RemoveFromEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    Object value = ((RemoveFromEAttributeEvent) event).getValue();
+		    
 		} else if (event instanceof MoveWithinEReferenceEvent) {
 		    e = document.createElement("move-in-ereference");
+		    EObject eObject = ((MoveWithinEReferenceEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    Object values = ((MoveWithinEReferenceEvent) event).getValues();
+		    
 		} else if (event instanceof MoveWithinEAttributeEvent) {
 		    e = document.createElement("move-in-eattribute");
+		    EObject eObject = ((MoveWithinEAttributeEvent) event).getTarget();
+		    e.setAttribute("eclass", eObject.eClass().getName());
+		    Object values = ((MoveWithinEAttributeEvent) event).getValues();
+		    
 		} else {
 		    throw new RuntimeException("Unexpected event:" + event);
 		}
 
 		if (event instanceof EStructuralFeatureEvent<?>) {
-		    if (((EStructuralFeatureEvent<?>) event).getEStructuralFeature() != null) {
-			e.setAttribute("name", ((EStructuralFeatureEvent<?>) event).getEStructuralFeature().getName());
-		    } else {
-			e.setAttribute("name", null);
-		    }
+		    e.setAttribute("name", ((EStructuralFeatureEvent<?>) event).getEStructuralFeature().getName());
 		    e.setAttribute("target", getURIFragment(((EStructuralFeatureEvent<?>) event).getTarget()));
 		}
 
 		if (event instanceof AddToEReferenceEvent || event instanceof AddToEAttributeEvent || event instanceof AddToResourceEvent) {
 		    e.setAttribute("position", event.getPosition() + "");
 		}
+
 		if (event instanceof RemoveFromEReferenceEvent || event instanceof RemoveFromEAttributeEvent || event instanceof RemoveFromResourceEvent) {
 		    e.setAttribute("position", event.getPosition() + "");
 		}
+
 		if (event instanceof FromPositionEvent) {
 		    e.setAttribute("from", ((FromPositionEvent) event).getFromPosition() + "");
 		    e.setAttribute("to", event.getPosition() + "");
 		}
 
 		if (event instanceof EObjectValuesEvent) {
+
 		    for (EObject eObject : ((EObjectValuesEvent) event).getOldValues()) {
 			if (eObject != null) {
 			    Element o = document.createElement("old-value");
 			    o.setAttribute("eobject", getURIFragment(eObject));
+			    o.setAttribute("eclass", eObject.eClass().getName());			    
 			    e.appendChild(o);
 			}
 		    }
 		    for (EObject eObject : ((EObjectValuesEvent) event).getValues()) {
-			Element o = document.createElement("value");
-			o.setAttribute("eobject", getURIFragment(eObject));
-			e.appendChild(o);
+			if (eObject != null) {
+			    Element o = document.createElement("value");
+			    o.setAttribute("eobject", getURIFragment(eObject));
+			    o.setAttribute("eclass", eObject.eClass().getName());
+			    e.appendChild(o);
+			}
 		    }
 		} else if (event instanceof EAttributeEvent) {
 		    for (Object object : ((EAttributeEvent) event).getOldValues()) {
@@ -459,9 +508,11 @@ public abstract class HybridResource extends ResourceImpl {
 			}
 		    }
 		    for (Object object : ((EAttributeEvent) event).getValues()) {
-			Element o = document.createElement("value");
-			o.setAttribute("literal", object + "");
-			e.appendChild(o);
+			if (object != null) {
+			    Element o = document.createElement("value");
+			    o.setAttribute("literal", object + "");
+			    e.appendChild(o);
+			}
 		    }
 		}
 		if (event.getComposite() != null && e != null) {

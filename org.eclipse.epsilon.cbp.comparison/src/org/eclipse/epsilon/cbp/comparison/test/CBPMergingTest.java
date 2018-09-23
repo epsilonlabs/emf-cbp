@@ -248,10 +248,13 @@ public class CBPMergingTest {
 	    originalScript.add("node2.name = \"Node 02\";");
 	    originalScript.add("var node3 = new Node;");
 	    originalScript.add("node3.name = \"Node 03\";");
+	    originalScript.add("var node4 = new Node;");
+	    originalScript.add("node4.name = \"Node 04\";");
 	    originalScript.add("node1.valNodes.add(node3);");
 	    originalScript.add("node1.valNodes.remove(node3);");
-	    originalScript.add("node2.valNodes.add(node3);");
-	    originalScript.add("delete node3;");
+	    originalScript.add("node2.valNodes.add(node4);");
+	    originalScript.add("node2.valNodes.add(0, node3);");
+//	    originalScript.add("delete node3;");
 //	    originalScript.add("node3.name = \"Moved Node 03\";");
 
 	    // merge
@@ -319,6 +322,41 @@ public class CBPMergingTest {
 	    e.printStackTrace();
 	}
 	assertEquals(actualValue, actualValue);
+    }
+    
+    @Test
+    public void testGenerateTwoDifferentModels2() throws IOException {
+	initialise("testGenerateTwoDifferentModels");
+	expectedValue = "";
+	try {
+	    // origin
+	    originalScript.add("var root = new Node;");
+	    originalScript.add("root.name = \"ROOT\";");
+	    originalScript.add("var node1 = new Node;");
+	    originalScript.add("node1.name = \"A\";");
+	    originalScript.add("var node2 = new Node;");
+	    originalScript.add("node2.name = \"B\";");
+	    originalScript.add("var node3 = new Node;");
+	    originalScript.add("node3.name = \"C\";");
+	    originalScript.add("root.valNodes.add(node1);");
+	    originalScript.add("root.valNodes.add(node2);");
+	    originalScript.add("root.valNodes.add(node3);");
+	    
+	    // left
+	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"A\");");
+	    leftScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"B\");");
+	    leftScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"C\");");
+	    leftScript.add("root.valNodes.move(0, 1);");
+	    leftScript.add("root.valNodes.remove(node2);");
+
+	    // merge
+	    targetCbpFile = executeTest(originalScript, leftScript, rightScript, MergeMode.UpdateLeftWithAllLeftSolutions);
+	    actualValue = getXMIString(targetCbpFile);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals("", "");
     }
 
     @Test
