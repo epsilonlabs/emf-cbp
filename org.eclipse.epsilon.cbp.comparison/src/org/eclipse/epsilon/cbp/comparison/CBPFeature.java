@@ -148,16 +148,13 @@ public class CBPFeature {
 		leftValues.put(to, null);
 	    }
 	}
+	
 	for (Entry<Integer, Object> entry : temp.entrySet()) {
 	    values.put(entry.getKey(), entry.getValue());
 	    if (side == CBPSide.LEFT) {
-		if (!rightValues.containsKey(entry.getKey())) {
-		    rightValues.put(entry.getKey(), null);
-		}
+		rightValues.putIfAbsent(entry.getKey(), null);
 	    } else {
-		if (!leftValues.containsKey(entry.getKey())) {
-		    leftValues.put(entry.getKey(), null);
-		}
+		leftValues.putIfAbsent(entry.getKey(), null);
 	    }
 	}
 	temp.clear();
@@ -190,13 +187,9 @@ public class CBPFeature {
 	for (Entry<Integer, Object> entry : temp.entrySet()) {
 	    values.put(entry.getKey(), entry.getValue());
 	    if (side == CBPSide.LEFT) {
-		if (!rightValues.containsKey(entry.getKey())) {
-		    rightValues.put(entry.getKey(), null);
-		}
+		rightValues.putIfAbsent(entry.getKey(), null);
 	    } else {
-		if (!leftValues.containsKey(entry.getKey())) {
-		    leftValues.put(entry.getKey(), null);
-		}
+		leftValues.putIfAbsent(entry.getKey(), null);
 	    }
 	}
 	temp.clear();
@@ -217,16 +210,13 @@ public class CBPFeature {
 		entry.setValue(null);
 	    }
 	}
+	
 	for (Entry<Integer, Object> entry : temp.entrySet()) {
 	    values.put(entry.getKey(), entry.getValue());
 	    if (side == CBPSide.LEFT) {
-		if (!rightValues.containsKey(entry.getKey())) {
-		    rightValues.put(entry.getKey(), null);
-		}
+		rightValues.putIfAbsent(entry.getKey(), null);
 	    } else {
-		if (!leftValues.containsKey(entry.getKey())) {
-		    leftValues.put(entry.getKey(), null);
-		}
+		leftValues.putIfAbsent(entry.getKey(), null);
 	    }
 	}
 	temp.clear();

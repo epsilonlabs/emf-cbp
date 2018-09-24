@@ -2,7 +2,7 @@ package org.eclipse.epsilon.cbp.comparison;
 
 public class CBPDiff {
 
-    public enum CBPLifeline {
+    public enum CBPLifeStatus {
 	DEFAULT, CREATED, DELETED
     }
 

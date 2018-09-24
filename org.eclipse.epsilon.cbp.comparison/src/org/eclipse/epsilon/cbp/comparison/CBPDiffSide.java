@@ -1,7 +1,7 @@
 package org.eclipse.epsilon.cbp.comparison;
 
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeline;
+import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeStatus;
 
 public class CBPDiffSide {
 

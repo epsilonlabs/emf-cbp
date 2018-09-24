@@ -3,7 +3,7 @@ package org.eclipse.epsilon.cbp.comparison;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeline;
+import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeStatus;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPSide;
 
 public class CBPMatch {
@@ -14,7 +14,7 @@ public class CBPMatch {
     private CBPObject leftObject = null;
     private CBPObject rightObject = null;
 
-    private CBPLifeline life = CBPLifeline.DEFAULT;
+    private CBPLifeStatus life = CBPLifeStatus.DEFAULT;
 
     public CBPMatch(String id) {
 	this.id = id;
@@ -32,11 +32,11 @@ public class CBPMatch {
 	return subMatches;
     }
 
-    public CBPLifeline getLife() {
+    public CBPLifeStatus getLife() {
 	return life;
     }
 
-    public void setLife(CBPLifeline life) {
+    public void setLife(CBPLifeStatus life) {
 	this.life = life;
     }
 

@@ -25,6 +25,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeStatus;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEReferenceEvent;
@@ -79,8 +80,8 @@ public class CBPComparisonApproach03 implements ICBPComparison {
 	this.computeDifferences(leftEvents, CBPSide.LEFT);
 	long end = System.nanoTime();
 	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
-	System.out.println(this.getClass().getSimpleName());
 
+	System.out.println();
 	printObjectTree();
 
     }
@@ -94,8 +95,7 @@ public class CBPComparisonApproach03 implements ICBPComparison {
 	while (iterator.hasNext()) {
 	    Entry<String, CBPObject> objectEntry = iterator.next();
 	    CBPObject object = objectEntry.getValue();
-	    String id = object.getId();
-	    System.out.println(id);
+	    System.out.println(objectEntry.getKey() + " : " + object.getLifeStatus(CBPSide.LEFT) + " : " +object.getLifeStatus(CBPSide.RIGHT));
 	    for (Entry<String, CBPFeature> featureEntry : object.getFeatures().entrySet()) {
 		CBPFeature feature = featureEntry.getValue();
 		Map<Integer, Object> leftValues = feature.getValues(CBPSide.LEFT);
@@ -190,11 +190,11 @@ public class CBPComparisonApproach03 implements ICBPComparison {
 
 	    // start processing events
 	    if (event instanceof CBPCreateEObjectEvent) {
-		targetObject.setCreated(true, side);
+		targetObject.setLifeStatus(CBPLifeStatus.CREATED, side);
 	    } else
 
 	    if (event instanceof CBPDeleteEObjectEvent) {
-		targetObject.setDeleted(true, side);
+		targetObject.setLifeStatus(CBPLifeStatus.DELETED, side);
 	    } else
 
 	    if (event instanceof CBPRemoveFromResourceEvent) {
@@ -267,9 +267,9 @@ public class CBPComparisonApproach03 implements ICBPComparison {
 	    if (event instanceof CBPUnsetEAttributeEvent) {
 		feature.unsetValue(valueLiteral, side);
 	    }
-	    
-//	    System.out.println("\nEVENT: " + event);
-//	    printObjectTree();
+
+	    // System.out.println("\nEVENT: " + event);
+	    // printObjectTree();
 	}
 
     }

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeStatus;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
@@ -18,10 +19,8 @@ public class CBPObject {
     private Object rightContainer = UNIDENTIFIED_VALUE;
     private Object rightContainingFeature = UNIDENTIFIED_VALUE;
     private Map<String, CBPFeature> features = new HashMap<>();
-    private boolean isLeftDeleted = false;
-    private boolean isRightDeleted = false;
-    private boolean isLeftCreated = false;
-    private boolean isRightCreated = false;
+    private CBPLifeStatus leftLifeStatus = CBPLifeStatus.DEFAULT; 
+    private CBPLifeStatus rightLifeStatus = CBPLifeStatus.DEFAULT; 
     private int leftPosition = -1;
     private int rightPosition = -1;
     private Set<CBPChangeEvent<?>> events = new HashSet<>();
@@ -46,27 +45,15 @@ public class CBPObject {
 	this.features = features;
     }
 
-    public boolean isDeleted(CBPSide side) {
-	return (side == CBPSide.LEFT) ? isLeftDeleted : isRightDeleted;
+    public CBPLifeStatus getLifeStatus(CBPSide side) {
+	return (side == CBPSide.LEFT) ? leftLifeStatus : rightLifeStatus;
     }
 
-    public void setDeleted(boolean isDeleted, CBPSide side) {
+    public void setLifeStatus(CBPLifeStatus lifeStatus, CBPSide side) {
 	if (side == CBPSide.LEFT) {
-	    this.isLeftDeleted = isDeleted;
+	    this.leftLifeStatus = lifeStatus;
 	} else {
-	    this.isRightDeleted = isDeleted;
-	}
-    }
-
-    public boolean isCreated(CBPSide side) {
-	return (side == CBPSide.LEFT) ? isLeftCreated : isRightCreated;
-    }
-
-    public void setCreated(boolean isCreated, CBPSide side) {
-	if (side == CBPSide.LEFT) {
-	    this.isLeftCreated = isCreated;
-	} else {
-	    this.isLeftCreated = isCreated;
+	    this.rightLifeStatus = lifeStatus;
 	}
     }
 

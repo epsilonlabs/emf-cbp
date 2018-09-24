@@ -36,7 +36,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.emfstore.bowling.Referee;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeline;
+import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeStatus;
 import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPAddToResourceEvent;
@@ -156,10 +156,10 @@ public class CBPComparisonApproach01 implements ICBPComparison {
 		String key = target;
 		CBPMatch match = matches.get(target);
 		if (match != null) {
-		    match.setLife(CBPLifeline.DELETED);
+		    match.setLife(CBPLifeStatus.DELETED);
 		} else {
 		    match = new CBPMatch(target);
-		    match.setLife(CBPLifeline.DELETED);
+		    match.setLife(CBPLifeStatus.DELETED);
 		    matches.put(target, match);
 		}
 	    } else
@@ -171,12 +171,12 @@ public class CBPComparisonApproach01 implements ICBPComparison {
 		String key = target;
 		CBPMatch match = matches.get(target);
 		if (match != null) {
-		    if (match.getLife() == CBPLifeline.DEFAULT)
-			match.setLife(CBPLifeline.CREATED);
+		    if (match.getLife() == CBPLifeStatus.DEFAULT)
+			match.setLife(CBPLifeStatus.CREATED);
 		} else {
 		    match = new CBPMatch(target);
-		    if (match.getLife() == CBPLifeline.DEFAULT)
-			match.setLife(CBPLifeline.CREATED);
+		    if (match.getLife() == CBPLifeStatus.DEFAULT)
+			match.setLife(CBPLifeStatus.CREATED);
 		    matches.put(target, match);
 		}
 	    } else

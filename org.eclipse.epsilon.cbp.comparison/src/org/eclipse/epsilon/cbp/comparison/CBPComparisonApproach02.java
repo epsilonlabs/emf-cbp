@@ -37,7 +37,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.emfstore.bowling.Referee;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeline;
+import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeStatus;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEReferenceEvent;
