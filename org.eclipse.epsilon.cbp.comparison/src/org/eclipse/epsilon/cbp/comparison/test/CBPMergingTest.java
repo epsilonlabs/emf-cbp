@@ -338,17 +338,31 @@ public class CBPMergingTest {
 	    originalScript.add("node2.name = \"B\";");
 	    originalScript.add("var node3 = new Node;");
 	    originalScript.add("node3.name = \"C\";");
-	    originalScript.add("root.valNodes.add(node1);");
-	    originalScript.add("root.valNodes.add(node2);");
-	    originalScript.add("root.valNodes.add(node3);");
 	    
 	    // left
 	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
 	    leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"A\");");
 	    leftScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"B\");");
 	    leftScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"C\");");
+	    leftScript.add("root.valNodes.add(node1);");
+	    leftScript.add("root.valNodes.add(node2);");
+	    leftScript.add("root.valNodes.add(node3);");
 	    leftScript.add("root.valNodes.move(0, 1);");
 	    leftScript.add("root.valNodes.remove(node2);");
+	    leftScript.add("node1.name = \"X\";");
+	    leftScript.add("node1.name = \"A\";");
+	    
+	 // left
+	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"A\");");
+	    rightScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"B\");");
+	    rightScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"C\");");
+	    rightScript.add("root.valNodes.add(node1);");
+	    rightScript.add("root.valNodes.add(node2);");
+	    rightScript.add("root.valNodes.add(node3);");
+	    rightScript.add("root.valNodes.move(2, 0);");
+	    rightScript.add("node1.name = \"Z\";");
+	  
 
 	    // merge
 	    targetCbpFile = executeTest(originalScript, leftScript, rightScript, MergeMode.UpdateLeftWithAllLeftSolutions);

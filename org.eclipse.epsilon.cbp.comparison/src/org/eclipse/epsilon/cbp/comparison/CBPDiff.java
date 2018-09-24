@@ -1,7 +1,5 @@
 package org.eclipse.epsilon.cbp.comparison;
 
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
-
 public class CBPDiff {
 
     public enum CBPLifeline {
@@ -10,6 +8,10 @@ public class CBPDiff {
 
     public enum CBPDifferenceKind {
 	ADD, CHANGE, DELETE, MOVE, UNDEFINED
+    }
+    
+    public enum CBPSide {
+	LEFT, RIGHT;
     }
 
     private CBPMatch match;

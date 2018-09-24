@@ -66,15 +66,15 @@ public class CBPComparisonTest {
     @Test
     public void testReadingFileSpeed() {
 
-	// File originFile = new
-	// File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
-	// File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
-	// File rightFile = new
-	// File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
+	 File originFile = new
+	 File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
+	 File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
+	 File rightFile = new
+	 File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
 
-	File originFile = new File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
-	File leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.cbpxml");
-	File rightFile = new File("D:\\TEMP\\COMPARISON\\temp\\right.cbpxml");
+//	File originFile = new File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
+//	File leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.cbpxml");
+//	File rightFile = new File("D:\\TEMP\\COMPARISON\\temp\\right.cbpxml");
 
 	// rightFile = originFile;
 

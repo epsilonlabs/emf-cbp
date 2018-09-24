@@ -8,7 +8,8 @@ public class CBPComparison {
 
     public CBPComparison() {
 //	comparison = new CBPComparisonApproach01();
-	comparison = new CBPComparisonApproach02();
+//	comparison = new CBPComparisonApproach02();
+	comparison = new CBPComparisonApproach03();
     }
 
     public void compare(File leftFile, File rightFile) {
@@ -16,7 +17,7 @@ public class CBPComparison {
     }
 
     public void compare(File leftFile, File rightFile, File originFile) {
-	comparison.compare(leftFile, rightFile);
+	comparison.compare(leftFile, rightFile, originFile);
     }
 
 }
