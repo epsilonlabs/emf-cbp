@@ -1,60 +1,95 @@
 package org.eclipse.epsilon.cbp.comparison;
 
-public class CBPDiff {
+import org.eclipse.epsilon.cbp.comparison.CBPObject.CBPSide;
 
-    public enum CBPLifeStatus {
-	DEFAULT, CREATED, DELETED
-    }
+public class CBPDiff {
 
     public enum CBPDifferenceKind {
 	ADD, CHANGE, DELETE, MOVE, UNDEFINED
     }
-    
-    public enum CBPSide {
-	LEFT, RIGHT;
+
+    private CBPObject object;
+    private CBPFeature feature;
+    private int position = -1;
+    private Object value;
+    private CBPDifferenceKind kind = CBPDifferenceKind.UNDEFINED;
+    private CBPSide side;
+    private static final String SEP = ".";
+
+    public CBPDiff(CBPObject object, CBPFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
+	this(object, feature, -1, value, kind, side);
+    }
+    public CBPDiff(CBPObject object, CBPFeature feature, int position, Object value, CBPDifferenceKind kind, CBPSide side) {
+	this.object = object;
+	this.feature = feature;
+	this.position = position;
+	this.kind = kind;
+	this.side = side;
+	this.value = value;
+	this.object.getDiffs().add(this);
     }
 
-    private CBPMatch match;
-
-    private String id;
-
-    private CBPDiffSide[] sides = {null, null};
-
-    public CBPDiff(CBPMatch match, String id, String target, String feature, String value, int position, CBPDifferenceKind kind, int cbpDiffSide) {
-	this.id = id;
-	this.match = match;
-	sides[cbpDiffSide] = new CBPDiffSide(target, feature, value, position, kind);
+    public CBPObject getObject() {
+	return object;
     }
 
-    public CBPMatch getMatch() {
-	return match;
+    public void setObject(CBPObject object) {
+	this.object = object;
     }
 
-    public void setMatch(CBPMatch match) {
-	this.match = match;
+    public CBPFeature getFeature() {
+	return feature;
     }
 
-    public String getId() {
-	return id;
+    public void setFeature(CBPFeature feature) {
+	this.feature = feature;
     }
 
-    public void setId(String id) {
-	this.id = id;
+    public int getPosition() {
+	return position;
     }
 
-    public CBPDiffSide[] getSides() {
-	return sides;
+    public void setPosition(int position) {
+	this.position = position;
     }
 
-    public void setSides(CBPDiffSide[] sides) {
-	this.sides = sides;
+    public Object getValue() {
+	return value;
     }
 
-    public CBPDiffSide getLeftSide() {
-	return this.sides[CBPDiffSide.LEFT];
+    public void setValue(Object value) {
+	this.value = value;
     }
 
-    public CBPDiffSide getRightSide() {
-	return this.sides[CBPDiffSide.RIGHT];
+    public CBPDifferenceKind getKind() {
+	return kind;
     }
+
+    public void setKind(CBPDifferenceKind kind) {
+	this.kind = kind;
+    }
+
+    public CBPSide getSide() {
+	return side;
+    }
+
+    public void setSide(CBPSide side) {
+	this.side = side;
+    }
+
+    @Override
+    public String toString() {
+	String str = null;
+	String valueStr = "";
+	if (value != null) {
+	    if (value instanceof CBPObject) {
+		valueStr = ((CBPObject) value).getId();
+	    } else {
+		valueStr = String.valueOf(value);
+	    }
+	}
+	str = object.getId() + SEP + feature.getName() + SEP + position + SEP + valueStr + SEP + kind + SEP + side;
+	return str;
+    }
+
 }

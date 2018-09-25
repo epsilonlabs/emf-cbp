@@ -482,7 +482,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 	    stream = new SequenceInputStream(stream, end);
 
 	    XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-	    XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream);
+	    XMLEventReader xmlReader = xmlInputFactory.createXMLEventReader(stream, "ISO-8859-1");
 
 	    ChangeEvent<?> event = null;
 	    boolean ignore = false;

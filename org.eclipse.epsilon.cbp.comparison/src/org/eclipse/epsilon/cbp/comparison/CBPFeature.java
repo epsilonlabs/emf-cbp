@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPSide;
+import org.eclipse.epsilon.cbp.comparison.CBPObject.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
 enum CBPFeatureType {
@@ -21,15 +21,25 @@ public class CBPFeature {
     private Set<CBPChangeEvent<?>> events = new HashSet<>();
     private String type;
     private boolean isContainment = false;
+    private boolean isMany = false;
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
     private Map<Integer, Object> leftValues = new LinkedHashMap<Integer, Object>();
     private Map<Integer, Object> rightValues = new LinkedHashMap<Integer, Object>();
 
-    public CBPFeature(CBPObject owner, String name, CBPFeatureType featureType, boolean isContainer) {
+    public CBPFeature(CBPObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany) {
 	this.owner = owner;
 	this.name = name;
 	this.featureType = featureType;
 	this.isContainment = isContainer;
+	this.isMany = isMany;
+    }
+
+    public boolean isMany() {
+	return isMany;
+    }
+
+    public void setMany(boolean isMany) {
+	this.isMany = isMany;
     }
 
     public CBPObject getOwner() {
@@ -114,7 +124,10 @@ public class CBPFeature {
 	Map<Integer, Object> temp = new LinkedHashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
-	values.remove(from);
+	Object removedValue = values.remove(from);
+	if (value instanceof CBPObject) {
+	    ((CBPObject) removedValue).setPosition(-1, side);
+	}
 	Iterator<Entry<Integer, Object>> iterator = values.entrySet().iterator();
 	if (from < to) {
 	    while (iterator.hasNext()) {
@@ -123,6 +136,9 @@ public class CBPFeature {
 		Object val = entry.getValue();
 		if (pos > from && pos <= to) {
 		    temp.put(pos - 1, val);
+		    if (val instanceof CBPObject) {
+			((CBPObject) val).setPosition(pos - 1, side);
+		    }
 		    entry.setValue(null);
 		}
 	    }
@@ -134,11 +150,17 @@ public class CBPFeature {
 
 		if (pos >= to && pos < from) {
 		    temp.put(pos + 1, val);
+		    if (val instanceof CBPObject) {
+			((CBPObject) val).setPosition(pos + 1, side);
+		    }
 		    entry.setValue(null);
 		}
 	    }
 	}
 	values.put(to, value);
+	if (value instanceof CBPObject) {
+	    ((CBPObject) value).setPosition(to, side);
+	}
 	if (side == CBPSide.LEFT) {
 	    if (!rightValues.containsKey(to)) {
 		rightValues.put(to, null);
@@ -148,7 +170,7 @@ public class CBPFeature {
 		leftValues.put(to, null);
 	    }
 	}
-	
+
 	for (Entry<Integer, Object> entry : temp.entrySet()) {
 	    values.put(entry.getKey(), entry.getValue());
 	    if (side == CBPSide.LEFT) {
@@ -171,10 +193,16 @@ public class CBPFeature {
 	    Object val = entry.getValue();
 	    if (pos >= position) {
 		temp.put(pos + 1, val);
+		if (val instanceof CBPObject) {
+		    ((CBPObject) val).setPosition(pos + 1, side);
+		}
 		entry.setValue(null);
 	    }
 	}
 	values.put(position, value);
+	if (value instanceof CBPObject) {
+	    ((CBPObject) value).setPosition(position, side);
+	}
 	if (side == CBPSide.LEFT) {
 	    if (!rightValues.containsKey(position)) {
 		rightValues.put(position, null);
@@ -199,7 +227,10 @@ public class CBPFeature {
 	Map<Integer, Object> temp = new LinkedHashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
-	values.remove(position);
+	Object deletedValue = values.remove(position);
+	if (deletedValue instanceof CBPObject) {
+	    ((CBPObject) deletedValue).setPosition(-1, side);
+	}
 	Iterator<Entry<Integer, Object>> iterator = values.entrySet().iterator();
 	while (iterator.hasNext()) {
 	    Entry<Integer, Object> entry = iterator.next();
@@ -207,10 +238,13 @@ public class CBPFeature {
 	    Object val = entry.getValue();
 	    if (pos >= position) {
 		temp.put(pos - 1, val);
+		if (val instanceof CBPObject) {
+		    ((CBPObject) val).setPosition(pos - 1, side);
+		}
 		entry.setValue(null);
 	    }
 	}
-	
+
 	for (Entry<Integer, Object> entry : temp.entrySet()) {
 	    values.put(entry.getKey(), entry.getValue());
 	    if (side == CBPSide.LEFT) {

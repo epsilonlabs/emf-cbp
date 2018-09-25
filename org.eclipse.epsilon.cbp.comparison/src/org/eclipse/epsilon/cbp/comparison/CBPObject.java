@@ -1,15 +1,23 @@
 package org.eclipse.epsilon.cbp.comparison;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPLifeStatus;
-import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
 public class CBPObject {
+
+    public enum CBPSide {
+	LEFT, RIGHT;
+    }
+
+    public enum CBPLifeStatus {
+	DEFAULT, CREATED, DELETED
+    }
 
     public static final Object UNIDENTIFIED_VALUE = new Object();
 
@@ -19,11 +27,12 @@ public class CBPObject {
     private Object rightContainer = UNIDENTIFIED_VALUE;
     private Object rightContainingFeature = UNIDENTIFIED_VALUE;
     private Map<String, CBPFeature> features = new HashMap<>();
-    private CBPLifeStatus leftLifeStatus = CBPLifeStatus.DEFAULT; 
-    private CBPLifeStatus rightLifeStatus = CBPLifeStatus.DEFAULT; 
+    private CBPLifeStatus leftLifeStatus = CBPLifeStatus.DEFAULT;
+    private CBPLifeStatus rightLifeStatus = CBPLifeStatus.DEFAULT;
     private int leftPosition = -1;
     private int rightPosition = -1;
     private Set<CBPChangeEvent<?>> events = new HashSet<>();
+    private List<CBPDiff> diffs = new ArrayList<>();
 
     public CBPObject(String id) {
 	this.id = id;
@@ -99,6 +108,14 @@ public class CBPObject {
 
     public int getPosition(CBPSide side) {
 	return (side == CBPSide.LEFT) ? leftPosition : rightPosition;
+    }
+
+    public List<CBPDiff> getDiffs() {
+        return diffs;
+    }
+
+    public void setDiffs(List<CBPDiff> diffs) {
+        this.diffs = diffs;
     }
     
     

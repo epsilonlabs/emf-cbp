@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.BasicMonitor;
@@ -48,6 +51,8 @@ import org.eclipse.emf.compare.uml2.internal.merge.UMLMerger;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
@@ -60,21 +65,22 @@ import org.junit.Test;
 public class CBPComparisonTest {
 
     public CBPComparisonTest() {
+	EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
+	EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
+	EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
 	Logger.getRootLogger().setLevel(Level.OFF);
     }
 
     @Test
-    public void testReadingFileSpeed() {
+    public void testReadingFileSpeed() throws IOException, FactoryConfigurationError, XMLStreamException {
 
-	File originFile = new File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
-	File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
-	File rightFile = new File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
+//	File originFile = new File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
+//	File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
+//	File rightFile = new File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
 
-//	 File originFile = new
-//	 File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
-//	 File leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.cbpxml");
-//	 File rightFile = new
-//	 File("D:\\TEMP\\COMPARISON\\temp\\right.cbpxml");
+	File originFile = new File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
+	File leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.cbpxml");
+	File rightFile = new File("D:\\TEMP\\COMPARISON\\temp\\right.cbpxml");
 
 	// rightFile = originFile;
 
