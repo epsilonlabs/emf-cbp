@@ -105,30 +105,30 @@ public class CBPMergingTest {
     public void initialise(String testName) throws FileNotFoundException {
 	System.out.println("\n###### " + testName + " ##############################################################\n");
 
-	originCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-root.cbpxml");
+	originCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "origin.cbpxml");
 	if (originCbpFile.exists())
 	    originCbpFile.delete();
-	leftCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-left.cbpxml");
+	leftCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "left.cbpxml");
 	if (leftCbpFile.exists())
 	    leftCbpFile.delete();
-	rightCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "-right.cbpxml");
+	rightCbpFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "right.cbpxml");
 	if (rightCbpFile.exists())
 	    rightCbpFile.delete();
 
-	originXmiFile = new File("D:\\TEMP\\COMPARISON\\origin.xmi");
+	originXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "origin.xmi");
 	if (originXmiFile.exists())
 	    originCbpFile.delete();
-	leftXmiFile = new File("D:\\TEMP\\COMPARISON\\left.xmi");
+	leftXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "left.xmi");
 	if (leftXmiFile.exists())
 	    leftXmiFile.delete();
-	rightXmiFile = new File("D:\\TEMP\\COMPARISON\\right.xmi");
+	rightXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "right.xmi");
 	if (rightXmiFile.exists())
 	    rightXmiFile.delete();
 
-	leftXmiFileNoId = new File("D:\\TEMP\\COMPARISON\\left-no-id.xmi");
+	leftXmiFileNoId = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "left-noid.xmi");
 	if (leftXmiFileNoId.exists())
 	    leftXmiFileNoId.delete();
-	rightXmiFileNoId = new File("D:\\TEMP\\COMPARISON\\right-no-id.xmi");
+	rightXmiFileNoId = new File("D:\\TEMP\\COMPARISON\\temp\\" + testName + "right-noid.xmi");
 	if (rightXmiFileNoId.exists())
 	    rightXmiFileNoId.delete();
 
@@ -268,7 +268,7 @@ public class CBPMergingTest {
 
     @Test
     public void testGenerateTwoDifferentModels() throws IOException {
-	initialise("testGenerateTwoDifferentModels");
+	initialise("");
 	expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + "  <Node name=\"Node A\"/>\r\n"
 		+ "  <Node name=\"Node 02\">\r\n" + "    <valNodes name=\"Node 03\"/>\r\n" + "    <valNodes name=\"Node 04\"/>\r\n" + "  </Node>\r\n" + "  <Node name=\"Node 05\"/>\r\n" + "</xmi:XMI>";
 	try {
@@ -281,9 +281,9 @@ public class CBPMergingTest {
 	    originalScript.add("node2.name = \"Node 02\";");
 	    originalScript.add("var node3 = new Node;");
 	    originalScript.add("node3.name = \"Node 03\";");
+	    originalScript.add("node2.valNodes.add(node3);");
 	    originalScript.add("var node4 = new Node;");
 	    originalScript.add("node4.name = \"Node 04\";");
-	    originalScript.add("node2.valNodes.add(node3);");
 
 	    originalScript.add("var node5 = new Node;");
 	    originalScript.add("node5.name = \"Node 05\";");
@@ -301,7 +301,16 @@ public class CBPMergingTest {
 	    leftScript.add("node1.name = \"Node A\";");
 	    leftScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"Node 02\");");
 	    leftScript.add("var node5 = Node.allInstances.selectOne(node | node.name == \"Node 05\");");
-	    leftScript.add("node2.valNodes.add(1, node5);");
+	    leftScript.add("node2.valNodes.add(node5);");
+	    leftScript.add("var node6 = Node.allInstances.selectOne(node | node.name == \"Node 06\");");
+	    leftScript.add("delete node6;");
+	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    leftScript.add("var node7 = new Node;");
+	    leftScript.add("node7.name = \"Node 07\";");
+	    leftScript.add("root.valNodes.add(node7);");
+	    leftScript.add("var node8 = new Node;");
+	    leftScript.add("node8.name = \"Node 08\";");
+	    leftScript.add("node1.valNodes.add(node8);");
 
 	    // right
 	    rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");

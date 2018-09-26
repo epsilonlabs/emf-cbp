@@ -124,8 +124,8 @@ public class CBPFeature {
 	Map<Integer, Object> temp = new LinkedHashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
-	Object removedValue = values.remove(from);
-	if (value instanceof CBPObject) {
+	Object removedValue = values.put(from, null);
+	if (removedValue instanceof CBPObject) {
 	    ((CBPObject) removedValue).setPosition(-1, side);
 	}
 	Iterator<Entry<Integer, Object>> iterator = values.entrySet().iterator();
@@ -227,7 +227,7 @@ public class CBPFeature {
 	Map<Integer, Object> temp = new LinkedHashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
-	Object deletedValue = values.remove(position);
+	Object deletedValue = values.put(position, null);
 	if (deletedValue instanceof CBPObject) {
 	    ((CBPObject) deletedValue).setPosition(-1, side);
 	}

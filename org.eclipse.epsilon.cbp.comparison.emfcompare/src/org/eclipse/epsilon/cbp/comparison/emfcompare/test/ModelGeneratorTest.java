@@ -533,6 +533,9 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
 
+	    String originXmiNoIDPath = "D:\\TEMP\\COMPARISON\\temp\\origin-noid.xmi";
+	    String leftXmiNoIDPath = "D:\\TEMP\\COMPARISON\\temp\\left-noid.xmi";
+	    String rightXmiNoIDPath = "D:\\TEMP\\COMPARISON\\temp\\right-noid.xmi";
 	    String originXmiPath = "D:\\TEMP\\COMPARISON\\temp\\origin.xmi";
 	    String leftXmiPath = "D:\\TEMP\\COMPARISON\\temp\\left.xmi";
 	    String rightXmiPath = "D:\\TEMP\\COMPARISON\\temp\\right.xmi";
@@ -549,6 +552,10 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON2\\test\\right.cbpxml";
 
+	    Resource originXmiNoID = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiNoIDPath));
+	    Resource leftXmiNoID = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiNoIDPath));
+	    Resource rightXmiNoID = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiNoIDPath));
+	    
 	    Resource originXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiPath));
 	    Resource leftXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiPath));
 	    Resource rightXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiPath));
@@ -556,13 +563,23 @@ public class ModelGeneratorTest {
 	    HybridResource originHybrid = new HybridXMIResourceImpl(originXmi, new FileOutputStream(originCbpPath, true));
 	    HybridResource leftHybrid = new HybridXMIResourceImpl(leftXmi, new FileOutputStream(leftCbpPath, true));
 	    HybridResource rightHybrid = new HybridXMIResourceImpl(rightXmi, new FileOutputStream(rightCbpPath, true));
-
+	    
+	    System.out.println("Process Origin");
 	    originHybrid.loadFromCBP(new FileInputStream(originCbpPath));
 	    originHybrid.save(null);
+	    System.out.println("Process Left");
 	    leftHybrid.loadFromCBP(new FileInputStream(leftCbpPath));
 	    leftHybrid.save(null);
+	    System.out.println("Process Right");
 	    rightHybrid.loadFromCBP(new FileInputStream(rightCbpPath));
 	    rightHybrid.save(null);
+	    
+//	    originXmiNoID.getContents().addAll(EcoreUtil.copyAll(originXmi.getContents()));
+//	    originXmiNoID.save(null);
+//	    leftXmiNoID.getContents().addAll(EcoreUtil.copyAll(leftXmi.getContents()));
+//	    leftXmiNoID.save(null);
+//	    rightXmiNoID.getContents().addAll(EcoreUtil.copyAll(rightXmi.getContents()));
+//	    rightXmiNoID.save(null);
 
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();

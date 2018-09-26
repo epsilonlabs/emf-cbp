@@ -15,20 +15,16 @@ public class CBPObject {
 	LEFT, RIGHT;
     }
 
-    public enum CBPLifeStatus {
-	DEFAULT, CREATED, DELETED
-    }
-
-    public static final Object UNIDENTIFIED_VALUE = new Object();
-
     private String id;
-    private Object leftContainer = UNIDENTIFIED_VALUE;
-    private Object leftContainingFeature = UNIDENTIFIED_VALUE;
-    private Object rightContainer = UNIDENTIFIED_VALUE;
-    private Object rightContainingFeature = UNIDENTIFIED_VALUE;
+    private CBPObject leftContainer = null;
+    private CBPFeature leftContainingFeature = null;
+    private CBPObject rightContainer = null;
+    private CBPFeature rightContainingFeature = null;
     private Map<String, CBPFeature> features = new HashMap<>();
-    private CBPLifeStatus leftLifeStatus = CBPLifeStatus.DEFAULT;
-    private CBPLifeStatus rightLifeStatus = CBPLifeStatus.DEFAULT;
+    private boolean leftIsCreated = false;
+    private boolean leftIsDeleted = false;
+    private boolean rightIsCreated = false;
+    private boolean rightIsDeleted = false;
     private int leftPosition = -1;
     private int rightPosition = -1;
     private Set<CBPChangeEvent<?>> events = new HashSet<>();
@@ -36,6 +32,110 @@ public class CBPObject {
 
     public CBPObject(String id) {
 	this.id = id;
+    }
+
+    public CBPObject getLeftContainer() {
+	return leftContainer;
+    }
+
+    public void setLeftContainer(CBPObject leftContainer) {
+	this.leftContainer = leftContainer;
+    }
+
+    public CBPFeature getLeftContainingFeature() {
+	return leftContainingFeature;
+    }
+
+    public void setLeftContainingFeature(CBPFeature leftContainingFeature) {
+	this.leftContainingFeature = leftContainingFeature;
+    }
+
+    public CBPObject getRightContainer() {
+	return rightContainer;
+    }
+
+    public void setRightContainer(CBPObject rightContainer) {
+	this.rightContainer = rightContainer;
+    }
+
+    public CBPFeature getRightContainingFeature() {
+	return rightContainingFeature;
+    }
+
+    public void setRightContainingFeature(CBPFeature rightContainingFeature) {
+	this.rightContainingFeature = rightContainingFeature;
+    }
+
+    public boolean getLeftIsCreated() {
+	return leftIsCreated;
+    }
+
+    public void setLeftIsCreated(boolean leftIsCreated) {
+	this.leftIsCreated = leftIsCreated;
+    }
+
+    public boolean getLeftIsDeleted() {
+	return leftIsDeleted;
+    }
+
+    public void setLeftIsDeleted(boolean leftIsDeleted) {
+	this.leftIsDeleted = leftIsDeleted;
+    }
+
+    public boolean getRightIsCreated() {
+	return rightIsCreated;
+    }
+
+    public void setRightIsCreated(boolean rightIsCreated) {
+	this.rightIsCreated = rightIsCreated;
+    }
+
+    public boolean getRightIsDeleted() {
+	return rightIsDeleted;
+    }
+
+    public void setRightIsDeleted(boolean rightIsDeleted) {
+	this.rightIsDeleted = rightIsDeleted;
+    }
+
+    public int getLeftPosition() {
+	return leftPosition;
+    }
+
+    public void setLeftPosition(int leftPosition) {
+	this.leftPosition = leftPosition;
+    }
+
+    public int getRightPosition() {
+	return rightPosition;
+    }
+
+    public void setRightPosition(int rightPosition) {
+	this.rightPosition = rightPosition;
+    }
+
+    public boolean isCreated(CBPSide side) {
+	return (side == CBPSide.LEFT) ? leftIsCreated : rightIsCreated;
+    }
+
+    public void setCreated(boolean isCreated, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.leftIsCreated = isCreated;
+	} else {
+	    this.rightIsCreated = isCreated;
+	}
+    }
+
+    public boolean isDeleted(CBPSide side) {
+	return (side == CBPSide.LEFT) ? leftIsDeleted : rightIsDeleted;
+    }
+
+    public void setDeleted(boolean isDeleted, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.leftIsDeleted = isDeleted;
+	} else {
+	    this.rightIsDeleted = isDeleted;
+	}
     }
 
     public String getId() {
@@ -54,18 +154,6 @@ public class CBPObject {
 	this.features = features;
     }
 
-    public CBPLifeStatus getLifeStatus(CBPSide side) {
-	return (side == CBPSide.LEFT) ? leftLifeStatus : rightLifeStatus;
-    }
-
-    public void setLifeStatus(CBPLifeStatus lifeStatus, CBPSide side) {
-	if (side == CBPSide.LEFT) {
-	    this.leftLifeStatus = lifeStatus;
-	} else {
-	    this.rightLifeStatus = lifeStatus;
-	}
-    }
-
     public Set<CBPChangeEvent<?>> getEvents() {
 	return events;
     }
@@ -74,7 +162,7 @@ public class CBPObject {
 	this.events = events;
     }
 
-    public void setContainer(Object container, CBPSide side) {
+    public void setContainer(CBPObject container, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftContainer = container;
 	} else {
@@ -86,7 +174,7 @@ public class CBPObject {
 	return (side == CBPSide.LEFT) ? leftContainer : rightContainer;
     }
 
-    public void setContainingFeature(Object containingFeature, CBPSide side) {
+    public void setContainingFeature(CBPFeature containingFeature, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftContainingFeature = containingFeature;
 	} else {
@@ -111,13 +199,11 @@ public class CBPObject {
     }
 
     public List<CBPDiff> getDiffs() {
-        return diffs;
+	return diffs;
     }
 
     public void setDiffs(List<CBPDiff> diffs) {
-        this.diffs = diffs;
+	this.diffs = diffs;
     }
-    
-    
 
 }

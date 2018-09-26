@@ -74,13 +74,21 @@ public class CBPComparisonTest {
     @Test
     public void testReadingFileSpeed() throws IOException, FactoryConfigurationError, XMLStreamException {
 
-//	File originFile = new File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
-//	File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
-//	File rightFile = new File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
+	// File originFile = new
+	// File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
+	// File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
+	// File rightFile = new
+	// File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
 
-	File originFile = new File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
-	File leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.cbpxml");
-	File rightFile = new File("D:\\TEMP\\COMPARISON\\temp\\right.cbpxml");
+	File originFile = new File("D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml");
+	File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.cbpxml");
+	File rightFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.cbpxml");
+
+	// File originFile = new
+	// File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
+	// File leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.cbpxml");
+	// File rightFile = new
+	// File("D:\\TEMP\\COMPARISON\\temp\\right.cbpxml");
 
 	// rightFile = originFile;
 
@@ -101,12 +109,17 @@ public class CBPComparisonTest {
 	// File rightXmiFile = new
 	// File("D:\\TEMP\\COMPARISON2\\test\\right.xmi");
 
-	File leftXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.xmi");
-	File rightXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\right.xmi");
+//	File leftXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.xmi");
+//	File rightXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\right.xmi");
 
-	// File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
+	// File leftXmiFile = new
+	// File("D:\\TEMP\\COMPARISON\\temp\\left-noid.xmi");
 	// File rightXmiFile = new
-	// File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
+	// File("D:\\TEMP\\COMPARISON\\temp\\right-noid.xmi");
+
+	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
+	 File rightXmiFile = new
+	 File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
 
 	XMIResource leftXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 	XMIResource rightXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
@@ -138,9 +151,10 @@ public class CBPComparisonTest {
 
 	System.out.println("Create Origin CBPEAttributeEvent");
 	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, rightXmi, null);
-	System.out.println("Start: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
+	long start = System.nanoTime();
 	Comparison comparison = comparator.compare(scope);
-	System.out.println("End: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
+	long end = System.nanoTime();
+	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
 	EList<Diff> diffs = comparison.getDifferences();
 	System.out.println("Diffs: " + diffs.size());
 
@@ -165,7 +179,9 @@ public class CBPComparisonTest {
 		id = rightXmi.getURIFragment(diff.getMatch().getRight());
 	    }
 
-	    System.out.println(id + "#" + feature + "#" + value + "; " + diff.getKind());
+	    System.out.println(id + "." + feature + "." + value + "." + diff.getKind() + "." + diff.getSource()
+	    // + diff.getRequiredBy() + "; " + diff.getRequires()
+	    );
 	}
 
 	assertEquals(true, true);
