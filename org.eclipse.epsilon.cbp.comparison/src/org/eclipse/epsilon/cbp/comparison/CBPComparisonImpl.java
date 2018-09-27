@@ -335,9 +335,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 	String str = null;
 	for (CBPDiff diff : diffs) {
 	    if (diff.getValue() instanceof CBPObject) {
-		str = diff.getObject().getId() + "." + diff.getFeature().getName() + "." + ((CBPObject) diff.getValue()).getId();
+		str = diff.getObject().getId() + "." + diff.getFeature().getName() + "." + ((CBPObject) diff.getValue()).getId() + "." + diff.getKind();
 	    } else {
-		str = diff.getObject().getId() + "." + diff.getFeature().getName() + "." + diff.getValue();
+		str = diff.getObject().getId() + "." + diff.getFeature().getName() + "." + diff.getValue() + "." + diff.getKind();
 	    }
 	    set.add(str);
 	}
@@ -482,6 +482,12 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    CBPUnsetEReferenceEvent unsetEvent = (CBPUnsetEReferenceEvent) previousEvent;
 		    CBPObject previousTargetObject = objects.get(unsetEvent.getTarget());
 		    CBPFeature previousFeature = previousTargetObject.getFeatures().get(unsetEvent.getEReference());
+		    targetObject.setContainer(previousTargetObject, side);
+		    targetObject.setContainingFeature(previousFeature, side);
+		} else if (previousEvent instanceof CBPRemoveFromEReferenceEvent) {
+		    CBPRemoveFromEReferenceEvent removeEvent = (CBPRemoveFromEReferenceEvent) previousEvent;
+		    CBPObject previousTargetObject = objects.get(removeEvent.getTarget());
+		    CBPFeature previousFeature = previousTargetObject.getFeatures().get(removeEvent.getEReference());
 		    targetObject.setContainer(previousTargetObject, side);
 		    targetObject.setContainingFeature(previousFeature, side);
 		}

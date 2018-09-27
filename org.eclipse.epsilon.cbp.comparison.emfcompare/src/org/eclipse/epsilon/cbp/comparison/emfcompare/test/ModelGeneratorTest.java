@@ -105,7 +105,7 @@ public class ModelGeneratorTest {
 
     public ModelGeneratorTest() throws FactoryConfigurationError, IOException {
 
-	 Logger.getRootLogger().setLevel(Level.OFF);
+	Logger.getRootLogger().setLevel(Level.OFF);
 
 	MoDiscoXMLPackage.eINSTANCE.eClass();
 	UMLPackage.eINSTANCE.eClass();
@@ -350,21 +350,20 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON4\\test\\right.cbpxml";
 
-	    String originPath = "D:\\TEMP\\COMPARISON\\temp\\origin.xmi";
-	    String leftPath = "D:\\TEMP\\COMPARISON\\temp\\left.xmi";
-	    String rightPath = "D:\\TEMP\\COMPARISON\\temp\\right.xmi";
-	    String originCbpPath = "D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml";
-	    String leftCbpPath = "D:\\TEMP\\COMPARISON\\temp\\left.cbpxml";
-	    String rightCbpPath = "D:\\TEMP\\COMPARISON\\temp\\right.cbpxml";
-
-	    // String originPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
-	    // String leftPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
-	    // String rightPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
+	    // String originPath = "D:\\TEMP\\COMPARISON\\temp\\origin.xmi";
+	    // String leftPath = "D:\\TEMP\\COMPARISON\\temp\\left.xmi";
+	    // String rightPath = "D:\\TEMP\\COMPARISON\\temp\\right.xmi";
 	    // String originCbpPath =
-	    // "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
-	    // String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
-	    // String rightCbpPath =
-	    // "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
+	    // "D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml";
+	    // String leftCbpPath = "D:\\TEMP\\COMPARISON\\temp\\left.cbpxml";
+	    // String rightCbpPath = "D:\\TEMP\\COMPARISON\\temp\\right.cbpxml";
+
+	    String originPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
+	    String leftPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
+	    String rightPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
+	    String originCbpPath = "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
+	    String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
+	    String rightCbpPath = "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
 
 	    // String originPath = "D:\\TEMP\\COMPARISON2\\test\\origin.xmi";
 	    // String leftPath = "D:\\TEMP\\COMPARISON2\\test\\left.xmi";
@@ -400,9 +399,9 @@ public class ModelGeneratorTest {
 	    CBPResource originCbp = (CBPResource) cbpFactory.createResource(URI.createFileURI(originCbpPath));
 	    CBPResource leftCbp = (CBPResource) cbpFactory.createResource(URI.createFileURI(leftCbpPath));
 	    CBPResource rightCbp = (CBPResource) cbpFactory.createResource(URI.createFileURI(rightCbpPath));
-	    originCbp.setIdType(IdType.NUMERIC);
-	    leftCbp.setIdType(IdType.NUMERIC);
-	    rightCbp.setIdType(IdType.NUMERIC);
+	    originCbp.setIdType(IdType.NUMERIC, "O-");
+	    leftCbp.setIdType(IdType.NUMERIC, "L-");
+	    rightCbp.setIdType(IdType.NUMERIC, "R-");
 
 	    originXmi.load(null);
 
@@ -431,7 +430,7 @@ public class ModelGeneratorTest {
 	    IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
 	    BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
 	    postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
-	    
+
 	    Builder builder = EMFCompare.builder();
 	    builder.setPostProcessorRegistry(postProcessorRegistry);
 	    builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
@@ -512,7 +511,7 @@ public class ModelGeneratorTest {
     }
 
     @Test
-    public void testModelGeneration() {
+    public void testModelGeneration() throws Exception {
 
 	try {
 	    // String originXmiPath = "D:\\TEMP\\COMPARISON4\\test\\origin.xmi";
@@ -524,24 +523,26 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON4\\test\\right.cbpxml";
 
-	    // String originXmiPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
-	    // String leftXmiPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
-	    // String rightXmiPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
-	    // String originCbpPath =
-	    // "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
-	    // String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
-	    // String rightCbpPath =
-	    // "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
+	    String originXmiPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
+	    String leftXmiPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
+	    String rightXmiPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
+	    String originCbpPath = "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
+	    String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
+	    String rightCbpPath = "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
 
-	    String originXmiNoIDPath = "D:\\TEMP\\COMPARISON\\temp\\origin-noid.xmi";
-	    String leftXmiNoIDPath = "D:\\TEMP\\COMPARISON\\temp\\left-noid.xmi";
-	    String rightXmiNoIDPath = "D:\\TEMP\\COMPARISON\\temp\\right-noid.xmi";
-	    String originXmiPath = "D:\\TEMP\\COMPARISON\\temp\\origin.xmi";
-	    String leftXmiPath = "D:\\TEMP\\COMPARISON\\temp\\left.xmi";
-	    String rightXmiPath = "D:\\TEMP\\COMPARISON\\temp\\right.xmi";
-	    String originCbpPath = "D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml";
-	    String leftCbpPath = "D:\\TEMP\\COMPARISON\\temp\\left.cbpxml";
-	    String rightCbpPath = "D:\\TEMP\\COMPARISON\\temp\\right.cbpxml";
+	    // String originXmiNoIDPath =
+	    // "D:\\TEMP\\COMPARISON\\temp\\origin-noid.xmi";
+	    // String leftXmiNoIDPath =
+	    // "D:\\TEMP\\COMPARISON\\temp\\left-noid.xmi";
+	    // String rightXmiNoIDPath =
+	    // "D:\\TEMP\\COMPARISON\\temp\\right-noid.xmi";
+	    // String originXmiPath = "D:\\TEMP\\COMPARISON\\temp\\origin.xmi";
+	    // String leftXmiPath = "D:\\TEMP\\COMPARISON\\temp\\left.xmi";
+	    // String rightXmiPath = "D:\\TEMP\\COMPARISON\\temp\\right.xmi";
+	    // String originCbpPath =
+	    // "D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml";
+	    // String leftCbpPath = "D:\\TEMP\\COMPARISON\\temp\\left.cbpxml";
+	    // String rightCbpPath = "D:\\TEMP\\COMPARISON\\temp\\right.cbpxml";
 
 	    // String originXmiPath = "D:\\TEMP\\COMPARISON2\\test\\origin.xmi";
 	    // String leftXmiPath = "D:\\TEMP\\COMPARISON2\\test\\left.xmi";
@@ -552,10 +553,13 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON2\\test\\right.cbpxml";
 
-	    Resource originXmiNoID = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiNoIDPath));
-	    Resource leftXmiNoID = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiNoIDPath));
-	    Resource rightXmiNoID = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiNoIDPath));
-	    
+	    // Resource originXmiNoID = (new
+	    // XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiNoIDPath));
+	    // Resource leftXmiNoID = (new
+	    // XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiNoIDPath));
+	    // Resource rightXmiNoID = (new
+	    // XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiNoIDPath));
+
 	    Resource originXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiPath));
 	    Resource leftXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiPath));
 	    Resource rightXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiPath));
@@ -563,23 +567,32 @@ public class ModelGeneratorTest {
 	    HybridResource originHybrid = new HybridXMIResourceImpl(originXmi, new FileOutputStream(originCbpPath, true));
 	    HybridResource leftHybrid = new HybridXMIResourceImpl(leftXmi, new FileOutputStream(leftCbpPath, true));
 	    HybridResource rightHybrid = new HybridXMIResourceImpl(rightXmi, new FileOutputStream(rightCbpPath, true));
-	    
+
 	    System.out.println("Process Origin");
 	    originHybrid.loadFromCBP(new FileInputStream(originCbpPath));
 	    originHybrid.save(null);
+	    if (!checkAllObjectsHaveIds(originHybrid)) {
+		throw new Exception("Not all objects have Ids");
+	    }
 	    System.out.println("Process Left");
 	    leftHybrid.loadFromCBP(new FileInputStream(leftCbpPath));
 	    leftHybrid.save(null);
+	    if (!checkAllObjectsHaveIds(leftHybrid)) {
+		throw new Exception("Not all objects have Ids");
+	    }
 	    System.out.println("Process Right");
 	    rightHybrid.loadFromCBP(new FileInputStream(rightCbpPath));
 	    rightHybrid.save(null);
-	    
-//	    originXmiNoID.getContents().addAll(EcoreUtil.copyAll(originXmi.getContents()));
-//	    originXmiNoID.save(null);
-//	    leftXmiNoID.getContents().addAll(EcoreUtil.copyAll(leftXmi.getContents()));
-//	    leftXmiNoID.save(null);
-//	    rightXmiNoID.getContents().addAll(EcoreUtil.copyAll(rightXmi.getContents()));
-//	    rightXmiNoID.save(null);
+	    if (!checkAllObjectsHaveIds(rightHybrid)) {
+		throw new Exception("Not all objects have Ids");
+	    }
+
+	    // originXmiNoID.getContents().addAll(EcoreUtil.copyAll(originXmi.getContents()));
+	    // originXmiNoID.save(null);
+	    // leftXmiNoID.getContents().addAll(EcoreUtil.copyAll(leftXmi.getContents()));
+	    // leftXmiNoID.save(null);
+	    // rightXmiNoID.getContents().addAll(EcoreUtil.copyAll(rightXmi.getContents()));
+	    // rightXmiNoID.save(null);
 
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
@@ -590,6 +603,18 @@ public class ModelGeneratorTest {
 	}
 	System.out.println("Finish!");
 	assertEquals(true, true);
+    }
+
+    private boolean checkAllObjectsHaveIds(HybridResource hybridResource) {
+	TreeIterator<EObject> iterator = hybridResource.getStateBasedResource().getAllContents();
+	while (iterator.hasNext()) {
+	    EObject eObject = iterator.next();
+	    String id = ((XMIResource) hybridResource.getStateBasedResource()).getID(eObject);
+	    if (id == null || id.equals("/-1")) {
+		return false;
+	    }
+	}
+	return true;
     }
 
     private IComparisonScope2 createComparisonScope(Resource notifierLeft, Resource notifierRight) {

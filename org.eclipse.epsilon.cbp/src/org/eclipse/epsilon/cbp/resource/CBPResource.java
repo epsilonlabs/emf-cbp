@@ -60,6 +60,7 @@ public abstract class CBPResource extends ResourceImpl {
 	protected int persistedIgnoredEvents = 0;
 	protected int idCounter = 0;
 	protected IdType idType = IdType.NUMERIC;
+	protected String idPrefix = "";
 
 	public enum IdType {
 		NUMERIC, UUID
@@ -165,7 +166,7 @@ public abstract class CBPResource extends ResourceImpl {
 			while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
 				idCounter += 1;
 			}
-			id = String.valueOf(idCounter);
+			id = idPrefix + String.valueOf(idCounter);
 			idCounter = idCounter + 1;
 		} else if (idType == IdType.UUID) {
 			id = EcoreUtil.generateUUID();
@@ -314,7 +315,12 @@ public abstract class CBPResource extends ResourceImpl {
 	}
 
 	public void setIdType(IdType idType) {
+		this.setIdType(idType, "");
+	}
+	
+	public void setIdType(IdType idType, String idPrefix) {
 		this.idType = idType;
+		this.idPrefix = idPrefix;
 	}
 
 	public void deleteElement(EObject targetEObject) {

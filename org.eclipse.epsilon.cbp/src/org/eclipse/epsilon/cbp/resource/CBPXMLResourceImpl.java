@@ -27,14 +27,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
@@ -259,7 +262,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 		    if (optimised == true)
 			modelHistory.addObjectHistoryLine(eObject, event, eventNumber, value);
 		} else if (event instanceof UnsetEAttributeEvent) {
-		    e = document.createElement("unset-eattribute");		    
+		    e = document.createElement("unset-eattribute");
 		    EObject eObject = ((UnsetEAttributeEvent) event).getTarget();
 		    e.setAttribute("eclass", eObject.eClass().getName());
 		    if (optimised == true)
@@ -320,7 +323,7 @@ public class CBPXMLResourceImpl extends CBPResource {
 			if (eObject != null) {
 			    Element o = document.createElement("old-value");
 			    o.setAttribute("eobject", getURIFragment(eObject));
-			    o.setAttribute("eclass", eObject.eClass().getName());			    
+			    o.setAttribute("eclass", eObject.eClass().getName());
 			    e.appendChild(o);
 			}
 		    }
@@ -670,9 +673,6 @@ public class CBPXMLResourceImpl extends CBPResource {
 			if (ignore == false) {
 
 			    event.replay();
-
-			    // if (eventNumber % 100000 == 0)
-			    // System.out.println(eventNumber);
 
 			    if (repopulateModelHistory == true) {
 				repopulateModelHistory(event, eventNumber);
