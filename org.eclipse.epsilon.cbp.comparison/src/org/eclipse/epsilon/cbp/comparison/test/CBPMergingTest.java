@@ -308,6 +308,7 @@ public class CBPMergingTest {
 	    leftScript.add("var node7 = new Node;");
 	    leftScript.add("node7.name = \"Node 07\";");
 	    leftScript.add("root.valNodes.add(node7);");
+	    leftScript.add("delete node7;");	    
 	    leftScript.add("var node8 = new Node;");
 	    leftScript.add("node8.name = \"Node 08\";");
 	    leftScript.add("node1.valNodes.add(node8);");

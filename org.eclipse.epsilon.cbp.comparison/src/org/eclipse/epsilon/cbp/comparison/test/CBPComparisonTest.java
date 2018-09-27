@@ -12,9 +12,14 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.FactoryConfigurationError;
@@ -68,7 +73,7 @@ public class CBPComparisonTest {
 	EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
 	EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
 	EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
-	Logger.getRootLogger().setLevel(Level.OFF);
+//	Logger.getRootLogger().setLevel(Level.OFF);
     }
 
     @Test
@@ -80,9 +85,11 @@ public class CBPComparisonTest {
 	// File rightFile = new
 	// File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
 
-	File originFile = new File("D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml");
-	File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.cbpxml");
-	File rightFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.cbpxml");
+	 File originFile = new
+	 File("D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml");
+	 File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.cbpxml");
+	 File rightFile = new
+	 File("D:\\TEMP\\COMPARISON3\\test\\right.cbpxml");
 
 	// File originFile = new
 	// File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
@@ -117,9 +124,8 @@ public class CBPComparisonTest {
 	// File rightXmiFile = new
 	// File("D:\\TEMP\\COMPARISON\\temp\\right-noid.xmi");
 
-	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
-	 File rightXmiFile = new
-	 File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
+	File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
+	File rightXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
 
 	XMIResource leftXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 	XMIResource rightXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
@@ -156,8 +162,9 @@ public class CBPComparisonTest {
 	long end = System.nanoTime();
 	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
 	EList<Diff> diffs = comparison.getDifferences();
-	System.out.println("Diffs: " + diffs.size());
-
+	
+	System.out.println("\nDIFFERENCES:");
+	Set<String> set = new HashSet<>();
 	for (Diff diff : diffs) {
 	    String feature = null;
 	    String id = null;
@@ -182,7 +189,18 @@ public class CBPComparisonTest {
 	    System.out.println(id + "." + feature + "." + value + "." + diff.getKind() + "." + diff.getSource()
 	    // + diff.getRequiredBy() + "; " + diff.getRequires()
 	    );
+	    set.add(id + "." + feature + "." + value);
 	}
+	System.out.println("Diffs: " + diffs.size());
+	
+	List<String> list = new ArrayList<>(set);
+	Collections.sort(list);
+	
+	System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+	for (String item : list) {
+	    System.out.println(item);
+	}
+	System.out.println("Diffs: " + list.size());
 
 	assertEquals(true, true);
     }

@@ -94,6 +94,14 @@ public abstract class HybridResource extends ResourceImpl {
 
     protected IdType idType = IdType.NUMERIC;
 
+    public IdType getIdType() {
+        return idType;
+    }
+
+    public void setIdType(IdType idType) {
+        this.idType = idType;
+    }
+
     public enum IdType {
 	NUMERIC, UUID, FRAGMENT
     }

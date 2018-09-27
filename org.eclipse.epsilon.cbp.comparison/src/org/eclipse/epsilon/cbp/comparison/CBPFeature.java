@@ -2,7 +2,7 @@ package org.eclipse.epsilon.cbp.comparison;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -23,8 +23,9 @@ public class CBPFeature {
     private boolean isContainment = false;
     private boolean isMany = false;
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
-    private Map<Integer, Object> leftValues = new LinkedHashMap<Integer, Object>();
-    private Map<Integer, Object> rightValues = new LinkedHashMap<Integer, Object>();
+    private Map<Integer, Object> leftValues = new HashMap<Integer, Object>();
+    private Map<Integer, Object> rightValues = new HashMap<Integer, Object>();
+    private Set<Integer> ignoredPositions = new HashSet<>();
 
     public CBPFeature(CBPObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany) {
 	this.owner = owner;
@@ -82,6 +83,30 @@ public class CBPFeature {
 	this.isContainment = isContainment;
     }
 
+    public Map<Integer, Object> getLeftValues() {
+        return leftValues;
+    }
+
+    public void setLeftValues(Map<Integer, Object> leftValues) {
+        this.leftValues = leftValues;
+    }
+
+    public Map<Integer, Object> getRightValues() {
+        return rightValues;
+    }
+
+    public void setRightValues(Map<Integer, Object> rightValues) {
+        this.rightValues = rightValues;
+    }
+
+    public Set<Integer> getIgnoredPositions() {
+        return ignoredPositions;
+    }
+
+    public void setIgnoredPositions(Set<Integer> ignoredPositions) {
+        this.ignoredPositions = ignoredPositions;
+    }
+
     public CBPFeatureType getFeatureType() {
 	return featureType;
     }
@@ -121,7 +146,7 @@ public class CBPFeature {
     }
 
     public void moveValue(Object value, int from, int to, CBPSide side) {
-	Map<Integer, Object> temp = new LinkedHashMap<>();
+	Map<Integer, Object> temp = new HashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
 	Object removedValue = values.put(from, null);
@@ -183,7 +208,7 @@ public class CBPFeature {
     }
 
     public void addValue(Object value, int position, CBPSide side) {
-	Map<Integer, Object> temp = new LinkedHashMap<>();
+	Map<Integer, Object> temp = new HashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
 	Iterator<Entry<Integer, Object>> iterator = values.entrySet().iterator();
@@ -224,7 +249,7 @@ public class CBPFeature {
     }
 
     public void removeValue(Object value, int position, CBPSide side) {
-	Map<Integer, Object> temp = new LinkedHashMap<>();
+	Map<Integer, Object> temp = new HashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
 	Object deletedValue = values.put(position, null);
@@ -236,7 +261,7 @@ public class CBPFeature {
 	    Entry<Integer, Object> entry = iterator.next();
 	    int pos = entry.getKey();
 	    Object val = entry.getValue();
-	    if (pos >= position) {
+	    if (pos > position) {
 		temp.put(pos - 1, val);
 		if (val instanceof CBPObject) {
 		    ((CBPObject) val).setPosition(pos - 1, side);
