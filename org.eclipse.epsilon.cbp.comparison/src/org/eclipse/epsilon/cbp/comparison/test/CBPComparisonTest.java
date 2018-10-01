@@ -195,7 +195,8 @@ public class CBPComparisonTest {
 //	    System.out.println(id + "." + feature + "." + value + "." + diff.getKind() + "." + diff.getSource()
 	    // + diff.getRequiredBy() + "; " + diff.getRequires()
 //	    );
-	    set.add(id + "." + feature + "." + value + "." + diff.getKind());
+	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+	    set.add(x.trim());
 	}
 	System.out.println("Diffs: " + diffs.size());
 
