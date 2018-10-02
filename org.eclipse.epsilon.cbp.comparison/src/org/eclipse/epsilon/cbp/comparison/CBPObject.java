@@ -26,12 +26,30 @@ public class CBPObject {
     private boolean rightIsCreated = false;
     private boolean rightIsDeleted = false;
     private int leftPosition = -1;
+    private int oldLeftPosition = -1;
     private int rightPosition = -1;
+    private int oldRightPosition = -1;
     private Set<CBPChangeEvent<?>> events = new HashSet<>();
     private List<CBPDiff> diffs = new ArrayList<>();
 
     public CBPObject(String id) {
 	this.id = id;
+    }
+
+    public int getOldLeftPosition() {
+	return oldLeftPosition;
+    }
+
+    public void setOldLeftPosition(int oldLeftPosition) {
+	this.oldLeftPosition = oldLeftPosition;
+    }
+
+    public int getOldRightPosition() {
+	return oldRightPosition;
+    }
+
+    public void setOldRightPosition(int oldRightPosition) {
+	this.oldRightPosition = oldRightPosition;
     }
 
     public CBPObject getLeftContainer() {
@@ -104,6 +122,9 @@ public class CBPObject {
 
     public void setLeftPosition(int leftPosition) {
 	this.leftPosition = leftPosition;
+	if (oldLeftPosition == -1) {
+	    this.oldLeftPosition = leftPosition;
+	}
     }
 
     public int getRightPosition() {
@@ -112,6 +133,9 @@ public class CBPObject {
 
     public void setRightPosition(int rightPosition) {
 	this.rightPosition = rightPosition;
+	if (oldRightPosition == -1) {
+	    this.oldRightPosition = rightPosition;
+	}
     }
 
     public boolean isCreated(CBPSide side) {
@@ -188,9 +212,9 @@ public class CBPObject {
 
     public void setPosition(int position, CBPSide side) {
 	if (side == CBPSide.LEFT) {
-	    leftPosition = position;
+	    setLeftPosition(position);
 	} else {
-	    rightPosition = position;
+	    setRightPosition(position);
 	}
     }
 

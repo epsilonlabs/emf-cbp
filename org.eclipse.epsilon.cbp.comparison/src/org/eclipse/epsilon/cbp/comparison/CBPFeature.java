@@ -25,7 +25,6 @@ public class CBPFeature {
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
     private Map<Integer, Object> leftValues = new HashMap<Integer, Object>();
     private Map<Integer, Object> rightValues = new HashMap<Integer, Object>();
-    private Set<Integer> ignoredPositions = new HashSet<>();
 
     public CBPFeature(CBPObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany) {
 	this.owner = owner;
@@ -97,14 +96,6 @@ public class CBPFeature {
 
     public void setRightValues(Map<Integer, Object> rightValues) {
         this.rightValues = rightValues;
-    }
-
-    public Set<Integer> getIgnoredPositions() {
-        return ignoredPositions;
-    }
-
-    public void setIgnoredPositions(Set<Integer> ignoredPositions) {
-        this.ignoredPositions = ignoredPositions;
     }
 
     public CBPFeatureType getFeatureType() {
