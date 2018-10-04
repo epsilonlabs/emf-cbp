@@ -2,6 +2,9 @@ package org.eclipse.epsilon.cbp.comparison;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,6 +15,10 @@ import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
 enum CBPFeatureType {
     ATTRIBUTE, REFERENCE
+}
+
+enum CBPPositionEventType {
+    UNDEFINED, ADD, REMOVE, MOVE
 }
 
 public class CBPFeature {
@@ -25,6 +32,8 @@ public class CBPFeature {
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
     private Map<Integer, Object> leftValues = new HashMap<Integer, Object>();
     private Map<Integer, Object> rightValues = new HashMap<Integer, Object>();
+    private List<CBPPositionEvent> leftPositionEvents = new LinkedList<>();
+    private List<CBPPositionEvent> rightPositionEvents = new LinkedList<>();
 
     public CBPFeature(CBPObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany) {
 	this.owner = owner;
@@ -83,19 +92,19 @@ public class CBPFeature {
     }
 
     public Map<Integer, Object> getLeftValues() {
-        return leftValues;
+	return leftValues;
     }
 
     public void setLeftValues(Map<Integer, Object> leftValues) {
-        this.leftValues = leftValues;
+	this.leftValues = leftValues;
     }
 
     public Map<Integer, Object> getRightValues() {
-        return rightValues;
+	return rightValues;
     }
 
     public void setRightValues(Map<Integer, Object> rightValues) {
-        this.rightValues = rightValues;
+	this.rightValues = rightValues;
     }
 
     public CBPFeatureType getFeatureType() {
@@ -137,6 +146,11 @@ public class CBPFeature {
     }
 
     public void moveValue(Object value, int from, int to, CBPSide side) {
+	if (value instanceof CBPObject) {
+	    updateOldPosition((CBPObject) value, from, side);
+	}
+	addPositionEvent(new CBPPositionEvent(CBPPositionEventType.MOVE, to, from), side);
+
 	Map<Integer, Object> temp = new HashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
@@ -199,6 +213,12 @@ public class CBPFeature {
     }
 
     public void addValue(Object value, int position, CBPSide side) {
+	addPositionEvent(new CBPPositionEvent(CBPPositionEventType.ADD, position), side);
+	// if (value instanceof CBPObject && ((CBPObject)
+	// value).getOldPosition(side) == -1) {
+	// updateOldPosition((CBPObject) value, position, side);
+	// }
+
 	Map<Integer, Object> temp = new HashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
@@ -240,6 +260,11 @@ public class CBPFeature {
     }
 
     public void removeValue(Object value, int position, CBPSide side) {
+	addPositionEvent(new CBPPositionEvent(CBPPositionEventType.REMOVE, position), side);
+	if (value instanceof CBPObject) {
+	    updateOldPosition((CBPObject) value, position, side);
+	}
+
 	Map<Integer, Object> temp = new HashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
@@ -270,5 +295,105 @@ public class CBPFeature {
 	    }
 	}
 	temp.clear();
+    }
+
+    private void updateOldPosition(CBPObject object, int position, CBPSide side) {
+	int oldPosition = position;
+	List<CBPPositionEvent> positionEvents = (side == CBPSide.LEFT) ? leftPositionEvents : rightPositionEvents;
+	for (CBPPositionEvent positionEvent : positionEvents) {
+	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
+		if (positionEvent.getPosition() <= oldPosition) {
+		    oldPosition = oldPosition - 1;
+		    // System.out.println(positionEvent.getEventType() + " at "
+		    // + positionEvent.getPosition() + ": from " + position + "
+		    // to " + oldPosition);
+		}
+	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
+		if (positionEvent.getPosition() < oldPosition) {
+		    oldPosition = oldPosition + 1;
+		    // System.out.println(positionEvent.getEventType() + " at "
+		    // + positionEvent.getPosition() + ": from " + position + "
+		    // to " + oldPosition);
+		}
+	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVE) {
+		// move from left to right
+		if (positionEvent.getFrom() < positionEvent.getTo()) {
+		    if (oldPosition >= positionEvent.getFrom() && oldPosition < positionEvent.getTo()) {
+			oldPosition = oldPosition + 1;
+			// System.out.println(positionEvent.getEventType() + "
+			// origin " + positionEvent.getFrom() + " at " +
+			// positionEvent.getPosition() + ": from " + position +
+			// " to " + oldPosition);
+		    }
+		    // move from right to left
+		} else if (positionEvent.getFrom() > positionEvent.getTo()) {
+		    if (oldPosition < positionEvent.getFrom() && oldPosition >= positionEvent.getTo()) {
+			oldPosition = oldPosition - 1;
+			// System.out.println(positionEvent.getEventType() + "
+			// origin " + positionEvent.getFrom() + " at " +
+			// positionEvent.getPosition() + ": from " + position +
+			// " to " + oldPosition);
+		    }
+		}
+	    }
+	}
+	object.setOldPosition(oldPosition, side);
+    }
+
+    private void addPositionEvent(CBPPositionEvent positionEvent, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    leftPositionEvents.add(0, positionEvent);
+	} else {
+	    rightPositionEvents.add(0, positionEvent);
+	}
+    }
+
+    private class CBPPositionEvent {
+	CBPPositionEventType eventType = CBPPositionEventType.UNDEFINED;
+	int position = -1;
+	int from = -1;
+
+	public CBPPositionEvent(CBPPositionEventType eventType, int position) {
+	    this.eventType = eventType;
+	    this.position = position;
+	}
+
+	public CBPPositionEvent(CBPPositionEventType eventType, int to, int from) {
+	    this.eventType = eventType;
+	    this.position = to;
+	    this.from = from;
+	}
+
+	public CBPPositionEventType getEventType() {
+	    return eventType;
+	}
+
+	public void setEventType(CBPPositionEventType eventType) {
+	    this.eventType = eventType;
+	}
+
+	public int getPosition() {
+	    return position;
+	}
+
+	public void setPosition(int position) {
+	    this.position = position;
+	}
+
+	public int getTo() {
+	    return position;
+	}
+
+	public void setTo(int to) {
+	    this.position = to;
+	}
+
+	public int getFrom() {
+	    return from;
+	}
+
+	public void setFrom(int from) {
+	    this.from = from;
+	}
     }
 }

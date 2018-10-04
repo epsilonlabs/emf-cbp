@@ -217,9 +217,21 @@ public class CBPObject {
 	    setRightPosition(position);
 	}
     }
+    
+    public void setOldPosition(int position, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    setOldLeftPosition(position);
+	} else {
+	    setOldRightPosition(position);
+	}
+    }
 
     public int getPosition(CBPSide side) {
 	return (side == CBPSide.LEFT) ? leftPosition : rightPosition;
+    }
+    
+    public int getOldPosition(CBPSide side) {
+	return (side == CBPSide.LEFT) ? oldLeftPosition : oldRightPosition;
     }
 
     public List<CBPDiff> getDiffs() {
