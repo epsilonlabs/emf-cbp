@@ -145,13 +145,13 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	// System.out.println("\nOBJECT TREE:");
 	// System.out.println("Object Tree Size = " + objects.size());
-//	printObjectTree();
+	// printObjectTree();
 	//
 	// System.out.println("\nDIFFERENCES:");
 	// printDifferences();
 
 	// System.out.println("\nEXPORT FOR COMPARISON WITH EMF COMPARE:");
-	 this.exportForComparisonWithEMFCompare();
+	this.exportForComparisonWithEMFCompare();
 
 	{
 	    EObject eObject = leftResource.getEObject("O-481");
@@ -243,13 +243,13 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    Object rightValue = rightValues.get(pos);
 
 		    if (leftValue instanceof CBPObject) {
-			if (((CBPObject) leftValue).getId().equals("R-30")) {
+			if (((CBPObject) leftValue).getId().equals("O-309")) {
 			    System.out.println();
 			}
 		    }
 
 		    if (rightValue instanceof CBPObject) {
-			if (((CBPObject) rightValue).getId().equals("R-30")) {
+			if (((CBPObject) rightValue).getId().equals("O-309")) {
 			    System.out.println();
 			}
 		    }
@@ -387,7 +387,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     protected void processValueObject(CBPObject object) {
 
-	if (object.getId().equals("O-481")) {
+	if (object.getId().equals("O-309")) {
 	    System.out.println();
 	}
 
@@ -431,28 +431,26 @@ public class CBPComparisonImpl implements ICBPComparison {
 		CBPFeature feature = object.getLeftContainingFeature();
 		int position = object.getLeftPosition();
 
-		 // ADJUST POSITION BECAUSE OF DIFFERENCE STRATEGY - BEGIN
-		 System.out.println(object.getId());
-		 int oldRightPosition = object.getRightPosition();
-		 int rightPosition = feature.updatePosition(oldRightPosition,
-		 CBPSide.RIGHT);
-		 object.setRightPosition(rightPosition);
-		 // ADJUST POSITION BECAUSE OF DIFFERENCE STRATEGY - END
-
 		if (!object.getLeftContainer().equals(object.getRightContainer()) || !object.getLeftContainingFeature().equals(object.getRightContainingFeature())) {
+		    adjustRightPosition(object, feature);
 		    CBPDiff diff = new CBPDiff(leftContainer, feature, position, object, CBPDifferenceKind.MOVE, CBPSide.LEFT);
 		    diffs.add(diff);
+		} else if (object.getRightPosition() == object.getLeftPosition()) {
+		    return;
 		} else if (object.getRightPosition() != -1) {
+		    adjustRightPosition(object, feature);
 		    if (position != object.getRightPosition()) {
 			CBPDiff diff = new CBPDiff(leftContainer, feature, position, object, CBPDifferenceKind.MOVE, CBPSide.LEFT);
 			diffs.add(diff);
 		    }
 		} else if (object.getOldLeftPosition() != -1) {
+		    adjustRightPosition(object, feature);
 		    if (position != object.getOldLeftPosition()) {
 			CBPDiff diff = new CBPDiff(leftContainer, feature, position, object, CBPDifferenceKind.MOVE, CBPSide.LEFT);
 			diffs.add(diff);
 		    }
 		} else if (object.getOldRightPosition() != -1) {
+		    adjustRightPosition(object, feature);
 		    if (position != object.getOldRightPosition()) {
 			CBPDiff diff = new CBPDiff(leftContainer, feature, position, object, CBPDifferenceKind.MOVE, CBPSide.LEFT);
 			diffs.add(diff);
@@ -468,6 +466,18 @@ public class CBPComparisonImpl implements ICBPComparison {
 		}
 	    }
 	}
+    }
+
+    /**
+     * @param object
+     * @param feature
+     */
+    protected void adjustRightPosition(CBPObject object, CBPFeature feature) {
+	// ADJUST POSITION BECAUSE OF DIFFERENCE STRATEGY - BEGIN
+	int oldRightPosition = object.getRightPosition();
+	int rightPosition = feature.updatePosition(oldRightPosition, CBPSide.RIGHT);
+	object.setRightPosition(rightPosition);
+	// ADJUST POSITION BECAUSE OF DIFFERENCE STRATEGY - END
     }
 
     protected void printDifferences() {
@@ -567,20 +577,11 @@ public class CBPComparisonImpl implements ICBPComparison {
 		valueId = event.getValue();
 		if (valueId != null) {
 
-		    if (valueId.equals("O-467")) {
-			System.out.println();
-		    }
-
 		    // get or create new object
 		    valueObject = objects.get(valueId);
 		    if (valueObject == null) {
 			valueObject = new CBPObject(valueId);
 			objects.put(valueId, valueObject);
-		    }
-
-		    CBPObject obj = objects.get("O-481");
-		    if (obj != null) {
-//			System.out.println(obj.getLeftPosition());
 		    }
 
 		    // try to get the left-side container and feature of the
@@ -590,10 +591,6 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    }
 		    // ---
 
-		    obj = objects.get("O-481");
-		    if (obj != null) {
-//			System.out.println(obj.getLeftPosition());
-		    }
 		}
 	    }
 
@@ -782,8 +779,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    EList<EObject> list = (EList<EObject>) eContainer.eGet(eFeature);
 		    pos = list.indexOf(eObject);
 		}
-		
-//		leftFeature.addValue(valueObject, pos, CBPSide.LEFT);
+
+		// leftFeature.addValue(valueObject, pos, CBPSide.LEFT);
 		leftFeature.updateValue(valueObject, pos, CBPSide.LEFT);
 
 		valueObject.setPosition(pos, CBPSide.LEFT);
