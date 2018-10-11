@@ -336,6 +336,41 @@ public class CBPFeature {
 	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
 		if (positionEvent.getPosition() <= newPosition) {
 		    newPosition = newPosition + 1;
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition);
+		}
+	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
+		if (positionEvent.getPosition() < newPosition) {
+		    newPosition = newPosition - 1;
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition);
+		}
+	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVE) {
+		// move from left to right
+		if (positionEvent.getFrom() < positionEvent.getTo()) {
+		    if (newPosition >= positionEvent.getFrom() && newPosition < positionEvent.getTo()) {
+			newPosition = newPosition - 1;
+//			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition);
+		    }
+		    // move from right to left
+		} else if (positionEvent.getFrom() > positionEvent.getTo()) {
+		    if (newPosition < positionEvent.getFrom() && newPosition >= positionEvent.getTo()) {
+			newPosition = newPosition + 1;
+//			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition);
+		    }
+		}
+	    }
+	}
+	return newPosition;
+    }
+
+    public int updatePositionWhenCreatingLeftObject(int position, CBPSide side) {
+	int newPosition = position;
+	List<CBPPositionEvent> positionEvents = (side == CBPSide.LEFT) ? leftPositionEvents : rightPositionEvents;
+	for (int i = positionEvents.size() - 1; i >= 0; i--) {
+	    CBPPositionEvent positionEvent = positionEvents.get(i);
+
+	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
+		if (positionEvent.getPosition() <= newPosition) {
+		    newPosition = newPosition + 1;
 		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
@@ -361,7 +396,6 @@ public class CBPFeature {
 	}
 	return newPosition;
     }
-
     private void updateOldPosition(CBPObject object, int position, CBPSide side) {
 	int oldPosition = position;
 	List<CBPPositionEvent> positionEvents = (side == CBPSide.LEFT) ? leftPositionEvents : rightPositionEvents;

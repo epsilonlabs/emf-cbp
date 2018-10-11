@@ -154,7 +154,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	this.exportForComparisonWithEMFCompare();
 
 	{
-	    EObject eObject = leftResource.getEObject("O-481");
+	    EObject eObject = leftResource.getEObject("O-467");
 	    EStructuralFeature eFeature = eObject.eContainingFeature();
 	    boolean isOrdered = eFeature.isOrdered();
 	    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
@@ -163,7 +163,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	}
 
 	{
-	    EObject eObject = rightResource.getEObject("O-481");
+	    EObject eObject = rightResource.getEObject("O-467");
 	    EStructuralFeature eFeature = eObject.eContainingFeature();
 	    boolean isOrdered = eFeature.isOrdered();
 	    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
@@ -701,6 +701,15 @@ public class CBPComparisonImpl implements ICBPComparison {
 		valueObject.setOldPosition(fromPosition, side);
 		valueObject.setPosition(position, side);
 		feature.moveValue(valueObject, fromPosition, position, side);
+		
+		if (valueId.equals("O-467")) {
+		    System.out.println();
+		}
+
+		if (valueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
+		    createValueObjectOnTheLeftSide(valueObject);
+		}
+		
 	    } else
 
 	    if (event instanceof CBPAddToEAttributeEvent) {
@@ -744,52 +753,82 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     }
 
-    /**
-     * @param valueObject
-     */
     protected void createValueObjectOnTheLeftSide(CBPObject valueObject) {
-	EObject eObject = leftHybridResource.getEObject(valueObject.getId());
-	if (eObject != null) {
-	    EObject eContainer = eObject.eContainer();
-	    if (eContainer != null) {
-		String containerId = leftHybridResource.getURIFragment(eObject.eContainer());
+	if (!valueObject.getLeftIsCreated() && !valueObject.getRightIsCreated()) {
+	    if (valueObject.getOldRightContainer() != null) {
 
-		CBPObject leftContainer = objects.get(containerId);
-		if (leftContainer == null) {
-		    leftContainer = new CBPObject(containerId);
-		    objects.put(containerId, leftContainer);
-		}
-
-		EStructuralFeature eFeature = eObject.eContainingFeature();
-		CBPFeature leftFeature = leftContainer.getFeatures().get(eFeature.getName());
+		CBPObject leftContainer = valueObject.getOldRightContainer();
+		CBPFeature rightFeature = valueObject.getOldRightContainingFeature();
+		CBPFeature leftFeature = leftContainer.getFeatures().get(rightFeature.getName());
 		if (leftFeature == null) {
 		    CBPFeatureType featureType = CBPFeatureType.ATTRIBUTE;
 		    boolean isContainment = false;
-		    if (eFeature instanceof EReference) {
+		    if (rightFeature.getFeatureType() == CBPFeatureType.REFERENCE) {
 			featureType = CBPFeatureType.REFERENCE;
-			if (((EReference) eFeature).isContainment()) {
+			if (rightFeature.isContainment()) {
 			    isContainment = true;
 			}
 		    }
-		    leftFeature = new CBPFeature(leftContainer, eFeature.getName(), featureType, isContainment, eFeature.isMany());
-		    leftContainer.getFeatures().put(eFeature.getName(), leftFeature);
+		    leftFeature = new CBPFeature(leftContainer, rightFeature.getName(), featureType, isContainment, rightFeature.isMany());
+		    leftContainer.getFeatures().put(new String(rightFeature.getName()), leftFeature);
 		}
-		int pos = -1;
-		if (eFeature.isMany()) {
-		    EList<EObject> list = (EList<EObject>) eContainer.eGet(eFeature);
-		    pos = list.indexOf(eObject);
-		}
-
-		// leftFeature.addValue(valueObject, pos, CBPSide.LEFT);
+		int pos = valueObject.getOldRightPosition();
+		pos = leftFeature.updatePositionWhenCreatingLeftObject(pos, CBPSide.LEFT);
 		leftFeature.updateValue(valueObject, pos, CBPSide.LEFT);
-
+		
 		valueObject.setPosition(pos, CBPSide.LEFT);
 		valueObject.setContainer(leftContainer, CBPSide.LEFT);
 		valueObject.setContainingFeature(leftFeature, CBPSide.LEFT);
-
 	    }
 	}
     }
+    
+    /**
+     * @param valueObject
+     */
+//    protected void createValueObjectOnTheLeftSide(CBPObject valueObject) {
+//	EObject eObject = leftHybridResource.getEObject(valueObject.getId());
+//	if (eObject != null) {
+//	    EObject eContainer = eObject.eContainer();
+//	    if (eContainer != null) {
+//		String containerId = leftHybridResource.getURIFragment(eObject.eContainer());
+//
+//		CBPObject leftContainer = objects.get(containerId);
+//		if (leftContainer == null) {
+//		    leftContainer = new CBPObject(containerId);
+//		    objects.put(containerId, leftContainer);
+//		}
+//
+//		EStructuralFeature eFeature = eObject.eContainingFeature();
+//		CBPFeature leftFeature = leftContainer.getFeatures().get(eFeature.getName());
+//		if (leftFeature == null) {
+//		    CBPFeatureType featureType = CBPFeatureType.ATTRIBUTE;
+//		    boolean isContainment = false;
+//		    if (eFeature instanceof EReference) {
+//			featureType = CBPFeatureType.REFERENCE;
+//			if (((EReference) eFeature).isContainment()) {
+//			    isContainment = true;
+//			}
+//		    }
+//		    leftFeature = new CBPFeature(leftContainer, eFeature.getName(), featureType, isContainment, eFeature.isMany());
+//		    leftContainer.getFeatures().put(eFeature.getName(), leftFeature);
+//		}
+//		int pos = -1;
+//		if (eFeature.isMany()) {
+//		    EList<EObject> list = (EList<EObject>) eContainer.eGet(eFeature);
+//		    pos = list.indexOf(eObject);
+//		}
+//
+//		// leftFeature.addValue(valueObject, pos, CBPSide.LEFT);
+//		leftFeature.updateValue(valueObject, pos, CBPSide.LEFT);
+//
+//		valueObject.setPosition(pos, CBPSide.LEFT);
+//		valueObject.setContainer(leftContainer, CBPSide.LEFT);
+//		valueObject.setContainingFeature(leftFeature, CBPSide.LEFT);
+//
+//	    }
+//	}
+//    }
 
     private void readFiles(File leftFile, File rightFile, long skip) {
 	try {

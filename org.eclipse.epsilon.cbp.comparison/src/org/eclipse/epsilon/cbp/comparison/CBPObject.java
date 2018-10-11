@@ -18,8 +18,12 @@ public class CBPObject {
     private String id;
     private CBPObject leftContainer = null;
     private CBPFeature leftContainingFeature = null;
+    private CBPObject oldLeftContainer = null;
+    private CBPFeature oldLeftContainingFeature = null;
     private CBPObject rightContainer = null;
     private CBPFeature rightContainingFeature = null;
+    private CBPObject oldRightContainer = null;
+    private CBPFeature oldRightContainingFeature = null;
     private Map<String, CBPFeature> features = new HashMap<>();
     private boolean leftIsCreated = false;
     private boolean leftIsDeleted = false;
@@ -50,6 +54,38 @@ public class CBPObject {
 
     public void setOldRightPosition(int oldRightPosition) {
 	this.oldRightPosition = oldRightPosition;
+    }
+
+    public CBPObject getOldLeftContainer() {
+	return oldLeftContainer;
+    }
+
+    public void setOldLeftContainer(CBPObject oldLeftContainer) {
+	this.oldLeftContainer = oldLeftContainer;
+    }
+
+    public CBPFeature getOldLeftContainingFeature() {
+	return oldLeftContainingFeature;
+    }
+
+    public void setOldLeftContainingFeature(CBPFeature oldLeftContainingFeature) {
+	this.oldLeftContainingFeature = oldLeftContainingFeature;
+    }
+
+    public CBPObject getOldRightContainer() {
+	return oldRightContainer;
+    }
+
+    public void setOldRightContainer(CBPObject oldRightContainer) {
+	this.oldRightContainer = oldRightContainer;
+    }
+
+    public CBPFeature getOldRightContainingFeature() {
+	return oldRightContainingFeature;
+    }
+
+    public void setOldRightContainingFeature(CBPFeature oldRightContainingFeature) {
+	this.oldRightContainingFeature = oldRightContainingFeature;
     }
 
     public CBPObject getLeftContainer() {
@@ -189,8 +225,12 @@ public class CBPObject {
     public void setContainer(CBPObject container, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftContainer = container;
+	    if (oldLeftContainer == null)
+		oldLeftContainer = container;
 	} else {
 	    rightContainer = container;
+	    if (oldRightContainer == null)
+		oldRightContainer = container;
 	}
     }
 
@@ -201,13 +241,41 @@ public class CBPObject {
     public void setContainingFeature(CBPFeature containingFeature, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftContainingFeature = containingFeature;
+	    if (oldLeftContainingFeature == null)
+		oldLeftContainingFeature = containingFeature;
 	} else {
 	    rightContainingFeature = containingFeature;
+	    if (oldRightContainingFeature == null)
+		oldRightContainingFeature = containingFeature;
+	}
+    }
+
+    public void setOldContainer(CBPObject oldContainer, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    oldLeftContainer = oldContainer;
+	} else {
+	    oldRightContainer = oldContainer;
+	}
+    }
+
+    public Object getOldContainer(CBPSide side) {
+	return (side == CBPSide.LEFT) ? oldLeftContainer : oldRightContainer;
+    }
+
+    public void setOldContainingFeature(CBPFeature oldContainingFeature, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    oldLeftContainingFeature = oldContainingFeature;
+	} else {
+	    oldRightContainingFeature = oldContainingFeature;
 	}
     }
 
     public Object getContainingFeature(CBPSide side) {
 	return (side == CBPSide.LEFT) ? leftContainingFeature : rightContainingFeature;
+    }
+
+    public Object getOldContainingFeature(CBPSide side) {
+	return (side == CBPSide.LEFT) ? oldLeftContainingFeature : oldRightContainingFeature;
     }
 
     public void setPosition(int position, CBPSide side) {
@@ -217,7 +285,7 @@ public class CBPObject {
 	    setRightPosition(position);
 	}
     }
-    
+
     public void setOldPosition(int position, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    setOldLeftPosition(position);
@@ -229,7 +297,7 @@ public class CBPObject {
     public int getPosition(CBPSide side) {
 	return (side == CBPSide.LEFT) ? leftPosition : rightPosition;
     }
-    
+
     public int getOldPosition(CBPSide side) {
 	return (side == CBPSide.LEFT) ? oldLeftPosition : oldRightPosition;
     }
