@@ -647,7 +647,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    CBPUnsetEReferenceEvent unsetEvent = (CBPUnsetEReferenceEvent) previousEvent;
 		    CBPObject previousTargetObject = objects.get(unsetEvent.getTarget());
 		    CBPFeature previousFeature = previousTargetObject.getFeatures().get(unsetEvent.getEReference());
-		    CBPObject previousValueObject = objects.get(unsetEvent.getValue());
+		    CBPObject previousValueObject = objects.get(event.getValue());
 		    targetObject.setContainer(previousTargetObject, side);
 		    targetObject.setContainingFeature(previousFeature, side);
 		    if (previousValueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {

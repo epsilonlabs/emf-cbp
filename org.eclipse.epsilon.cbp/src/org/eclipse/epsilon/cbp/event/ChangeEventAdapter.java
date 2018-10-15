@@ -482,14 +482,15 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
 
 	if (event instanceof EObjectValuesEvent) {
-	    if (((EObjectValuesEvent) event).getValues().isEmpty())
-		return;
-	    for (EObject obj : ((EObjectValuesEvent) event).getValues()) {
-		handleEPackageOf(obj);
-		if (n.getNotifier() instanceof Resource && (Resource) n.getNotifier() == obj.eResource()) {
-		    handleCreateEObject(obj);
-		} else if (n.getNotifier() instanceof EObject && ((EObject) n.getNotifier()).eResource() == obj.eResource()) {
-		    handleCreateEObject(obj);
+	    if (((EObjectValuesEvent) event).getValues().isEmpty()) {
+	    } else {
+		for (EObject obj : ((EObjectValuesEvent) event).getValues()) {
+		    handleEPackageOf(obj);
+		    if (n.getNotifier() instanceof Resource && (Resource) n.getNotifier() == obj.eResource()) {
+			handleCreateEObject(obj);
+		    } else if (n.getNotifier() instanceof EObject && ((EObject) n.getNotifier()).eResource() == obj.eResource()) {
+			handleCreateEObject(obj);
+		    }
 		}
 	    }
 	}

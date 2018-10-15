@@ -1,6 +1,8 @@
 package org.eclipse.epsilon.cbp.event;
 
-public class UnsetEReferenceEvent extends SingleValueEReferenceEvent {
+import javax.swing.SingleSelectionModel;
+
+public class UnsetEReferenceEvent extends EReferenceEvent implements EObjectValuesEvent  {
 	
 	@Override
 	public void replay() {

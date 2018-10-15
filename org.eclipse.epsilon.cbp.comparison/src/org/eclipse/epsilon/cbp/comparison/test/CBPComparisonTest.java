@@ -79,15 +79,15 @@ public class CBPComparisonTest {
     @Test
     public void testReadingFileSpeed() throws IOException, FactoryConfigurationError, XMLStreamException {
 
-//	 File originFile = new
-//	 File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
-//	 File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
-//	 File rightFile = new
-//	 File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
+	 File originFile = new
+	 File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
+	 File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
+	 File rightFile = new
+	 File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
 
-	File originFile = new File("D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml");
-	File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.cbpxml");
-	File rightFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.cbpxml");
+//	File originFile = new File("D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml");
+//	File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.cbpxml");
+//	File rightFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.cbpxml");
 
 //	 File originFile = new
 //	 File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
@@ -110,9 +110,9 @@ public class CBPComparisonTest {
 	UMLPackage.eINSTANCE.eClass();
 	NodePackage.eINSTANCE.eClass();
 
-//	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
-//	 File rightXmiFile = new
-//	 File("D:\\TEMP\\COMPARISON2\\test\\right.xmi");
+	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
+	 File rightXmiFile = new
+	 File("D:\\TEMP\\COMPARISON2\\test\\right.xmi");
 
 //	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.xmi");
 //	 File rightXmiFile = new
@@ -126,8 +126,8 @@ public class CBPComparisonTest {
 //	File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left-noid.xmi");
 //	File rightXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\right-noid.xmi");
 	
-	File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
-	File rightXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
+//	File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
+//	File rightXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
 
 	XMIResource leftXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 	XMIResource rightXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
