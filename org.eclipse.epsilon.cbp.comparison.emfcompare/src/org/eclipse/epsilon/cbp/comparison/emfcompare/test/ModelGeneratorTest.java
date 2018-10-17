@@ -523,14 +523,14 @@ public class ModelGeneratorTest {
 	    // String rightCbpPath =
 	    // "D:\\TEMP\\COMPARISON4\\test\\right.cbpxml";
 
-	     String originXmiPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
-	     String leftXmiPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
-	     String rightXmiPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
-	     String originCbpPath =
-	     "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
-	     String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
-	     String rightCbpPath =
-	     "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
+//	     String originXmiPath = "D:\\TEMP\\COMPARISON3\\test\\origin.xmi";
+//	     String leftXmiPath = "D:\\TEMP\\COMPARISON3\\test\\left.xmi";
+//	     String rightXmiPath = "D:\\TEMP\\COMPARISON3\\test\\right.xmi";
+//	     String originCbpPath =
+//	     "D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml";
+//	     String leftCbpPath = "D:\\TEMP\\COMPARISON3\\test\\left.cbpxml";
+//	     String rightCbpPath =
+//	     "D:\\TEMP\\COMPARISON3\\test\\right.cbpxml";
 
 	    // String originXmiNoIDPath =
 	    // "D:\\TEMP\\COMPARISON\\temp\\origin-noid.xmi";
@@ -546,12 +546,12 @@ public class ModelGeneratorTest {
 	    // String leftCbpPath = "D:\\TEMP\\COMPARISON\\temp\\left.cbpxml";
 	    // String rightCbpPath = "D:\\TEMP\\COMPARISON\\temp\\right.cbpxml";
 
-//	    String originXmiPath = "D:\\TEMP\\COMPARISON2\\test\\origin.xmi";
-//	    String leftXmiPath = "D:\\TEMP\\COMPARISON2\\test\\left.xmi";
-//	    String rightXmiPath = "D:\\TEMP\\COMPARISON2\\test\\right.xmi";
-//	    String originCbpPath = "D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml";
-//	    String leftCbpPath = "D:\\TEMP\\COMPARISON2\\test\\left.cbpxml";
-//	    String rightCbpPath = "D:\\TEMP\\COMPARISON2\\test\\right.cbpxml";
+	    String originXmiPath = "D:\\TEMP\\COMPARISON2\\test\\origin.xmi";
+	    String leftXmiPath = "D:\\TEMP\\COMPARISON2\\test\\left.xmi";
+	    String rightXmiPath = "D:\\TEMP\\COMPARISON2\\test\\right.xmi";
+	    String originCbpPath = "D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml";
+	    String leftCbpPath = "D:\\TEMP\\COMPARISON2\\test\\left.cbpxml";
+	    String rightCbpPath = "D:\\TEMP\\COMPARISON2\\test\\right.cbpxml";
 
 	    // Resource originXmiNoID = (new
 	    // XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiNoIDPath));

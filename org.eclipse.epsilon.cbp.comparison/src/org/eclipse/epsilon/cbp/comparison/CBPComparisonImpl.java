@@ -128,14 +128,14 @@ public class CBPComparisonImpl implements ICBPComparison {
 	end = System.nanoTime();
 	System.out.println(" = " + df.format(((end - start) / 1000000.0)) + " ms");
 
-	System.out.print("Construct Object Tree");
+	System.out.print("Construct Object Tree ");
 	start = System.nanoTime();
-	System.out.println("LEFT LEFT");
+	System.out.print("LEFT ");
 	this.contructObjectTree(leftEvents, CBPSide.LEFT);
-	System.out.println("RIGHT RIGHT");
+	System.out.print("RIGHT ");
 	this.contructObjectTree(rightEvents, CBPSide.RIGHT);
 	end = System.nanoTime();
-	System.out.println(" = " + df.format(((end - start) / 1000000.0)) + " ms");
+	System.out.println("= " + df.format(((end - start) / 1000000.0)) + " ms");
 
 	System.out.print("Determine Differences");
 	start = System.nanoTime();
@@ -145,32 +145,32 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	// System.out.println("\nOBJECT TREE:");
 	// System.out.println("Object Tree Size = " + objects.size());
-	// printObjectTree();
+//	 printObjectTree();
 	//
 	// System.out.println("\nDIFFERENCES:");
 	// printDifferences();
 
-	// System.out.println("\nEXPORT FOR COMPARISON WITH EMF COMPARE:");
+//	 System.out.println("\nEXPORT FOR COMPARISON WITH EMF COMPARE:");
 	this.exportForComparisonWithEMFCompare();
-
-	{
-	    EObject eObject = leftResource.getEObject("O-467");
-	    EStructuralFeature eFeature = eObject.eContainingFeature();
-	    boolean isOrdered = eFeature.isOrdered();
-	    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
-	    int pos = eList.indexOf(eObject);
-	    System.out.println("Left Pos = " + pos);
-	}
-
-	{
-	    EObject eObject = rightResource.getEObject("O-467");
-	    EStructuralFeature eFeature = eObject.eContainingFeature();
-	    boolean isOrdered = eFeature.isOrdered();
-	    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
-	    int pos = eList.indexOf(eObject);
-	    System.out.println("Left Pos = " + pos);
-	    System.out.println();
-	}
+//
+//	{
+//	    EObject eObject = leftResource.getEObject("O-467");
+//	    EStructuralFeature eFeature = eObject.eContainingFeature();
+//	    boolean isOrdered = eFeature.isOrdered();
+//	    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
+//	    int pos = eList.indexOf(eObject);
+//	    System.out.println("Left Pos = " + pos);
+//	}
+//
+//	{
+//	    EObject eObject = rightResource.getEObject("O-467");
+//	    EStructuralFeature eFeature = eObject.eContainingFeature();
+//	    boolean isOrdered = eFeature.isOrdered();
+//	    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
+//	    int pos = eList.indexOf(eObject);
+//	    System.out.println("Left Pos = " + pos);
+//	    System.out.println();
+//	}
 
 	// closing
 	// leftResource.unload();
@@ -243,13 +243,13 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    Object rightValue = rightValues.get(pos);
 
 		    if (leftValue instanceof CBPObject) {
-			if (((CBPObject) leftValue).getId().equals("O-309")) {
+			if (((CBPObject) leftValue).getId().equals("O-5469")) {
 			    System.out.println();
 			}
 		    }
 
 		    if (rightValue instanceof CBPObject) {
-			if (((CBPObject) rightValue).getId().equals("O-309")) {
+			if (((CBPObject) rightValue).getId().equals("O-5469")) {
 			    System.out.println();
 			}
 		    }
@@ -327,7 +327,17 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    }
 		    // ---
 		    else if (feature.getFeatureType() == CBPFeatureType.REFERENCE && !feature.isContainment() && !feature.isMany()) {
-			CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.CHANGE, referenceSide);
+			Object value = (CBPObject) feature.getValue(CBPSide.LEFT);
+			if (value == null) {
+			    value = feature.getOldValue(CBPSide.LEFT);
+			    if (value == null) {
+				value = feature.getValue(CBPSide.RIGHT);
+				if (value == null) {
+				    value = feature.getOldValue(CBPSide.RIGHT);
+				}
+			    }
+			} 
+			CBPDiff diff = new CBPDiff(object, feature, pos, value, CBPDifferenceKind.CHANGE, referenceSide);
 			diffs.add(diff);
 			continue;
 		    }
@@ -559,7 +569,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		continue;
 	    }
 
-	    if (targetId.equals("O-183")) {
+	    if (targetId.equals("L-100")) {
 		System.out.println();
 	    }
 
@@ -702,10 +712,6 @@ public class CBPComparisonImpl implements ICBPComparison {
 		valueObject.setPosition(position, side);
 		feature.moveValue(valueObject, fromPosition, position, side);
 		
-		if (valueId.equals("O-467")) {
-		    System.out.println();
-		}
-
 		if (valueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
 		    createValueObjectOnTheLeftSide(valueObject);
 		}
@@ -726,12 +732,18 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    } else
 
 	    if (event instanceof CBPSetEReferenceEvent) {
+		
+		if (valueId.equals("O-5469")) {
+		    System.out.println();
+		}
+
+		
 		valueObject.setContainer(targetObject, side);
 		valueObject.setContainingFeature(feature, side);
 		valueObject.setPosition(position, side);
 		feature.setOldValue(event.getOldValue(), side);
 		feature.setValue(valueObject, side);
-	    }
+	    } else
 
 	    if (event instanceof CBPUnsetEReferenceEvent) {
 		feature.setOldValue(event.getOldValue(), side);

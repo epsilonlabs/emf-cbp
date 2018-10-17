@@ -98,6 +98,10 @@ public class CBPFeature {
     public Map<Integer, Object> getLeftValues() {
 	return leftValues;
     }
+    
+    public Map<Integer, Object> getOldLeftValues() {
+	return oldLeftValues;
+    }
 
     public void setLeftValues(Map<Integer, Object> leftValues) {
 	this.leftValues = leftValues;
@@ -105,6 +109,9 @@ public class CBPFeature {
 
     public Map<Integer, Object> getRightValues() {
 	return rightValues;
+    }
+    public Map<Integer, Object> getOldRightValues() {
+	return oldRightValues;
     }
 
     public void setRightValues(Map<Integer, Object> rightValues) {
