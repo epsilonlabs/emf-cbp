@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.cbp.comparison.event;
 
-public class CBPUnsetEReferenceEvent extends CBPSingleValueEReferenceEvent {
+public class CBPUnsetEReferenceEvent extends CBPSingleValueEReferenceEvent implements ICBPEObjectValuesEvent {
 
 	
 	@Override
