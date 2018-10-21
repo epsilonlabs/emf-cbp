@@ -16,6 +16,7 @@ public class CBPObject {
     }
 
     private String id;
+    private  boolean diffed = false;
     private CBPObject leftContainer = null;
     private CBPFeature leftContainingFeature = null;
     private CBPObject oldLeftContainer = null;
@@ -309,5 +310,14 @@ public class CBPObject {
     public void setDiffs(List<CBPDiff> diffs) {
 	this.diffs = diffs;
     }
+    
+    public boolean isDiffed() {
+        return diffed;
+    }
+
+    public void setDiffed(boolean diffed) {
+        this.diffed = diffed;
+    }
+
 
 }

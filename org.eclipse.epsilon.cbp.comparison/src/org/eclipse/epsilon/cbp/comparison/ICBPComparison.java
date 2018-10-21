@@ -15,4 +15,6 @@ public interface ICBPComparison {
 
     public void compare(File leftFile, File rightFile, File originFile) throws IOException, FactoryConfigurationError, XMLStreamException ;
 
+    public void addObjectTreePostProcessor(ICBPObjectTreePostProcessor umlObjectTreePostProcessor);
+
     }

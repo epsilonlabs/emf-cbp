@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -62,6 +63,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.comparison.CBPComparison;
+import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.UMLPackage;
@@ -79,15 +81,13 @@ public class CBPComparisonTest {
     @Test
     public void testReadingFileSpeed() throws IOException, FactoryConfigurationError, XMLStreamException {
 
-	 File originFile = new
-	 File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
-	 File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
-	 File rightFile = new
-	 File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
+//	File originFile = new File("D:\\TEMP\\COMPARISON2\\test\\origin.cbpxml");
+//	File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.cbpxml");
+//	File rightFile = new File("D:\\TEMP\\COMPARISON2\\test\\right.cbpxml");
 
-//	File originFile = new File("D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml");
-//	File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.cbpxml");
-//	File rightFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.cbpxml");
+	File originFile = new File("D:\\TEMP\\COMPARISON3\\test\\origin.cbpxml");
+	File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.cbpxml");
+	File rightFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.cbpxml");
 
 //	 File originFile = new
 //	 File("D:\\TEMP\\COMPARISON\\temp\\origin.cbpxml");
@@ -98,6 +98,7 @@ public class CBPComparisonTest {
 	// rightFile = originFile;
 
 	CBPComparison comparison = new CBPComparison();
+	comparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
 	comparison.compare(leftFile, rightFile, originFile);
 	assertEquals(true, true);
 
@@ -110,9 +111,11 @@ public class CBPComparisonTest {
 	UMLPackage.eINSTANCE.eClass();
 	NodePackage.eINSTANCE.eClass();
 
-	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
-	 File rightXmiFile = new
-	 File("D:\\TEMP\\COMPARISON2\\test\\right.xmi");
+	File outputRightFile = new File("D:\\TEMP\\COMPARISON2\\test\\right.txt");
+	
+//	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
+//	 File rightXmiFile = new
+//	 File("D:\\TEMP\\COMPARISON2\\test\\right.xmi");
 
 //	 File leftXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.xmi");
 //	 File rightXmiFile = new
@@ -126,8 +129,8 @@ public class CBPComparisonTest {
 //	File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left-noid.xmi");
 //	File rightXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\right-noid.xmi");
 	
-//	File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
-//	File rightXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
+	File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
+	File rightXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
 
 	XMIResource leftXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 	XMIResource rightXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
@@ -204,8 +207,10 @@ public class CBPComparisonTest {
 	Collections.sort(list);
 
 	System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+	FileOutputStream output = new FileOutputStream(outputRightFile);
 	for (String item : list) {
-	    System.out.println(item);
+	    output.write(item.getBytes());
+	    output.write(System.lineSeparator().getBytes());
 	}
 	System.out.println("Diffs: " + list.size());
 

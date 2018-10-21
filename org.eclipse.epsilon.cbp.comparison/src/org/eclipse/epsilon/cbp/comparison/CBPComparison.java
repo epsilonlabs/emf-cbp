@@ -24,4 +24,8 @@ public class CBPComparison {
 	comparison.compare(leftFile, rightFile, originFile);
     }
 
+    public void addObjectTreePostProcessor(ICBPObjectTreePostProcessor umlObjectTreePostProcessor) {
+	comparison.addObjectTreePostProcessor(umlObjectTreePostProcessor);
+    }
+
 }
