@@ -4,16 +4,19 @@ public class CBPPositionEvent {
     CBPPositionEventType eventType = CBPPositionEventType.UNDEFINED;
     int position = -1;
     int from = -1;
+    Object value = null;
 
-    public CBPPositionEvent(CBPPositionEventType eventType, int position) {
+    public CBPPositionEvent(CBPPositionEventType eventType, int position, Object value) {
         this.eventType = eventType;
         this.position = position;
+        this.value = value;
     }
 
-    public CBPPositionEvent(CBPPositionEventType eventType, int to, int from) {
+    public CBPPositionEvent(CBPPositionEventType eventType, int to, int from, Object value) {
         this.eventType = eventType;
         this.position = to;
         this.from = from;
+        this.value = value;
     }
 
     public CBPPositionEventType getEventType() {
@@ -47,4 +50,14 @@ public class CBPPositionEvent {
     public void setFrom(int from) {
         this.from = from;
     }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+    
+    
 }

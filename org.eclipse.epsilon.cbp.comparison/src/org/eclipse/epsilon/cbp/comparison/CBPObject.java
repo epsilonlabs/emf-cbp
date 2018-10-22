@@ -47,6 +47,9 @@ public class CBPObject {
 
     public void setOldLeftPosition(int oldLeftPosition) {
 	this.oldLeftPosition = oldLeftPosition;
+	if (this.oldRightPosition == -1) {
+	    oldRightPosition = oldLeftPosition;
+	}
     }
 
     public int getOldRightPosition() {
@@ -55,6 +58,9 @@ public class CBPObject {
 
     public void setOldRightPosition(int oldRightPosition) {
 	this.oldRightPosition = oldRightPosition;
+	if (this.oldLeftPosition == -1) {
+	    oldLeftPosition = oldRightPosition;
+	}
     }
 
     public CBPObject getOldLeftContainer() {
