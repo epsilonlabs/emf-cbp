@@ -586,7 +586,7 @@ public class ModelGeneratorTest {
 	    if (!checkAllObjectsHaveIds(rightHybrid)) {
 		throw new Exception("Not all objects have Ids");
 	    }
-
+	    	   
 	    // originXmiNoID.getContents().addAll(EcoreUtil.copyAll(originXmi.getContents()));
 	    // originXmiNoID.save(null);
 	    // leftXmiNoID.getContents().addAll(EcoreUtil.copyAll(leftXmi.getContents()));

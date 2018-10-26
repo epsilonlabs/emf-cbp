@@ -8,13 +8,28 @@ import javax.xml.stream.XMLStreamException;
 
 public interface ICBPComparison {
 
-    
-    
+    public void compare(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException;
 
-    public void compare(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException ;
-
-    public void compare(File leftFile, File rightFile, File originFile) throws IOException, FactoryConfigurationError, XMLStreamException ;
+    public void compare(File leftFile, File rightFile, File originFile) throws IOException, FactoryConfigurationError, XMLStreamException;
 
     public void addObjectTreePostProcessor(ICBPObjectTreePostProcessor umlObjectTreePostProcessor);
 
-    }
+    public long getObjectTreeConstructionTime();
+
+    public long getDiffTime();
+
+    public int getDiffCount();
+
+    public long getComparisonTime();
+
+    public long getLoadTime();
+
+    public File getObjectTreeFile();
+
+    public void setObjectTreeFile(File objectTreeFile);
+
+    public File getDiffEMFCompareFile();
+
+    public void setDiffEMFCompareFile(File diffEMFCompareFile);
+
+}

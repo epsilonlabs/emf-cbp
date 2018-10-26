@@ -92,6 +92,48 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     private List<ICBPObjectTreePostProcessor> objectTreePostProcessors = new ArrayList<>();
 
+    private long objectTreeConstructionTime = 0;
+    private long diffTime = 0;
+    private long comparisonTime = 0;
+    private int diffCount = 0;
+    private long loadTime = 0;
+
+    public File getObjectTreeFile() {
+	return objectTreeFile;
+    }
+
+    public void setObjectTreeFile(File objectTreeFile) {
+	this.objectTreeFile = objectTreeFile;
+    }
+
+    public File getDiffEMFCompareFile() {
+	return diffEMFCompareFile;
+    }
+
+    public void setDiffEMFCompareFile(File diffEMFCompareFile) {
+	this.diffEMFCompareFile = diffEMFCompareFile;
+    }
+
+    public long getObjectTreeConstructionTime() {
+	return objectTreeConstructionTime;
+    }
+
+    public long getLoadTime() {
+	return loadTime;
+    }
+
+    public long getDiffTime() {
+	return diffTime;
+    }
+
+    public long getComparisonTime() {
+	return comparisonTime;
+    }
+
+    public int getDiffCount() {
+	return diffCount;
+    }
+
     public void compare(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException {
 	this.compare(leftFile, rightFile, null);
     }
@@ -113,29 +155,37 @@ public class CBPComparisonImpl implements ICBPComparison {
 	this.readFiles(leftFile, rightFile, skip);
 	end = System.nanoTime();
 	System.out.println(" = " + df.format(((end - start)) / 1000000.0) + " ms");
+	loadTime = end - start;
 
-	System.out.print("Loading Left/Local Model");
-	start = System.nanoTime();
-
-	Map<Object, Object> options = new HashMap<>();
-	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
-	ResourceSet resourceSet = new ResourceSetImpl();
-	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-
-	File leftResourceFile = new File(leftFile.getAbsolutePath().replaceAll("cbpxml", "xmi"));
-	leftResource = resourceSet.createResource(URI.createFileURI(leftResourceFile.getAbsolutePath()));
-	leftHybridResource = new HybridXMIResourceImpl(leftResource, new FileOutputStream(leftFile, true));
-	leftHybridResource.setIdType(IdType.UUID);
-	leftHybridResource.load(options);
-
-	File rightResourceFile = new File(rightFile.getAbsolutePath().replaceAll("cbpxml", "xmi"));
-	rightResource = resourceSet.createResource(URI.createFileURI(rightResourceFile.getAbsolutePath()));
-	rightHybridResource = new HybridXMIResourceImpl(rightResource, new FileOutputStream(rightFile, true));
-	rightHybridResource.setIdType(IdType.UUID);
-	rightHybridResource.load(options);
-
-	end = System.nanoTime();
-	System.out.println(" = " + df.format(((end - start) / 1000000.0)) + " ms");
+//	 System.out.print("Loading Left/Local Model");
+//	 start = System.nanoTime();
+//	
+//	 Map<Object, Object> options = new HashMap<>();
+//	 options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
+//	 ResourceSet resourceSet = new ResourceSetImpl();
+//	 resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
+//	 new XMIResourceFactoryImpl());
+//	
+//	 File leftResourceFile = new
+//	 File(leftFile.getAbsolutePath().replaceAll("cbpxml", "xmi"));
+//	 leftResource =
+//	 resourceSet.createResource(URI.createFileURI(leftResourceFile.getAbsolutePath()));
+//	 leftHybridResource = new HybridXMIResourceImpl(leftResource, new
+//	 FileOutputStream(leftFile, true));
+//	 leftHybridResource.setIdType(IdType.UUID);
+//	 leftHybridResource.load(options);
+//	
+//	 File rightResourceFile = new
+//	 File(rightFile.getAbsolutePath().replaceAll("cbpxml", "xmi"));
+//	 rightResource =
+//	 resourceSet.createResource(URI.createFileURI(rightResourceFile.getAbsolutePath()));
+//	 rightHybridResource = new HybridXMIResourceImpl(rightResource, new
+//	 FileOutputStream(rightFile, true));
+//	 rightHybridResource.setIdType(IdType.UUID);
+//	 rightHybridResource.load(options);
+//	
+//	 end = System.nanoTime();
+//	 System.out.println(" = " + df.format(((end - start) / 1000000.0)) + " ms");
 
 	System.out.print("Construct Object Tree ");
 	start = System.nanoTime();
@@ -145,6 +195,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	this.contructObjectTree(rightEvents, CBPSide.RIGHT);
 	end = System.nanoTime();
 	System.out.println("= " + df.format(((end - start) / 1000000.0)) + " ms");
+	objectTreeConstructionTime = end - start;
 
 	System.out.print("Post-process Object Tree");
 	start = System.nanoTime();
@@ -153,13 +204,19 @@ public class CBPComparisonImpl implements ICBPComparison {
 	}
 	end = System.nanoTime();
 	System.out.println(" = " + df.format(((end - start) / 1000000.0)) + " ms");
+	objectTreeConstructionTime = objectTreeConstructionTime + (end - start);
 
 	System.out.print("Determine Differences");
 	start = System.nanoTime();
 	this.computeDifferences(CBPSide.LEFT);
 	end = System.nanoTime();
 	System.out.println(" = " + df.format(((end - start) / 1000000.0)) + " ms");
+	diffTime = end - start;
 
+	comparisonTime = objectTreeConstructionTime + diffTime;
+
+	System.out.println("Comparison Time = " + df.format(((comparisonTime) / 1000000.0)) + " ms");
+	
 	// System.out.println("\nOBJECT TREE:");
 	// System.out.println("Object Tree Size = " + objects.size());
 	printObjectTree();
@@ -169,32 +226,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 	// printDifferences();
 
 	// System.out.println("\nEXPORT FOR COMPARISON WITH EMF COMPARE:");
-	this.exportForComparisonWithEMFCompare();
+	// this.exportForComparisonWithEMFCompare();
+	this.exportForComparisonWithEMFCompare(true);
 	//
-	{
-	    String a = "O-36183";
-	    EObject eObject = leftResource.getEObject(a);
-	    if (eObject != null) {
-		EStructuralFeature eFeature = eObject.eContainingFeature();
-		boolean isOrdered = eFeature.isOrdered();
-		EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
-		int pos = eList.indexOf(eObject);
-		System.out.println(a + " Left Pos = " + pos);
-	    }
-	}
-
-	{
-	    String b = "O-36183";
-	    EObject eObject = rightResource.getEObject(b);
-	    if (eObject != null) {
-		EStructuralFeature eFeature = eObject.eContainingFeature();
-		boolean isOrdered = eFeature.isOrdered();
-		EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
-		int pos = eList.indexOf(eObject);
-		System.out.println(b + " Right Pos = " + pos);
-	    }
-	    System.out.println();
-	}
+	
 
 	// closing
 	// leftResource.unload();
@@ -307,28 +342,28 @@ public class CBPComparisonImpl implements ICBPComparison {
 				CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				diffs.add(diff);
 
-//				continue;
-//				processValueObject((CBPObject) rightValue);
-			    }else if (((CBPObject) rightValue).getLeftContainer() != null && ((CBPObject) rightValue).getRightContainer() != null) {
+				// continue;
+				// processValueObject((CBPObject) rightValue);
+			    } else if (((CBPObject) rightValue).getLeftContainer() != null && ((CBPObject) rightValue).getRightContainer() != null) {
 				processValueObject((CBPObject) rightValue);
 				continue;
 			    }
-			    
+
 			    if (((CBPObject) leftValue).getRightContainer() == null) {
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.ADD, pos, leftValue), CBPSide.RIGHT);
 				CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				diffs.add(diff);
 
-//				continue;
-//				processValueObject((CBPObject) leftValue);
-			    }else if (((CBPObject) leftValue).getLeftContainer() != null && ((CBPObject) leftValue).getRightContainer() != null) {
+				// continue;
+				// processValueObject((CBPObject) leftValue);
+			    } else if (((CBPObject) leftValue).getLeftContainer() != null && ((CBPObject) leftValue).getRightContainer() != null) {
 				if (((CBPObject) leftValue).getLeftPosition() < ((CBPObject) leftValue).getRightPosition()) {
 				    continue;
 				}
 				processValueObject((CBPObject) leftValue);
 				continue;
 			    }
-			    
+
 			    continue;
 			} else if (leftValue != null && rightValue == null) {
 			    if (!((CBPObject) leftValue).getLeftIsCreated() && !((CBPObject) leftValue).getRightIsDeleted()) {
@@ -396,7 +431,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 			if (object.getLeftContainer() != null && object.getLeftContainer().equals(value) && object.getLeftIsDeleted() && ((CBPObject) value).getLeftIsDeleted()) {
 			    continue;
-			}else if (object.getOldLeftContainer() != null && object.getOldLeftContainer().equals(value) && object.getLeftIsDeleted() && ((CBPObject) value).getLeftIsDeleted()) {
+			} else if (object.getOldLeftContainer() != null && object.getOldLeftContainer().equals(value) && object.getLeftIsDeleted() && ((CBPObject) value).getLeftIsDeleted()) {
 			    continue;
 			}
 
@@ -647,23 +682,35 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // continue;
 	    // }
 
-	    if (targetId.equals("O-299") && side == CBPSide.RIGHT && event instanceof CBPMoveWithinEReferenceEvent && "O-309".equals(valueId)) {
-		System.out.println();
-	    }
-
-	    CBPObject obj = objects.get("O-299");
-	    if (obj != null /* && side == CBPSide.RIGHT */) {
-		System.out.println(targetId + " " + event.getClass().getSimpleName() + " " + valueId);
-		CBPFeature fea = obj.getFeatures().get("children");
-		Object val1 = (fea.getLeftValues().get(18) instanceof CBPObject) ? ((CBPObject) fea.getLeftValues().get(18)).getId() : fea.getLeftValues().get(18);
-		Object val2 = (fea.getLeftValues().get(19) instanceof CBPObject) ? ((CBPObject) fea.getLeftValues().get(19)).getId() : fea.getLeftValues().get(19);
-		Object val3 = (fea.getLeftValues().get(20) instanceof CBPObject) ? ((CBPObject) fea.getLeftValues().get(20)).getId() : fea.getLeftValues().get(20);
-		Object val4 = (fea.getLeftValues().get(21) instanceof CBPObject) ? ((CBPObject) fea.getLeftValues().get(21)).getId() : fea.getLeftValues().get(21);
-		// if (val1 != null) {
-		// System.out.print("ADA! ");
-		// }
-		System.out.println("18 = " + val1 + ", 19 = " + val2 + ", 20 = " + val3 + ", 21 = " + val4);
-	    }
+	    // if (targetId.equals("O-299") && side == CBPSide.RIGHT && event
+	    // instanceof CBPMoveWithinEReferenceEvent &&
+	    // "O-309".equals(valueId)) {
+	    // System.out.println();
+	    // }
+	    //
+	    // CBPObject obj = objects.get("O-299");
+	    // if (obj != null /* && side == CBPSide.RIGHT */) {
+	    // System.out.println(targetId + " " +
+	    // event.getClass().getSimpleName() + " " + valueId);
+	    // CBPFeature fea = obj.getFeatures().get("children");
+	    // Object val1 = (fea.getLeftValues().get(18) instanceof CBPObject)
+	    // ? ((CBPObject) fea.getLeftValues().get(18)).getId() :
+	    // fea.getLeftValues().get(18);
+	    // Object val2 = (fea.getLeftValues().get(19) instanceof CBPObject)
+	    // ? ((CBPObject) fea.getLeftValues().get(19)).getId() :
+	    // fea.getLeftValues().get(19);
+	    // Object val3 = (fea.getLeftValues().get(20) instanceof CBPObject)
+	    // ? ((CBPObject) fea.getLeftValues().get(20)).getId() :
+	    // fea.getLeftValues().get(20);
+	    // Object val4 = (fea.getLeftValues().get(21) instanceof CBPObject)
+	    // ? ((CBPObject) fea.getLeftValues().get(21)).getId() :
+	    // fea.getLeftValues().get(21);
+	    // // if (val1 != null) {
+	    // // System.out.print("ADA! ");
+	    // // }
+	    // System.out.println("18 = " + val1 + ", 19 = " + val2 + ", 20 = "
+	    // + val3 + ", 21 = " + val4);
+	    // }
 
 	    // start processing events
 	    if (event instanceof CBPCreateEObjectEvent) {
@@ -1254,6 +1301,10 @@ public class CBPComparisonImpl implements ICBPComparison {
     }
 
     protected void exportForComparisonWithEMFCompare() throws IOException {
+	exportForComparisonWithEMFCompare(false);
+    }
+
+    protected void exportForComparisonWithEMFCompare(boolean saveToFile) throws IOException {
 	Set<String> set = new HashSet<>();
 	String str = null;
 	for (CBPDiff diff : diffs) {
@@ -1267,16 +1318,19 @@ public class CBPComparisonImpl implements ICBPComparison {
 	List<String> list = new ArrayList<>(set);
 	Collections.sort(list);
 
-	FileOutputStream output = new FileOutputStream(diffEMFCompareFile);
-	for (String item : list) {
-	    // System.out.println(item);
-	    if (item.trim() == "")
-		continue;
-	    output.write(item.getBytes());
-	    output.write(System.lineSeparator().getBytes());
+	if (saveToFile == true) {
+	    FileOutputStream output = new FileOutputStream(diffEMFCompareFile);
+	    for (String item : list) {
+		// System.out.println(item);
+		if (item.trim() == "")
+		    continue;
+		output.write(item.getBytes());
+		output.write(System.lineSeparator().getBytes());
+	    }
+	    output.close();
 	}
-	output.close();
-	System.out.println("Diffs size = " + list.size());
+	diffCount = list.size();
+	System.out.println("Change-based Diffs size = " + list.size());
     }
 
     /**
@@ -1319,4 +1373,5 @@ public class CBPComparisonImpl implements ICBPComparison {
 	}
 	writer.close();
     }
+    
 }

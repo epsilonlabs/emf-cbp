@@ -358,7 +358,7 @@ public class CBPFeature {
     public int updatePosition(int position, CBPSide side) {
 	int newPosition = position;
 	List<CBPDiffPositionEvent> positionEvents = (side == CBPSide.LEFT) ? leftDiffPositionEvents : rightDiffPositionEvents;
-	System.out.println("size = " + positionEvents.size());
+//	System.out.println("size = " + positionEvents.size());
 	for (CBPDiffPositionEvent positionEvent : positionEvents) {
 
 	    Object value = (positionEvent.getValue() instanceof CBPObject) ? ((CBPObject) positionEvent.getValue()).getId() : positionEvent.getValue();
@@ -366,27 +366,27 @@ public class CBPFeature {
 	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
 		if (positionEvent.getPosition() <= newPosition) {
 		    newPosition = newPosition + 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
 		if (positionEvent.getPosition() < newPosition) {
 		    newPosition = newPosition - 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVE) {
 		// move from left to right
 		if (positionEvent.getFrom() < positionEvent.getTo()) {
 		    if (newPosition >= positionEvent.getFrom() && newPosition < positionEvent.getTo()) {
 			newPosition = newPosition - 1;
-			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
-				+ " value " + value);
+//			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
+//				+ " value " + value);
 		    }
 		    // move from right to left
 		} else if (positionEvent.getFrom() > positionEvent.getTo()) {
 		    if (newPosition < positionEvent.getFrom() && newPosition >= positionEvent.getTo()) {
 			newPosition = newPosition + 1;
-			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
-				+ " value " + value);
+//			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
+//				+ " value " + value);
 		    }
 		}
 	    }
@@ -460,27 +460,27 @@ public class CBPFeature {
 	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
 		if (positionEvent.getPosition() < oldPosition) {
 		    oldPosition = oldPosition - 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
 		if (positionEvent.getPosition() <= oldPosition) {
 		    oldPosition = oldPosition + 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVE) {
 		// move from left to right
 		if (positionEvent.getFrom() < positionEvent.getTo()) {
 		    if (oldPosition >= positionEvent.getFrom() && oldPosition < positionEvent.getTo()) {
 			oldPosition = oldPosition + 1;
-			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition
-				+ " value " + value);
+//			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition
+//				+ " value " + value);
 		    }
 		    // move from right to left
 		} else if (positionEvent.getFrom() > positionEvent.getTo()) {
 		    if (oldPosition < positionEvent.getFrom() && oldPosition >= positionEvent.getTo()) {
 			oldPosition = oldPosition - 1;
-			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition
-				+ " value " + value);
+//			System.out.println(positionEvent.getEventType() + " origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + oldPosition
+//				+ " value " + value);
 		    }
 		}
 	    }
