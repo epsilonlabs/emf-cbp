@@ -71,12 +71,15 @@ public class HybridXMIResourceImpl extends HybridResource implements Resource {
 		    EObject obj = iterator.next();
 		    String idString = ((XMIResource) stateBasedResource).getID(obj);
 		    this.eObjectToIdMap.put(obj, String.valueOf(idString));
-		    int id = Integer.valueOf(idString);
-		    if (id > getIdCounter())
-			setIdCounter(id);
+		    if (idPrefix.length() == 0) {
+			int id = Integer.valueOf(idString);
+			if (id > getIdCounter())
+			    setIdCounter(id);
+		    }
 		}
 	    }
 	}
+
     }
 
     @Override

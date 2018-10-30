@@ -60,6 +60,7 @@ import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
+import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.hybrid.event.xmi.CreateEObjectEvent;
 import org.eclipse.epsilon.hybrid.event.xmi.DeleteEObjectEvent;
 import org.w3c.dom.Document;
@@ -93,13 +94,19 @@ public abstract class HybridResource extends ResourceImpl {
     protected boolean hasJustBeenLoaded = false;
 
     protected IdType idType = IdType.NUMERIC;
+    protected String idPrefix = "";
 
     public IdType getIdType() {
-        return idType;
+	return idType;
     }
 
     public void setIdType(IdType idType) {
-        this.idType = idType;
+	this.idType = idType;
+    }
+
+    public void setIdType(IdType idType, String prefix) {
+	this.idType = idType;
+	this.idPrefix = prefix;
     }
 
     public enum IdType {
@@ -626,7 +633,7 @@ public abstract class HybridResource extends ResourceImpl {
 	    while (eObjectToIdMap.containsValue(String.valueOf(idCounter))) {
 		idCounter += 1;
 	    }
-	    id = String.valueOf(idCounter);
+	    id = idPrefix + String.valueOf(idCounter);
 	    idCounter = idCounter + 1;
 	} else if (idType == IdType.UUID) {
 	    id = EcoreUtil.generateUUID();
