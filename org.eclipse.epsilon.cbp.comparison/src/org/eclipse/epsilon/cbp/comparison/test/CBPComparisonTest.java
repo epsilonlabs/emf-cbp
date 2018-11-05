@@ -100,7 +100,7 @@ public class CBPComparisonTest {
     }
 
     @Test
-    public void testReadingFileSpeed() throws IOException, FactoryConfigurationError, XMLStreamException {
+    public void testGetDiffsCBP() throws IOException, FactoryConfigurationError, XMLStreamException {
 
 	File originFile = new File("D:\\TEMP\\FASE\\Debug\\origin.cbpxml");
 	File leftFile = new File("D:\\\\TEMP\\\\FASE\\\\Debug\\left.cbpxml");
@@ -557,20 +557,22 @@ public class CBPComparisonTest {
 		FileUtils.cleanDirectory(debugDir);
 		doEMFComparison(leftXmiWithIdFile, rightXmiWithIdFile, result);
 		doCBPComparison(leftCbpWithIndexFile, rightCbpWithIndexFile, originCbpFile, result);
-		
+
 		FileUtils.copyFile(originWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "origin.xmi"));
 		FileUtils.copyFile(leftXmiWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "left.xmi"));
 		FileUtils.copyFile(rightXmiWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "right.xmi"));
 		FileUtils.copyFile(originCbpFile, new File(debugDir.getAbsolutePath() + File.separator + "origin.cbpxml"));
 		FileUtils.copyFile(leftCbpWithIndexFile, new File(debugDir.getAbsolutePath() + File.separator + "left.cbpxml"));
 		FileUtils.copyFile(rightCbpWithIndexFile, new File(debugDir.getAbsolutePath() + File.separator + "right.cbpxml"));
-		
+
 		int deltaCount = Math.abs(result.getChangeBasedDiffCount() - result.getStateBasedDiffCount());
 		int threshold = (int) (0.10 * result.getStateBasedDiffCount() / 1.0);
 		if (deltaCount > 0) {
-		    
+
 		    System.out.println("ERROR!: " + result.getChangeBasedDiffCount() + " vs. " + result.getStateBasedDiffCount());
-//		    throw new Exception("ERROR!: " + result.getChangeBasedDiffCount() + " vs. " + result.getStateBasedDiffCount());
+		    // throw new Exception("ERROR!: " +
+		    // result.getChangeBasedDiffCount() + " vs. " +
+		    // result.getStateBasedDiffCount());
 		}
 		appendResult(output, result);
 	    } catch (Exception ex) {
@@ -863,26 +865,38 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 
 	{
-	    String a = "O-43745";
+	    String a = "O-52497";
 	    EObject eObject = leftResource.getEObject(a);
 	    if (eObject != null) {
+		EObject eContainer = eObject.eContainer();
+		String containerId = leftResource.getURIFragment(eContainer);
 		EStructuralFeature eFeature = eObject.eContainingFeature();
+		boolean isContainment = ((EReference)eFeature).isContainment();
 		boolean isOrdered = eFeature.isOrdered();
-		EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
-		int pos = eList.indexOf(eObject);
-		System.out.println(a + " Left Pos = " + pos);
+		int pos = 0;
+		if (eObject.eContainer().eGet(eFeature) instanceof EList<?>) {
+		    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
+		    pos = eList.indexOf(eObject);
+		}
+		System.out.println(a + " Left Pos = " + containerId + "." + eFeature.getName() + "." + pos);
 	    }
 	}
 
 	{
-	    String b = "O-43745";
+	    String b = "O-52497";
 	    EObject eObject = rightResource.getEObject(b);
 	    if (eObject != null) {
+		EObject eContainer = eObject.eContainer();
+		String containerId = rightResource.getURIFragment(eContainer);
 		EStructuralFeature eFeature = eObject.eContainingFeature();
+		boolean isContainment = ((EReference)eFeature).isContainment();
 		boolean isOrdered = eFeature.isOrdered();
-		EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
-		int pos = eList.indexOf(eObject);
-		System.out.println(b + " Right Pos = " + pos);
+		int pos = 0;
+		if (eObject.eContainer().eGet(eFeature) instanceof EList<?>) {
+		    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
+		    pos = eList.indexOf(eObject);
+		}
+		System.out.println(b + " Right Pos = " + containerId + "." + eFeature.getName() + "." + pos);
 	    }
 	    System.out.println();
 	}

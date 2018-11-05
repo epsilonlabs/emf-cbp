@@ -33,10 +33,10 @@ public abstract class HybridChangeEventAdapter extends ChangeEventAdapter {
 	this.resource = resource;
     }
 
-    @Override
-    public void notifyChanged(Notification n) {
-	super.notifyChanged(n);
-    }
+//    @Override
+//    public void notifyChanged(Notification n) {
+//	super.notifyChanged(n);
+//    }
 
     @Override
     public void handleEPackageOf(EObject eObject) {

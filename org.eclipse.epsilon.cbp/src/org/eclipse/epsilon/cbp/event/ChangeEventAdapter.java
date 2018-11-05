@@ -151,8 +151,8 @@ public class ChangeEventAdapter extends EContentAdapter {
     @Override
     public void notifyChanged(Notification n) {
 
+//	this.debugEvents(n);
 	super.notifyChanged(n);
-	// this.debugEvents(n);
 
 	if (n.isTouch() || !enabled) {
 	    return;
