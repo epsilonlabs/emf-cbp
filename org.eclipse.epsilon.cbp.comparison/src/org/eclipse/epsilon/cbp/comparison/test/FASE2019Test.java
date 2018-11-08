@@ -133,91 +133,99 @@ public class FASE2019Test {
     }
 
     private List<String> exportEMFCompareDiffs(File outputFile, Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {
-	Set<String> set = new HashSet<>();
-	for (Diff diff : diffs) {
-	    String feature = null;
-	    String id = null;
-	    String value = null;
+  	Set<String> set = new HashSet<>();
+  	for (Diff diff : diffs) {
+  	    String feature = null;
+  	    String id = null;
+  	    String value = null;
 
-	    if (diff.getMatch().getLeft() != null) {
-		id = left.getURIFragment(diff.getMatch().getLeft());
-	    } else {
-		id = right.getURIFragment(diff.getMatch().getRight());
-	    }
+  	    if (diff.getMatch().getLeft() != null) {
+  		id = left.getURIFragment(diff.getMatch().getLeft());
+  	    } else {
+  		id = right.getURIFragment(diff.getMatch().getRight());
+  	    }
 
-	    if (diff instanceof AttributeChange) {
-		feature = ((AttributeChange) diff).getAttribute().getName();
-		value = String.valueOf(((AttributeChange) diff).getValue());
-	    } else if (diff instanceof ReferenceChange) {
-		feature = ((ReferenceChange) diff).getReference().getName();
-		EObject eObject = ((ReferenceChange) diff).getValue();
-		value = left.getURIFragment(eObject);
-		if (value == null || "/-1".equals(value)) {
-		    value = right.getURIFragment(eObject);
-		}
-	    } else if (diff instanceof MultiplicityElementChange) {
-		MultiplicityElementChange change = (MultiplicityElementChange) diff;
-		if (change.getEReference() != null) {
-		    EObject eObject = change.getDiscriminant();
-		    value = left.getURIFragment(eObject);
-		    if (value == null || "/-1".equals(value)) {
-			value = right.getURIFragment(eObject);
-		    }
-		    feature = change.getEReference().getName();
-		} else {
-		    continue;
-		}
-	    } else if (diff instanceof ResourceAttachmentChange) {
-		feature = "resource";
-		value = new String(id);
-		id = new String(feature);
+  	    if (diff instanceof AttributeChange) {
+  		feature = ((AttributeChange) diff).getAttribute().getName();
+  		value = String.valueOf(((AttributeChange) diff).getValue());
+  	    } else if (diff instanceof ReferenceChange) {
+  		feature = ((ReferenceChange) diff).getReference().getName();
+  		EObject eObject = ((ReferenceChange) diff).getValue();
+  		value = left.getURIFragment(eObject);
+  		if (value == null || "/-1".equals(value)) {
+  		    value = right.getURIFragment(eObject);
+  		}
+  	    } 
+  	    else if (diff instanceof MultiplicityElementChange) {
+//  		MultiplicityElementChange change = (MultiplicityElementChange) diff;
+//  		if (change.getEReference() != null) {
+//  		    EObject eObject = change.getDiscriminant();
+//  		    value = left.getURIFragment(eObject);
+//  		    if (value == null || "/-1".equals(value)) {
+//  			value = right.getURIFragment(eObject);
+//  		    }
+//  		    feature = change.getEReference().getName();
+//  		} else {
+//  		    continue;
+//  		}
+  		continue;
+  	    } 
+  	    else if (diff instanceof ResourceAttachmentChange) {
+  		feature = "resource";
+  		value = new String(id);
+  		id = new String(feature);
 
-	    } else if (diff instanceof AssociationChange) {
-		AssociationChange change = (AssociationChange) diff;
-		if (change.getEReference() != null) {
-		    EObject eObject = change.getDiscriminant();
-		    value = left.getURIFragment(eObject);
-		    if (value == null || "/-1".equals(value)) {
-			value = right.getURIFragment(eObject);
-		    }
-		    feature = change.getEReference().getName();
-		} else {
-		    continue;
-		}
+  	    } else if (diff instanceof AssociationChange) {
+//  		AssociationChange change = (AssociationChange) diff;
+//  		if (change.getEReference() != null) {
+//  		    EObject eObject = change.getDiscriminant();
+//  		    value = left.getURIFragment(eObject);
+//  		    if (value == null || "/-1".equals(value)) {
+//  			value = right.getURIFragment(eObject);
+//  		    }
+//  		    feature = change.getEReference().getName();
+//  		} else {
+//  		    continue;
+//  		}
+  		continue;
 
-	    } else if (diff instanceof DirectedRelationshipChange) {
-		DirectedRelationshipChange change = (DirectedRelationshipChange) diff;
-		if (change.getEReference() != null) {
-		    EObject eObject = change.getDiscriminant();
-		    value = left.getURIFragment(eObject);
-		    if (value == null || "/-1".equals(value)) {
-			value = right.getURIFragment(eObject);
-		    }
-		    feature = change.getEReference().getName();
-		} else {
-		    continue;
-		}
-	    } else {
-		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
-	    }
+  	    } 
+  	    else if (diff instanceof DirectedRelationshipChange) {
+  		
+//  		DirectedRelationshipChange change = (DirectedRelationshipChange) diff;
+//  		if (change.getEReference() != null) {
+//  		    EObject eObject = change.getDiscriminant();
+//  		    value = left.getURIFragment(eObject);
+//  		    if (value == null || "/-1".equals(value)) {
+//  			value = right.getURIFragment(eObject);
+//  		    }
+//  		    feature = change.getEReference().getName();
+//  		} else {
+//  		    continue;
+//  		}
+  		continue;
+  	    } 
+  	    else {
+  		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
+  	    }
 
-	    String x = id + "." + feature + "." + value + "." + diff.getKind();
-	    set.add(x.trim());
-	}
-	// System.out.println("Before Merge Diffs: " + diffs.size());
+  	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+  	    set.add(x.trim());
+  	}
+  	// System.out.println("Before Merge Diffs: " + diffs.size());
 
-	List<String> list = new ArrayList<>(set);
-	Collections.sort(list);
+  	List<String> list = new ArrayList<>(set);
+  	Collections.sort(list);
 
-	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
-	FileOutputStream output = new FileOutputStream(outputFile);
-	for (String item : list) {
-	    output.write(item.getBytes());
-	    output.write(System.lineSeparator().getBytes());
-	}
-	System.out.println("Diffs: " + list.size());
-	return list;
-    }
+  	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+  	FileOutputStream output = new FileOutputStream(outputFile);
+  	for (String item : list) {
+  	    output.write(item.getBytes());
+  	    output.write(System.lineSeparator().getBytes());
+  	}
+  	System.out.println("Diffs: " + list.size());
+  	return list;
+      }
 
     @Test
     public void testExample() throws Exception {
@@ -301,9 +309,9 @@ public class FASE2019Test {
 	rightResource.load(null);
 	String rightSessionName = "RIGHT";
 
-	// LEFT SWITCH
+//	// LEFT SWITCH
 //	saveModel(leftResource, leftSessionName, rightScript);
-	// RIGHT SWITCH
+//	// RIGHT SWITCH
 //	saveModel(rightResource, rightSessionName, leftScript);
 
 	// //LEFT

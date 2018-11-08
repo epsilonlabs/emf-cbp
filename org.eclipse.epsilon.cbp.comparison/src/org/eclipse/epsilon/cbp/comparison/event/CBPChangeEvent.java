@@ -7,8 +7,8 @@ import org.eclipse.epsilon.cbp.event.ChangeEvent;
 
 public abstract class CBPChangeEvent<T> {
 
-    protected Collection<String> values = new ArrayList<String>();
-    protected Collection<String> oldValues = new ArrayList<String>();
+    protected Collection<Object> values = new ArrayList<Object>();
+    protected Collection<Object> oldValues = new ArrayList<Object>();
 
     protected int position = -1;
     protected String composite = null;
@@ -21,11 +21,11 @@ public abstract class CBPChangeEvent<T> {
 	this.composite = composite;
     }
 
-    public Collection<String> getValues() {
+    public Collection<Object> getValues() {
 	return values;
     }
 
-    public Collection<String> getOldValues() {
+    public Collection<Object> getOldValues() {
 	return oldValues;
     }
 
@@ -42,7 +42,7 @@ public abstract class CBPChangeEvent<T> {
 	values.add(value);
     }
 
-    public String getValue() {
+    public Object getValue() {
 	// assert values.size() < 2;
 	if (values.isEmpty()) {
 	    return null;
@@ -64,7 +64,7 @@ public abstract class CBPChangeEvent<T> {
 	oldValues.add(value);
     }
 
-    public String getOldValue() {
+    public Object getOldValue() {
 	// assert values.size() < 2;
 	if (oldValues.isEmpty()) {
 	    return null;

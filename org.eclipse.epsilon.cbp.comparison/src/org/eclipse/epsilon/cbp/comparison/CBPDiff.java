@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.cbp.comparison;
 
-import org.eclipse.epsilon.cbp.comparison.CBPObject.CBPSide;
+import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
 
 public class CBPDiff {
 
@@ -8,18 +8,18 @@ public class CBPDiff {
 	ADD, CHANGE, DELETE, MOVE, UNDEFINED
     }
 
-    private CBPObject object;
-    private CBPFeature feature;
+    private CBPMatchObject object;
+    private CBPMatchFeature feature;
     private int position = -1;
     private Object value;
     private CBPDifferenceKind kind = CBPDifferenceKind.UNDEFINED;
     private CBPSide side;
     private static final String SEP = ".";
 
-    public CBPDiff(CBPObject object, CBPFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
+    public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, -1, value, kind, side);
     }
-    public CBPDiff(CBPObject object, CBPFeature feature, int position, Object value, CBPDifferenceKind kind, CBPSide side) {
+    public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this.object = object;
 	this.feature = feature;
 	this.position = position;
@@ -29,19 +29,19 @@ public class CBPDiff {
 	this.object.getDiffs().add(this);
     }
 
-    public CBPObject getObject() {
+    public CBPMatchObject getObject() {
 	return object;
     }
 
-    public void setObject(CBPObject object) {
+    public void setObject(CBPMatchObject object) {
 	this.object = object;
     }
 
-    public CBPFeature getFeature() {
+    public CBPMatchFeature getFeature() {
 	return feature;
     }
 
-    public void setFeature(CBPFeature feature) {
+    public void setFeature(CBPMatchFeature feature) {
 	this.feature = feature;
     }
 
@@ -82,8 +82,8 @@ public class CBPDiff {
 	String str = null;
 	String valueStr = "";
 	if (value != null) {
-	    if (value instanceof CBPObject) {
-		valueStr = ((CBPObject) value).getId();
+	    if (value instanceof CBPMatchObject) {
+		valueStr = ((CBPMatchObject) value).getId();
 	    } else {
 		valueStr = String.valueOf(value);
 	    }

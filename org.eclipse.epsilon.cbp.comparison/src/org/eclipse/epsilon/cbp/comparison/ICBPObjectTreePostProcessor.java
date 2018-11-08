@@ -11,6 +11,6 @@ public interface ICBPObjectTreePostProcessor {
 
     public void process();
 
-    public void process(Map<String, CBPObject> objects);
+    public void process(Map<String, CBPMatchObject> objects);
 
 }

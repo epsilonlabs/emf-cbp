@@ -8,7 +8,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.epsilon.cbp.comparison.CBPObject.CBPSide;
+import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEStructuralFeatureEvent;
 
@@ -23,13 +23,13 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
     }
 
     @Override
-    public void process(Map<String, CBPObject> objects) {
-	Iterator<Entry<String, CBPObject>> objectIterator = objects.entrySet().iterator();
+    public void process(Map<String, CBPMatchObject> objects) {
+	Iterator<Entry<String, CBPMatchObject>> objectIterator = objects.entrySet().iterator();
 	while (objectIterator.hasNext()) {
-	    Entry<String, CBPObject> objectEntry = objectIterator.next();
-	    CBPObject object = objectEntry.getValue();
+	    Entry<String, CBPMatchObject> objectEntry = objectIterator.next();
+	    CBPMatchObject object = objectEntry.getValue();
 
-	    CBPFeature feature = object.getFeatures().get("memberEnd");
+	    CBPMatchFeature feature = object.getFeatures().get("memberEnd");
 	    if (feature == null) {
 		continue;
 	    }
@@ -42,9 +42,9 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 		Object rightValue = feature.getRightValues().get(position);
 
 		// handle left value
-		if (leftValue instanceof CBPObject) {
-		    CBPObject objectValue = (CBPObject) leftValue;
-		    CBPFeature oppositeFeature = objectValue.getFeatures().get("association");
+		if (leftValue instanceof CBPMatchObject) {
+		    CBPMatchObject objectValue = (CBPMatchObject) leftValue;
+		    CBPMatchFeature oppositeFeature = objectValue.getFeatures().get("association");
 		    if (oppositeFeature == null) {
 			oppositeFeature = createAssociationFeature(objectValue);
 		    }
@@ -52,9 +52,9 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 		}
 
 		// handle right value
-		if (rightValue instanceof CBPObject) {
-		    CBPObject objectValue = (CBPObject) rightValue;
-		    CBPFeature oppositeFeature = objectValue.getFeatures().get("association");
+		if (rightValue instanceof CBPMatchObject) {
+		    CBPMatchObject objectValue = (CBPMatchObject) rightValue;
+		    CBPMatchFeature oppositeFeature = objectValue.getFeatures().get("association");
 		    if (oppositeFeature == null) {
 			oppositeFeature = createAssociationFeature(objectValue);
 		    }
@@ -64,7 +64,7 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 	}
     }
 
-    private CBPFeature createAssociationFeature(CBPObject targetObject) {
+    private CBPMatchFeature createAssociationFeature(CBPMatchObject targetObject) {
 	String featureName = "association";
 	String eClassName = "Property";
 
@@ -84,9 +84,9 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 	    }
 	}
 
-	CBPFeature feature = targetObject.getFeatures().get(featureName);
+	CBPMatchFeature feature = targetObject.getFeatures().get(featureName);
 	if (feature == null) {
-	    feature = new CBPFeature(targetObject, featureName, featureType, isContainment, isMany);
+	    feature = new CBPMatchFeature(targetObject, featureName, featureType, isContainment, isMany);
 	    targetObject.getFeatures().put(featureName, feature);
 	}
 	return feature;

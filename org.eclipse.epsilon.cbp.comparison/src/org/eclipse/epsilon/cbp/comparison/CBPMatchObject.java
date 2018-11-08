@@ -9,23 +9,24 @@ import java.util.Set;
 
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
-public class CBPObject {
+public class CBPMatchObject {
 
     public enum CBPSide {
 	LEFT, RIGHT;
     }
 
     private String id;
-    private  boolean diffed = false;
-    private CBPObject leftContainer = null;
-    private CBPFeature leftContainingFeature = null;
-    private CBPObject oldLeftContainer = null;
-    private CBPFeature oldLeftContainingFeature = null;
-    private CBPObject rightContainer = null;
-    private CBPFeature rightContainingFeature = null;
-    private CBPObject oldRightContainer = null;
-    private CBPFeature oldRightContainingFeature = null;
-    private Map<String, CBPFeature> features = new HashMap<>();
+    private String className = null;
+    private boolean diffed = false;
+    private CBPMatchObject leftContainer = null;
+    private CBPMatchFeature leftContainingFeature = null;
+    private CBPMatchObject oldLeftContainer = null;
+    private CBPMatchFeature oldLeftContainingFeature = null;
+    private CBPMatchObject rightContainer = null;
+    private CBPMatchFeature rightContainingFeature = null;
+    private CBPMatchObject oldRightContainer = null;
+    private CBPMatchFeature oldRightContainingFeature = null;
+    private Map<String, CBPMatchFeature> features = new HashMap<>();
     private boolean leftIsCreated = false;
     private boolean leftIsDeleted = false;
     private boolean rightIsCreated = false;
@@ -37,7 +38,8 @@ public class CBPObject {
     private Set<CBPChangeEvent<?>> events = new HashSet<>();
     private List<CBPDiff> diffs = new ArrayList<>();
 
-    public CBPObject(String id) {
+    public CBPMatchObject(String className, String id) {
+	this.className = className;
 	this.id = id;
     }
 
@@ -63,67 +65,67 @@ public class CBPObject {
 	}
     }
 
-    public CBPObject getOldLeftContainer() {
+    public CBPMatchObject getOldLeftContainer() {
 	return oldLeftContainer;
     }
 
-    public void setOldLeftContainer(CBPObject oldLeftContainer) {
+    public void setOldLeftContainer(CBPMatchObject oldLeftContainer) {
 	this.oldLeftContainer = oldLeftContainer;
     }
 
-    public CBPFeature getOldLeftContainingFeature() {
+    public CBPMatchFeature getOldLeftContainingFeature() {
 	return oldLeftContainingFeature;
     }
 
-    public void setOldLeftContainingFeature(CBPFeature oldLeftContainingFeature) {
+    public void setOldLeftContainingFeature(CBPMatchFeature oldLeftContainingFeature) {
 	this.oldLeftContainingFeature = oldLeftContainingFeature;
     }
 
-    public CBPObject getOldRightContainer() {
+    public CBPMatchObject getOldRightContainer() {
 	return oldRightContainer;
     }
 
-    public void setOldRightContainer(CBPObject oldRightContainer) {
+    public void setOldRightContainer(CBPMatchObject oldRightContainer) {
 	this.oldRightContainer = oldRightContainer;
     }
 
-    public CBPFeature getOldRightContainingFeature() {
+    public CBPMatchFeature getOldRightContainingFeature() {
 	return oldRightContainingFeature;
     }
 
-    public void setOldRightContainingFeature(CBPFeature oldRightContainingFeature) {
+    public void setOldRightContainingFeature(CBPMatchFeature oldRightContainingFeature) {
 	this.oldRightContainingFeature = oldRightContainingFeature;
     }
 
-    public CBPObject getLeftContainer() {
+    public CBPMatchObject getLeftContainer() {
 	return leftContainer;
     }
 
-    public void setLeftContainer(CBPObject leftContainer) {
+    public void setLeftContainer(CBPMatchObject leftContainer) {
 	this.leftContainer = leftContainer;
     }
 
-    public CBPFeature getLeftContainingFeature() {
+    public CBPMatchFeature getLeftContainingFeature() {
 	return leftContainingFeature;
     }
 
-    public void setLeftContainingFeature(CBPFeature leftContainingFeature) {
+    public void setLeftContainingFeature(CBPMatchFeature leftContainingFeature) {
 	this.leftContainingFeature = leftContainingFeature;
     }
 
-    public CBPObject getRightContainer() {
+    public CBPMatchObject getRightContainer() {
 	return rightContainer;
     }
 
-    public void setRightContainer(CBPObject rightContainer) {
+    public void setRightContainer(CBPMatchObject rightContainer) {
 	this.rightContainer = rightContainer;
     }
 
-    public CBPFeature getRightContainingFeature() {
+    public CBPMatchFeature getRightContainingFeature() {
 	return rightContainingFeature;
     }
 
-    public void setRightContainingFeature(CBPFeature rightContainingFeature) {
+    public void setRightContainingFeature(CBPMatchFeature rightContainingFeature) {
 	this.rightContainingFeature = rightContainingFeature;
     }
 
@@ -213,11 +215,11 @@ public class CBPObject {
 	this.id = id;
     }
 
-    public Map<String, CBPFeature> getFeatures() {
+    public Map<String, CBPMatchFeature> getFeatures() {
 	return features;
     }
 
-    public void setFeatures(Map<String, CBPFeature> features) {
+    public void setFeatures(Map<String, CBPMatchFeature> features) {
 	this.features = features;
     }
 
@@ -229,7 +231,7 @@ public class CBPObject {
 	this.events = events;
     }
 
-    public void setContainer(CBPObject container, CBPSide side) {
+    public void setContainer(CBPMatchObject container, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftContainer = container;
 	    if (oldLeftContainer == null)
@@ -245,7 +247,7 @@ public class CBPObject {
 	return (side == CBPSide.LEFT) ? leftContainer : rightContainer;
     }
 
-    public void setContainingFeature(CBPFeature containingFeature, CBPSide side) {
+    public void setContainingFeature(CBPMatchFeature containingFeature, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftContainingFeature = containingFeature;
 	    if (oldLeftContainingFeature == null)
@@ -257,7 +259,7 @@ public class CBPObject {
 	}
     }
 
-    public void setOldContainer(CBPObject oldContainer, CBPSide side) {
+    public void setOldContainer(CBPMatchObject oldContainer, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    oldLeftContainer = oldContainer;
 	} else {
@@ -269,7 +271,7 @@ public class CBPObject {
 	return (side == CBPSide.LEFT) ? oldLeftContainer : oldRightContainer;
     }
 
-    public void setOldContainingFeature(CBPFeature oldContainingFeature, CBPSide side) {
+    public void setOldContainingFeature(CBPMatchFeature oldContainingFeature, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    oldLeftContainingFeature = oldContainingFeature;
 	} else {
@@ -316,14 +318,21 @@ public class CBPObject {
     public void setDiffs(List<CBPDiff> diffs) {
 	this.diffs = diffs;
     }
-    
+
     public boolean isDiffed() {
-        return diffed;
+	return diffed;
     }
 
     public void setDiffed(boolean diffed) {
-        this.diffed = diffed;
+	this.diffed = diffed;
     }
 
+    public String getClassName() {
+	return className;
+    }
+
+    public void setClassName(String className) {
+	this.className = className;
+    }
 
 }

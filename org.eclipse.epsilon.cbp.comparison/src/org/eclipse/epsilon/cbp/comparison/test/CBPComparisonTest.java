@@ -78,6 +78,9 @@ import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
+import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.Generalization;
+import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.junit.Test;
 
@@ -261,49 +264,57 @@ public class CBPComparisonTest {
 		if (value == null || "/-1".equals(value)) {
 		    value = right.getURIFragment(eObject);
 		}
-	    } else if (diff instanceof MultiplicityElementChange) {
-		MultiplicityElementChange change = (MultiplicityElementChange) diff;
-		if (change.getEReference() != null) {
-		    EObject eObject = change.getDiscriminant();
-		    value = left.getURIFragment(eObject);
-		    if (value == null || "/-1".equals(value)) {
-			value = right.getURIFragment(eObject);
-		    }
-		    feature = change.getEReference().getName();
-		} else {
-		    continue;
-		}
-	    } else if (diff instanceof ResourceAttachmentChange) {
+	    } 
+	    else if (diff instanceof MultiplicityElementChange) {
+//		MultiplicityElementChange change = (MultiplicityElementChange) diff;
+//		if (change.getEReference() != null) {
+//		    EObject eObject = change.getDiscriminant();
+//		    value = left.getURIFragment(eObject);
+//		    if (value == null || "/-1".equals(value)) {
+//			value = right.getURIFragment(eObject);
+//		    }
+//		    feature = change.getEReference().getName();
+//		} else {
+//		    continue;
+//		}
+		continue;
+	    } 
+	    else if (diff instanceof ResourceAttachmentChange) {
 		feature = "resource";
 		value = new String(id);
 		id = new String(feature);
 
 	    } else if (diff instanceof AssociationChange) {
-		AssociationChange change = (AssociationChange) diff;
-		if (change.getEReference() != null) {
-		    EObject eObject = change.getDiscriminant();
-		    value = left.getURIFragment(eObject);
-		    if (value == null || "/-1".equals(value)) {
-			value = right.getURIFragment(eObject);
-		    }
-		    feature = change.getEReference().getName();
-		} else {
-		    continue;
-		}
+//		AssociationChange change = (AssociationChange) diff;
+//		if (change.getEReference() != null) {
+//		    EObject eObject = change.getDiscriminant();
+//		    value = left.getURIFragment(eObject);
+//		    if (value == null || "/-1".equals(value)) {
+//			value = right.getURIFragment(eObject);
+//		    }
+//		    feature = change.getEReference().getName();
+//		} else {
+//		    continue;
+//		}
+		continue;
 
-	    } else if (diff instanceof DirectedRelationshipChange) {
-		DirectedRelationshipChange change = (DirectedRelationshipChange) diff;
-		if (change.getEReference() != null) {
-		    EObject eObject = change.getDiscriminant();
-		    value = left.getURIFragment(eObject);
-		    if (value == null || "/-1".equals(value)) {
-			value = right.getURIFragment(eObject);
-		    }
-		    feature = change.getEReference().getName();
-		} else {
-		    continue;
-		}
-	    } else {
+	    } 
+	    else if (diff instanceof DirectedRelationshipChange) {
+		
+//		DirectedRelationshipChange change = (DirectedRelationshipChange) diff;
+//		if (change.getEReference() != null) {
+//		    EObject eObject = change.getDiscriminant();
+//		    value = left.getURIFragment(eObject);
+//		    if (value == null || "/-1".equals(value)) {
+//			value = right.getURIFragment(eObject);
+//		    }
+//		    feature = change.getEReference().getName();
+//		} else {
+//		    continue;
+//		}
+		continue;
+	    } 
+	    else {
 		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
 	    }
 
@@ -321,7 +332,7 @@ public class CBPComparisonTest {
 	    output.write(item.getBytes());
 	    output.write(System.lineSeparator().getBytes());
 	}
-	System.out.println("Diffs: " + list.size());
+	System.out.println("State-based Diffs Size: " + list.size());
 	return list;
     }
 
@@ -390,23 +401,26 @@ public class CBPComparisonTest {
     }
 
     @Test
-    public void testSeperateSourceIntoLeftAndRight() throws FactoryConfigurationError, Exception {
+    public void testModelComparisonPerformance() throws FactoryConfigurationError, Exception {
 
 	File debugDir = new File("D:\\TEMP\\FASE\\Debug\\");
 
 	Map<Object, Object> options = new HashMap<>();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 
-	File originDir = new File("D:\\TEMP\\FASE\\Epsilon\\origin");
-	File sourceDir = new File("D:\\TEMP\\FASE\\Epsilon\\source");
-	File leftDir = new File("D:\\TEMP\\FASE\\Epsilon\\left");
-	File rightDir = new File("D:\\TEMP\\FASE\\Epsilon\\right");
-	File leftIdDir = new File("D:\\TEMP\\FASE\\Epsilon\\left-id");
-	File rightIdDir = new File("D:\\TEMP\\FASE\\Epsilon\\right-id");
-	File originIdDir = new File("D:\\TEMP\\FASE\\Epsilon\\origin-id");
-	File cbpDir = new File("D:\\TEMP\\FASE\\Epsilon\\cbp");
+//	String caseName = "Epsilon";
+	String caseName = "Wikipedia";
+	
+	File originDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\origin");
+	File sourceDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\source");
+	File leftDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\left");
+	File rightDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\right");
+	File leftIdDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\left-id");
+	File rightIdDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\right-id");
+	File originIdDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\origin-id");
+	File cbpDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\cbp");
 
-	File outputFile = new File("D:\\TEMP\\FASE\\Epsilon\\output.csv");
+	File outputFile = new File("D:\\TEMP\\FASE\\" + caseName + "\\output.csv");
 	FileOutputStream output = new FileOutputStream(outputFile);
 	appendHeader(output);
 
@@ -509,7 +523,7 @@ public class CBPComparisonTest {
 	    File leftXmiFile = leftFiles[i];
 	    File rightXmiFile = rightFiles[i];
 
-	    System.out.println("\nProcessing " + leftXmiFile.getName() + " and " + rightXmiFile.getName());
+	    System.out.println("\n" + (i + 1) + ". Processing " + leftXmiFile.getName() + " and " + rightXmiFile.getName());
 
 	    XMIResource leftXmi = (XMIResource) factory.createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 	    XMIResource rightXmi = (XMIResource) factory.createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
@@ -864,8 +878,9 @@ public class CBPComparisonTest {
 	leftResource.load(options);
 	rightResource.load(options);
 
+	System.out.println();
 	{
-	    String a = "O-52497";
+	    String a = "L-335";
 	    EObject eObject = leftResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -883,7 +898,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String b = "O-52497";
+	    String b = "L-335";
 	    EObject eObject = rightResource.getEObject(b);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -900,5 +915,28 @@ public class CBPComparisonTest {
 	    }
 	    System.out.println();
 	}
+	
+//	{
+//	    String b = "O-8";
+//	    EObject eObject = rightResource.getEObject(b);
+//	    if (eObject != null) {
+//		EReference specific =  (EReference) eObject.eClass().getEStructuralFeature("specific");
+//		EObject c = (EObject) eObject.eGet(specific);		
+//		boolean c1 = specific.isContainment();
+//		boolean c2 = specific.isContainer();
+//		String cId = rightResource.getURIFragment(c);
+//		EReference opposite = specific.getEOpposite();
+//		Object x = (Object) c.eGet(opposite);
+////		String xId = rightResource.getURIFragment(x);
+//		
+//		EReference general =  (EReference) eObject.eClass().getEStructuralFeature("general");
+//		EObject d = (EObject) eObject.eGet(general);
+//		boolean d1 = specific.isContainment();
+//		boolean d2 = specific.isContainer();
+//		String dId = rightResource.getURIFragment(d);
+//		EObject y = general.getEOpposite();
+//		System.out.println();
+//	    }
+//	}
     }
 }
