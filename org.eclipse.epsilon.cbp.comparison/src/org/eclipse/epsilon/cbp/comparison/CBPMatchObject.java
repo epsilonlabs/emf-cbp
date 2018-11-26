@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
 public class CBPMatchObject {
@@ -18,6 +19,7 @@ public class CBPMatchObject {
     private String id;
     private String className = null;
     private boolean diffed = false;
+    private boolean inMergedAdded = false; 
     private CBPMatchObject leftContainer = null;
     private CBPMatchFeature leftContainingFeature = null;
     private CBPMatchObject oldLeftContainer = null;
@@ -29,13 +31,19 @@ public class CBPMatchObject {
     private Map<String, CBPMatchFeature> features = new HashMap<>();
     private boolean leftIsCreated = false;
     private boolean leftIsDeleted = false;
+    private boolean leftIsMoved= false;
     private boolean rightIsCreated = false;
     private boolean rightIsDeleted = false;
+    private boolean rightIsMoved= false;
     private int leftPosition = -1;
     private int oldLeftPosition = -1;
     private int rightPosition = -1;
     private int oldRightPosition = -1;
     private Set<CBPChangeEvent<?>> events = new HashSet<>();
+    private List<CBPDiff> addDiffs = new ArrayList<>();
+    private List<CBPDiff> deleteDiffs = new ArrayList<>();
+    private List<CBPDiff> moveDiffs = new ArrayList<>();
+    private List<CBPDiff> changeDiffs = new ArrayList<>();
     private List<CBPDiff> diffs = new ArrayList<>();
 
     public CBPMatchObject(String className, String id) {
@@ -206,6 +214,18 @@ public class CBPMatchObject {
 	    this.rightIsDeleted = isDeleted;
 	}
     }
+    
+    public boolean isMoved(CBPSide side) {
+	return (side == CBPSide.LEFT) ? leftIsMoved : rightIsMoved;
+    }
+    
+    public void setMoved(boolean isMoved, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.leftIsMoved = isMoved;
+	} else {
+	    this.rightIsMoved = isMoved;
+	}
+    }
 
     public String getId() {
 	return id;
@@ -311,6 +331,36 @@ public class CBPMatchObject {
 	return (side == CBPSide.LEFT) ? oldLeftPosition : oldRightPosition;
     }
 
+    public void addDiff(CBPDiff diff) {
+	if (diff.getKind() == CBPDifferenceKind.ADD) {
+	    this.addDiffs.add(diff);
+	} else if (diff.getKind() == CBPDifferenceKind.DELETE) {
+	    this.deleteDiffs.add(diff);
+	} else if (diff.getKind() == CBPDifferenceKind.CHANGE) {
+	    this.changeDiffs.add(diff);
+	} else if (diff.getKind() == CBPDifferenceKind.MOVE) {
+	    this.moveDiffs.add(diff);
+	}
+	this.diffs.add(diff);
+
+    }
+
+    public List<CBPDiff> getAddDiffs() {
+        return addDiffs;
+    }
+
+    public List<CBPDiff> getDeleteDiffs() {
+        return deleteDiffs;
+    }
+
+    public List<CBPDiff> getMoveDiffs() {
+        return moveDiffs;
+    }
+
+    public List<CBPDiff> getChangeDiffs() {
+        return changeDiffs;
+    }
+
     public List<CBPDiff> getDiffs() {
 	return diffs;
     }
@@ -333,6 +383,30 @@ public class CBPMatchObject {
 
     public void setClassName(String className) {
 	this.className = className;
+    }
+
+    public boolean isInMergedAdded() {
+        return inMergedAdded;
+    }
+
+    public void setInMergedAdded(boolean inMergedAdded) {
+        this.inMergedAdded = inMergedAdded;
+    }
+
+    public boolean isLeftIsMoved() {
+        return leftIsMoved;
+    }
+
+    public void setLeftIsMoved(boolean leftIsMoved) {
+        this.leftIsMoved = leftIsMoved;
+    }
+
+    public boolean isRightIsMoved() {
+        return rightIsMoved;
+    }
+
+    public void setRightIsMoved(boolean rightIsMoved) {
+        this.rightIsMoved = rightIsMoved;
     }
 
 }

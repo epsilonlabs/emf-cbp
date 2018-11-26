@@ -15,6 +15,7 @@ public class CBPDiff {
     private CBPDifferenceKind kind = CBPDifferenceKind.UNDEFINED;
     private CBPSide side;
     private static final String SEP = ".";
+    private boolean isResolved = false;
 
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, -1, value, kind, side);
@@ -76,7 +77,13 @@ public class CBPDiff {
     public void setSide(CBPSide side) {
 	this.side = side;
     }
-
+    
+    public boolean isResolved() {
+        return isResolved;
+    }
+    public void setResolved(boolean isResolved) {
+        this.isResolved = isResolved;
+    }
     @Override
     public String toString() {
 	String str = null;

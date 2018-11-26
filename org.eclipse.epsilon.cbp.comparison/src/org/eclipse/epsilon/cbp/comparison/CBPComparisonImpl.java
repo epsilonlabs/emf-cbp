@@ -75,6 +75,7 @@ import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource.IdType;
 import org.eclipse.epsilon.cbp.hybrid.xmi.HybridXMIResourceImpl;
+import org.eclipse.epsilon.eol.parse.OldAstViewer;
 
 public class CBPComparisonImpl implements ICBPComparison {
 
@@ -137,11 +138,11 @@ public class CBPComparisonImpl implements ICBPComparison {
 	return diffCount;
     }
 
-    public void compare(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException {
-	this.compare(leftFile, rightFile, null);
+    public List<CBPDiff> compare(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException {
+	return this.compare(leftFile, rightFile, null);
     }
 
-    public void compare(File leftFile, File rightFile, File originFile) throws IOException, FactoryConfigurationError, XMLStreamException {
+    public List<CBPDiff> compare(File leftFile, File rightFile, File originFile) throws IOException, FactoryConfigurationError, XMLStreamException {
 	DecimalFormat df = new DecimalFormat("###.###");
 	long start = 0;
 	long end = 0;
@@ -236,6 +237,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	// closing
 	// leftResource.unload();
+
+	return diffs;
     }
 
     private EPackage getEPackageFromFiles(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException {
@@ -306,7 +309,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 			// if (object.getId().equals("L-470") &&
 			// ((CBPMatchObject)
 			// leftValue).getId().equals("O-41884")) {
-			if (((CBPMatchObject) leftValue).getId().equals("O-511")) {
+			if (((CBPMatchObject) leftValue).getId().equals("O-43721")) {
 			    System.out.print("");
 			}
 		    }
@@ -314,7 +317,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    if (rightValue instanceof CBPMatchObject) {
 			// if (object.getId().equals("O-3") && ((CBPMatchObject)
 			// rightValue).getId().equals("O-41884")) {
-			if (((CBPMatchObject) rightValue).getId().equals("O-511")) {
+			if (((CBPMatchObject) rightValue).getId().equals("O-43721")) {
 			    System.out.print("");
 			}
 		    }
@@ -322,7 +325,17 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    if (leftValue == null && rightValue == null) {
 			continue;
 		    } else if (leftValue != null && rightValue != null && leftValue.equals(rightValue)) {
-			continue;
+			CBPMatchObject leftObjectValue = (CBPMatchObject) leftValue;
+			CBPMatchObject rightObjectValue = (CBPMatchObject) rightValue;
+			if (leftObjectValue.getLeftPosition() == leftObjectValue.getRightPosition() && 
+				(leftObjectValue.isLeftIsMoved() || leftObjectValue.isRightIsMoved())) {
+			    CBPDiff diff = new CBPDiff(object, feature, leftObjectValue.getLeftPosition(), rightObjectValue, CBPDifferenceKind.MOVE, referenceSide);
+			    diffs.add(diff);
+			    object.addDiff(diff);
+			    feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.MOVE, rightObjectValue.getLeftPosition(), rightObjectValue.getRightPosition(), rightValue),
+				    CBPSide.RIGHT);
+			    continue;
+			}
 		    }
 
 		    // CONTAINMENT REFERENCE
@@ -341,21 +354,25 @@ public class CBPComparisonImpl implements ICBPComparison {
 			    if (!rightObjectValue.getLeftIsCreated() && !rightObjectValue.getLeftIsDeleted() && rightObjectValue.getRightIsCreated() && !rightObjectValue.getRightIsDeleted()) {
 				CBPDiff diff = new CBPDiff(object, feature, pos, rightObjectValue, CBPDifferenceKind.DELETE, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.REMOVE, pos, rightValue), CBPSide.RIGHT);
 				// rightObjectValue.setDiffed(true);
 			    } else if (rightObjectValue.getLeftIsCreated() && !rightObjectValue.getLeftIsDeleted() && !rightObjectValue.getRightIsCreated() && !rightObjectValue.getRightIsDeleted()) {
 				CBPDiff diff = new CBPDiff(object, feature, pos, rightObjectValue, CBPDifferenceKind.ADD, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.ADD, pos, rightValue), CBPSide.RIGHT);
 				// rightObjectValue.setDiffed(true);
 			    } else if (!rightObjectValue.getLeftIsCreated() && !rightObjectValue.getLeftIsDeleted() && !rightObjectValue.getRightIsCreated() && rightObjectValue.getRightIsDeleted()) {
 				CBPDiff diff = new CBPDiff(object, feature, pos, rightObjectValue, CBPDifferenceKind.ADD, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.ADD, pos, rightValue), CBPSide.RIGHT);
 				// rightObjectValue.setDiffed(true);
 			    } else if (!rightObjectValue.getLeftIsCreated() && rightObjectValue.getLeftIsDeleted() && !rightObjectValue.getRightIsCreated() && !rightObjectValue.getRightIsDeleted()) {
 				CBPDiff diff = new CBPDiff(object, feature, pos, rightObjectValue, CBPDifferenceKind.DELETE, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.REMOVE, pos, rightValue), CBPSide.RIGHT);
 				// rightObjectValue.setDiffed(true);
 			    } else if (!rightObjectValue.getLeftIsCreated() && !rightObjectValue.getLeftIsDeleted() && !rightObjectValue.getRightIsCreated() && !rightObjectValue.getRightIsDeleted()) {
@@ -372,8 +389,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 						&& rightObjectValue.getLeftContainingFeature().equals(rightObjectValue.getRightContainingFeature())
 						&& rightObjectValue.getLeftPosition() != rightObjectValue.getRightPosition()) {
 
-					    CBPDiff diff = new CBPDiff(object, feature, pos, rightObjectValue, CBPDifferenceKind.MOVE, referenceSide);
+					    CBPDiff diff = new CBPDiff(object, feature, rightObjectValue.getLeftPosition(), rightObjectValue, CBPDifferenceKind.MOVE, referenceSide);
 					    diffs.add(diff);
+					    object.addDiff(diff);
 					    feature.addAdjustPositionEvent(
 						    new CBPDiffPositionEvent(CBPPositionEventType.MOVE, rightObjectValue.getLeftPosition(), rightObjectValue.getRightPosition(), rightValue),
 						    CBPSide.RIGHT);
@@ -391,11 +409,13 @@ public class CBPComparisonImpl implements ICBPComparison {
 			    if (leftObjectValue.getLeftIsCreated() && !leftObjectValue.getLeftIsDeleted() && !leftObjectValue.getRightIsCreated() && !leftObjectValue.getRightIsDeleted()) {
 				CBPDiff diff = new CBPDiff(object, feature, pos, leftObjectValue, CBPDifferenceKind.ADD, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.ADD, pos, leftValue), CBPSide.RIGHT);
 				// leftObjectValue.setDiffed(true);
 			    } else if (!leftObjectValue.getLeftIsCreated() && !leftObjectValue.getLeftIsDeleted() && leftObjectValue.getRightIsCreated() && !leftObjectValue.getRightIsDeleted()) {
 				CBPDiff diff = new CBPDiff(object, feature, pos, leftObjectValue, CBPDifferenceKind.DELETE, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.REMOVE, pos, leftValue), CBPSide.RIGHT);
 				// leftObjectValue.setDiffed(true);
 			    } else if (!leftObjectValue.getLeftIsCreated() && leftObjectValue.getLeftIsDeleted() && !leftObjectValue.getRightIsCreated() && !leftObjectValue.getRightIsDeleted()) {
@@ -403,6 +423,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 				if (!leftObjectValue.getLeftContainer().getLeftIsDeleted()) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftObjectValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    object.addDiff(diff);
 				    feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.REMOVE, pos, leftValue), CBPSide.RIGHT);
 				    // leftObjectValue.setDiffed(true);
 				}
@@ -410,6 +431,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 			    } else if (!leftObjectValue.getLeftIsCreated() && !leftObjectValue.getLeftIsDeleted() && !leftObjectValue.getRightIsCreated() && leftObjectValue.getRightIsDeleted()) {
 				CBPDiff diff = new CBPDiff(object, feature, pos, leftObjectValue, CBPDifferenceKind.ADD, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 				feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.ADD, pos, leftValue), CBPSide.RIGHT);
 				// leftObjectValue.setDiffed(true);
 			    } else if (!leftObjectValue.getLeftIsCreated() && !leftObjectValue.getLeftIsDeleted() && !leftObjectValue.getRightIsCreated() && !leftObjectValue.getRightIsDeleted()) {
@@ -418,6 +440,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftObjectValue, CBPDifferenceKind.MOVE, referenceSide);
 				    diffs.add(diff);
+				    object.addDiff(diff);
 
 				    ((CBPMatchObject) leftValue).getLeftContainingFeature()
 					    .addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.MOVEIN, ((CBPMatchObject) leftValue).getLeftPosition(), leftValue), CBPSide.LEFT);
@@ -434,8 +457,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 					if (!leftObjectValue.getLeftContainer().equals(leftObjectValue.getRightContainer())
 						|| !leftObjectValue.getLeftContainingFeature().equals(leftObjectValue.getRightContainingFeature())
 						|| leftObjectValue.getLeftPosition() != leftObjectValue.getRightPosition()) {
-					    CBPDiff diff = new CBPDiff(object, feature, pos, leftObjectValue, CBPDifferenceKind.MOVE, referenceSide);
+					    CBPDiff diff = new CBPDiff(object, feature, leftObjectValue.getLeftPosition(), leftObjectValue, CBPDifferenceKind.MOVE, referenceSide);
 					    diffs.add(diff);
+					    object.addDiff(diff);
 					    feature.addAdjustPositionEvent(
 						    new CBPDiffPositionEvent(CBPPositionEventType.MOVE, leftObjectValue.getLeftPosition(), leftObjectValue.getRightPosition(), leftValue),
 						    CBPSide.RIGHT);
@@ -457,16 +481,20 @@ public class CBPComparisonImpl implements ICBPComparison {
 				if (leftValue != null && rightValue != null && !leftValue.equals(rightValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue != null && rightValue == null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue == null && rightValue != null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    continue;
 				}
 			    }
@@ -474,16 +502,20 @@ public class CBPComparisonImpl implements ICBPComparison {
 				if (leftValue != null && rightValue != null && !leftValue.equals(rightValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue != null && rightValue == null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue == null && rightValue != null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    continue;
 				}
 			    }
@@ -492,16 +524,20 @@ public class CBPComparisonImpl implements ICBPComparison {
 				if (leftValue != null && rightValue != null && !leftValue.equals(rightValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue != null && rightValue == null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue == null && rightValue != null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    continue;
 				}
 
@@ -510,16 +546,20 @@ public class CBPComparisonImpl implements ICBPComparison {
 				if (leftValue != null && rightValue != null && !leftValue.equals(rightValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue != null && rightValue == null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				    continue;
 				} else if (leftValue == null && rightValue != null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				    continue;
 				}
 			    }
@@ -534,27 +574,33 @@ public class CBPComparisonImpl implements ICBPComparison {
 				if (leftValue != null && !leftValue.equals(rightValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.CHANGE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				} else if (rightValue != null && !rightValue.equals(leftValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.CHANGE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				}
 			    } else if (!object.getLeftIsCreated() && object.getLeftIsDeleted() && !object.getRightIsCreated() && !object.getRightIsDeleted()) {
 				if (feature.getOppositeFeatureName() == null) {
 				    if (leftValue != null && !leftValue.equals(rightValue)) {
 					CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.CHANGE, referenceSide);
 					diffs.add(diff);
+					((CBPMatchObject) leftValue).addDiff(diff);
 				    } else if (rightValue != null && !rightValue.equals(leftValue)) {
 					CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.CHANGE, referenceSide);
 					diffs.add(diff);
+					((CBPMatchObject) rightValue).addDiff(diff);
 				    }
 				}
 			    } else if (!object.getLeftIsCreated() && !object.getLeftIsDeleted() && object.getRightIsCreated() && !object.getRightIsDeleted()) {
 				if (leftValue != null && !leftValue.equals(rightValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.CHANGE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) leftValue).addDiff(diff);
 				} else if (rightValue != null && !rightValue.equals(leftValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.CHANGE, referenceSide);
 				    diffs.add(diff);
+				    ((CBPMatchObject) rightValue).addDiff(diff);
 				}
 			    } else if (!object.getLeftIsCreated() && !object.getLeftIsDeleted() && !object.getRightIsCreated() && !object.getRightIsDeleted()) {
 
@@ -564,6 +610,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 				CBPDiff diff = new CBPDiff(object, feature, pos, value, CBPDifferenceKind.CHANGE, referenceSide);
 				diffs.add(diff);
+				((CBPMatchObject) value).addDiff(diff);
 			    } else {
 				continue;
 			    }
@@ -581,16 +628,20 @@ public class CBPComparisonImpl implements ICBPComparison {
 				if (leftValue != null && rightValue != null && !leftValue.equals(rightValue)) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    object.addDiff(diff);
 				    diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    object.addDiff(diff);
 				    continue;
 				} else if (leftValue != null && rightValue == null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
+				    object.addDiff(diff);
 				    continue;
 				} else if (leftValue == null && rightValue != null) {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, rightValue, CBPDifferenceKind.DELETE, referenceSide);
 				    diffs.add(diff);
+				    object.addDiff(diff);
 				    continue;
 				}
 			    }
@@ -607,6 +658,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 				CBPDiff diff = new CBPDiff(object, feature, pos, value, CBPDifferenceKind.CHANGE, referenceSide);
 				diffs.add(diff);
+				object.addDiff(diff);
 			    }
 			}
 		    }
@@ -859,6 +911,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		}
 
 		int fromPosition = ((CBPMoveWithinEReferenceEvent) event).getFromPosition();
+		valueObject.setMoved(true, side);
 		valueObject.setContainer(targetObject, side);
 		valueObject.setContainingFeature(feature, side);
 		if (valueObject.getOldPosition(side) == -1)

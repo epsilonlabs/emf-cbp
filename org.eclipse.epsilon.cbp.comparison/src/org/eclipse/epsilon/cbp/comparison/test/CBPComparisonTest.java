@@ -339,27 +339,34 @@ public class CBPComparisonTest {
     @Test
     public void testGetMembersOfFeatures() throws IOException {
 
-	File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
-	File rightFile = new File("D:\\TEMP\\COMPARISON2\\test\\right.xmi");
+	File leftFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\left.xmi");
+	File rightFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\right.xmi");
+	File targetFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\target.xmi");
 
 	ResourceSet resourceSet = new ResourceSetImpl();
 	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 	XMIResource leftResource = (XMIResource) resourceSet.createResource(URI.createFileURI(leftFile.getAbsolutePath()));
 	XMIResource rightResource = (XMIResource) resourceSet.createResource(URI.createFileURI(rightFile.getAbsolutePath()));
+	XMIResource targetResource = (XMIResource) resourceSet.createResource(URI.createFileURI(targetFile.getAbsolutePath()));
 
 	Map<Object, Object> options = new HashMap<>();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 
 	leftResource.load(options);
 	rightResource.load(options);
+	targetResource.load(options);
 
-	EObject leftObject = leftResource.getEObject("O-36136");
+	EObject leftObject = leftResource.getEObject("O-43655");
 	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature("packagedElement");
 	EList<EObject> leftValues = (EList<EObject>) leftObject.eGet(leftReference);
 
-	EObject rightObject = rightResource.getEObject("O-36136");
+	EObject rightObject = rightResource.getEObject("O-43655");
 	EReference rightReference = (EReference) rightObject.eClass().getEStructuralFeature("packagedElement");
 	EList<EObject> rightValues = (EList<EObject>) rightObject.eGet(rightReference);
+	
+	EObject targetObject = targetResource.getEObject("O-43655");
+	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature("packagedElement");
+	EList<EObject> targetValues = (EList<EObject>) targetObject.eGet(targetReference);
 
 	int size = (leftValues.size() > rightValues.size()) ? leftValues.size() : rightValues.size();
 
@@ -378,6 +385,14 @@ public class CBPComparisonTest {
 	    EObject rightValue = rightValues.get(i);
 	    rightId = rightResource.getURIFragment(rightValue);
 	    System.out.println(rightId);
+	}
+	
+	System.out.println("\nTARGET:");
+	for (int i = 0; i < targetValues.size(); i++) {
+	    String targetId = "";
+	    EObject targetValue = targetValues.get(i);
+	    targetId = targetResource.getURIFragment(targetValue);
+	    System.out.println(targetId);
 	}
 
 	System.out.println("\nPAIR:");
@@ -408,8 +423,9 @@ public class CBPComparisonTest {
 	Map<Object, Object> options = new HashMap<>();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 
-//	String caseName = "Epsilon";
-	String caseName = "Wikipedia";
+	int generateUpTo = 2;
+	String caseName = "Epsilon";
+//	String caseName = "Wikipedia";
 	
 	File originDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\origin");
 	File sourceDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\source");
@@ -520,6 +536,11 @@ public class CBPComparisonTest {
 
 	int limit = leftFiles.length;
 	for (int i = 0; i < limit; i++) {
+	    
+	    if (i == generateUpTo) {
+		return;
+	    }
+	    
 	    File leftXmiFile = leftFiles[i];
 	    File rightXmiFile = rightFiles[i];
 
@@ -867,20 +888,40 @@ public class CBPComparisonTest {
 	Map<Object, Object> options = new HashMap<>();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 
+	File originResourceFile = new File("D:\\TEMP\\FASE\\Debug\\origin.xmi");
 	File leftResourceFile = new File("D:\\TEMP\\FASE\\Debug\\left.xmi");
 	File rightResourceFile = new File("D:\\TEMP\\FASE\\Debug\\right.xmi");
 
 	ResourceSet resourceSet = new ResourceSetImpl();
 	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+	Resource originResource = resourceSet.createResource(URI.createFileURI(originResourceFile.getAbsolutePath()));
 	Resource leftResource = resourceSet.createResource(URI.createFileURI(leftResourceFile.getAbsolutePath()));
 	Resource rightResource = resourceSet.createResource(URI.createFileURI(rightResourceFile.getAbsolutePath()));
 
+	originResource.load(options);
 	leftResource.load(options);
 	rightResource.load(options);
 
 	System.out.println();
 	{
-	    String a = "L-335";
+	    String a = "O-43721";
+	    EObject eObject = originResource.getEObject(a);
+	    if (eObject != null) {
+		EObject eContainer = eObject.eContainer();
+		String containerId = originResource.getURIFragment(eContainer);
+		EStructuralFeature eFeature = eObject.eContainingFeature();
+		boolean isContainment = ((EReference)eFeature).isContainment();
+		boolean isOrdered = eFeature.isOrdered();
+		int pos = 0;
+		if (eObject.eContainer().eGet(eFeature) instanceof EList<?>) {
+		    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
+		    pos = eList.indexOf(eObject);
+		}
+		System.out.println(a + " Origin Pos = " + containerId + "." + eFeature.getName() + "." + pos);
+	    }
+	}
+	{
+	    String a = "O-43721";
 	    EObject eObject = leftResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -898,8 +939,8 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String b = "L-335";
-	    EObject eObject = rightResource.getEObject(b);
+	    String a = "O-43721";
+	    EObject eObject = rightResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
 		String containerId = rightResource.getURIFragment(eContainer);
@@ -911,7 +952,7 @@ public class CBPComparisonTest {
 		    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
 		    pos = eList.indexOf(eObject);
 		}
-		System.out.println(b + " Right Pos = " + containerId + "." + eFeature.getName() + "." + pos);
+		System.out.println(a + " Right Pos = " + containerId + "." + eFeature.getName() + "." + pos);
 	    }
 	    System.out.println();
 	}
