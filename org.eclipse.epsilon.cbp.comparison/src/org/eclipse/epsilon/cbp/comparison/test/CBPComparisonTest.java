@@ -100,6 +100,7 @@ public class CBPComparisonTest {
 	EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
 	Logger.getRootLogger().setLevel(Level.OFF);
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
+	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_DISCARD);
     }
 
     @Test
@@ -356,15 +357,15 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	EObject leftObject = leftResource.getEObject("O-43655");
+	EObject leftObject = leftResource.getEObject("O-41441");
 	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature("packagedElement");
 	EList<EObject> leftValues = (EList<EObject>) leftObject.eGet(leftReference);
 
-	EObject rightObject = rightResource.getEObject("O-43655");
+	EObject rightObject = rightResource.getEObject("O-41441");
 	EReference rightReference = (EReference) rightObject.eClass().getEStructuralFeature("packagedElement");
 	EList<EObject> rightValues = (EList<EObject>) rightObject.eGet(rightReference);
 	
-	EObject targetObject = targetResource.getEObject("O-43655");
+	EObject targetObject = targetResource.getEObject("O-41441");
 	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature("packagedElement");
 	EList<EObject> targetValues = (EList<EObject>) targetObject.eGet(targetReference);
 
@@ -423,7 +424,7 @@ public class CBPComparisonTest {
 	Map<Object, Object> options = new HashMap<>();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 
-	int generateUpTo = 2;
+	int generateUpTo = 4;
 	String caseName = "Epsilon";
 //	String caseName = "Wikipedia";
 	
@@ -590,15 +591,16 @@ public class CBPComparisonTest {
 	    result.setRightEventCount(countLines(rightCbpWithIndexFile));
 	    try {
 		FileUtils.cleanDirectory(debugDir);
-		doEMFComparison(leftXmiWithIdFile, rightXmiWithIdFile, result);
-		doCBPComparison(leftCbpWithIndexFile, rightCbpWithIndexFile, originCbpFile, result);
-
+		
 		FileUtils.copyFile(originWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "origin.xmi"));
 		FileUtils.copyFile(leftXmiWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "left.xmi"));
 		FileUtils.copyFile(rightXmiWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "right.xmi"));
 		FileUtils.copyFile(originCbpFile, new File(debugDir.getAbsolutePath() + File.separator + "origin.cbpxml"));
 		FileUtils.copyFile(leftCbpWithIndexFile, new File(debugDir.getAbsolutePath() + File.separator + "left.cbpxml"));
 		FileUtils.copyFile(rightCbpWithIndexFile, new File(debugDir.getAbsolutePath() + File.separator + "right.cbpxml"));
+		
+		doEMFComparison(leftXmiWithIdFile, rightXmiWithIdFile, result);
+		doCBPComparison(leftCbpWithIndexFile, rightCbpWithIndexFile, originCbpFile, result);
 
 		int deltaCount = Math.abs(result.getChangeBasedDiffCount() - result.getStateBasedDiffCount());
 		int threshold = (int) (0.10 * result.getStateBasedDiffCount() / 1.0);
@@ -608,9 +610,14 @@ public class CBPComparisonTest {
 		    // throw new Exception("ERROR!: " +
 		    // result.getChangeBasedDiffCount() + " vs. " +
 		    // result.getStateBasedDiffCount());
+		} else {
+		    System.out.println("Final Diffs = " + deltaCount);
 		}
+		
+		
 		appendResult(output, result);
 	    } catch (Exception ex) {
+		ex.printStackTrace();
 		throw new Exception(ex.getMessage());
 	    }
 
@@ -904,7 +911,7 @@ public class CBPComparisonTest {
 
 	System.out.println();
 	{
-	    String a = "O-43721";
+	    String a = "O-41431";
 	    EObject eObject = originResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -921,7 +928,7 @@ public class CBPComparisonTest {
 	    }
 	}
 	{
-	    String a = "O-43721";
+	    String a = "O-41431";
 	    EObject eObject = leftResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -939,7 +946,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-43721";
+	    String a = "O-41431";
 	    EObject eObject = rightResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -957,27 +964,6 @@ public class CBPComparisonTest {
 	    System.out.println();
 	}
 	
-//	{
-//	    String b = "O-8";
-//	    EObject eObject = rightResource.getEObject(b);
-//	    if (eObject != null) {
-//		EReference specific =  (EReference) eObject.eClass().getEStructuralFeature("specific");
-//		EObject c = (EObject) eObject.eGet(specific);		
-//		boolean c1 = specific.isContainment();
-//		boolean c2 = specific.isContainer();
-//		String cId = rightResource.getURIFragment(c);
-//		EReference opposite = specific.getEOpposite();
-//		Object x = (Object) c.eGet(opposite);
-////		String xId = rightResource.getURIFragment(x);
-//		
-//		EReference general =  (EReference) eObject.eClass().getEStructuralFeature("general");
-//		EObject d = (EObject) eObject.eGet(general);
-//		boolean d1 = specific.isContainment();
-//		boolean d2 = specific.isContainer();
-//		String dId = rightResource.getURIFragment(d);
-//		EObject y = general.getEOpposite();
-//		System.out.println();
-//	    }
-//	}
+
     }
 }

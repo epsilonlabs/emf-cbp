@@ -570,7 +570,7 @@ public class CBPMatchFeature {
 	}
     }
     
-    public boolean getIsSet(CBPSide side) {
+    public boolean getIsEdited(CBPSide side) {
 	return this.getIsSet(0, side);
     }
     

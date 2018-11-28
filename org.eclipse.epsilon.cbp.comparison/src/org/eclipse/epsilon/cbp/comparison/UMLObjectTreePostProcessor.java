@@ -29,44 +29,50 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 	    Entry<String, CBPMatchObject> objectEntry = objectIterator.next();
 	    CBPMatchObject object = objectEntry.getValue();
 
+	    // ------
 	    CBPMatchFeature feature = object.getFeatures().get("memberEnd");
-	    if (feature == null) {
-		continue;
-	    }
+	    if (feature != null) {
+		Iterator<Entry<Integer, Object>> valueIterator = feature.getLeftValues().entrySet().iterator();
+		while (valueIterator.hasNext()) {
+		    Entry<Integer, Object> valueEntry = valueIterator.next();
+		    int position = valueEntry.getKey();
+		    Object leftValue = valueEntry.getValue();
+		    Object rightValue = feature.getRightValues().get(position);
 
-	    Iterator<Entry<Integer, Object>> valueIterator = feature.getLeftValues().entrySet().iterator();
-	    while (valueIterator.hasNext()) {
-		Entry<Integer, Object> valueEntry = valueIterator.next();
-		int position = valueEntry.getKey();
-		Object leftValue = valueEntry.getValue();
-		Object rightValue = feature.getRightValues().get(position);
-
-		// handle left value
-		if (leftValue instanceof CBPMatchObject) {
-		    CBPMatchObject objectValue = (CBPMatchObject) leftValue;
-		    CBPMatchFeature oppositeFeature = objectValue.getFeatures().get("association");
-		    if (oppositeFeature == null) {
-			oppositeFeature = createAssociationFeature(objectValue);
+		    // handle left value
+		    if (leftValue instanceof CBPMatchObject) {
+			CBPMatchObject objectValue = (CBPMatchObject) leftValue;
+			CBPMatchFeature oppositeFeature = objectValue.getFeatures().get("association");
+			if (oppositeFeature == null) {
+			    oppositeFeature = createFeature(objectValue, "Property", "association");
+			}
+			oppositeFeature.setValue(object, CBPSide.LEFT);
 		    }
-		    oppositeFeature.setValue(object, CBPSide.LEFT);
-		}
 
-		// handle right value
-		if (rightValue instanceof CBPMatchObject) {
-		    CBPMatchObject objectValue = (CBPMatchObject) rightValue;
-		    CBPMatchFeature oppositeFeature = objectValue.getFeatures().get("association");
-		    if (oppositeFeature == null) {
-			oppositeFeature = createAssociationFeature(objectValue);
+		    // handle right value
+		    if (rightValue instanceof CBPMatchObject) {
+			CBPMatchObject objectValue = (CBPMatchObject) rightValue;
+			CBPMatchFeature oppositeFeature = objectValue.getFeatures().get("association");
+			if (oppositeFeature == null) {
+			    oppositeFeature = createFeature(objectValue, "Property", "association");
+			}
+			oppositeFeature.setValue(object, CBPSide.RIGHT);
 		    }
-		    oppositeFeature.setValue(object, CBPSide.RIGHT);
 		}
 	    }
+
+//	    if (object.getClassName().equals("Property")) {
+//		feature = object.getFeatures().get("type");
+//		if (feature == null) {
+//		    createFeature(object, "Property", "type");
+//		}
+//	    }
 	}
     }
 
-    private CBPMatchFeature createAssociationFeature(CBPMatchObject targetObject) {
-	String featureName = "association";
-	String eClassName = "Property";
+    private CBPMatchFeature createFeature(CBPMatchObject targetObject, String eClassName, String featureName) {
+	// String featureName = "association";
+	// String eClassName = "Property";
 
 	CBPFeatureType featureType = CBPFeatureType.ATTRIBUTE;
 	boolean isContainment = false;

@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.BasicEList.UnmodifiableEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
@@ -151,7 +153,7 @@ public class ChangeEventAdapter extends EContentAdapter {
     @Override
     public void notifyChanged(Notification n) {
 
-//	this.debugEvents(n);
+	// this.debugEvents(n);
 	super.notifyChanged(n);
 
 	if (n.isTouch() || !enabled) {
@@ -555,7 +557,12 @@ public class ChangeEventAdapter extends EContentAdapter {
 		startCompositeOperation();
 	    }
 	    event.setComposite(compositeId);
+
+	    unsetAllReferences(removedObject);
+	    // deleteElement(removedObject);
+
 	    changeEvents.add(event);
+
 	    String id = resource.getURIFragment(removedObject);
 	    ChangeEvent<?> deletedEvent = new DeleteEObjectEvent(removedObject, id);
 	    deletedEvent.setComposite(compositeId);
@@ -678,4 +685,119 @@ public class ChangeEventAdapter extends EContentAdapter {
 	compositeId = null;
     }
 
+    // ----------
+    public void deleteElement(EObject targetEObject) {
+	recursiveDeleteEvent(targetEObject);
+	removeFromExternalRefferences(targetEObject);
+	unsetAllReferences(targetEObject);
+	unsetAllAttributes(targetEObject);
+	// EcoreUtil.remove(targetEObject);
+    }
+
+    private void recursiveDeleteEvent(EObject targetEObject) {
+	for (EReference eRef : targetEObject.eClass().getEAllReferences()) {
+	    if (eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived() && eRef.isContainment()) {
+		if (eRef.isMany()) {
+		    List<EObject> values = (List<EObject>) targetEObject.eGet(eRef);
+		    while (values.size() > 0) {
+			EObject value = values.get(values.size() - 1);
+			recursiveDeleteEvent(value);
+			removeFromExternalRefferences(value);
+			unsetAllReferences(value);
+			unsetAllAttributes(value);
+			values.remove(value);
+		    }
+		} else {
+		    EObject value = (EObject) targetEObject.eGet(eRef);
+		    if (value != null) {
+			recursiveDeleteEvent(value);
+			removeFromExternalRefferences(value);
+			unsetAllReferences(value);
+			unsetAllAttributes(value);
+			targetEObject.eUnset(eRef);
+		    }
+		}
+	    }
+	}
+    }
+
+    private void unsetAllReferences(EObject targetEObject) {
+	// if (targetEObject.eClass().getName().equals("Property")) {
+	// System.out.println();
+	// }
+	for (EReference eRef : targetEObject.eClass().getEAllReferences()) {
+	    // if (eRef.getName().equals("owningAssociation")) {
+	    // System.out.println(eRef.getName() + ", " + eRef.isRequired() + ",
+	    // " + eRef.isUnsettable() + ", " + eRef.isChangeable() + ", " +
+	    // targetEObject.eIsSet(eRef) + ", " + eRef.isDerived());
+	    // }
+	    if (!eRef.isUnsettable() && eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived() && eRef.isContainment() == false) {
+		if (eRef.isMany()) {
+		    EList<EObject> values = (EList<EObject>) targetEObject.eGet(eRef);
+		    while (values.size() > 0) {
+			int position = values.size() - 1;
+			EObject value = values.remove(position);
+
+			RemoveFromEReferenceEvent e = new RemoveFromEReferenceEvent();
+			e.setComposite(compositeId);
+			e.setEStructuralFeature(eRef);
+			e.setValue(value);
+			e.setTarget(targetEObject);
+			e.setPosition(position);
+			changeEvents.add(e);
+		    }
+		} else {
+		    EObject value = (EObject) targetEObject.eGet(eRef);
+		    if (value != null) {
+			targetEObject.eUnset(eRef);
+
+			UnsetEReferenceEvent e = new UnsetEReferenceEvent();
+			e.setComposite(compositeId);
+			e.setEStructuralFeature(eRef);
+			e.setOldValue(value);
+			e.setTarget(targetEObject);
+			changeEvents.add(e);
+		    }
+		}
+	    }
+	}
+    }
+
+    private void unsetAllAttributes(EObject targetEObject) {
+	for (EAttribute eAttr : targetEObject.eClass().getEAllAttributes()) {
+	    if (eAttr.isChangeable() && targetEObject.eIsSet(eAttr) && !eAttr.isDerived()) {
+		if (eAttr.isMany()) {
+		    EList<?> valueList = (EList<?>) targetEObject.eGet(eAttr);
+		    while (valueList.size() > 0) {
+			valueList.remove(valueList.size() - 1);
+		    }
+		} else {
+		    Object value = targetEObject.eGet(eAttr);
+		    targetEObject.eUnset(eAttr);
+		}
+	    }
+	}
+    }
+
+    private void removeFromExternalRefferences(EObject refferedEObject) {
+	Iterator<EObject> iterator = resource.getAllContents();
+	while (iterator.hasNext()) {
+	    EObject refferingEObject = iterator.next();
+	    for (EReference eRef : refferingEObject.eClass().getEAllReferences()) {
+		if (eRef.isContainment() == false && eRef.isChangeable() == true) {
+		    if (eRef.isMany()) {
+			List<EObject> valueList = (List<EObject>) refferingEObject.eGet(eRef);
+			if (!(valueList instanceof UnmodifiableEList<?>)) {
+			    valueList.remove(refferedEObject);
+			}
+		    } else {
+			EObject value = (EObject) refferingEObject.eGet(eRef);
+			if (value != null && value.equals(refferedEObject)) {
+			    refferingEObject.eUnset(eRef);
+			}
+		    }
+		}
+	    }
+	}
+    }
 }

@@ -35,6 +35,7 @@ import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope2;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.XMIResource;
@@ -89,7 +90,6 @@ public class CBPMergingTest {
 	// try to merge
 	CBPMerging merging = new CBPMerging();
 	merging.mergeAllLeftToRight(targetXmiFile, leftXmiFile, rightXmiFile, diffs);
-	
 
 	// evaluate merging result
 	Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
@@ -121,6 +121,11 @@ public class CBPMergingTest {
 	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
 	EList<Diff> evalDiffs = emfComparison.getDifferences();
 	System.out.println("Eval Diffs = " + evalDiffs.size());
+	for (Diff diff : evalDiffs) {
+	    EObject leftObject = diff.getMatch().getLeft();
+	    String leftId = leftObject.eResource().getURIFragment(leftObject);
+	    System.out.println(leftId + "." + diff.getKind());
+	}
 
 	assertEquals(0, evalDiffs.size());
     }
