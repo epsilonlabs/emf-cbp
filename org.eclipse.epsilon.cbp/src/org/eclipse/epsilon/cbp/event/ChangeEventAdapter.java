@@ -502,7 +502,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    ((EStructuralFeatureEvent<?>) event).setTarget(n.getNotifier());
 	}
 	
-	handleOppositeReference(event);
+//	handleOppositeReference(event);
 
 	if (event != null) {
 	    if (position > 0) {
@@ -601,7 +601,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    event.setComposite(compositeId);
 
 	    unsetAllEReferences(removedObject);
-	    unsetOppositeEReference(event, removedObject);
+//	    unsetOppositeEReference(event, removedObject);
 
 	    changeEvents.add(event);
 

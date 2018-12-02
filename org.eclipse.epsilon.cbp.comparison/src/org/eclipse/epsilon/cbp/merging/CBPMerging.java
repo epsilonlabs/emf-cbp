@@ -93,17 +93,23 @@ public class CBPMerging {
 	// index + "." + kind);
 	// }
 
-	resolveDiff(targetResource, leftResource, diffs);
+	resolveDiff(targetResource, leftResource, diffs, null);
     }
 
-    public void resolveDiff(Resource targetResource, Resource leftResource, List<CBPDiff> diffs) throws Exception {
+    // public void resolveDiff(Resource targetResource, Resource leftResource,
+    // List<CBPDiff> diffs) throws Exception {
+    // this.resolveDiff(targetResource, leftResource, diffs, null);
+    // }
+
+    public void resolveDiff(Resource targetResource, Resource leftResource, List<CBPDiff> diffs, CBPMatchObject caller) throws Exception {
 	Collections.sort(diffs, new CBPDiffComparator());
 
 	CBPDiff prevDiff = null;
 
 	for (int i = 0; i < diffs.size(); i++) {
+	    // System.out.println("CHECK = " +
+	    // targetResource.getEObject("L-99"));
 	    CBPDiff diff = diffs.get(i);
-
 	    if (diff.isResolved()) {
 		continue;
 	    }
@@ -164,16 +170,15 @@ public class CBPMerging {
 		// ADD
 		if (kind == CBPDifferenceKind.ADD) {
 
-		    if (value.equals("L-0")) {
+		    if (value.equals("L-100")) {
 			System.out.println();
 		    }
 
-		    // System.out.println("PLAN: " + targetId + "." +
-		    // featureName + "." + value + "." + index + "." + kind);
+		    System.out.println("PLAN: " + targetId + "." + featureName + "." + value + "." + index + "." + kind);
 
-		    EObject targetObject = targetResource.getEObject(targetId);
+		    EObject targetObject = ((XMIResource) targetResource).getEObject(targetId);
 		    if (targetObject == null && targetMatchObject.getLeftContainer() != null) {
-			resolveDiff(targetResource, leftResource, targetMatchObject.getLeftContainer().getDiffs());
+			resolveDiff(targetResource, leftResource, targetMatchObject.getLeftContainer().getDiffs(), targetMatchObject);
 			targetObject = targetResource.getEObject(targetId);
 		    }
 
@@ -181,7 +186,7 @@ public class CBPMerging {
 			targetObject = deletedObjects.get(targetId);
 		    }
 
-		    if (value.equals("L-0")) {
+		    if (value.equals("L-99")) {
 			System.out.println();
 		    }
 
@@ -233,8 +238,14 @@ public class CBPMerging {
 
 				    if (targetResource instanceof XMIResource) {
 					((XMIResource) targetResource).setID(valueObject, value.toString());
-				    }
+					// EObject x =
+					// targetResource.getEObject(value.toString());
+					// String y = ((XMIResource)
+					// targetResource).getID(x);
+					// String b =
+					// targetResource.getURIFragment(valueObject);
 
+				    }
 				} else {
 				    Object oldValue = targetObject.eGet(feature);
 				    String oldId = null;
@@ -301,17 +312,22 @@ public class CBPMerging {
 
 			System.out.println(targetId + "." + featureName + "." + value + "." + index + "." + kind);
 
-			EObject targetObject = targetResource.getEObject(targetId);
+			EObject targetObject = deletedObjects.get(targetId);
 			if (targetObject == null) {
-			    targetObject = deletedObjects.get(targetId);
+			    targetObject = targetResource.getEObject(targetId);
 			}
 			if (targetObject == null && targetMatchObject.getLeftContainer() != null) {
-			    resolveDiff(targetResource, leftResource, targetMatchObject.getLeftContainer().getDiffs());
+			    resolveDiff(targetResource, leftResource, targetMatchObject.getLeftContainer().getDiffs(), targetMatchObject);
 			    targetObject = targetResource.getEObject(targetId);
-			    if (targetObject == null) {
-				targetObject = deletedObjects.get(targetId);
+			}
+
+			if (valueObject == null) {
+			    valueObject = deletedObjects.get(value.toString());
+			    if (valueObject == null) {
+				valueObject = targetResource.getEObject(value.toString());
 			    }
 			}
+
 			EStructuralFeature feature = targetObject.eClass().getEStructuralFeature(featureName);
 
 			targetObject.eSet(feature, valueObject);
@@ -324,13 +340,13 @@ public class CBPMerging {
 				if (featureMatchObject.isContainment()) {
 				    for (Object subValue : featureMatchObject.getRightValues().values()) {
 					if (subValue != null) {
-					    resolveDiff(targetResource, leftResource, ((CBPMatchObject) subValue).getDiffs());
+					    resolveDiff(targetResource, leftResource, ((CBPMatchObject) subValue).getDiffs(), ((CBPMatchObject) subValue));
 
 					}
 				    }
 				}
 			    }
-			    resolveDiff(targetResource, leftResource, valueMatchObject.getDiffs());
+			    resolveDiff(targetResource, leftResource, valueMatchObject.getDiffs(), valueMatchObject);
 			}
 
 			System.out.println(targetId + "." + featureName + "." + value + "." + index + "." + kind);
@@ -338,8 +354,8 @@ public class CBPMerging {
 			if (nextDiff != null && diff.getObject().equals(nextDiff.getObject()) && diff.getFeature().equals(nextDiff.getFeature())
 				&& ((CBPMatchObject) diff.getValue()).getClassName().equals(((CBPMatchObject) nextDiff.getValue()).getClassName()) && diff.getPosition() == nextDiff.getPosition()
 				&& nextDiff.getKind() == CBPDifferenceKind.ADD) {
-			 
-			    	// intentionally left blank
+
+			    // intentionally left blank
 			} else {
 
 			    EObject targetObject = targetResource.getEObject(targetId);
@@ -364,9 +380,13 @@ public class CBPMerging {
 
 			System.out.println(targetId + "." + featureName + "." + value + "." + index + "." + kind);
 
+			 if (value.equals("O-1409")) {
+				System.out.println();
+			    }
+			
 			EObject targetObject = targetResource.getEObject(targetId);
 			if (targetObject == null && targetMatchObject.getLeftContainer() != null) {
-			    resolveDiff(targetResource, leftResource, targetMatchObject.getLeftContainer().getDiffs());
+			    resolveDiff(targetResource, leftResource, targetMatchObject.getLeftContainer().getDiffs(), targetMatchObject);
 			    targetObject = targetResource.getEObject(targetId);
 			}
 
