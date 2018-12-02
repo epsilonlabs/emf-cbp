@@ -29,6 +29,8 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 	    Entry<String, CBPMatchObject> objectEntry = objectIterator.next();
 	    CBPMatchObject object = objectEntry.getValue();
 
+	    
+	    
 	    // ------
 	    CBPMatchFeature feature = object.getFeatures().get("memberEnd");
 	    if (feature != null) {

@@ -122,9 +122,12 @@ public class CBPMergingTest {
 	EList<Diff> evalDiffs = emfComparison.getDifferences();
 	System.out.println("Eval Diffs = " + evalDiffs.size());
 	for (Diff diff : evalDiffs) {
-	    EObject leftObject = diff.getMatch().getLeft();
-	    String leftId = leftObject.eResource().getURIFragment(leftObject);
-	    System.out.println(leftId + "." + diff.getKind());
+	    EObject eObject = diff.getMatch().getLeft();
+	    if (eObject == null) {
+		eObject = diff.getMatch().getRight();
+	    }
+	    String id = eObject.eResource().getURIFragment(eObject);
+	    System.out.println(id + "." + diff.getKind());
 	}
 
 	assertEquals(0, evalDiffs.size());

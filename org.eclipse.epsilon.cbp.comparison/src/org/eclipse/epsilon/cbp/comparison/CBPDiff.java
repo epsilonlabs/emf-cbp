@@ -27,7 +27,7 @@ public class CBPDiff {
 	this.kind = kind;
 	this.side = side;
 	this.value = value;
-	this.object.getDiffs().add(this);
+	this.object.addDiff(this);
     }
 
     public CBPMatchObject getObject() {

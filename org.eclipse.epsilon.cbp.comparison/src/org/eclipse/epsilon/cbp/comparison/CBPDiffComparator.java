@@ -17,13 +17,13 @@ public class CBPDiffComparator implements Comparator<CBPDiff> {
 	    }
 	} else if (left.getObject().getId().compareTo(right.getObject().getId()) == 0 && left.getFeature().getName().compareTo(right.getFeature().getName()) == 0
 		&& left.getPosition() == right.getPosition()) {
-	    if (left.getKind() == CBPDifferenceKind.ADD) {
-		return -1;
-	    } else if (right.getKind() == CBPDifferenceKind.ADD) {
-		return 1;
-	    } else if (left.getKind() == CBPDifferenceKind.DELETE) {
+	    if (left.getKind() == CBPDifferenceKind.DELETE) {
 		return -1;
 	    } else if (right.getKind() == CBPDifferenceKind.DELETE) {
+		return 1;
+	    } else if (left.getKind() == CBPDifferenceKind.ADD) {
+		return -1;
+	    } else if (right.getKind() == CBPDifferenceKind.ADD) {
 		return 1;
 	    } else if (left.getKind() == CBPDifferenceKind.MOVE) {
 		return -1;

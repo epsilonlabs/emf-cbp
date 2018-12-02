@@ -501,6 +501,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    ((EStructuralFeatureEvent<?>) event).setEStructuralFeature((EStructuralFeature) n.getFeature());
 	    ((EStructuralFeatureEvent<?>) event).setTarget(n.getNotifier());
 	}
+	
+	handleOppositeReference(event);
 
 	if (event != null) {
 	    if (position > 0) {
@@ -520,6 +522,46 @@ public class ChangeEventAdapter extends EContentAdapter {
 		    handleDeletedEObject(event, (EObject) n.getOldValue());
 		} else if (n.getOldValue() instanceof EList) {
 		    handleDeletedEObject(event, (EObject) event.getValue());
+		}
+	    }
+	}
+    }
+
+    /**
+     * @param event
+     */
+    private void handleOppositeReference(ChangeEvent<?> event) {
+	if (event instanceof SetEReferenceEvent || event instanceof AddToEReferenceEvent) {
+	    EReference eOpposite = ((EReferenceEvent) event).getEReference().getEOpposite();
+	    if (eOpposite != null) {
+		EObject eTarget = ((EReferenceEvent) event).getTarget();
+		EObject eValue = null;
+		if (event instanceof AddToEReferenceEvent) {
+		    eValue = (EObject) event.getValue();
+		} else if (event instanceof SetEReferenceEvent) {
+		    eValue = (EObject) event.getValue();
+		}
+		if (eOpposite.isMany()) {
+		    EList<EObject> list = ((EList<EObject>) eValue.eGet(eOpposite));
+		    
+		    AddToEReferenceEvent e = new AddToEReferenceEvent();
+		    e.setComposite(compositeId);
+		    addRefCount++;
+		    e.setEStructuralFeature(eOpposite);
+		    e.setValue(eTarget);
+		    e.setTarget(eValue);
+		    e.setPosition(list.size());
+		    changeEvents.add(e);
+		} else {
+		    //eValue.eSet(eOpposite, eTarget);
+		    
+		    SetEReferenceEvent e = new SetEReferenceEvent();
+		    e.setComposite(compositeId);
+		    addRefCount++;
+		    e.setEStructuralFeature(eOpposite);
+		    e.setValue(eTarget);
+		    e.setTarget(eValue);
+		    changeEvents.add(e);
 		}
 	    }
 	}
@@ -558,8 +600,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    }
 	    event.setComposite(compositeId);
 
-	    unsetAllReferences(removedObject);
-	    // deleteElement(removedObject);
+	    unsetAllEReferences(removedObject);
+	    unsetOppositeEReference(event, removedObject);
 
 	    changeEvents.add(event);
 
@@ -573,6 +615,41 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	} else {
 	    changeEvents.add(event);
+	}
+    }
+
+    private void unsetOppositeEReference(ChangeEvent<?> event, EObject removedObject) {
+	EObject eTarget = null;
+	EReference eReference = ((EReferenceEvent) event).getEReference();
+	EReference eOpposite = eReference.getEOpposite();
+	if (eOpposite != null) {
+	    if (event instanceof RemoveFromEReferenceEvent) {
+		eTarget = ((RemoveFromEReferenceEvent) event).getTarget();
+	    } else if (event instanceof UnsetEReferenceEvent) {
+		eTarget = ((UnsetEReferenceEvent) event).getTarget();
+	    }
+
+	    if (eOpposite.isMany()) {
+		int position = ((EList<EObject>) removedObject.eGet(eOpposite)).indexOf(eTarget);
+		((EList<EObject>) removedObject.eGet(eOpposite)).remove(eTarget);
+
+		RemoveFromEReferenceEvent e = new RemoveFromEReferenceEvent();
+		e.setComposite(compositeId);
+		e.setEStructuralFeature(eOpposite);
+		e.setValue(eTarget);
+		e.setTarget(removedObject);
+		e.setPosition(position);
+		changeEvents.add(e);
+	    } else {
+		removedObject.eUnset(eOpposite);
+
+		UnsetEReferenceEvent e = new UnsetEReferenceEvent();
+		e.setComposite(compositeId);
+		e.setEStructuralFeature(eOpposite);
+		e.setOldValue(eTarget);
+		e.setTarget(removedObject);
+		changeEvents.add(e);
+	    }
 	}
     }
 
@@ -650,7 +727,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			    }
 
 			    AddToEReferenceEvent e = new AddToEReferenceEvent();
-			    event.setComposite(compositeId);
+			    e.setComposite(compositeId);
 			    addRefCount++;
 			    e.setEStructuralFeature(eRef);
 			    e.setValue(value);
@@ -665,7 +742,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			    handleCreateEObject(value);
 			}
 			SetEReferenceEvent e = new SetEReferenceEvent();
-			event.setComposite(compositeId);
+			e.setComposite(compositeId);
 			setRefCount++;
 			e.setEStructuralFeature(eRef);
 			e.setValue(value);
@@ -689,7 +766,7 @@ public class ChangeEventAdapter extends EContentAdapter {
     public void deleteElement(EObject targetEObject) {
 	recursiveDeleteEvent(targetEObject);
 	removeFromExternalRefferences(targetEObject);
-	unsetAllReferences(targetEObject);
+	unsetAllEReferences(targetEObject);
 	unsetAllAttributes(targetEObject);
 	// EcoreUtil.remove(targetEObject);
     }
@@ -703,7 +780,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			EObject value = values.get(values.size() - 1);
 			recursiveDeleteEvent(value);
 			removeFromExternalRefferences(value);
-			unsetAllReferences(value);
+			unsetAllEReferences(value);
 			unsetAllAttributes(value);
 			values.remove(value);
 		    }
@@ -712,7 +789,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		    if (value != null) {
 			recursiveDeleteEvent(value);
 			removeFromExternalRefferences(value);
-			unsetAllReferences(value);
+			unsetAllEReferences(value);
 			unsetAllAttributes(value);
 			targetEObject.eUnset(eRef);
 		    }
@@ -721,7 +798,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
     }
 
-    private void unsetAllReferences(EObject targetEObject) {
+    private void unsetAllEReferences(EObject targetEObject) {
 	// if (targetEObject.eClass().getName().equals("Property")) {
 	// System.out.println();
 	// }
