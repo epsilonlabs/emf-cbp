@@ -174,7 +174,7 @@ public class CBPMerging {
 			System.out.println();
 		    }
 
-		    System.out.println("PLAN: " + targetId + "." + featureName + "." + value + "." + index + "." + kind);
+//		    System.out.println("PLAN: " + targetId + "." + featureName + "." + value + "." + index + "." + kind);
 
 		    EObject targetObject = ((XMIResource) targetResource).getEObject(targetId);
 		    if (targetObject == null && targetMatchObject.getLeftContainer() != null) {
@@ -186,7 +186,7 @@ public class CBPMerging {
 			targetObject = deletedObjects.get(targetId);
 		    }
 
-		    if (value.equals("L-99")) {
+		    if (value.equals("L-628")) {
 			System.out.println();
 		    }
 
@@ -198,7 +198,7 @@ public class CBPMerging {
 			valueObject = targetResource.getEObject(value.toString());
 			if (valueObject == null) {
 
-			    if (prevDiff != null && diff.getObject().equals(prevDiff.getObject()) && diff.getFeature().equals(prevDiff.getFeature())
+			    if (((EReference)feature).isContainment() && prevDiff != null && diff.getObject().equals(prevDiff.getObject()) && diff.getFeature().equals(prevDiff.getFeature())
 				    && ((CBPMatchObject) diff.getValue()).getClassName().equals(((CBPMatchObject) prevDiff.getValue()).getClassName()) && diff.getPosition() == prevDiff.getPosition()
 				    && prevDiff.getKind() == CBPDifferenceKind.DELETE) {
 				EObject rightObject = targetResource.getEObject(((CBPMatchObject) prevDiff.getValue()).getId());
@@ -208,6 +208,9 @@ public class CBPMerging {
 				// just do rename of id
 				if (feature.isMany()) {
 				    EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
+//				    if (list.size() == 0) {
+//					list.add(valueObject);
+////				    }
 				    deletedObjects.put(((CBPMatchObject) prevDiff.getValue()).getId(), copiedRightObject);
 				    if (targetResource instanceof XMIResource) {
 					((XMIResource) targetResource).setID(valueObject, value.toString());

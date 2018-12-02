@@ -424,7 +424,7 @@ public class CBPComparisonTest {
 	Map<Object, Object> options = new HashMap<>();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 
-	int generateUpTo = 4;
+	int generateUpTo = 7;
 	String caseName = "Epsilon";
 //	String caseName = "Wikipedia";
 	
