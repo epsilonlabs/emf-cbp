@@ -45,6 +45,11 @@ public class CBPMatchObject {
     private List<CBPDiff> moveDiffs = new ArrayList<>();
     private List<CBPDiff> changeDiffs = new ArrayList<>();
     private List<CBPDiff> diffs = new ArrayList<>();
+    private List<CBPDiff> addDiffsAsValue = new ArrayList<>();
+    private List<CBPDiff> deleteDiffsAsValue = new ArrayList<>();
+    private List<CBPDiff> moveDiffsAsValue = new ArrayList<>();
+    private List<CBPDiff> changeDiffsAsValue = new ArrayList<>();
+    private List<CBPDiff> diffsAsValue = new ArrayList<>();
 
     public CBPMatchObject(String className, String id) {
 	this.className = className;
@@ -342,6 +347,19 @@ public class CBPMatchObject {
 	    this.moveDiffs.add(diff);
 	}
 	this.diffs.add(diff);
+    }
+    
+    public void addDiffAsValue(CBPDiff diff) {
+	if (diff.getKind() == CBPDifferenceKind.ADD) {
+	    this.addDiffsAsValue.add(diff);
+	} else if (diff.getKind() == CBPDifferenceKind.DELETE) {
+	    this.deleteDiffsAsValue.add(diff);
+	} else if (diff.getKind() == CBPDifferenceKind.CHANGE) {
+	    this.changeDiffsAsValue.add(diff);
+	} else if (diff.getKind() == CBPDifferenceKind.MOVE) {
+	    this.moveDiffsAsValue.add(diff);
+	}
+	this.diffsAsValue.add(diff);
 
     }
 
@@ -409,4 +427,64 @@ public class CBPMatchObject {
         this.rightIsMoved = rightIsMoved;
     }
 
+    public List<CBPDiff> getAddDiffsAsValue() {
+        return addDiffsAsValue;
+    }
+
+    public void setAddDiffsAsValue(List<CBPDiff> addDiffsAsValue) {
+        this.addDiffsAsValue = addDiffsAsValue;
+    }
+
+    public List<CBPDiff> getDeleteDiffsAsValue() {
+        return deleteDiffsAsValue;
+    }
+
+    public void setDeleteDiffsAsValue(List<CBPDiff> deleteDiffsAsValue) {
+        this.deleteDiffsAsValue = deleteDiffsAsValue;
+    }
+
+    public List<CBPDiff> getMoveDiffsAsValue() {
+        return moveDiffsAsValue;
+    }
+
+    public void setMoveDiffsAsValue(List<CBPDiff> moveDiffsAsValue) {
+        this.moveDiffsAsValue = moveDiffsAsValue;
+    }
+
+    public List<CBPDiff> getChangeDiffsAsValue() {
+        return changeDiffsAsValue;
+    }
+
+    public void setChangeDiffsAsValue(List<CBPDiff> changeDiffsAsValue) {
+        this.changeDiffsAsValue = changeDiffsAsValue;
+    }
+
+    public List<CBPDiff> getDiffsAsValue() {
+        return diffsAsValue;
+    }
+
+    public void setDiffsAsValue(List<CBPDiff> diffsAsValue) {
+        this.diffsAsValue = diffsAsValue;
+    }
+
+    public void setAddDiffs(List<CBPDiff> addDiffs) {
+        this.addDiffs = addDiffs;
+    }
+
+    public void setDeleteDiffs(List<CBPDiff> deleteDiffs) {
+        this.deleteDiffs = deleteDiffs;
+    }
+
+    public void setMoveDiffs(List<CBPDiff> moveDiffs) {
+        this.moveDiffs = moveDiffs;
+    }
+
+    public void setChangeDiffs(List<CBPDiff> changeDiffs) {
+        this.changeDiffs = changeDiffs;
+    }
+
+    @Override
+    public String toString() {
+	return this.getId();
+    }
 }

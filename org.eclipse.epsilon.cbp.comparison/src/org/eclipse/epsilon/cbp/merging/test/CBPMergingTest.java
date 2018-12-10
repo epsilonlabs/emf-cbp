@@ -3,10 +3,16 @@ package org.eclipse.epsilon.cbp.merging.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.FactoryConfigurationError;
@@ -16,9 +22,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.compare.AttributeChange;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.ReferenceChange;
+import org.eclipse.emf.compare.ResourceAttachmentChange;
 import org.eclipse.emf.compare.EMFCompare.Builder;
 import org.eclipse.emf.compare.match.DefaultComparisonFactory;
 import org.eclipse.emf.compare.match.DefaultEqualityHelperFactory;
@@ -33,6 +42,9 @@ import org.eclipse.emf.compare.postprocessor.IPostProcessor;
 import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope2;
+import org.eclipse.emf.compare.uml2.internal.AssociationChange;
+import org.eclipse.emf.compare.uml2.internal.DirectedRelationshipChange;
+import org.eclipse.emf.compare.uml2.internal.MultiplicityElementChange;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
@@ -121,16 +133,62 @@ public class CBPMergingTest {
 	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
 	EList<Diff> evalDiffs = emfComparison.getDifferences();
 	System.out.println("Eval Diffs = " + evalDiffs.size());
-	for (Diff diff : evalDiffs) {
-	    EObject eObject = diff.getMatch().getLeft();
-	    if (eObject == null) {
-		eObject = diff.getMatch().getRight();
-	    }
-	    String id = eObject.eResource().getURIFragment(eObject);
-	    System.out.println(id + "." + diff.getKind());
-	}
+	printEMFCompareDiffs(targetXmi, leftXmi, evalDiffs);
 
 	assertEquals(0, evalDiffs.size());
     }
+    
+    private List<String> printEMFCompareDiffs(Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {
+   	Set<String> set = new HashSet<>();
+   	for (Diff diff : diffs) {
+   	    String feature = null;
+   	    String id = null;
+   	    String value = null;
+
+   	    if (diff.getMatch().getLeft() != null) {
+   		id = left.getURIFragment(diff.getMatch().getLeft());
+   	    } else {
+   		id = right.getURIFragment(diff.getMatch().getRight());
+   	    }
+   	    
+   	    if (diff instanceof AttributeChange) {
+   		feature = ((AttributeChange) diff).getAttribute().getName();
+   		value = String.valueOf(((AttributeChange) diff).getValue());
+   	    } else if (diff instanceof ReferenceChange) {
+   		feature = ((ReferenceChange) diff).getReference().getName();
+   		EObject eObject = ((ReferenceChange) diff).getValue();
+   		value = left.getURIFragment(eObject);
+   		if (value == null || "/-1".equals(value)) {
+   		    value = right.getURIFragment(eObject);
+   		}
+   	    } else if (diff instanceof MultiplicityElementChange) {
+   		continue;
+   	    } else if (diff instanceof ResourceAttachmentChange) {
+   		feature = "resource";
+   		value = new String(id);
+   		id = new String(feature);
+   	    } else if (diff instanceof AssociationChange) {
+   		continue;
+   	    } else if (diff instanceof DirectedRelationshipChange) {
+   		continue;
+   	    } else {
+   		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
+   	    }
+
+   	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+   	    set.add(x.trim());
+   	}
+   	// System.out.println("Before Merge Diffs: " + diffs.size());
+
+   	List<String> list = new ArrayList<>(set);
+//   	Collections.sort(list);
+
+   	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+   	for (String item : list) {
+   	    System.out.println(item);
+   	}
+   	System.out.println("Merged CBP vs Left Side Diffs Size: " + list.size());
+   	return list;
+       }
 
 }

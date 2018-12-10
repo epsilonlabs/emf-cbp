@@ -20,6 +20,7 @@ public class CBPDiff {
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, -1, value, kind, side);
     }
+
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this.object = object;
 	this.feature = feature;
@@ -28,6 +29,9 @@ public class CBPDiff {
 	this.side = side;
 	this.value = value;
 	this.object.addDiff(this);
+	if (this.value instanceof CBPMatchObject) {
+	    ((CBPMatchObject) this.value).addDiffAsValue(this);
+	}
     }
 
     public CBPMatchObject getObject() {
@@ -77,13 +81,15 @@ public class CBPDiff {
     public void setSide(CBPSide side) {
 	this.side = side;
     }
-    
+
     public boolean isResolved() {
-        return isResolved;
+	return isResolved;
     }
+
     public void setResolved(boolean isResolved) {
-        this.isResolved = isResolved;
+	this.isResolved = isResolved;
     }
+
     @Override
     public String toString() {
 	String str = null;

@@ -80,10 +80,15 @@ public abstract class CBPChangeEvent<T> {
     public void setPosition(int position) {
 	this.position = position;
     }
-    
-    public CBPChangeEvent<?> reverse(){
+
+    public CBPChangeEvent<?> reverse() {
 	this.setComposite(null);
 	return this;
-}
+    }
+    
+    @Override
+    public String toString() {
+	return this.getClass().getSimpleName() + "." + getOldValue() + "." + getValue() + "." + getPosition(); 
+    }
 
 }

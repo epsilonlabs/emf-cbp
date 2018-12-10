@@ -501,8 +501,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    ((EStructuralFeatureEvent<?>) event).setEStructuralFeature((EStructuralFeature) n.getFeature());
 	    ((EStructuralFeatureEvent<?>) event).setTarget(n.getNotifier());
 	}
-	
-//	handleOppositeReference(event);
+
+	// handleOppositeReference(event);
 
 	if (event != null) {
 	    if (position > 0) {
@@ -543,7 +543,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 		if (eOpposite.isMany()) {
 		    EList<EObject> list = ((EList<EObject>) eValue.eGet(eOpposite));
-		    
+
 		    AddToEReferenceEvent e = new AddToEReferenceEvent();
 		    e.setComposite(compositeId);
 		    addRefCount++;
@@ -553,8 +553,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 		    e.setPosition(list.size());
 		    changeEvents.add(e);
 		} else {
-		    //eValue.eSet(eOpposite, eTarget);
-		    
+		    // eValue.eSet(eOpposite, eTarget);
+
 		    SetEReferenceEvent e = new SetEReferenceEvent();
 		    e.setComposite(compositeId);
 		    addRefCount++;
@@ -600,8 +600,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    }
 	    event.setComposite(compositeId);
 
-	    unsetAllEReferences(removedObject);
-//	    unsetOppositeEReference(event, removedObject);
+//	    unsetAllEReferences(removedObject);
+	    // unsetOppositeEReference(event, removedObject);
 
 	    changeEvents.add(event);
 
@@ -808,7 +808,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    // " + eRef.isUnsettable() + ", " + eRef.isChangeable() + ", " +
 	    // targetEObject.eIsSet(eRef) + ", " + eRef.isDerived());
 	    // }
-	    if (!eRef.isUnsettable() && eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived() && eRef.isContainment() == false) {
+	    if (eRef.isChangeable() && !eRef.isDerived() && eRef.isContainment() == false) {
 		if (eRef.isMany()) {
 		    EList<EObject> values = (EList<EObject>) targetEObject.eGet(eRef);
 		    while (values.size() > 0) {
@@ -824,16 +824,18 @@ public class ChangeEventAdapter extends EContentAdapter {
 			changeEvents.add(e);
 		    }
 		} else {
-		    EObject value = (EObject) targetEObject.eGet(eRef);
-		    if (value != null) {
-			targetEObject.eUnset(eRef);
+		    if (!eRef.isUnsettable() && targetEObject.eIsSet(eRef)) {
+			EObject value = (EObject) targetEObject.eGet(eRef);
+			if (value != null) {
+			    targetEObject.eUnset(eRef);
 
-			UnsetEReferenceEvent e = new UnsetEReferenceEvent();
-			e.setComposite(compositeId);
-			e.setEStructuralFeature(eRef);
-			e.setOldValue(value);
-			e.setTarget(targetEObject);
-			changeEvents.add(e);
+			    UnsetEReferenceEvent e = new UnsetEReferenceEvent();
+			    e.setComposite(compositeId);
+			    e.setEStructuralFeature(eRef);
+			    e.setOldValue(value);
+			    e.setTarget(targetEObject);
+			    changeEvents.add(e);
+			}
 		    }
 		}
 	    }

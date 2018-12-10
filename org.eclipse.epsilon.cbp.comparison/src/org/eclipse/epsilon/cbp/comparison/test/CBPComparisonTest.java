@@ -70,9 +70,11 @@ import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.cbp.comparison.CBPComparison;
 import org.eclipse.epsilon.cbp.comparison.CBPComparisonImpl;
+import org.eclipse.epsilon.cbp.comparison.CBPDiff;
 import org.eclipse.epsilon.cbp.comparison.ICBPComparison;
 import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
+import org.eclipse.epsilon.cbp.merging.CBPMerging;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
@@ -265,57 +267,55 @@ public class CBPComparisonTest {
 		if (value == null || "/-1".equals(value)) {
 		    value = right.getURIFragment(eObject);
 		}
-	    } 
-	    else if (diff instanceof MultiplicityElementChange) {
-//		MultiplicityElementChange change = (MultiplicityElementChange) diff;
-//		if (change.getEReference() != null) {
-//		    EObject eObject = change.getDiscriminant();
-//		    value = left.getURIFragment(eObject);
-//		    if (value == null || "/-1".equals(value)) {
-//			value = right.getURIFragment(eObject);
-//		    }
-//		    feature = change.getEReference().getName();
-//		} else {
-//		    continue;
-//		}
+	    } else if (diff instanceof MultiplicityElementChange) {
+		// MultiplicityElementChange change =
+		// (MultiplicityElementChange) diff;
+		// if (change.getEReference() != null) {
+		// EObject eObject = change.getDiscriminant();
+		// value = left.getURIFragment(eObject);
+		// if (value == null || "/-1".equals(value)) {
+		// value = right.getURIFragment(eObject);
+		// }
+		// feature = change.getEReference().getName();
+		// } else {
+		// continue;
+		// }
 		continue;
-	    } 
-	    else if (diff instanceof ResourceAttachmentChange) {
+	    } else if (diff instanceof ResourceAttachmentChange) {
 		feature = "resource";
 		value = new String(id);
 		id = new String(feature);
 
 	    } else if (diff instanceof AssociationChange) {
-//		AssociationChange change = (AssociationChange) diff;
-//		if (change.getEReference() != null) {
-//		    EObject eObject = change.getDiscriminant();
-//		    value = left.getURIFragment(eObject);
-//		    if (value == null || "/-1".equals(value)) {
-//			value = right.getURIFragment(eObject);
-//		    }
-//		    feature = change.getEReference().getName();
-//		} else {
-//		    continue;
-//		}
+		// AssociationChange change = (AssociationChange) diff;
+		// if (change.getEReference() != null) {
+		// EObject eObject = change.getDiscriminant();
+		// value = left.getURIFragment(eObject);
+		// if (value == null || "/-1".equals(value)) {
+		// value = right.getURIFragment(eObject);
+		// }
+		// feature = change.getEReference().getName();
+		// } else {
+		// continue;
+		// }
 		continue;
 
-	    } 
-	    else if (diff instanceof DirectedRelationshipChange) {
-		
-//		DirectedRelationshipChange change = (DirectedRelationshipChange) diff;
-//		if (change.getEReference() != null) {
-//		    EObject eObject = change.getDiscriminant();
-//		    value = left.getURIFragment(eObject);
-//		    if (value == null || "/-1".equals(value)) {
-//			value = right.getURIFragment(eObject);
-//		    }
-//		    feature = change.getEReference().getName();
-//		} else {
-//		    continue;
-//		}
+	    } else if (diff instanceof DirectedRelationshipChange) {
+
+		// DirectedRelationshipChange change =
+		// (DirectedRelationshipChange) diff;
+		// if (change.getEReference() != null) {
+		// EObject eObject = change.getDiscriminant();
+		// value = left.getURIFragment(eObject);
+		// if (value == null || "/-1".equals(value)) {
+		// value = right.getURIFragment(eObject);
+		// }
+		// feature = change.getEReference().getName();
+		// } else {
+		// continue;
+		// }
 		continue;
-	    } 
-	    else {
+	    } else {
 		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
 	    }
 
@@ -338,7 +338,7 @@ public class CBPComparisonTest {
     }
 
     @Test
-    public void testGetMembersOfFeatures() throws IOException {
+    public void testGetContentsOfFeatures() throws IOException {
 
 	File leftFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\left.xmi");
 	File rightFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\right.xmi");
@@ -357,19 +357,24 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	EObject leftObject = leftResource.getEObject("O-41441");
-	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature("packagedElement");
+	String id = "O-43655";
+	String featureName = "packagedElement";
+
+	EObject leftObject = leftResource.getEObject(id);
+	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
 	EList<EObject> leftValues = (EList<EObject>) leftObject.eGet(leftReference);
 
-	EObject rightObject = rightResource.getEObject("O-41441");
-	EReference rightReference = (EReference) rightObject.eClass().getEStructuralFeature("packagedElement");
+	EObject rightObject = rightResource.getEObject(id);
+	EReference rightReference = (EReference) rightObject.eClass().getEStructuralFeature(featureName);
 	EList<EObject> rightValues = (EList<EObject>) rightObject.eGet(rightReference);
-	
-	EObject targetObject = targetResource.getEObject("O-41441");
-	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature("packagedElement");
+
+	EObject targetObject = targetResource.getEObject(id);
+	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature(featureName);
 	EList<EObject> targetValues = (EList<EObject>) targetObject.eGet(targetReference);
 
 	int size = (leftValues.size() > rightValues.size()) ? leftValues.size() : rightValues.size();
+	// int size = (leftValues.size() > targetValues.size()) ?
+	// leftValues.size() : targetValues.size();
 
 	System.out.println("\nLEFT:");
 	for (int i = 0; i < leftValues.size(); i++) {
@@ -387,7 +392,7 @@ public class CBPComparisonTest {
 	    rightId = rightResource.getURIFragment(rightValue);
 	    System.out.println(rightId);
 	}
-	
+
 	System.out.println("\nTARGET:");
 	for (int i = 0; i < targetValues.size(); i++) {
 	    String targetId = "";
@@ -396,7 +401,7 @@ public class CBPComparisonTest {
 	    System.out.println(targetId);
 	}
 
-	System.out.println("\nPAIR:");
+	System.out.println("\nPAIR LEFT-RIGHT:");
 	for (int i = 0; i < size; i++) {
 	    String leftId = "";
 	    String rightId = "";
@@ -414,6 +419,25 @@ public class CBPComparisonTest {
 	    System.out.println(i + ": " + leftId + " - " + rightId);
 
 	}
+
+	System.out.println("\nPAIR LEFT-TARGET:");
+	for (int i = 0; i < size; i++) {
+	    String leftId = "";
+	    String rightId = "";
+
+	    if (i < leftValues.size()) {
+		EObject leftValue = leftValues.get(i);
+		leftId = leftResource.getURIFragment(leftValue);
+	    }
+
+	    if (i < targetValues.size()) {
+		EObject rightValue = targetValues.get(i);
+		rightId = targetResource.getURIFragment(rightValue);
+	    }
+
+	    System.out.println(i + ": " + leftId + " - " + rightId);
+
+	}
     }
 
     @Test
@@ -424,10 +448,10 @@ public class CBPComparisonTest {
 	Map<Object, Object> options = new HashMap<>();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 
-	int generateUpTo = 7;
+	final int REPEAT_UNTIL_MODEL = 68;
 	String caseName = "Epsilon";
-//	String caseName = "Wikipedia";
-	
+	// String caseName = "Wikipedia";
+
 	File originDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\origin");
 	File sourceDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\source");
 	File leftDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\left");
@@ -537,11 +561,11 @@ public class CBPComparisonTest {
 
 	int limit = leftFiles.length;
 	for (int i = 0; i < limit; i++) {
-	    
-	    if (i == generateUpTo) {
+
+	    if (i == REPEAT_UNTIL_MODEL) {
 		return;
 	    }
-	    
+
 	    File leftXmiFile = leftFiles[i];
 	    File rightXmiFile = rightFiles[i];
 
@@ -591,30 +615,54 @@ public class CBPComparisonTest {
 	    result.setRightEventCount(countLines(rightCbpWithIndexFile));
 	    try {
 		FileUtils.cleanDirectory(debugDir);
-		
-		FileUtils.copyFile(originWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "origin.xmi"));
-		FileUtils.copyFile(leftXmiWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "left.xmi"));
-		FileUtils.copyFile(rightXmiWithIdFile, new File(debugDir.getAbsolutePath() + File.separator + "right.xmi"));
-		FileUtils.copyFile(originCbpFile, new File(debugDir.getAbsolutePath() + File.separator + "origin.cbpxml"));
-		FileUtils.copyFile(leftCbpWithIndexFile, new File(debugDir.getAbsolutePath() + File.separator + "left.cbpxml"));
-		FileUtils.copyFile(rightCbpWithIndexFile, new File(debugDir.getAbsolutePath() + File.separator + "right.cbpxml"));
-		
+
+		File debugOriginCbpFile = new File(debugDir.getAbsolutePath() + File.separator + "origin.cbpxml");
+		File debugLeftCbpFile = new File(debugDir.getAbsolutePath() + File.separator + "left.cbpxml");
+		File debugRightFile = new File(debugDir.getAbsolutePath() + File.separator + "right.cbpxml");
+		File debugOriginXmiFile = new File(debugDir.getAbsolutePath() + File.separator + "origin.xmi");
+		File debugLeftXmiFile = new File(debugDir.getAbsolutePath() + File.separator + "left.xmi");
+		File debugRightXmiFile = new File(debugDir.getAbsolutePath() + File.separator + "right.xmi");
+		File debugTargetXmiFile = new File(debugDir.getAbsolutePath() + File.separator + "target.xmi");
+
+		FileUtils.copyFile(originWithIdFile, debugOriginXmiFile);
+		FileUtils.copyFile(leftXmiWithIdFile, debugLeftXmiFile);
+		FileUtils.copyFile(rightXmiWithIdFile, debugRightXmiFile);
+		FileUtils.copyFile(originCbpFile, debugOriginCbpFile);
+		FileUtils.copyFile(leftCbpWithIndexFile, debugLeftCbpFile);
+		FileUtils.copyFile(rightCbpWithIndexFile, debugRightFile);
+
+		File destDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\data\\" + (i + 1));
+		FileUtils.copyDirectory(debugDir, destDir);
+
 		doEMFComparison(leftXmiWithIdFile, rightXmiWithIdFile, result);
 		doCBPComparison(leftCbpWithIndexFile, rightCbpWithIndexFile, originCbpFile, result);
 
 		int deltaCount = Math.abs(result.getChangeBasedDiffCount() - result.getStateBasedDiffCount());
-		int threshold = (int) (0.10 * result.getStateBasedDiffCount() / 1.0);
+		// int threshold = (int) (0.10 * result.getStateBasedDiffCount()
+		// / 1.0);
 		if (deltaCount > 0) {
-
 		    System.out.println("ERROR!: " + result.getChangeBasedDiffCount() + " vs. " + result.getStateBasedDiffCount());
-		    // throw new Exception("ERROR!: " +
-		    // result.getChangeBasedDiffCount() + " vs. " +
-		    // result.getStateBasedDiffCount());
+
 		} else {
 		    System.out.println("Final Diffs = " + deltaCount);
 		}
-		
-		
+
+		// do comparison
+		ICBPComparison comparison = new CBPComparisonImpl();
+		comparison.setDiffEMFCompareFile(new File(originFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
+		comparison.setObjectTreeFile(new File(originFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
+		comparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
+		List<CBPDiff> diffs = comparison.compare(debugLeftCbpFile, debugRightFile, debugOriginCbpFile);
+
+		// try to merge
+		CBPMerging merging = new CBPMerging();
+		merging.mergeAllLeftToRight(debugTargetXmiFile, debugLeftXmiFile, debugRightXmiFile, diffs);
+		int returnVal = evaluateCBPMergingResult(debugTargetXmiFile, debugLeftXmiFile);
+		FileUtils.copyFile(debugTargetXmiFile, new File(destDir.getAbsolutePath() + File.separator + "target.xmi"));
+		if (returnVal > 0) {
+		    throw new Exception("Case " + (i + 1) + " - CBP Merging still has differences: diff size = " + returnVal);
+		}
+
 		appendResult(output, result);
 	    } catch (Exception ex) {
 		ex.printStackTrace();
@@ -898,26 +946,28 @@ public class CBPComparisonTest {
 	File originResourceFile = new File("D:\\TEMP\\FASE\\Debug\\origin.xmi");
 	File leftResourceFile = new File("D:\\TEMP\\FASE\\Debug\\left.xmi");
 	File rightResourceFile = new File("D:\\TEMP\\FASE\\Debug\\right.xmi");
+	File targetResourceFile = new File("D:\\TEMP\\FASE\\Debug\\target.xmi");
 
 	ResourceSet resourceSet = new ResourceSetImpl();
 	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 	Resource originResource = resourceSet.createResource(URI.createFileURI(originResourceFile.getAbsolutePath()));
 	Resource leftResource = resourceSet.createResource(URI.createFileURI(leftResourceFile.getAbsolutePath()));
 	Resource rightResource = resourceSet.createResource(URI.createFileURI(rightResourceFile.getAbsolutePath()));
+	Resource targetResource = resourceSet.createResource(URI.createFileURI(targetResourceFile.getAbsolutePath()));
 
 	originResource.load(options);
 	leftResource.load(options);
 	rightResource.load(options);
+	targetResource.load(options);
 
-	System.out.println();
 	{
-	    String a = "O-41431";
+	    String a = "O-43691";
 	    EObject eObject = originResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
 		String containerId = originResource.getURIFragment(eContainer);
 		EStructuralFeature eFeature = eObject.eContainingFeature();
-		boolean isContainment = ((EReference)eFeature).isContainment();
+		boolean isContainment = ((EReference) eFeature).isContainment();
 		boolean isOrdered = eFeature.isOrdered();
 		int pos = 0;
 		if (eObject.eContainer().eGet(eFeature) instanceof EList<?>) {
@@ -927,14 +977,33 @@ public class CBPComparisonTest {
 		System.out.println(a + " Origin Pos = " + containerId + "." + eFeature.getName() + "." + pos);
 	    }
 	}
+
 	{
-	    String a = "O-41431";
+	    String a = "O-43691";
+	    EObject eObject = rightResource.getEObject(a);
+	    if (eObject != null) {
+		EObject eContainer = eObject.eContainer();
+		String containerId = rightResource.getURIFragment(eContainer);
+		EStructuralFeature eFeature = eObject.eContainingFeature();
+		boolean isContainment = ((EReference) eFeature).isContainment();
+		boolean isOrdered = eFeature.isOrdered();
+		int pos = 0;
+		if (eObject.eContainer().eGet(eFeature) instanceof EList<?>) {
+		    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
+		    pos = eList.indexOf(eObject);
+		}
+		System.out.println(a + " Right Pos = " + containerId + "." + eFeature.getName() + "." + pos);
+	    }
+	}
+
+	{
+	    String a = "O-43691";
 	    EObject eObject = leftResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
 		String containerId = leftResource.getURIFragment(eContainer);
 		EStructuralFeature eFeature = eObject.eContainingFeature();
-		boolean isContainment = ((EReference)eFeature).isContainment();
+		boolean isContainment = ((EReference) eFeature).isContainment();
 		boolean isOrdered = eFeature.isOrdered();
 		int pos = 0;
 		if (eObject.eContainer().eGet(eFeature) instanceof EList<?>) {
@@ -946,24 +1015,165 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-41431";
-	    EObject eObject = rightResource.getEObject(a);
+	    String a = "O-43691";
+	    EObject eObject = targetResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
-		String containerId = rightResource.getURIFragment(eContainer);
+		String containerId = targetResource.getURIFragment(eContainer);
 		EStructuralFeature eFeature = eObject.eContainingFeature();
-		boolean isContainment = ((EReference)eFeature).isContainment();
+		boolean isContainment = ((EReference) eFeature).isContainment();
 		boolean isOrdered = eFeature.isOrdered();
 		int pos = 0;
 		if (eObject.eContainer().eGet(eFeature) instanceof EList<?>) {
 		    EList<EObject> eList = (EList<EObject>) eObject.eContainer().eGet(eFeature);
 		    pos = eList.indexOf(eObject);
 		}
-		System.out.println(a + " Right Pos = " + containerId + "." + eFeature.getName() + "." + pos);
+		System.out.println(a + " Target Pos = " + containerId + "." + eFeature.getName() + "." + pos);
 	    }
 	    System.out.println();
 	}
-	
+    }
 
+    @Test
+    public void checEquality() throws IOException {
+
+	ResourceSet resourceSet = new ResourceSetImpl();
+	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("cbpxml", new CBPXMLResourceFactory());
+
+	System.out.println("Start loading resources ...");
+	String cbpPath = "D:\\TEMP\\FASE\\Debug\\left.cbpxml";
+	String xmiPath = "D:\\TEMP\\FASE\\Debug\\left.xmi";
+
+	CBPResource cbp = (CBPResource) resourceSet.createResource(URI.createFileURI(cbpPath));
+	XMIResource xmi = (XMIResource) resourceSet.createResource(URI.createFileURI(xmiPath));
+
+	cbp.load(null);
+	xmi.load(options);
+	TreeIterator<EObject> iterator = xmi.getAllContents();
+	while (iterator.hasNext()) {
+	    xmi.setID(iterator.next(), null);
+	}
+
+	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+	matchEngineFactory.setRanking(100);
+	IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+	matchEngineRegistry.add(matchEngineFactory);
+
+	IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+	BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+	postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+
+	Builder builder = EMFCompare.builder();
+	builder.setPostProcessorRegistry(postProcessorRegistry);
+	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
+	EMFCompare comparator = builder.build();
+
+	IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
+	UMLMerger umlMerger = new UMLMerger();
+	umlMerger.setRanking(11);
+	registry.add(umlMerger);
+	IBatchMerger batchMerger = new BatchMerger(registry);
+
+	System.out.println("Compare " + cbp.getURI().lastSegment() + " and " + xmi.getURI().lastSegment());
+	IComparisonScope2 scope = new DefaultComparisonScope(cbp, xmi, null);
+	System.out.println("Start: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
+	long start = System.nanoTime();
+	Comparison comparison = comparator.compare(scope);
+	long end = System.nanoTime();
+	System.out.println("End: " + (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()));
+	EList<Diff> diffs = comparison.getDifferences();
+	System.out.println("Diffs: " + diffs.size());
+    }
+
+    private int evaluateCBPMergingResult(File debugTargetXmiFile, File debugLeftXmiFile) throws FileNotFoundException, IOException {
+
+	Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(debugTargetXmiFile.getAbsolutePath()));
+	targetXmi.load(options);
+	Resource leftXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(debugLeftXmiFile.getAbsolutePath()));
+	leftXmi.load(options);
+
+	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+	matchEngineFactory.setRanking(100);
+	IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+	matchEngineRegistry.add(matchEngineFactory);
+
+	IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+	BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+	postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+
+	Builder builder = EMFCompare.builder();
+	builder.setPostProcessorRegistry(postProcessorRegistry);
+	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
+	EMFCompare comparator = builder.build();
+
+	System.out.println("Compare");
+	IComparisonScope2 scope = new DefaultComparisonScope(targetXmi, leftXmi, null);
+	long start = System.nanoTime();
+	Comparison emfComparison = comparator.compare(scope);
+	long end = System.nanoTime();
+	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
+	EList<Diff> evalDiffs = emfComparison.getDifferences();
+	System.out.println("Eval Diffs = " + evalDiffs.size());
+	printEMFCompareDiffs(targetXmi, leftXmi, evalDiffs);
+
+	return evalDiffs.size();
+    }
+
+    private List<String> printEMFCompareDiffs(Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {
+	Set<String> set = new HashSet<>();
+	for (Diff diff : diffs) {
+	    String feature = null;
+	    String id = null;
+	    String value = null;
+
+	    if (diff.getMatch().getLeft() != null) {
+		id = left.getURIFragment(diff.getMatch().getLeft());
+	    } else {
+		id = right.getURIFragment(diff.getMatch().getRight());
+	    }
+
+	    if (diff instanceof AttributeChange) {
+		feature = ((AttributeChange) diff).getAttribute().getName();
+		value = String.valueOf(((AttributeChange) diff).getValue());
+	    } else if (diff instanceof ReferenceChange) {
+		feature = ((ReferenceChange) diff).getReference().getName();
+		EObject eObject = ((ReferenceChange) diff).getValue();
+		value = left.getURIFragment(eObject);
+		if (value == null || "/-1".equals(value)) {
+		    value = right.getURIFragment(eObject);
+		}
+	    } else if (diff instanceof MultiplicityElementChange) {
+		continue;
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		feature = "resource";
+		value = new String(id);
+		id = new String(feature);
+	    } else if (diff instanceof AssociationChange) {
+		continue;
+	    } else if (diff instanceof DirectedRelationshipChange) {
+		continue;
+	    } else {
+		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
+	    }
+
+	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+	    set.add(x.trim());
+	}
+	// System.out.println("Before Merge Diffs: " + diffs.size());
+
+	List<String> list = new ArrayList<>(set);
+	// Collections.sort(list);
+
+	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+	for (String item : list) {
+	    System.out.println(item);
+	}
+	System.out.println("All Right to Left Merged CBP Diffs Size: " + list.size());
+	return list;
     }
 }

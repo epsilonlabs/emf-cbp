@@ -200,9 +200,11 @@ public abstract class CBPResource extends ResourceImpl {
 	    URI uri = URI.createURI(sEObjectURI);
 
 	    String nsURI = uri.trimFragment().toString();
-	    EPackage pkg = (EPackage) getResourceSet().getPackageRegistry().get(nsURI);
-	    if (pkg != null) {
-		eob = pkg.eResource().getEObject(uri.fragment());
+	    if (getResourceSet() != null) {
+		EPackage pkg = (EPackage) getResourceSet().getPackageRegistry().get(nsURI);
+		if (pkg != null) {
+		    eob = pkg.eResource().getEObject(uri.fragment());
+		}
 	    }
 	}
 	return eob;

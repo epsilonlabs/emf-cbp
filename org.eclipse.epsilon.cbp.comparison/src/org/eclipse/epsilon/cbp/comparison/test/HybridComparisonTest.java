@@ -176,7 +176,7 @@ public class HybridComparisonTest {
 //					if (stillExists) {
 //						continue;
 //					}
-//					deletedObjects.add(leftEObject);
+//					deletedObjects1.add(leftEObject);
 
 					// //// element by element comparison
 					// boolean stillExists = false;
@@ -196,12 +196,12 @@ public class HybridComparisonTest {
 					// if (stillExists) {
 					// continue;
 					// }
-					// deletedObjects.add(leftEObject);
+					// deletedObjects1.add(leftEObject);
 
 					// //// using index
 					// EObject rightEObject = rightResource.getEObject(leftId);
 					// if (rightEObject == null) {
-					// deletedObjects.add(leftEObject);
+					// deletedObjects1.add(leftEObject);
 					// } else {
 					// Resource rightEObjectResource = rightEObject.eResource();
 					// if (rightEObjectResource == null /*
@@ -209,7 +209,7 @@ public class HybridComparisonTest {
 					// * eCrossReferences(
 					// * ).size() == 0
 					// */) {
-					// deletedObjects.add(leftEObject);
+					// deletedObjects1.add(leftEObject);
 					// }
 					// }
 				}

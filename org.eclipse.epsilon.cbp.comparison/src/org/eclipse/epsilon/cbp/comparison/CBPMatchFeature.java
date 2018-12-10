@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
@@ -31,12 +32,12 @@ public class CBPMatchFeature {
     private boolean isContainment = false;
     private boolean isMany = false;
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
-    private Map<Integer, Boolean> leftIsSet = new HashMap<Integer, Boolean>();
-    private Map<Integer, Boolean> rightIsSet = new HashMap<Integer, Boolean>();
-    private Map<Integer, Object> leftValues = new HashMap<Integer, Object>();
-    private Map<Integer, Object> rightValues = new HashMap<Integer, Object>();
-    private Map<Integer, Object> oldLeftValues = new HashMap<Integer, Object>();
-    private Map<Integer, Object> oldRightValues = new HashMap<Integer, Object>();
+    private Map<Integer, Boolean> leftIsSet = new TreeMap<Integer, Boolean>();
+    private Map<Integer, Boolean> rightIsSet = new TreeMap<Integer, Boolean>();
+    private Map<Integer, Object> leftValues = new TreeMap<Integer, Object>();
+    private Map<Integer, Object> rightValues = new TreeMap<Integer, Object>();
+    private Map<Integer, Object> oldLeftValues = new TreeMap<Integer, Object>();
+    private Map<Integer, Object> oldRightValues = new TreeMap<Integer, Object>();
     private List<CBPPositionEvent> leftPositionEvents = new ArrayList<>();
     private List<CBPPositionEvent> rightPositionEvents = new ArrayList<>();
     private List<CBPDiffPositionEvent> leftDiffPositionEvents = new ArrayList<>();
@@ -158,7 +159,7 @@ public class CBPMatchFeature {
 		oldLeftValues.put(0, value);
 		if (!oldRightValues.containsKey(0)) {
 		    oldRightValues.put(0, value);
-		    rightValues.put(0, value);
+		    // rightValues.put(0, value);
 		}
 	    }
 	} else {
@@ -166,7 +167,7 @@ public class CBPMatchFeature {
 		oldRightValues.put(0, value);
 		if (!oldLeftValues.containsKey(0)) {
 		    oldLeftValues.put(0, value);
-		    leftValues.put(0, value);
+		    // leftValues.put(0, value);
 		}
 	    }
 	}
@@ -329,7 +330,7 @@ public class CBPMatchFeature {
 	if (recordCBPPositionEvent) {
 	    addPositionEvent(new CBPPositionEvent(CBPPositionEventType.REMOVE, position, value), side);
 	}
-	if (value instanceof CBPMatchObject) {
+	if (value instanceof CBPMatchObject && this.isContainment()) {
 	    updateOldPosition((CBPMatchObject) value, position, side);
 	}
 
@@ -376,46 +377,38 @@ public class CBPMatchFeature {
 	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
 		if (positionEvent.getPosition() <= newPosition) {
 		    newPosition = newPosition + 1;
-		     System.out.println(positionEvent.getEventType() + " at "
-		     + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
 		if (positionEvent.getPosition() < newPosition) {
 		    newPosition = newPosition - 1;
-		     System.out.println(positionEvent.getEventType() + " at "
-		     + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVE) {
 		// move from left to right
 		if (positionEvent.getFrom() < positionEvent.getTo()) {
 		    if (newPosition >= positionEvent.getFrom() && newPosition < positionEvent.getTo()) {
 			newPosition = newPosition - 1;
-			 System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " +
-			 positionEvent.getPosition() + ": from " + position +
-			 " to " + newPosition
-			 + " value " + value);
+			System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
+				+ " value " + value);
 		    }
 		    // move from right to left
 		} else if (positionEvent.getFrom() > positionEvent.getTo()) {
 		    if (newPosition < positionEvent.getFrom() && newPosition >= positionEvent.getTo()) {
 			newPosition = newPosition + 1;
-			 System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " +
-			 positionEvent.getPosition() + ": from " + position +
-			 " to " + newPosition
-			 + " value " + value);
+			System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
+				+ " value " + value);
 		    }
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVEIN) {
 		if (positionEvent.getPosition() <= newPosition) {
 		    newPosition = newPosition + 1;
-		     System.out.println(positionEvent.getEventType() + " at "
-		     + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
-	    }else if (positionEvent.getEventType() == CBPPositionEventType.MOVEOUT) {
+	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVEOUT) {
 		if (positionEvent.getPosition() < newPosition) {
 		    newPosition = newPosition - 1;
-		     System.out.println(positionEvent.getEventType() + " at "
-		     + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
 	    }
 	}
@@ -488,39 +481,48 @@ public class CBPMatchFeature {
 	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
 		if (positionEvent.getPosition() < oldPosition) {
 		    oldPosition = oldPosition - 1;
-		    // System.out.println(positionEvent.getEventType() + " at "
-		    // + positionEvent.getPosition() + ": from " + position + "
-		    // to " + oldPosition + " value " + value);
+		    // System.out.println(positionEvent.getEventType() + " " +
+		    // value + " to "
+		    // + positionEvent.getPosition() + " -> old position from "
+		    // + position
+		    // + " to " + oldPosition);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
 		if (positionEvent.getPosition() <= oldPosition) {
 		    oldPosition = oldPosition + 1;
-		    // System.out.println(positionEvent.getEventType() + " at "
-		    // + positionEvent.getPosition() + ": from " + position + "
-		    // to " + oldPosition + " value " + value);
+		    // System.out.println(positionEvent.getEventType() + " " +
+		    // value + " from "
+		    // + positionEvent.getPosition() + " -> old position from "
+		    // + position
+		    // + " to " + oldPosition);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVE) {
 		// move from left to right
 		if (positionEvent.getFrom() < positionEvent.getTo()) {
 		    if (oldPosition >= positionEvent.getFrom() && oldPosition < positionEvent.getTo()) {
 			oldPosition = oldPosition + 1;
-			// System.out.println(positionEvent.getEventType() + "
-			// origin " + positionEvent.getFrom() + " at " +
-			// positionEvent.getPosition() + ": from " + position +
-			// " to " + oldPosition
-			// + " value " + value);
+			// System.out.println(positionEvent.getEventType() + " "
+			// + value + " from "
+			// + positionEvent.getFrom() + " to " +
+			// positionEvent.getPosition()
+			// + " -> old position from " + position + " to " +
+			// oldPosition);
 		    }
 		    // move from right to left
 		} else if (positionEvent.getFrom() > positionEvent.getTo()) {
-		    if (oldPosition < positionEvent.getFrom() && oldPosition >= positionEvent.getTo()) {
+		    if (oldPosition <= positionEvent.getFrom() && oldPosition > positionEvent.getTo()) {
 			oldPosition = oldPosition - 1;
-			// System.out.println(positionEvent.getEventType() + "
-			// origin " + positionEvent.getFrom() + " at " +
-			// positionEvent.getPosition() + ": from " + position +
-			// " to " + oldPosition
-			// + " value " + value);
+			// System.out.println(positionEvent.getEventType() + " "
+			// + value + " from "
+			// + positionEvent.getFrom() + " to " +
+			// positionEvent.getPosition()
+			// + " -> old position from " + position + " to " +
+			// oldPosition);
 		    }
 		}
+
+//		System.out.println(positionEvent.getEventType() + " " + value + " from " + positionEvent.getFrom() + " to " + positionEvent.getPosition() + " -> old position from " + position + " to "
+//			+ oldPosition);
 	    }
 	}
 	return oldPosition;
@@ -551,17 +553,17 @@ public class CBPMatchFeature {
     }
 
     public Map<Integer, Boolean> getLeftIsSet() {
-        return leftIsSet;
+	return leftIsSet;
     }
-    
+
     public Map<Integer, Boolean> getRightIsSet() {
-        return rightIsSet;
+	return rightIsSet;
     }
-    
+
     public void setIsEdited(CBPSide side) {
 	this.setIsEdited(0, side);
     }
-    
+
     public void setIsEdited(int position, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftIsSet.put(position, true);
@@ -569,26 +571,26 @@ public class CBPMatchFeature {
 	    rightIsSet.put(position, true);
 	}
     }
-    
+
     public boolean getIsEdited(CBPSide side) {
 	return this.getIsSet(0, side);
     }
-    
+
     public boolean getIsSet(int position, CBPSide side) {
 	Boolean result = false;
 	if (side == CBPSide.LEFT) {
 	    if (result = leftIsSet.get(position) == null) {
 		leftIsSet.put(position, false);
 		result = false;
-	    } 
+	    }
 	} else {
 	    if (result = rightIsSet.get(position) == null) {
 		rightIsSet.put(position, false);
 		result = false;
-	    } 
+	    }
 	}
 	return result;
-	
+
     }
 
 }
