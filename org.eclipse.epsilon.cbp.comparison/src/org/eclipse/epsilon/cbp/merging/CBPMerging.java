@@ -207,7 +207,7 @@ public class CBPMerging {
 			targetObject = deletedObjects1.get(targetId);
 		    }
 
-		    if (value.equals("L-470")) {
+		    if (value.equals("L-1717")) {
 			System.out.println();
 		    }
 
@@ -234,12 +234,17 @@ public class CBPMerging {
 				    }
 				} else {
 				    if (feature.isMany()) {
-					EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
-					if (matchRightObject.getMoveDiffsAsValue().get(0).getPosition() < list.size()) {
-					    resolveDiff(targetResource, leftResource, matchRightObject.getMoveDiffsAsValue(), matchRightObject, null);
-					} else {
-					    executeRightSideLater = true;
+					if (matchRightObject.getLeftPosition() > position) {
+					    EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
+					    EObject currentObject = targetResource.getEObject(matchRightObject.getId());
+					    list.move(list.size() - 1, currentObject);
 					}
+//					EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
+//					if (matchRightObject.getMoveDiffsAsValue().get(0).getPosition() < list.size()) {
+//					    resolveDiff(targetResource, leftResource, matchRightObject.getMoveDiffsAsValue(), matchRightObject, null);
+//					} else {
+//					    executeRightSideLater = true;
+//					}
 				    } else {
 					resolveDiff(targetResource, leftResource, matchRightObject.getDeleteDiffsAsValue(), matchRightObject, null);
 				    }
@@ -317,6 +322,7 @@ public class CBPMerging {
 				if (executeRightSideLater) {
 				    diff.setResolved(true);
 				    resolveDiff(targetResource, leftResource, matchRightObject.getMoveDiffsAsValue(), matchRightObject, null);
+				    printContentsOfFeatures("O-37481", "packagedElement", position);
 				}
 
 			    }
@@ -326,6 +332,7 @@ public class CBPMerging {
 
 		    }
 		    diff.setResolved(true);
+		    printContentsOfFeatures("O-37481", "packagedElement", position);
 
 		}
 
@@ -450,6 +457,7 @@ public class CBPMerging {
 			}
 
 			diff.setResolved(true);
+			printContentsOfFeatures("O-37481", "packagedElement", position);
 		    } else if (kind == CBPDifferenceKind.MOVE) {
 
 			EObject targetObject = targetResource.getEObject(targetId);
@@ -460,7 +468,7 @@ public class CBPMerging {
 
 			System.out.println(targetId + "." + featureName + "." + value + "." + position + "." + kind);
 
-			if (value.equals("O-40433")) {
+			if (value.equals("L-1724")) {
 			    System.out.println();
 			}
 
@@ -547,8 +555,7 @@ public class CBPMerging {
 			    deletedObjects1.remove(value);
 			}
 			diff.setResolved(true);
-			// printContentsOfFeatures("O-43655", "packagedElement",
-			// position);
+			printContentsOfFeatures("O-37481", "packagedElement", position);
 		    }
 		    prevDiff = diff;
 
@@ -726,42 +733,41 @@ public class CBPMerging {
 
     @Test
     public void printContentsOfFeatures(String objectId, String featureName, int position) throws IOException {
-	;
 
-	ResourceSet resourceSet = new ResourceSetImpl();
-	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-	XMIResource leftResource = (XMIResource) this.leftResource;
-	XMIResource targetResource = (XMIResource) this.targetResource;
-
-	EObject leftObject = leftResource.getEObject(objectId);
-	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
-	EList<EObject> leftValues = (EList<EObject>) leftObject.eGet(leftReference);
-
-	EObject targetObject = targetResource.getEObject(objectId);
-	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature(featureName);
-	EList<EObject> targetValues = (EList<EObject>) targetObject.eGet(targetReference);
-
-	int size = (leftValues.size() > targetValues.size()) ? leftValues.size() : targetValues.size();
-
-	System.out.println("\nPAIR LEFT-TARGET:");
-	for (int i = 0; i < size; i++) {
-	    String leftId = "";
-	    String rightId = "";
-
-	    if (i < leftValues.size()) {
-		EObject leftValue = leftValues.get(i);
-		leftId = leftResource.getURIFragment(leftValue);
-	    }
-
-	    if (i < targetValues.size()) {
-		EObject rightValue = targetValues.get(i);
-		rightId = targetResource.getURIFragment(rightValue);
-	    }
-
-	    String separator = (leftId.equals(rightId)) ? " = " : " x ";
-	    System.out.println(i + ": " + leftId + separator + rightId);
-
-	}
-	System.out.println();
+//	ResourceSet resourceSet = new ResourceSetImpl();
+//	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+//	XMIResource leftResource = (XMIResource) this.leftResource;
+//	XMIResource targetResource = (XMIResource) this.targetResource;
+//
+//	EObject leftObject = leftResource.getEObject(objectId);
+//	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
+//	EList<EObject> leftValues = (EList<EObject>) leftObject.eGet(leftReference);
+//
+//	EObject targetObject = targetResource.getEObject(objectId);
+//	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature(featureName);
+//	EList<EObject> targetValues = (EList<EObject>) targetObject.eGet(targetReference);
+//
+//	int size = (leftValues.size() > targetValues.size()) ? leftValues.size() : targetValues.size();
+//
+//	System.out.println("\nPAIR LEFT-TARGET:");
+//	for (int i = 0; i < size; i++) {
+//	    String leftId = "";
+//	    String rightId = "";
+//
+//	    if (i < leftValues.size()) {
+//		EObject leftValue = leftValues.get(i);
+//		leftId = leftResource.getURIFragment(leftValue);
+//	    }
+//
+//	    if (i < targetValues.size()) {
+//		EObject rightValue = targetValues.get(i);
+//		rightId = targetResource.getURIFragment(rightValue);
+//	    }
+//
+//	    String separator = (leftId.equals(rightId)) ? " = " : " x ";
+//	    System.out.println(i + ": " + leftId + separator + rightId);
+//
+//	}
+//	System.out.println();
     }
 }

@@ -353,10 +353,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 			    CBPMatchObject rightObjectValue = (CBPMatchObject) rightValue;
 			    if (leftObjectValue.getLeftPosition() == leftObjectValue.getRightPosition() && (leftObjectValue.isLeftIsMoved() || leftObjectValue.isRightIsMoved())) {
 				if (feature.isContainment()) {
-				    CBPDiff diff = new CBPDiff(object, feature, leftObjectValue.getLeftPosition(), rightObjectValue, CBPDifferenceKind.MOVE, referenceSide);
+				    CBPDiff diff = new CBPDiff(object, feature, pos, rightObjectValue, CBPDifferenceKind.MOVE, referenceSide);
 				    diffs.add(diff);
 				    feature.addAdjustPositionEvent(
-					    new CBPDiffPositionEvent(CBPPositionEventType.MOVE, rightObjectValue.getLeftPosition(), rightObjectValue.getRightPosition(), rightValue), CBPSide.RIGHT);
+					    new CBPDiffPositionEvent(CBPPositionEventType.MOVE, pos, pos, rightValue), CBPSide.RIGHT);
 				} else {
 				    // CBPDiff diff = new CBPDiff(object,
 				    // feature, pos, rightObjectValue,

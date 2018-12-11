@@ -137,58 +137,132 @@ public class CBPMergingTest {
 
 	assertEquals(0, evalDiffs.size());
     }
-    
+
+    @Test
+    public void testBatchCBPMerging() throws FactoryConfigurationError, Exception {
+
+	int result = 0;
+
+	try {
+	    String dir = "Epsilon";
+	    int caseNum = 52;
+
+	    for (int i = 1; i <= caseNum; i++) {
+
+		System.out.println("\nMODEL " + i + "---------------------------");
+
+		File originFile = new File("D:\\TEMP\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\origin.cbpxml");
+		File leftFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\left.cbpxml");
+		File rightFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\right.cbpxml");
+		File leftXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\left.xmi");
+		File rightXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\right.xmi");
+		File targetXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\target.xmi");
+
+		// do comparison
+		ICBPComparison comparison = new CBPComparisonImpl();
+		comparison.setDiffEMFCompareFile(new File(originFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
+		comparison.setObjectTreeFile(new File(originFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
+		comparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
+		List<CBPDiff> diffs = comparison.compare(leftFile, rightFile, originFile);
+
+		// try to merge
+		CBPMerging merging = new CBPMerging();
+		merging.mergeAllLeftToRight(targetXmiFile, leftXmiFile, rightXmiFile, diffs);
+
+		// evaluate merging result
+		Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
+		targetXmi.load(options);
+		Resource leftXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
+		leftXmi.load(options);
+
+		IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+		IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+		IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+		matchEngineFactory.setRanking(100);
+		IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+		matchEngineRegistry.add(matchEngineFactory);
+
+		IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+		BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+		postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+
+		Builder builder = EMFCompare.builder();
+		builder.setPostProcessorRegistry(postProcessorRegistry);
+		builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
+		EMFCompare comparator = builder.build();
+
+		System.out.println("Compare");
+		IComparisonScope2 scope = new DefaultComparisonScope(targetXmi, leftXmi, null);
+		long start = System.nanoTime();
+		Comparison emfComparison = comparator.compare(scope);
+		long end = System.nanoTime();
+		System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
+		EList<Diff> evalDiffs = emfComparison.getDifferences();
+		System.out.println("Diffs Count after Merging the CBP = " + evalDiffs.size());
+		printEMFCompareDiffs(targetXmi, leftXmi, evalDiffs);
+
+		if (evalDiffs.size() > 0) {
+		    result = -1;
+		    throw new Exception("Diffs Count after Merging the CBP = " + evalDiffs.size() + ". It should be 0.");
+		}
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(0, result);
+    }
+
     private List<String> printEMFCompareDiffs(Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {
-   	Set<String> set = new HashSet<>();
-   	for (Diff diff : diffs) {
-   	    String feature = null;
-   	    String id = null;
-   	    String value = null;
+	Set<String> set = new HashSet<>();
+	for (Diff diff : diffs) {
+	    String feature = null;
+	    String id = null;
+	    String value = null;
 
-   	    if (diff.getMatch().getLeft() != null) {
-   		id = left.getURIFragment(diff.getMatch().getLeft());
-   	    } else {
-   		id = right.getURIFragment(diff.getMatch().getRight());
-   	    }
-   	    
-   	    if (diff instanceof AttributeChange) {
-   		feature = ((AttributeChange) diff).getAttribute().getName();
-   		value = String.valueOf(((AttributeChange) diff).getValue());
-   	    } else if (diff instanceof ReferenceChange) {
-   		feature = ((ReferenceChange) diff).getReference().getName();
-   		EObject eObject = ((ReferenceChange) diff).getValue();
-   		value = left.getURIFragment(eObject);
-   		if (value == null || "/-1".equals(value)) {
-   		    value = right.getURIFragment(eObject);
-   		}
-   	    } else if (diff instanceof MultiplicityElementChange) {
-   		continue;
-   	    } else if (diff instanceof ResourceAttachmentChange) {
-   		feature = "resource";
-   		value = new String(id);
-   		id = new String(feature);
-   	    } else if (diff instanceof AssociationChange) {
-   		continue;
-   	    } else if (diff instanceof DirectedRelationshipChange) {
-   		continue;
-   	    } else {
-   		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
-   	    }
+	    if (diff.getMatch().getLeft() != null) {
+		id = left.getURIFragment(diff.getMatch().getLeft());
+	    } else {
+		id = right.getURIFragment(diff.getMatch().getRight());
+	    }
 
-   	    String x = id + "." + feature + "." + value + "." + diff.getKind();
-   	    set.add(x.trim());
-   	}
-   	// System.out.println("Before Merge Diffs: " + diffs.size());
+	    if (diff instanceof AttributeChange) {
+		feature = ((AttributeChange) diff).getAttribute().getName();
+		value = String.valueOf(((AttributeChange) diff).getValue());
+	    } else if (diff instanceof ReferenceChange) {
+		feature = ((ReferenceChange) diff).getReference().getName();
+		EObject eObject = ((ReferenceChange) diff).getValue();
+		value = left.getURIFragment(eObject);
+		if (value == null || "/-1".equals(value)) {
+		    value = right.getURIFragment(eObject);
+		}
+	    } else if (diff instanceof MultiplicityElementChange) {
+		continue;
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		feature = "resource";
+		value = new String(id);
+		id = new String(feature);
+	    } else if (diff instanceof AssociationChange) {
+		continue;
+	    } else if (diff instanceof DirectedRelationshipChange) {
+		continue;
+	    } else {
+		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
+	    }
 
-   	List<String> list = new ArrayList<>(set);
-//   	Collections.sort(list);
+	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+	    set.add(x.trim());
+	}
+	// System.out.println("Before Merge Diffs: " + diffs.size());
 
-   	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
-   	for (String item : list) {
-   	    System.out.println(item);
-   	}
-   	System.out.println("Merged CBP vs Left Side Diffs Size: " + list.size());
-   	return list;
-       }
+	List<String> list = new ArrayList<>(set);
+	// Collections.sort(list);
+
+	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+	for (String item : list) {
+	    System.out.println(item);
+	}
+	System.out.println("Merged CBP vs Left Side Diffs Size: " + list.size());
+	return list;
+    }
 
 }

@@ -357,7 +357,7 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	String id = "O-43655";
+	String id = "O-56148";
 	String featureName = "packagedElement";
 
 	EObject leftObject = leftResource.getEObject(id);
@@ -614,7 +614,17 @@ public class CBPComparisonTest {
 	    result.setLeftEventCount(countLines(leftCbpWithIndexFile));
 	    result.setRightEventCount(countLines(rightCbpWithIndexFile));
 	    try {
-		FileUtils.cleanDirectory(debugDir);
+		
+		boolean isDeleted = false;
+		while (!isDeleted) {
+		    try {
+			FileUtils.cleanDirectory(debugDir);
+			isDeleted = true;
+			System.out.println("Deletion OK");
+		    } catch (Exception e) {
+			System.out.println("Deletion FAIL");
+		    }
+		}
 
 		File debugOriginCbpFile = new File(debugDir.getAbsolutePath() + File.separator + "origin.cbpxml");
 		File debugLeftCbpFile = new File(debugDir.getAbsolutePath() + File.separator + "left.cbpxml");
@@ -647,21 +657,32 @@ public class CBPComparisonTest {
 		    System.out.println("Final Diffs = " + deltaCount);
 		}
 
-		// do comparison
-		ICBPComparison comparison = new CBPComparisonImpl();
-		comparison.setDiffEMFCompareFile(new File(originFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
-		comparison.setObjectTreeFile(new File(originFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
-		comparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
-		List<CBPDiff> diffs = comparison.compare(debugLeftCbpFile, debugRightFile, debugOriginCbpFile);
-
-		// try to merge
-		CBPMerging merging = new CBPMerging();
-		merging.mergeAllLeftToRight(debugTargetXmiFile, debugLeftXmiFile, debugRightXmiFile, diffs);
-		int returnVal = evaluateCBPMergingResult(debugTargetXmiFile, debugLeftXmiFile);
-		FileUtils.copyFile(debugTargetXmiFile, new File(destDir.getAbsolutePath() + File.separator + "target.xmi"));
-		if (returnVal > 0) {
-		    throw new Exception("Case " + (i + 1) + " - CBP Merging still has differences: diff size = " + returnVal);
-		}
+		// // do comparison
+		// ICBPComparison comparison = new CBPComparisonImpl();
+		// comparison.setDiffEMFCompareFile(new
+		// File(originFile.getAbsolutePath().replaceAll("origin.cbpxml",
+		// "left.txt")));
+		// comparison.setObjectTreeFile(new
+		// File(originFile.getAbsolutePath().replaceAll("origin.cbpxml",
+		// "tree.txt")));
+		// comparison.addObjectTreePostProcessor(new
+		// UMLObjectTreePostProcessor());
+		// List<CBPDiff> diffs = comparison.compare(debugLeftCbpFile,
+		// debugRightFile, debugOriginCbpFile);
+		//
+		// // try to merge
+		// CBPMerging merging = new CBPMerging();
+		// merging.mergeAllLeftToRight(debugTargetXmiFile,
+		// debugLeftXmiFile, debugRightXmiFile, diffs);
+		// int returnVal = evaluateCBPMergingResult(debugTargetXmiFile,
+		// debugLeftXmiFile);
+		// FileUtils.copyFile(debugTargetXmiFile, new
+		// File(destDir.getAbsolutePath() + File.separator +
+		// "target.xmi"));
+		// if (returnVal > 0) {
+		// throw new Exception("Case " + (i + 1) + " - CBP Merging still
+		// has differences: diff size = " + returnVal);
+		// }
 
 		appendResult(output, result);
 	    } catch (Exception ex) {
