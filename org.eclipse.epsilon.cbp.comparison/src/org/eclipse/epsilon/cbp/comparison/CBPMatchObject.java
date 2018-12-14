@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.cbp.comparison;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +20,7 @@ public class CBPMatchObject {
     private String id;
     private String className = null;
     private boolean diffed = false;
-    private boolean inMergedAdded = false; 
+    private boolean inMergedAdded = false;
     private CBPMatchObject leftContainer = null;
     private CBPMatchFeature leftContainingFeature = null;
     private CBPMatchObject oldLeftContainer = null;
@@ -31,10 +32,10 @@ public class CBPMatchObject {
     private Map<String, CBPMatchFeature> features = new HashMap<>();
     private boolean leftIsCreated = false;
     private boolean leftIsDeleted = false;
-    private boolean leftIsMoved= false;
+    private boolean leftIsMoved = false;
     private boolean rightIsCreated = false;
     private boolean rightIsDeleted = false;
-    private boolean rightIsMoved= false;
+    private boolean rightIsMoved = false;
     private int leftPosition = -1;
     private int oldLeftPosition = -1;
     private int rightPosition = -1;
@@ -178,9 +179,9 @@ public class CBPMatchObject {
 	return leftPosition;
     }
 
-    public void setLeftPosition(int leftPosition) {
+    public void setLeftPosition(int leftPosition, boolean isContainment) {
 	this.leftPosition = leftPosition;
-	if (oldLeftPosition == -1) {
+	if (oldLeftPosition == -1 && isContainment) {
 	    this.oldLeftPosition = leftPosition;
 	}
     }
@@ -189,9 +190,9 @@ public class CBPMatchObject {
 	return rightPosition;
     }
 
-    public void setRightPosition(int rightPosition) {
+    public void setRightPosition(int rightPosition, boolean isContainment) {
 	this.rightPosition = rightPosition;
-	if (oldRightPosition == -1) {
+	if (oldRightPosition == -1 && isContainment) {
 	    this.oldRightPosition = rightPosition;
 	}
     }
@@ -219,11 +220,11 @@ public class CBPMatchObject {
 	    this.rightIsDeleted = isDeleted;
 	}
     }
-    
+
     public boolean isMoved(CBPSide side) {
 	return (side == CBPSide.LEFT) ? leftIsMoved : rightIsMoved;
     }
-    
+
     public void setMoved(boolean isMoved, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    this.leftIsMoved = isMoved;
@@ -312,11 +313,11 @@ public class CBPMatchObject {
 	return (side == CBPSide.LEFT) ? oldLeftContainingFeature : oldRightContainingFeature;
     }
 
-    public void setPosition(int position, CBPSide side) {
+    public void setPosition(int position, CBPSide side, boolean isContainment) {
 	if (side == CBPSide.LEFT) {
-	    setLeftPosition(position);
+	    setLeftPosition(position, isContainment);
 	} else {
-	    setRightPosition(position);
+	    setRightPosition(position, isContainment);
 	}
     }
 
@@ -346,9 +347,27 @@ public class CBPMatchObject {
 	} else if (diff.getKind() == CBPDifferenceKind.MOVE) {
 	    this.moveDiffs.add(diff);
 	}
-	this.diffs.add(diff);
+	
+//	if (((CBPMatchObject)diff.getValue()).getId().equals("O-28309")){
+//	    System.out.println("");
+//	}
+	
+	insertDiff(diff, this.diffs);
+//	Collections.sort(diffs, new CBPDiffComparator());
     }
-    
+
+    private void insertDiff(CBPDiff diff, List<CBPDiff> diffs) {
+	CBPDiffComparator comparator = new CBPDiffComparator(); 
+	for(int i = 0; i < diffs.size(); i++) {
+	    CBPDiff cursorDiff = diffs.get(i);
+	    if (comparator.compare(diff, cursorDiff) < 0) {
+		diffs.add(i, diff);
+		return;
+	    }
+	}
+	diffs.add(diff);
+    }
+
     public void addDiffAsValue(CBPDiff diff) {
 	if (diff.getKind() == CBPDifferenceKind.ADD) {
 	    this.addDiffsAsValue.add(diff);
@@ -359,24 +378,26 @@ public class CBPMatchObject {
 	} else if (diff.getKind() == CBPDifferenceKind.MOVE) {
 	    this.moveDiffsAsValue.add(diff);
 	}
-	this.diffsAsValue.add(diff);
+	insertDiff(diff, this.getDiffsAsValue());
+//	this.diffsAsValue.add(diff);
+//	Collections.sort(diffsAsValue, new CBPDiffComparator());
 
     }
 
     public List<CBPDiff> getAddDiffs() {
-        return addDiffs;
+	return addDiffs;
     }
 
     public List<CBPDiff> getDeleteDiffs() {
-        return deleteDiffs;
+	return deleteDiffs;
     }
 
     public List<CBPDiff> getMoveDiffs() {
-        return moveDiffs;
+	return moveDiffs;
     }
 
     public List<CBPDiff> getChangeDiffs() {
-        return changeDiffs;
+	return changeDiffs;
     }
 
     public List<CBPDiff> getDiffs() {
@@ -404,83 +425,83 @@ public class CBPMatchObject {
     }
 
     public boolean isInMergedAdded() {
-        return inMergedAdded;
+	return inMergedAdded;
     }
 
     public void setInMergedAdded(boolean inMergedAdded) {
-        this.inMergedAdded = inMergedAdded;
+	this.inMergedAdded = inMergedAdded;
     }
 
     public boolean isLeftIsMoved() {
-        return leftIsMoved;
+	return leftIsMoved;
     }
 
     public void setLeftIsMoved(boolean leftIsMoved) {
-        this.leftIsMoved = leftIsMoved;
+	this.leftIsMoved = leftIsMoved;
     }
 
     public boolean isRightIsMoved() {
-        return rightIsMoved;
+	return rightIsMoved;
     }
 
     public void setRightIsMoved(boolean rightIsMoved) {
-        this.rightIsMoved = rightIsMoved;
+	this.rightIsMoved = rightIsMoved;
     }
 
     public List<CBPDiff> getAddDiffsAsValue() {
-        return addDiffsAsValue;
+	return addDiffsAsValue;
     }
 
     public void setAddDiffsAsValue(List<CBPDiff> addDiffsAsValue) {
-        this.addDiffsAsValue = addDiffsAsValue;
+	this.addDiffsAsValue = addDiffsAsValue;
     }
 
     public List<CBPDiff> getDeleteDiffsAsValue() {
-        return deleteDiffsAsValue;
+	return deleteDiffsAsValue;
     }
 
     public void setDeleteDiffsAsValue(List<CBPDiff> deleteDiffsAsValue) {
-        this.deleteDiffsAsValue = deleteDiffsAsValue;
+	this.deleteDiffsAsValue = deleteDiffsAsValue;
     }
 
     public List<CBPDiff> getMoveDiffsAsValue() {
-        return moveDiffsAsValue;
+	return moveDiffsAsValue;
     }
 
     public void setMoveDiffsAsValue(List<CBPDiff> moveDiffsAsValue) {
-        this.moveDiffsAsValue = moveDiffsAsValue;
+	this.moveDiffsAsValue = moveDiffsAsValue;
     }
 
     public List<CBPDiff> getChangeDiffsAsValue() {
-        return changeDiffsAsValue;
+	return changeDiffsAsValue;
     }
 
     public void setChangeDiffsAsValue(List<CBPDiff> changeDiffsAsValue) {
-        this.changeDiffsAsValue = changeDiffsAsValue;
+	this.changeDiffsAsValue = changeDiffsAsValue;
     }
 
     public List<CBPDiff> getDiffsAsValue() {
-        return diffsAsValue;
+	return diffsAsValue;
     }
 
     public void setDiffsAsValue(List<CBPDiff> diffsAsValue) {
-        this.diffsAsValue = diffsAsValue;
+	this.diffsAsValue = diffsAsValue;
     }
 
     public void setAddDiffs(List<CBPDiff> addDiffs) {
-        this.addDiffs = addDiffs;
+	this.addDiffs = addDiffs;
     }
 
     public void setDeleteDiffs(List<CBPDiff> deleteDiffs) {
-        this.deleteDiffs = deleteDiffs;
+	this.deleteDiffs = deleteDiffs;
     }
 
     public void setMoveDiffs(List<CBPDiff> moveDiffs) {
-        this.moveDiffs = moveDiffs;
+	this.moveDiffs = moveDiffs;
     }
 
     public void setChangeDiffs(List<CBPDiff> changeDiffs) {
-        this.changeDiffs = changeDiffs;
+	this.changeDiffs = changeDiffs;
     }
 
     @Override

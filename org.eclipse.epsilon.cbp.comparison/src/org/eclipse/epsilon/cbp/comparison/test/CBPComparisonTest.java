@@ -357,7 +357,7 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	String id = "O-56148";
+	String id = "O-37481";
 	String featureName = "packagedElement";
 
 	EObject leftObject = leftResource.getEObject(id);
@@ -982,7 +982,7 @@ public class CBPComparisonTest {
 	targetResource.load(options);
 
 	{
-	    String a = "O-43691";
+	    String a = "O-52341";
 	    EObject eObject = originResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -1000,7 +1000,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-43691";
+	    String a = "O-52341";
 	    EObject eObject = rightResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -1018,7 +1018,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-43691";
+	    String a = "O-52341";
 	    EObject eObject = leftResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -1036,7 +1036,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-43691";
+	    String a = "O-52341";
 	    EObject eObject = targetResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();

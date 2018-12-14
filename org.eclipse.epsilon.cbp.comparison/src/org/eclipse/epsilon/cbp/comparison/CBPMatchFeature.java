@@ -201,8 +201,8 @@ public class CBPMatchFeature {
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
 	Object removedValue = values.put(from, null);
-	if (removedValue instanceof CBPMatchObject) {
-	    ((CBPMatchObject) removedValue).setPosition(-1, side);
+	if (removedValue instanceof CBPMatchObject && isContainment) {
+	    ((CBPMatchObject) removedValue).setPosition(-1, side, isContainment);
 	}
 	Iterator<Entry<Integer, Object>> iterator = values.entrySet().iterator();
 	if (from < to) {
@@ -212,8 +212,8 @@ public class CBPMatchFeature {
 		Object val = entry.getValue();
 		if (pos > from && pos <= to) {
 		    temp.put(pos - 1, val);
-		    if (val instanceof CBPMatchObject) {
-			((CBPMatchObject) val).setPosition(pos - 1, side);
+		    if (val instanceof CBPMatchObject && isContainment) {
+			((CBPMatchObject) val).setPosition(pos - 1, side, isContainment);
 		    }
 		    entry.setValue(null);
 		}
@@ -226,16 +226,16 @@ public class CBPMatchFeature {
 
 		if (pos >= to && pos < from) {
 		    temp.put(pos + 1, val);
-		    if (val instanceof CBPMatchObject) {
-			((CBPMatchObject) val).setPosition(pos + 1, side);
+		    if (val instanceof CBPMatchObject && isContainment) {
+			((CBPMatchObject) val).setPosition(pos + 1, side, isContainment);
 		    }
 		    entry.setValue(null);
 		}
 	    }
 	}
 	values.put(to, value);
-	if (value instanceof CBPMatchObject) {
-	    ((CBPMatchObject) value).setPosition(to, side);
+	if (value instanceof CBPMatchObject  && isContainment) {
+	    ((CBPMatchObject) value).setPosition(to, side, isContainment);
 	}
 	if (side == CBPSide.LEFT) {
 	    if (!rightValues.containsKey(to)) {
@@ -262,6 +262,9 @@ public class CBPMatchFeature {
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
 	values.put(position, value);
+	if (value instanceof CBPMatchObject  && isContainment) {
+	    ((CBPMatchObject) value).setPosition(position, side, isContainment);
+	}
 	if (side == CBPSide.LEFT) {
 	    rightValues.putIfAbsent(position, null);
 	} else {
@@ -292,15 +295,15 @@ public class CBPMatchFeature {
 	    Object val = entry.getValue();
 	    if (pos >= position) {
 		temp.put(pos + 1, val);
-		if (val instanceof CBPMatchObject) {
-		    ((CBPMatchObject) val).setPosition(pos + 1, side);
+		if (val instanceof CBPMatchObject && isContainment) {
+		    ((CBPMatchObject) val).setPosition(pos + 1, side, isContainment);
 		}
 		entry.setValue(null);
 	    }
 	}
 	values.put(position, value);
-	if (value instanceof CBPMatchObject) {
-	    ((CBPMatchObject) value).setPosition(position, side);
+	if (value instanceof CBPMatchObject  && isContainment) {
+	    ((CBPMatchObject) value).setPosition(position, side, isContainment);
 	}
 	if (side == CBPSide.LEFT) {
 	    if (!rightValues.containsKey(position)) {
@@ -330,16 +333,16 @@ public class CBPMatchFeature {
 	if (recordCBPPositionEvent) {
 	    addPositionEvent(new CBPPositionEvent(CBPPositionEventType.REMOVE, position, value), side);
 	}
-	if (value instanceof CBPMatchObject && this.isContainment()) {
-	    updateOldPosition((CBPMatchObject) value, position, side);
-	}
+//	if (value instanceof CBPMatchObject && this.isContainment()) {
+//	    updateOldPosition((CBPMatchObject) value, position, side);
+//	}
 
 	Map<Integer, Object> temp = new HashMap<>();
 	Map<Integer, Object> values = null;
 	values = (side == CBPSide.LEFT) ? leftValues : rightValues;
 	Object deletedValue = values.put(position, null);
-	if (deletedValue instanceof CBPMatchObject) {
-	    ((CBPMatchObject) deletedValue).setPosition(-1, side);
+	if (deletedValue instanceof CBPMatchObject  && isContainment) {
+	    ((CBPMatchObject) deletedValue).setPosition(-1, side, isContainment);
 	}
 	Iterator<Entry<Integer, Object>> iterator = values.entrySet().iterator();
 	while (iterator.hasNext()) {
@@ -348,8 +351,8 @@ public class CBPMatchFeature {
 	    Object val = entry.getValue();
 	    if (pos > position) {
 		temp.put(pos - 1, val);
-		if (val instanceof CBPMatchObject) {
-		    ((CBPMatchObject) val).setPosition(pos - 1, side);
+		if (val instanceof CBPMatchObject && isContainment) {
+		    ((CBPMatchObject) val).setPosition(pos - 1, side, isContainment);
 		}
 		entry.setValue(null);
 	    }
@@ -377,38 +380,38 @@ public class CBPMatchFeature {
 	    if (positionEvent.getEventType() == CBPPositionEventType.ADD) {
 		if (positionEvent.getPosition() <= newPosition) {
 		    newPosition = newPosition + 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.REMOVE) {
 		if (positionEvent.getPosition() < newPosition) {
 		    newPosition = newPosition - 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVE) {
 		// move from left to right
 		if (positionEvent.getFrom() < positionEvent.getTo()) {
 		    if (newPosition >= positionEvent.getFrom() && newPosition < positionEvent.getTo()) {
 			newPosition = newPosition - 1;
-			System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
-				+ " value " + value);
+//			System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
+//				+ " value " + value);
 		    }
 		    // move from right to left
 		} else if (positionEvent.getFrom() > positionEvent.getTo()) {
 		    if (newPosition < positionEvent.getFrom() && newPosition >= positionEvent.getTo()) {
 			newPosition = newPosition + 1;
-			System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
-				+ " value " + value);
+//			System.out.println(positionEvent.getEventType() + "   origin " + positionEvent.getFrom() + " at " + positionEvent.getPosition() + ": from " + position + " to " + newPosition
+//				+ " value " + value);
 		    }
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVEIN) {
 		if (positionEvent.getPosition() <= newPosition) {
 		    newPosition = newPosition + 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
 	    } else if (positionEvent.getEventType() == CBPPositionEventType.MOVEOUT) {
 		if (positionEvent.getPosition() < newPosition) {
 		    newPosition = newPosition - 1;
-		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
+//		    System.out.println(positionEvent.getEventType() + " at " + positionEvent.getPosition() + ": from " + position + "   to " + newPosition + " value " + value);
 		}
 	    }
 	}

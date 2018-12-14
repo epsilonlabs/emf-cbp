@@ -145,9 +145,10 @@ public class CBPMergingTest {
 
 	try {
 	    String dir = "Epsilon";
+	    int startFrom = 1;
 	    int caseNum = 52;
 
-	    for (int i = 1; i <= caseNum; i++) {
+	    for (int i = startFrom; i <= caseNum; i++) {
 
 		System.out.println("\nMODEL " + i + "---------------------------");
 
@@ -203,8 +204,11 @@ public class CBPMergingTest {
 
 		if (evalDiffs.size() > 0) {
 		    result = -1;
-		    throw new Exception("Diffs Count after Merging the CBP = " + evalDiffs.size() + ". It should be 0.");
+		    throw new Exception("MODEL " + i + ": Diffs Count after Merging the CBP = " + evalDiffs.size() + ". It should be 0.");
 		}
+		
+		targetXmi.unload();
+		leftXmi.unload();
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -259,7 +263,7 @@ public class CBPMergingTest {
 
 	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
 	for (String item : list) {
-	    System.out.println(item);
+	    System.out.println("- " + item);
 	}
 	System.out.println("Merged CBP vs Left Side Diffs Size: " + list.size());
 	return list;

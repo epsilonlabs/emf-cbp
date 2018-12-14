@@ -10,7 +10,10 @@ public class CBPDiff {
 
     private CBPMatchObject object;
     private CBPMatchFeature feature;
+    private CBPMatchObject originObject;
+    private CBPMatchFeature originFeature;
     private int position = -1;
+    private int origin = -1;
     private Object value;
     private CBPDifferenceKind kind = CBPDifferenceKind.UNDEFINED;
     private CBPSide side;
@@ -18,13 +21,21 @@ public class CBPDiff {
     private boolean isResolved = false;
 
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
-	this(object, feature, -1, value, kind, side);
+	this(object, feature, -1, -1, null, null, value, kind, side);
     }
 
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, Object value, CBPDifferenceKind kind, CBPSide side) {
+	this(object, feature, position, -1, null, null, value, kind, side);
+    }
+
+    public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, int origin, CBPMatchFeature originFeature, CBPMatchObject originObject, Object value, CBPDifferenceKind kind,
+	    CBPSide side) {
 	this.object = object;
 	this.feature = feature;
 	this.position = position;
+	this.origin = origin;
+	this.originFeature = originFeature;
+	this.originObject = originObject;
 	this.kind = kind;
 	this.side = side;
 	this.value = value;
@@ -88,6 +99,30 @@ public class CBPDiff {
 
     public void setResolved(boolean isResolved) {
 	this.isResolved = isResolved;
+    }
+
+    public int getOrigin() {
+	return origin;
+    }
+    
+    public CBPMatchObject getOriginObject() {
+        return originObject;
+    }
+
+    public void setOriginObject(CBPMatchObject originObject) {
+        this.originObject = originObject;
+    }
+
+    public CBPMatchFeature getOriginFeature() {
+        return originFeature;
+    }
+
+    public void setOriginFeature(CBPMatchFeature originFeature) {
+        this.originFeature = originFeature;
+    }
+
+    public void setOrigin(int origin) {
+        this.origin = origin;
     }
 
     @Override
