@@ -53,13 +53,13 @@ public class CBPDiffComparator implements Comparator<CBPDiff> {
 		return -1;
 	    } else if (right.getKind() == CBPDifferenceKind.DELETE) {
 		return 1;
+	    }  else if (left.getKind() == CBPDifferenceKind.MOVE) {
+		return -1;
+	    } else if (right.getKind() == CBPDifferenceKind.MOVE) {
+		return 1;
 	    } else if (left.getKind() == CBPDifferenceKind.ADD) {
 		return -1;
 	    } else if (right.getKind() == CBPDifferenceKind.ADD) {
-		return 1;
-	    } else if (left.getKind() == CBPDifferenceKind.MOVE) {
-		return -1;
-	    } else if (right.getKind() == CBPDifferenceKind.MOVE) {
 		return 1;
 	    } else if (left.getKind() == CBPDifferenceKind.CHANGE) {
 		return -1;

@@ -188,8 +188,10 @@ public class CBPMerging {
 		    int pos = entry.getKey();
 		    if (pos >= previousPosition && pos < curPos) {
 			EObject obj = entry.getValue();
-//			EObject targetObject = ((XMIResource) targetResource).getEObject(targetId);
-//			EStructuralFeature feature = targetObject.eClass().getEStructuralFeature(featureName);
+			// EObject targetObject = ((XMIResource)
+			// targetResource).getEObject(targetId);
+			// EStructuralFeature feature =
+			// targetObject.eClass().getEStructuralFeature(featureName);
 			EObject targetObject = ((XMIResource) targetResource).getEObject(previousTarget.getId());
 			EStructuralFeature feature = targetObject.eClass().getEStructuralFeature(previousFeature.getName());
 			EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
@@ -197,9 +199,9 @@ public class CBPMerging {
 			    list.move(list.size() - 1, obj);
 			} else {
 			    try {
-//				if (list.contains(obj)) {
-				    list.move(pos, obj);
-//				}
+				// if (list.contains(obj)) {
+				list.move(pos, obj);
+				// }
 			    } catch (Exception e) {
 				System.out.println();
 			    }
@@ -293,11 +295,19 @@ public class CBPMerging {
 				    }
 				} else {
 				    if (feature.isMany()) {
-					if (matchRightObject.getLeftPosition() > position) {
-					    EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
-					    EObject currentObject = targetResource.getEObject(matchRightObject.getId());
-					    list.move(list.size() - 1, currentObject);
-					}
+
+					// if
+					// (matchRightObject.getLeftPosition() >
+					// position) {
+					// EList<EObject> list =
+					// (EList<EObject>)
+					// targetObject.eGet(feature);
+					// EObject currentObject =
+					// targetResource.getEObject(matchRightObject.getId());
+					// list.move(list.size() - 1,
+					// currentObject);
+					// }
+
 					// EList<EObject> list =
 					// (EList<EObject>)
 					// targetObject.eGet(feature);
@@ -579,7 +589,7 @@ public class CBPMerging {
 
 			printEvent(targetId, featureName, value, position, kind);
 
-			if (value.equals("O-55004")) {
+			if (targetId.equals("O-37481")) {
 			    System.out.print("");
 			}
 
@@ -600,9 +610,11 @@ public class CBPMerging {
 					    // to move to it's correct position
 					    CBPMatchObject rightValue = (CBPMatchObject) diff.getFeature().getRightValues().get(position);
 					    EObject currentObject = targetResource.getEObject(rightValue.getId());
-					    if (rightValue.getLeftPosition() >= position) {
-						list.move(list.size() - 1, currentObject);
-					    }
+					    // if (rightValue.getLeftPosition()
+					    // >= position) {
+					    // list.move(list.size() - 1,
+					    // currentObject);
+					    // }
 					    list.move(position, valueObject);
 					} else {
 					    if (position >= list.size()) {
@@ -688,8 +700,7 @@ public class CBPMerging {
 			    deletedObjects1.remove(value);
 			}
 			diff.setResolved(true);
-			// printContentsOfFeatures("O-43655", "packagedElement",
-			// position);
+//			printContentsOfFeatures("O-37481", "packagedElement", position);
 		    }
 
 		}

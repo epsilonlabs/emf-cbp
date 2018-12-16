@@ -357,7 +357,7 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	String id = "O-43655";
+	String id = "O-37481";
 	String featureName = "packagedElement";
 
 	EObject leftObject = leftResource.getEObject(id);
@@ -614,7 +614,7 @@ public class CBPComparisonTest {
 	    result.setLeftEventCount(countLines(leftCbpWithIndexFile));
 	    result.setRightEventCount(countLines(rightCbpWithIndexFile));
 	    try {
-		
+
 		boolean isDeleted = false;
 		while (!isDeleted) {
 		    try {
@@ -634,12 +634,21 @@ public class CBPComparisonTest {
 		File debugRightXmiFile = new File(debugDir.getAbsolutePath() + File.separator + "right.xmi");
 		File debugTargetXmiFile = new File(debugDir.getAbsolutePath() + File.separator + "target.xmi");
 
-		FileUtils.copyFile(originWithIdFile, debugOriginXmiFile);
-		FileUtils.copyFile(leftXmiWithIdFile, debugLeftXmiFile);
-		FileUtils.copyFile(rightXmiWithIdFile, debugRightXmiFile);
-		FileUtils.copyFile(originCbpFile, debugOriginCbpFile);
-		FileUtils.copyFile(leftCbpWithIndexFile, debugLeftCbpFile);
-		FileUtils.copyFile(rightCbpWithIndexFile, debugRightFile);
+		boolean isCopied = false;
+		while (!isCopied) {
+		    try {
+			FileUtils.copyFile(originWithIdFile, debugOriginXmiFile);
+			FileUtils.copyFile(leftXmiWithIdFile, debugLeftXmiFile);
+			FileUtils.copyFile(rightXmiWithIdFile, debugRightXmiFile);
+			FileUtils.copyFile(originCbpFile, debugOriginCbpFile);
+			FileUtils.copyFile(leftCbpWithIndexFile, debugLeftCbpFile);
+			FileUtils.copyFile(rightCbpWithIndexFile, debugRightFile);
+			isCopied = true;
+			System.out.println("Copy OK");
+		    } catch (Exception e) {
+			System.out.println("Copy FAIL");
+		    }
+		}
 
 		File destDir = new File("D:\\TEMP\\FASE\\" + caseName + "\\data\\" + (i + 1));
 		FileUtils.copyDirectory(debugDir, destDir);
