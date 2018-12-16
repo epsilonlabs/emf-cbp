@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.management.ValueExp;
 
@@ -114,16 +115,20 @@ public class CBPMerging {
 
 	List<CBPDiff> temp = null;
 	if (diffs.size() > 0 && diffs.get(0).getObject().getId().equals("O-37481")) {
-	    System.out.println();
-//	    temp = new ArrayList<>();
-//		for (CBPDiff diff : diffs) {
-//		    temp.add(diff);
-//		}
-//		diffs = temp;
+	    // temp = new ArrayList<>();
+	    // for (CBPDiff diff : diffs) {
+	    // temp.add(diff);
+	    // }
+	    // diffs = temp;
 	}
-//	Collections.sort(diffs, new CBPDiffComparator());
+	// Collections.sort(diffs, new CBPDiffComparator());
 
 	CBPDiff prevDiff = null;
+
+	Map<Integer, EObject> moveToEObjects = new TreeMap<>();
+	int previousPosition = 0;
+	CBPMatchObject previousTarget = null;
+	CBPMatchFeature previousFeature = null;
 
 	for (int i = 0; i < diffs.size(); i++) {
 
@@ -171,6 +176,37 @@ public class CBPMerging {
 
 	    if (targetId.equals("L-697")) {
 		System.out.println();
+	    }
+
+	    // ADD OBJECTS THAT HAS BEEN MOVE TO TEMPORARY MOVETOEOBJECTS
+	    if (moveToEObjects.size() > 0) {
+		int curPos = (diff.getKind() != CBPDifferenceKind.MOVE) ? diff.getPosition() : ((diff.getOrigin() < diff.getPosition()) ? diff.getOrigin() : diff.getPosition());
+		// int curPos = position;
+		Iterator<Entry<Integer, EObject>> iterator = moveToEObjects.entrySet().iterator();
+		while (iterator.hasNext()) {
+		    Entry<Integer, EObject> entry = iterator.next();
+		    int pos = entry.getKey();
+		    if (pos >= previousPosition && pos < curPos) {
+			EObject obj = entry.getValue();
+//			EObject targetObject = ((XMIResource) targetResource).getEObject(targetId);
+//			EStructuralFeature feature = targetObject.eClass().getEStructuralFeature(featureName);
+			EObject targetObject = ((XMIResource) targetResource).getEObject(previousTarget.getId());
+			EStructuralFeature feature = targetObject.eClass().getEStructuralFeature(previousFeature.getName());
+			EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
+			if (pos >= list.size()) {
+			    list.move(list.size() - 1, obj);
+			} else {
+			    try {
+//				if (list.contains(obj)) {
+				    list.move(pos, obj);
+//				}
+			    } catch (Exception e) {
+				System.out.println();
+			    }
+			}
+			iterator.remove();
+		    }
+		}
 	    }
 
 	    // OBJECT AT RESOURCE
@@ -358,7 +394,8 @@ public class CBPMerging {
 				    if (diff.isResolved()) {
 					continue;
 				    }
-				    printContentsOfFeatures("O-37481", "packagedElement", position);
+				    // printContentsOfFeatures("O-37481",
+				    // "packagedElement", position);
 				}
 
 			    }
@@ -368,7 +405,8 @@ public class CBPMerging {
 
 		    }
 		    diff.setResolved(true);
-		    printContentsOfFeatures("O-37481", "packagedElement", position);
+		    // printContentsOfFeatures("O-37481", "packagedElement",
+		    // position);
 
 		}
 
@@ -521,7 +559,8 @@ public class CBPMerging {
 			}
 
 			diff.setResolved(true);
-			printContentsOfFeatures("O-37481", "packagedElement", position);
+			// printContentsOfFeatures("O-37481", "packagedElement",
+			// position);
 
 		    }
 
@@ -540,8 +579,8 @@ public class CBPMerging {
 
 			printEvent(targetId, featureName, value, position, kind);
 
-			if (value.equals("O-39189")) {
-			    System.out.println();
+			if (value.equals("O-55004")) {
+			    System.out.print("");
 			}
 
 			EStructuralFeature feature = targetObject.eClass().getEStructuralFeature(featureName);
@@ -551,24 +590,42 @@ public class CBPMerging {
 			    // WITHIN CONTAINING FEATURE MOVE
 			    if (targetObject.equals(valueObject.eContainer()) && feature.getName().equals(valueObject.eContainmentFeature().getName())) {
 				if (list.size() > 0) {
-				    if (diff.getFeature().getRightValues().get(position) != null) {
-					// move right object to the last
-					// it will be moved to it's right
-					// position later
-					// when the iteration reach it's event
-					// to move to it's correct position
-					CBPMatchObject rightValue = (CBPMatchObject) diff.getFeature().getRightValues().get(position);
-					EObject currentObject = targetResource.getEObject(rightValue.getId());
-					if (rightValue.getLeftPosition() >= position) {
-					    list.move(list.size() - 1, currentObject);
-					}
-					list.move(position, valueObject);
-				    } else {
-					if (position >= list.size()) {
-					    list.move(list.size() - 1, valueObject);
-					} else {
+				    if (diff.getOrigin() >= diff.getPosition()) {
+					if (diff.getFeature().getRightValues().get(position) != null) {
+					    // move right object to the last
+					    // it will be moved to it's right
+					    // position later
+					    // when the iteration reach it's
+					    // event
+					    // to move to it's correct position
+					    CBPMatchObject rightValue = (CBPMatchObject) diff.getFeature().getRightValues().get(position);
+					    EObject currentObject = targetResource.getEObject(rightValue.getId());
+					    if (rightValue.getLeftPosition() >= position) {
+						list.move(list.size() - 1, currentObject);
+					    }
 					    list.move(position, valueObject);
+					} else {
+					    if (position >= list.size()) {
+						list.move(list.size() - 1, valueObject);
+					    } else {
+						list.move(position, valueObject);
+					    }
 					}
+
+				    } else {
+					CBPMatchObject rightValue = (CBPMatchObject) diff.getFeature().getRightValues().get(diff.getOrigin());
+					EObject currentObject = targetResource.getEObject(rightValue.getId());
+					moveToEObjects.put(diff.getPosition(), currentObject);
+					// if (rightValue.getLeftContainer() !=
+					// null) {
+					// resolveDiff(targetResource,
+					// leftResource, rightValue.getDiffs(),
+					// rightValue, targetMatchObject);
+					// }
+					// if (diff.isResolved()) {
+					// continue;
+					// }
+					list.move(list.size() - 1, currentObject);
 				    }
 				}
 			    }
@@ -631,9 +688,9 @@ public class CBPMerging {
 			    deletedObjects1.remove(value);
 			}
 			diff.setResolved(true);
-			printContentsOfFeatures("O-37481", "packagedElement", position);
+			// printContentsOfFeatures("O-43655", "packagedElement",
+			// position);
 		    }
-		    prevDiff = diff;
 
 		}
 	    }
@@ -666,7 +723,27 @@ public class CBPMerging {
 		}
 	    }
 
-	    nextDiff = diff;
+	    // MOVE THE REST OF THE TEMPORARY MOVETOEOBJECTS TO THEIR PROPER
+	    // POSITION
+	    if (i == diffs.size() - 1 && moveToEObjects.size() > 0) {
+		Iterator<Entry<Integer, EObject>> iterator = moveToEObjects.entrySet().iterator();
+		while (iterator.hasNext()) {
+		    Entry<Integer, EObject> entry = iterator.next();
+		    int pos = entry.getKey();
+		    EObject obj = entry.getValue();
+		    EObject targetObject = ((XMIResource) targetResource).getEObject(targetId);
+		    EStructuralFeature feature = targetObject.eClass().getEStructuralFeature(featureName);
+		    EList<EObject> list = (EList<EObject>) targetObject.eGet(feature);
+		    list.move(pos, obj);
+		    iterator.remove();
+		}
+	    }
+
+	    prevDiff = diff;
+	    previousPosition = (diff.getKind() != CBPDifferenceKind.MOVE) ? diff.getPosition() : ((diff.getOrigin() < diff.getPosition()) ? diff.getOrigin() : diff.getPosition());
+	    previousTarget = targetMatchObject;
+	    previousFeature = matchFeature;
+	    // previousPosition = position;
 	}
 
     }
@@ -821,46 +898,40 @@ public class CBPMerging {
     @Test
     public void printContentsOfFeatures(String objectId, String featureName, int position) throws IOException {
 
-	// ResourceSet resourceSet = new ResourceSetImpl();
-	// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
-	// new XMIResourceFactoryImpl());
-	// XMIResource leftResource = (XMIResource) this.leftResource;
-	// XMIResource targetResource = (XMIResource) this.targetResource;
-	//
-	// EObject leftObject = leftResource.getEObject(objectId);
-	// EReference leftReference = (EReference)
-	// leftObject.eClass().getEStructuralFeature(featureName);
-	// EList<EObject> leftValues = (EList<EObject>)
-	// leftObject.eGet(leftReference);
-	//
-	// EObject targetObject = targetResource.getEObject(objectId);
-	// EReference targetReference = (EReference)
-	// targetObject.eClass().getEStructuralFeature(featureName);
-	// EList<EObject> targetValues = (EList<EObject>)
-	// targetObject.eGet(targetReference);
-	//
-	// int size = (leftValues.size() > targetValues.size()) ?
-	// leftValues.size() : targetValues.size();
-	//
-	// System.out.println("\nPAIR LEFT-TARGET:");
-	// for (int i = 0; i < size; i++) {
-	// String leftId = "";
-	// String rightId = "";
-	//
-	// if (i < leftValues.size()) {
-	// EObject leftValue = leftValues.get(i);
-	// leftId = leftResource.getURIFragment(leftValue);
-	// }
-	//
-	// if (i < targetValues.size()) {
-	// EObject rightValue = targetValues.get(i);
-	// rightId = targetResource.getURIFragment(rightValue);
-	// }
-	//
-	// String separator = (leftId.equals(rightId)) ? " = " : " x ";
-	// System.out.println(i + ": " + leftId + separator + rightId);
-	//
-	// }
-	// System.out.println();
+	ResourceSet resourceSet = new ResourceSetImpl();
+	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+	XMIResource leftResource = (XMIResource) this.leftResource;
+	XMIResource targetResource = (XMIResource) this.targetResource;
+
+	EObject leftObject = leftResource.getEObject(objectId);
+	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
+	EList<EObject> leftValues = (EList<EObject>) leftObject.eGet(leftReference);
+
+	EObject targetObject = targetResource.getEObject(objectId);
+	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature(featureName);
+	EList<EObject> targetValues = (EList<EObject>) targetObject.eGet(targetReference);
+
+	int size = (leftValues.size() > targetValues.size()) ? leftValues.size() : targetValues.size();
+
+	System.out.println("\nPAIR LEFT-TARGET:");
+	for (int i = 0; i < size; i++) {
+	    String leftId = "";
+	    String rightId = "";
+
+	    if (i < leftValues.size()) {
+		EObject leftValue = leftValues.get(i);
+		leftId = leftResource.getURIFragment(leftValue);
+	    }
+
+	    if (i < targetValues.size()) {
+		EObject rightValue = targetValues.get(i);
+		rightId = targetResource.getURIFragment(rightValue);
+	    }
+
+	    String separator = (leftId.equals(rightId)) ? " = " : " x ";
+	    System.out.println(i + ": " + leftId + separator + rightId);
+
+	}
+	System.out.println();
     }
 }

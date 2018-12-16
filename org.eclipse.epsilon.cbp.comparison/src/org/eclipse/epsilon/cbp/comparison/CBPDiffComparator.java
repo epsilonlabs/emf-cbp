@@ -35,11 +35,11 @@ public class CBPDiffComparator implements Comparator<CBPDiff> {
 	    rightPos = right.getPosition();
 	}
 
-	if (left.getKind() == CBPDifferenceKind.MOVE && right.getKind() == CBPDifferenceKind.MOVE && left.getObject().equals(left.getOriginObject())
-		&& left.getFeature().equals(left.getOriginFeature()) && right.getObject().equals(right.getOriginObject()) && right.getFeature().equals(right.getOriginFeature())) {
-	    leftPos = left.getPosition();
-	    rightPos = right.getPosition();
-	}
+//	if (left.getKind() == CBPDifferenceKind.MOVE && right.getKind() == CBPDifferenceKind.MOVE && left.getObject().equals(left.getOriginObject())
+//		&& left.getFeature().equals(left.getOriginFeature()) && right.getObject().equals(right.getOriginObject()) && right.getFeature().equals(right.getOriginFeature())) {
+//	    leftPos = left.getPosition();
+//	    rightPos = right.getPosition();
+//	}
 
 	if (left.getObject().getId().compareTo(right.getObject().getId()) == 0 && left.getFeature().getName().compareTo(right.getFeature().getName()) == 0 && left.getPosition() == right.getPosition()
 		&& left.getKind() == right.getKind()) {
