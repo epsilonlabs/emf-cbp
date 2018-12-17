@@ -126,14 +126,14 @@ public class CBPMergingTest {
 	EMFCompare comparator = builder.build();
 
 	System.out.println("Compare");
-	IComparisonScope2 scope = new DefaultComparisonScope(targetXmi, leftXmi, null);
+	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, targetXmi, null);
 	long start = System.nanoTime();
 	Comparison emfComparison = comparator.compare(scope);
 	long end = System.nanoTime();
 	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
 	EList<Diff> evalDiffs = emfComparison.getDifferences();
 	System.out.println("Eval Diffs = " + evalDiffs.size());
-	printEMFCompareDiffs(targetXmi, leftXmi, evalDiffs);
+	printEMFCompareDiffs(leftXmi, targetXmi, evalDiffs);
 
 	assertEquals(0, evalDiffs.size());
     }
@@ -145,7 +145,7 @@ public class CBPMergingTest {
 
 	try {
 	    String dir = "Epsilon";
-	    int startFrom = 53;
+	    int startFrom = 17;
 	    int caseNum = 68;
 
 	    for (int i = startFrom; i <= caseNum; i++) {

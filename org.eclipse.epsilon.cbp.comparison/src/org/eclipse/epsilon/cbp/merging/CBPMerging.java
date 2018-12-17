@@ -169,10 +169,13 @@ public class CBPMerging {
 	    int position = diff.getPosition();
 	    CBPDifferenceKind kind = diff.getKind();
 
-	    // if (valueMatchObject.equals(caller)) {
-	    // System.out.println();
-	    // continue;
-	    // }
+//	    if (valueMatchObject != null && targetId.equals("O-39190") && featureName.equals("owningAssociation") && 
+//		    value.equals("O-39189")) {
+//		System.out.println();
+//		continue;
+//	    }
+//	    
+	    
 
 	    if (targetId.equals("L-697")) {
 		System.out.println();

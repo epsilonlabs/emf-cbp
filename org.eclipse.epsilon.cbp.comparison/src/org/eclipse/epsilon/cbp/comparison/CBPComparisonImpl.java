@@ -294,9 +294,9 @@ public class CBPComparisonImpl implements ICBPComparison {
      */
     protected void computeDifferences(CBPSide referenceSide) {
 
-	EClass x = (EClass) ePackage.getEClassifier("Property");
-	EReference b = (EReference) x.getEStructuralFeature("owningAssociation");
-	EReference c = (EReference) x.getEStructuralFeature("association");
+//	EClass x = (EClass) ePackage.getEClassifier("Property");
+//	EReference b = (EReference) x.getEStructuralFeature("owningAssociation");
+//	EReference c = (EReference) x.getEStructuralFeature("association");
 
 	Iterator<Entry<String, CBPMatchObject>> iterator = objects.entrySet().iterator();
 	while (iterator.hasNext()) {
@@ -747,14 +747,15 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	for (CBPChangeEvent<?> event : events) {
 
-//	    System.out.println(event.toString());
+	    // System.out.println(event.toString());
 	    // {
-//	    CBPMatchObject obj = objects.get("O-28309");
-//	    if (obj != null) {
-////		 if (obj.getRightPosition() == 0) {
-//		System.out.println("X = " + obj.getRightPosition() + " Side = " + side);
-//		// }
-//	    }
+	    // CBPMatchObject obj = objects.get("O-28309");
+	    // if (obj != null) {
+	    //// if (obj.getRightPosition() == 0) {
+	    // System.out.println("X = " + obj.getRightPosition() + " Side = " +
+	    // side);
+	    // // }
+	    // }
 
 	    // CBPMatchObject obj = objects.get("O-43655");
 	    // if (obj != null) {
@@ -841,10 +842,22 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // get affected feature
 	    CBPMatchFeature feature = null;
 	    feature = createCBPFeature(event, targetObject, feature, valueObject, side);
+	    
+	    //--this is only for UML metamodel. Should be removed to another class to handle specific case for certain metadata.
+	    if (feature != null && feature.getName().equals("owningAssociation")) {
+		//no need to handle events related to this feature for UML metamodel
+		continue;
+	    }
+		//--
+	    
 
 	    // get position
 	    int position = event.getPosition();
 
+	    
+	    
+	    
+	    
 	    // start processing events
 	    if (event instanceof CBPCreateEObjectEvent) {
 		targetObject.setCreated(true, side);
@@ -887,9 +900,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    } else
 	    // -----------------
 	    if (event instanceof CBPRemoveFromResourceEvent) {
-		if (targetId.equals("O-44017")) {
-		    System.out.println();
-		}
+//		if (valueId.equals("O-12160")) {
+//		    System.out.println();
+//		}
 		if (targetObject.getContainer(side) == null) {
 		    targetObject.setContainer(resource, side);
 		}
@@ -900,7 +913,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    targetObject.setPosition(position, side, resourceFeature.isContainment());
 		}
 		resourceFeature.removeValue(targetObject, position, side);
-		resourceFeature.setIsEdited(position, side);
+		resourceFeature.setIsSet(position, side);
 
 		if (targetObject.getLeftIsDeleted() == false && targetObject.getRightContainer() == null && side == CBPSide.LEFT) {
 		    createValueObjectOnTheOppositeSide(targetObject, CBPSide.LEFT);
@@ -917,12 +930,12 @@ public class CBPComparisonImpl implements ICBPComparison {
 		targetObject.setContainingFeature(resourceFeature, side);
 		targetObject.setPosition(position, side, resourceFeature.isContainment());
 		resourceFeature.addValue(targetObject, position, side);
-		resourceFeature.setIsEdited(position, side);
+		resourceFeature.setIsSet(position, side);
 	    } else
 
 	    // ------------------------
 	    if (event instanceof CBPAddToEReferenceEvent) {
-		if (valueId.equals("O-28309") && side == CBPSide.RIGHT) {
+		if (targetId.equals("O-37131") && valueId.equals("O-28706")) {
 		    System.out.println();
 		}
 
@@ -935,13 +948,13 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    }
 		}
 		feature.addValue(valueObject, position, side);
-		feature.setIsEdited(position, side);
+		feature.setIsSet(position, side);
 	    } else
 
 	    // ------------------
 	    if (event instanceof CBPRemoveFromEReferenceEvent) {
 		// if (valueId.equals("O-359")) {
-		if (valueId.equals("O-51513") && side == CBPSide.RIGHT) {
+		if (targetId.equals("O-37131") && feature.getName().equals("memberEnd")) {
 		    System.out.println();
 		}
 
@@ -956,27 +969,31 @@ public class CBPComparisonImpl implements ICBPComparison {
 			createValueObjectOnTheOppositeSide(valueObject, CBPSide.RIGHT);
 		    }
 		} else {
-		    if (!valueObject.getRightIsCreated() && side == CBPSide.RIGHT) {
-			if (feature.getIsSet(position, CBPSide.LEFT)) {
+		    if (!targetObject.getRightIsCreated() && !valueObject.getRightIsCreated() && side == CBPSide.RIGHT) {
+			if (!feature.getIsSet(position, CBPSide.LEFT)) {
 			    if (feature.isMany()) {
 				feature.addValue(valueObject, position, CBPSide.LEFT);
+				feature.setIsSet(position, CBPSide.LEFT);
 			    } else {
 				feature.updateValue(valueObject, position, CBPSide.LEFT);
+				feature.setIsSet(position, CBPSide.LEFT);
 			    }
 			}
-		    } else if (!valueObject.getLeftIsCreated() && side == CBPSide.LEFT) {
-			if (feature.getIsSet(position, CBPSide.RIGHT)) {
+		    } else if (!targetObject.getLeftIsCreated() && !valueObject.getLeftIsCreated() && side == CBPSide.LEFT) {
+			if (!feature.getIsSet(position, CBPSide.RIGHT)) {
 			    if (feature.isMany()) {
 				feature.addValue(valueObject, position, CBPSide.RIGHT);
+				feature.setIsSet(position, CBPSide.RIGHT);
 			    } else {
 				feature.updateValue(valueObject, position, CBPSide.RIGHT);
+				feature.setIsSet(position, CBPSide.RIGHT);
 			    }
 			}
 		    }
 		}
 
 		feature.removeValue(valueObject, position, side);
-		feature.setIsEdited(position, side);
+		feature.setIsSet(position, side);
 	    } else
 	    // -----------------
 	    if (event instanceof CBPMoveWithinEReferenceEvent) {
@@ -1000,34 +1017,34 @@ public class CBPComparisonImpl implements ICBPComparison {
 		}
 
 		feature.moveValue(valueObject, fromPosition, position, side);
-		feature.setIsEdited(position, side);
+		feature.setIsSet(position, side);
 	    } else
 	    // -----------------
 	    if (event instanceof CBPAddToEAttributeEvent) {
 		feature.addValue(valueLiteral, position, side);
-		feature.setIsEdited(position, side);
+		feature.setIsSet(position, side);
 	    } else
 	    // -------------
 	    if (event instanceof CBPRemoveFromEAttributeEvent) {
 		feature.removeValue(valueLiteral, position, side);
-		feature.setIsEdited(position, side);
+		feature.setIsSet(position, side);
 	    } else
 	    // -----------------
 	    if (event instanceof CBPMoveWithinEAttributeEvent) {
 		int fromPosition = ((CBPMoveWithinEAttributeEvent) event).getFromPosition();
 		feature.moveValue(valueLiteral, fromPosition, position, side);
-		feature.setIsEdited(position, side);
+		feature.setIsSet(position, side);
 	    } else
 	    // ------------
 	    if (event instanceof CBPSetEReferenceEvent) {
 
-		if (valueId.equals("O-27474")) {
+		if (valueId.equals("O-39190")) {
 		    System.out.println();
 		}
 
 		feature.setOldValue(event.getOldValue(), side);
 		feature.setValue(valueObject, side);
-		feature.setIsEdited(side);
+		feature.setIsSet(side);
 
 		if (feature.isContainment()) {
 		    valueObject.setContainer(targetObject, side);
@@ -1055,21 +1072,23 @@ public class CBPComparisonImpl implements ICBPComparison {
 			oldValue.setOldContainingFeature(feature, side);
 			oldValue.setOldPosition(0, side);
 
-			if (oldValue.getRightContainer() == null && side == CBPSide.LEFT) {
+			if (!feature.getIsSet(CBPSide.RIGHT) && oldValue.getRightContainer() == null && side == CBPSide.LEFT) {
 			    createValueObjectOnTheOppositeSide(oldValue, CBPSide.LEFT);
 			}
-			if (oldValue.getLeftContainer() == null && side == CBPSide.RIGHT) {
+			if (!feature.getIsSet(CBPSide.LEFT) && oldValue.getLeftContainer() == null && side == CBPSide.RIGHT) {
 			    createValueObjectOnTheOppositeSide(oldValue, CBPSide.RIGHT);
 			}
 
 		    } else {
-			if (side == CBPSide.RIGHT) {
-			    if (feature.getIsEdited(CBPSide.LEFT)) {
+			if (!targetObject.getRightIsCreated() && side == CBPSide.RIGHT) {
+			    if (!feature.getIsSet(CBPSide.LEFT)) {
 				feature.setValue(oldValue, CBPSide.LEFT);
+				feature.setIsSet(CBPSide.LEFT);
 			    }
-			} else if (side == CBPSide.LEFT) {
-			    if (feature.getIsEdited(CBPSide.RIGHT)) {
+			} else if (!targetObject.getLeftIsCreated() && side == CBPSide.LEFT) {
+			    if (!feature.getIsSet(CBPSide.RIGHT)) {
 				feature.setValue(oldValue, CBPSide.RIGHT);
+				feature.setIsSet(CBPSide.RIGHT);
 			    }
 			}
 		    }
@@ -1096,7 +1115,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		}
 		feature.setOldValue(oldValue, side);
 		feature.unsetValue(valueObject, side);
-		feature.setIsEdited(side);
+		feature.setIsSet(true, side);
 
 		// handle setting value to other side
 		if (feature.isContainment()) {
@@ -1112,13 +1131,15 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    }
 
 		} else {
-		    if (!oldValue.getRightIsCreated() && side == CBPSide.RIGHT) {
-			if (feature.getIsEdited(CBPSide.LEFT)) {
+		    if (!targetObject.getRightIsCreated() && !oldValue.getRightIsCreated() && side == CBPSide.RIGHT) {
+			if (!feature.getIsSet(CBPSide.LEFT)) {
 			    feature.setValue(oldValue, CBPSide.LEFT);
+			    feature.setIsSet(CBPSide.LEFT);
 			}
-		    } else if (!oldValue.getLeftIsCreated() && side == CBPSide.LEFT) {
-			if (feature.getIsEdited(CBPSide.RIGHT)) {
+		    } else if (!targetObject.getLeftIsCreated() && !oldValue.getLeftIsCreated() && side == CBPSide.LEFT) {
+			if (!feature.getIsSet(CBPSide.RIGHT)) {
 			    feature.setValue(oldValue, CBPSide.RIGHT);
+			    feature.setIsSet(CBPSide.RIGHT);
 			}
 		    }
 		}
@@ -1128,13 +1149,13 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    if (event instanceof CBPSetEAttributeEvent) {
 		feature.setOldValue(event.getOldValue(), side);
 		feature.setValue(valueLiteral, side);
-		feature.setIsEdited(side);
+		feature.setIsSet(side);
 	    } else
 	    // -------------
 	    if (event instanceof CBPUnsetEAttributeEvent) {
 		feature.setOldValue(event.getOldValue(), side);
 		feature.unsetValue(valueLiteral, side);
-		feature.setIsEdited(side);
+		feature.setIsSet(side);
 	    }
 
 	    previousEvent = event;
