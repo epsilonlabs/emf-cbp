@@ -357,7 +357,7 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	String id = "O-43943";
+	String id = "O-4";
 	String featureName = "packagedElement";
 
 	EObject leftObject = leftResource.getEObject(id);

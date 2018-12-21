@@ -15,10 +15,12 @@ public class CBPDiff {
     private int position = -1;
     private int origin = -1;
     private Object value;
+    private Object otherSideValue;
     private CBPDifferenceKind kind = CBPDifferenceKind.UNDEFINED;
     private CBPSide side;
     private static final String SEP = ".";
     private boolean isResolved = false;
+    private boolean underRecursion = false;
 
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, -1, -1, null, null, value, kind, side);
@@ -27,9 +29,18 @@ public class CBPDiff {
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, position, -1, null, null, value, kind, side);
     }
+    
+    public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, Object value, Object otherSideValue, CBPDifferenceKind kind, CBPSide side) {
+	this(object, feature, position, -1, null, null, value, otherSideValue, kind, side);
+    }
 
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, int origin, CBPMatchFeature originFeature, CBPMatchObject originObject, Object value, CBPDifferenceKind kind,
 	    CBPSide side) {
+	this(object, feature, position, origin, originFeature, originObject, value, null, kind, side);
+    }
+
+    public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, int origin, CBPMatchFeature originFeature, CBPMatchObject originObject, Object value, Object otherSideValue,
+	    CBPDifferenceKind kind, CBPSide side) {
 	this.object = object;
 	this.feature = feature;
 	this.position = position;
@@ -39,6 +50,7 @@ public class CBPDiff {
 	this.kind = kind;
 	this.side = side;
 	this.value = value;
+	this.otherSideValue = otherSideValue;
 	this.object.addDiff(this);
 	if (this.value instanceof CBPMatchObject) {
 	    ((CBPMatchObject) this.value).addDiffAsValue(this);
@@ -99,30 +111,49 @@ public class CBPDiff {
 
     public void setResolved(boolean isResolved) {
 	this.isResolved = isResolved;
+	if (isResolved) {
+	    underRecursion = false;
+	}
     }
 
     public int getOrigin() {
 	return origin;
     }
-    
+
     public CBPMatchObject getOriginObject() {
-        return originObject;
+	return originObject;
     }
 
     public void setOriginObject(CBPMatchObject originObject) {
-        this.originObject = originObject;
+	this.originObject = originObject;
     }
 
     public CBPMatchFeature getOriginFeature() {
-        return originFeature;
+	return originFeature;
     }
 
     public void setOriginFeature(CBPMatchFeature originFeature) {
-        this.originFeature = originFeature;
+	this.originFeature = originFeature;
     }
 
     public void setOrigin(int origin) {
-        this.origin = origin;
+	this.origin = origin;
+    }
+
+    public Object getOtherSideValue() {
+        return otherSideValue;
+    }
+
+    public void setOtherSideValue(Object otherSideValue) {
+        this.otherSideValue = otherSideValue;
+    }
+
+    public boolean isUnderRecursion() {
+        return underRecursion;
+    }
+
+    public void setUnderRecursion(boolean underRecursion) {
+        this.underRecursion = underRecursion;
     }
 
     @Override

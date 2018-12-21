@@ -145,7 +145,7 @@ public class CBPMergingTest {
 
 	try {
 	    String dir = "Epsilon";
-	    int startFrom = 17;
+	    int startFrom = 33;
 	    int caseNum = 68;
 
 	    for (int i = startFrom; i <= caseNum; i++) {
