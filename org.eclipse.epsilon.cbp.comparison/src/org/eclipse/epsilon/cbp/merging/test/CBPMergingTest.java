@@ -139,13 +139,59 @@ public class CBPMergingTest {
     }
 
     @Test
+    public void testEMFLeftToTargetMerging() throws FactoryConfigurationError, Exception {
+
+	// String dir = "Example";
+	String dir = "Debug";
+
+	File leftXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + "\\left.xmi");
+	File targetXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + "\\target.xmi");
+
+
+	// evaluate merging result
+	Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
+	targetXmi.load(options);
+	Resource leftXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
+	leftXmi.load(options);
+
+	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+	matchEngineFactory.setRanking(100);
+	IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+	matchEngineRegistry.add(matchEngineFactory);
+
+	IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+	BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+	postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+
+	Builder builder = EMFCompare.builder();
+	builder.setPostProcessorRegistry(postProcessorRegistry);
+	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
+	EMFCompare comparator = builder.build();
+
+	System.out.println("Compare");
+	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, targetXmi, null);
+	long start = System.nanoTime();
+	Comparison emfComparison = comparator.compare(scope);
+	long end = System.nanoTime();
+	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
+	EList<Diff> evalDiffs = emfComparison.getDifferences();
+	System.out.println("Eval Diffs = " + evalDiffs.size());
+	printEMFCompareDiffs(leftXmi, targetXmi, evalDiffs);
+
+	assertEquals(0, evalDiffs.size());
+    }
+    @Test
     public void testBatchCBPMerging() throws FactoryConfigurationError, Exception {
 
 	int result = 0;
 
 	try {
 	    String dir = "Epsilon";
-	    int startFrom = 33;
+	    int startFrom = 57;  
+	    //problems:
+	    // null pointer while merging: 57, 58
 	    int caseNum = 68;
 
 	    for (int i = startFrom; i <= caseNum; i++) {

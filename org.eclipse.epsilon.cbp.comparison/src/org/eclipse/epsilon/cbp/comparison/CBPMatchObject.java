@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
@@ -357,13 +358,36 @@ public class CBPMatchObject {
     }
 
     private void insertDiff(CBPDiff diff, List<CBPDiff> diffs) {
-	CBPDiffComparator comparator = new CBPDiffComparator(); 
+	CBPDiffComparator comparator = new CBPDiffComparator();
+	CBPDiff prevDiff = null;
 	for(int i = 0; i < diffs.size(); i++) {
 	    CBPDiff cursorDiff = diffs.get(i);
 	    if (comparator.compare(diff, cursorDiff) < 0) {
 		diffs.add(i, diff);
 		return;
 	    }
+	    //do adjustment to the diff origin since its position will be shifted when merging
+	    if (prevDiff != null && diff.getKind() == CBPDifferenceKind.MOVE) {
+		if (prevDiff.getKind() == CBPDifferenceKind.ADD)  {
+		    if (prevDiff.getPosition() < diff.getOrigin()) {
+			diff.setOrigin(diff.getOrigin() + 1);
+		    } 
+		} else if (prevDiff.getKind() == CBPDifferenceKind.DELETE) {
+		    if (prevDiff.getPosition() < diff.getOrigin()) {
+			diff.setOrigin(diff.getOrigin() -1 );
+		    } 
+		} else if (prevDiff.getKind() == CBPDifferenceKind.MOVE) {
+		    // move down
+		    if (prevDiff.getPosition() <= diff.getOrigin() && prevDiff.getOrigin() > diff.getOrigin()) {
+			diff.setOrigin(diff.getOrigin() + 1);
+		    } 
+		    //move up
+		    else if (prevDiff.getOrigin() < diff.getOrigin() && prevDiff.getPosition() >= diff.getOrigin()) {
+			diff.setOrigin(diff.getOrigin() - 1);
+		    } 
+		} 
+	    }
+	    prevDiff = cursorDiff;
 	}
 	diffs.add(diff);
     }
