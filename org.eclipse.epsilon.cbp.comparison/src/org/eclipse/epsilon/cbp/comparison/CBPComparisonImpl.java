@@ -101,8 +101,13 @@ public class CBPComparisonImpl implements ICBPComparison {
     private long objectTreeConstructionTime = 0;
     private long diffTime = 0;
     private long comparisonTime = 0;
+    private long objectTreeConstructionMemory = 0;
+    private long diffMemory = 0;
+    private long comparisonMemory = 0;
+
     private int diffCount = 0;
     private long loadTime = 0;
+    private long loadMemory = 0;
 
     public File getObjectTreeFile() {
 	return objectTreeFile;
@@ -146,8 +151,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     public List<CBPDiff> compare(File leftFile, File rightFile, File originFile) throws IOException, FactoryConfigurationError, XMLStreamException {
 	DecimalFormat df = new DecimalFormat("###.###");
-	long start = 0;
-	long end = 0;
+	long startInterval = 0;
+	long endInterval = 0;
+	long startMemory = 0;
+	long endMemory = 0;
 	long skip = 0;
 	if (originFile != null) {
 	    skip = originFile.length();
@@ -157,77 +164,45 @@ public class CBPComparisonImpl implements ICBPComparison {
 	objects = new HashMap<>();
 
 	System.out.print("Convert CBP String Lines to Events");
-	start = System.nanoTime();
+	System.gc();
+	startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	startInterval = System.nanoTime();
 	this.readFiles(leftFile, rightFile, skip);
-	end = System.nanoTime();
-	System.out.println(" = " + df.format(((end - start)) / 1000000.0) + " ms");
-	loadTime = end - start;
-
-	// System.out.print("Loading Left/Local Model");
-	// start = System.nanoTime();
-	//
-	// Map<Object, Object> options = new HashMap<>();
-	// options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
-	// ResourceSet resourceSet = new ResourceSetImpl();
-	// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi",
-	// new XMIResourceFactoryImpl());
-	//
-	// File leftResourceFile = new
-	// File(leftFile.getAbsolutePath().replaceAll("cbpxml", "xmi"));
-	// leftResource =
-	// resourceSet.createResource(URI.createFileURI(leftResourceFile.getAbsolutePath()));
-	// leftHybridResource = new HybridXMIResourceImpl(leftResource, new
-	// FileOutputStream(leftFile, true));
-	// leftHybridResource.setIdType(IdType.UUID);
-	// leftHybridResource.load(options);
-	//
-	// File rightResourceFile = new
-	// File(rightFile.getAbsolutePath().replaceAll("cbpxml", "xmi"));
-	// rightResource =
-	// resourceSet.createResource(URI.createFileURI(rightResourceFile.getAbsolutePath()));
-	// rightHybridResource = new HybridXMIResourceImpl(rightResource, new
-	// FileOutputStream(rightFile, true));
-	// rightHybridResource.setIdType(IdType.UUID);
-	// rightHybridResource.load(options);
-	//
-	// end = System.nanoTime();
-	// System.out.println(" = " + df.format(((end - start) / 1000000.0)) + "
-	// ms");
-
+	endInterval = System.nanoTime();
+	endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	System.out.println(" = " + df.format(((endInterval - startInterval)) / 1000000.0) + " ms");
+	loadTime = endInterval - startInterval;
+	loadMemory = endMemory - startMemory;
+	
 	System.out.print("Construct Object Tree ");
-	start = System.nanoTime();
+	System.gc();
+	startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	startInterval = System.nanoTime();
 	System.out.print("LEFT ");
 	this.contructObjectTree(leftEvents, CBPSide.LEFT);
 	System.out.print("RIGHT ");
 	this.contructObjectTree(rightEvents, CBPSide.RIGHT);
-	end = System.nanoTime();
-	System.out.println("= " + df.format(((end - start) / 1000000.0)) + " ms");
-	objectTreeConstructionTime = end - start;
+	endInterval = System.nanoTime();
+	endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	System.out.println("= " + df.format(((endInterval - startInterval) / 1000000.0)) + " ms");
+	objectTreeConstructionTime = endInterval - startInterval;
+	objectTreeConstructionMemory = endMemory - startMemory;
 
-	// System.out.print("Post-process Object Tree");
-	// start = System.nanoTime();
-	// for (ICBPObjectTreePostProcessor postProcessor :
-	// objectTreePostProcessors) {
-	// postProcessor.process(objects);
-	// }
-	// end = System.nanoTime();
-	// System.out.println(" = " + df.format(((end - start) / 1000000.0)) + "
-	// ms");
-	// objectTreeConstructionTime = objectTreeConstructionTime + (end -
-	// start);
-
-	// System.out.println("\nOBJECT TREE:");
-	// System.out.println("Object Tree Size = " + objects.size());
-	printObjectTree();
+	saveObjectTree();
 
 	System.out.print("Determine Differences");
-	start = System.nanoTime();
+	System.gc();
+	startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	startInterval = System.nanoTime();
 	this.computeDifferences(CBPSide.LEFT);
-	end = System.nanoTime();
-	System.out.println(" = " + df.format(((end - start) / 1000000.0)) + " ms");
-	diffTime = end - start;
+	endInterval = System.nanoTime();
+	endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	System.out.println(" = " + df.format(((endInterval - startInterval) / 1000000.0)) + " ms");
+	diffTime = endInterval - startInterval;
+	diffMemory = endMemory - startMemory;
 
 	comparisonTime = objectTreeConstructionTime + diffTime;
+	comparisonMemory = objectTreeConstructionMemory + diffMemory;
 
 	System.out.println("Comparison Time = " + df.format(((comparisonTime) / 1000000.0)) + " ms");
 
@@ -480,7 +455,18 @@ public class CBPComparisonImpl implements ICBPComparison {
 				    CBPDiff diff = new CBPDiff(object, feature, pos, leftObjectValue, rightValue, CBPDifferenceKind.ADD, referenceSide);
 				    diffs.add(diff);
 				    feature.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.ADD, pos, leftValue), CBPSide.RIGHT);
+				} else if (leftObjectValue.getLeftContainer() == null) {
+				    continue;
+				    // CBPDiff diff = new CBPDiff(object,
+				    // feature, pos, leftObjectValue,
+				    // rightValue, CBPDifferenceKind.DELETE,
+				    // referenceSide);
+				    // diffs.add(diff);
+				    // feature.addAdjustPositionEvent(new
+				    // CBPDiffPositionEvent(CBPPositionEventType.REMOVE,
+				    // pos, leftValue), CBPSide.RIGHT);
 				} else {
+				    // try {
 				    if (!leftObjectValue.getLeftContainer().equals(leftObjectValue.getRightContainer())
 					    || !leftObjectValue.getLeftContainingFeature().equals(leftObjectValue.getRightContainingFeature())) {
 
@@ -490,12 +476,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 					((CBPMatchObject) leftValue).getLeftContainingFeature()
 						.addAdjustPositionEvent(new CBPDiffPositionEvent(CBPPositionEventType.MOVEIN, ((CBPMatchObject) leftValue).getLeftPosition(), leftValue), CBPSide.LEFT);
-					try {
-					    ((CBPMatchObject) leftValue).getRightContainingFeature().addAdjustPositionEvent(
-						    new CBPDiffPositionEvent(CBPPositionEventType.MOVEOUT, ((CBPMatchObject) leftValue).getRightPosition(), leftValue), CBPSide.RIGHT);
-					} catch (Exception e) {
-					    e.printStackTrace();
-					}
+
+					((CBPMatchObject) leftValue).getRightContainingFeature().addAdjustPositionEvent(
+						new CBPDiffPositionEvent(CBPPositionEventType.MOVEOUT, ((CBPMatchObject) leftValue).getRightPosition(), leftValue), CBPSide.RIGHT);
 
 					// feature.addAdjustPositionEvent(new
 					// CBPDiffPositionEvent(CBPPositionEventType.MOVE,
@@ -520,6 +503,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 					    }
 					}
 				    }
+				    // } catch (Exception e) {
+				    // e.printStackTrace();
+				    // }
 				}
 			    }
 			}
@@ -760,12 +746,13 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	    // System.out.println(event.toString());
 	    // {
-	    // CBPMatchObject obj = objects.get("O-28309");
+	    // CBPMatchObject obj = objects.get("O-410132");
 	    // if (obj != null) {
-	    //// if (obj.getRightPosition() == 0) {
-	    // System.out.println("X = " + obj.getRightPosition() + " Side = " +
-	    // side);
-	    // // }
+	    // System.out.println(obj.getLeftContainer());
+	    // if (obj.getLeftContainer() == null) {
+	    // System.out.println();
+	    // }
+	    // }
 	    // }
 
 	    // CBPMatchObject obj = objects.get("O-43655");
@@ -1038,6 +1025,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // ------------
 	    if (event instanceof CBPSetEReferenceEvent) {
 
+		if (targetId.equals("O-194750") && valueId.equals("O-410132")) {
+		    System.out.println();
+		}
+
 		if (valueObject.isDeleted(side)) {
 		    valueObject.setDeleted(false, side);
 		}
@@ -1083,12 +1074,12 @@ public class CBPComparisonImpl implements ICBPComparison {
 			if (!targetObject.getRightIsCreated() && side == CBPSide.RIGHT) {
 			    if (!feature.getIsSet(CBPSide.LEFT)) {
 				feature.setValue(oldValue, CBPSide.LEFT);
-				feature.setIsSet(CBPSide.LEFT);
+				// feature.setIsSet(CBPSide.LEFT);
 			    }
 			} else if (!targetObject.getLeftIsCreated() && side == CBPSide.LEFT) {
 			    if (!feature.getIsSet(CBPSide.RIGHT)) {
 				feature.setValue(oldValue, CBPSide.RIGHT);
-				feature.setIsSet(CBPSide.RIGHT);
+				// feature.setIsSet(CBPSide.RIGHT);
 			    }
 			}
 		    }
@@ -1149,10 +1140,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 		if (event.getOldValue() != null) {
 		    if (!feature.getIsSet(CBPSide.RIGHT) && side == CBPSide.LEFT) {
 			feature.setValue(event.getOldValue(), CBPSide.RIGHT);
-			feature.setIsSet(CBPSide.RIGHT);
+			// feature.setIsSet(CBPSide.RIGHT);
 		    } else if (!feature.getIsSet(CBPSide.LEFT) && side == CBPSide.RIGHT) {
 			feature.setValue(event.getOldValue(), CBPSide.LEFT);
-			feature.setIsSet(CBPSide.LEFT);
+			// feature.setIsSet(CBPSide.LEFT);
 		    }
 		}
 
@@ -1166,10 +1157,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 		if (event.getOldValue() != null) {
 		    if (!feature.getIsSet(CBPSide.RIGHT) && side == CBPSide.LEFT) {
 			feature.setValue(event.getOldValue(), CBPSide.RIGHT);
-			feature.setIsSet(CBPSide.RIGHT);
+			// feature.setIsSet(CBPSide.RIGHT);
 		    } else if (!feature.getIsSet(CBPSide.LEFT) && side == CBPSide.RIGHT) {
 			feature.setValue(event.getOldValue(), CBPSide.LEFT);
-			feature.setIsSet(CBPSide.LEFT);
+			// feature.setIsSet(CBPSide.LEFT);
 		    }
 		}
 	    }
@@ -1715,7 +1706,7 @@ public class CBPComparisonImpl implements ICBPComparison {
      * @throws FileNotFoundException
      * 
      */
-    protected void printObjectTree() throws FileNotFoundException {
+    protected void saveObjectTree() throws FileNotFoundException {
 	// Check
 	PrintWriter writer = new PrintWriter(objectTreeFile);
 	Iterator<Entry<String, CBPMatchObject>> iterator = objects.entrySet().iterator();
@@ -1759,5 +1750,33 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    return object.getRightPosition();
 	}
     }
+
+    public List<CBPChangeEvent<?>> getLeftEvents() {
+        return leftEvents;
+    }
+
+    public List<CBPChangeEvent<?>> getRightEvents() {
+        return rightEvents;
+    }
+
+    public long getObjectTreeConstructionMemory() {
+        return objectTreeConstructionMemory;
+    }
+
+    public long getDiffMemory() {
+        return diffMemory;
+    }
+
+    public long getComparisonMemory() {
+        return comparisonMemory;
+    }
+
+    public long getLoadMemory() {
+        return loadMemory;
+    }
+    
+    
+    
+    
 
 }

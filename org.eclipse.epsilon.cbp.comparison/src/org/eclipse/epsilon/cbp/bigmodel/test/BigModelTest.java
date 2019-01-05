@@ -10,9 +10,13 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,9 +40,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.compare.AttributeChange;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.ReferenceChange;
+import org.eclipse.emf.compare.ResourceAttachmentChange;
 import org.eclipse.emf.compare.EMFCompare.Builder;
 import org.eclipse.emf.compare.match.DefaultComparisonFactory;
 import org.eclipse.emf.compare.match.DefaultEqualityHelperFactory;
@@ -53,6 +60,9 @@ import org.eclipse.emf.compare.postprocessor.IPostProcessor;
 import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope2;
+import org.eclipse.emf.compare.uml2.internal.AssociationChange;
+import org.eclipse.emf.compare.uml2.internal.DirectedRelationshipChange;
+import org.eclipse.emf.compare.uml2.internal.MultiplicityElementChange;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EAttribute;
@@ -102,9 +112,8 @@ public class BigModelTest {
     public BigModelTest() {
 	JavaPackage.eINSTANCE.eClass();
 	UMLPackage.eINSTANCE.eClass();
-	Logger.getRootLogger().setLevel(Level.OFF);
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
-	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_DISCARD);
     }
 
     @Test
@@ -120,6 +129,18 @@ public class BigModelTest {
 
     @Test
     public void randomModification() throws IOException, FactoryConfigurationError, XMLStreamException {
+	System.out.println("START: " + (new Date()).toString());
+
+	Logger.getRootLogger().setLevel(Level.OFF);
+	
+	File outputFile = new File("D:\\TEMP\\FASE\\performance\\output.csv");
+	if (outputFile.exists()) outputFile.delete();
+	PrintWriter writer = new PrintWriter(outputFile);
+	
+	//print header
+	writer.println("num,levc,revc,clt,clm,cdc,ctt,ctm,cdt,cdm,cct,ccm,lelc,relc,slt,slm,sdc,smt,smm,sdt,sdm,sct,scm");
+	writer.flush();
+	
 	String originXmiPath = "D:\\TEMP\\FASE\\performance\\origin.xmi";
 	String leftXmiPath = "D:\\TEMP\\FASE\\performance\\left.xmi";
 	String rightXmiPath = "D:\\TEMP\\FASE\\performance\\right.xmi";
@@ -127,16 +148,11 @@ public class BigModelTest {
 	String leftCbpPath = "D:\\TEMP\\FASE\\performance\\left.cbpxml";
 	String rightCbpPath = "D:\\TEMP\\FASE\\performance\\right.cbpxml";
 
-	File originXmiFile = new File(originXmiPath);
 	File leftXmiFile = new File(leftXmiPath);
 	File rightXmiFile = new File(rightXmiPath);
 	File originCbpFile = new File(originCbpPath);
 	File leftCbpFile = new File(leftCbpPath);
 	File rightCbpFile = new File(rightCbpPath);
-
-	// System.out.println("Copying origin xmi to left and right xmis");
-	// Files.copy(originXmiFile, leftXmiFile);
-	// Files.copy(originXmiFile, rightXmiFile);
 
 	if (originCbpFile.exists())
 	    originCbpFile.delete();
@@ -171,10 +187,10 @@ public class BigModelTest {
 
 	// Start modifying the models
 	List<ChangeType> seeds = new ArrayList<>();
-	setProbability(seeds, 6, ChangeType.CHANGE);
-	setProbability(seeds, 2, ChangeType.ADD);
+	setProbability(seeds, 110, ChangeType.CHANGE);
+	setProbability(seeds, 60, ChangeType.ADD);
 	setProbability(seeds, 1, ChangeType.DELETE);
-	setProbability(seeds, 3, ChangeType.MOVE);
+	setProbability(seeds, 60, ChangeType.MOVE);
 
 	System.out.println("Loading " + leftCbpFile.getName() + "...");
 	leftCbp.load(null);
@@ -186,7 +202,9 @@ public class BigModelTest {
 	List<EObject> leftEObjectList = identifyAllEObjects(leftCbp);
 	List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
 
-	int modificationCount = 1000000;
+	List<BigModelResult> results = new ArrayList<>();
+	int modificationCount = 1100000;
+	int number = 0;
 	for (int i = 1; i <= modificationCount; i++) {
 	    System.out.print("Change " + i + ":");
 	    startModification(leftCbp, leftEObjectList, seeds);
@@ -196,25 +214,127 @@ public class BigModelTest {
 	    System.out.println();
 
 	    // do comparison
-	    if (i % 1000000 == 0) {
-		ICBPComparison comparison = new CBPComparisonImpl();
-		comparison.setDiffEMFCompareFile(new File(originCbpFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
-		comparison.setObjectTreeFile(new File(originCbpFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
-		comparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
-		comparison.compare(leftCbpFile, rightCbpFile, originCbpFile);
-
+	    if (i % 50000 == 0) {
+		number++;
+		
+		BigModelResult result = new BigModelResult();
+		
 		System.out.println("Saving changes to Xmis ...");
 		XMIResource leftXmi = saveXmiWithID(leftCbp, leftXmiFile);
 		XMIResource rightXmi = saveXmiWithID(rightCbp, rightXmiFile);
 
+		ICBPComparison changeComparison = new CBPComparisonImpl();
+		changeComparison.setDiffEMFCompareFile(new File(originCbpFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
+		changeComparison.setObjectTreeFile(new File(originCbpFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
+		changeComparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
+		changeComparison.compare(leftCbpFile, rightCbpFile, originCbpFile);
+		
+		result.setNumber(number);
+		writer.print(result.getNumber());
+		writer.print(",");
+		result.setLeftEventCount(changeComparison.getLeftEvents().size());
+		writer.print(result.getLeftEventCount());
+		writer.print(",");
+		result.setRightEventCount(changeComparison.getRightEvents().size());
+		writer.print(result.getRightEventCount());
+		writer.print(",");
+		result.setChangeLoadTime(changeComparison.getLoadTime());
+		writer.print(result.getChangeLoadTime());
+		writer.print(",");
+		result.setChangeLoadMemory(changeComparison.getLoadMemory());
+		writer.print(result.getChangeLoadMemory());
+		writer.print(",");
+		result.setChangeDiffCount(changeComparison.getDiffCount());
+		writer.print(result.getChangeDiffCount());
+		writer.print(",");
+		result.setChangeTreeTime(changeComparison.getObjectTreeConstructionTime());
+		writer.print(result.getChangeTreeTime());
+		writer.print(",");
+		result.setChangeTreeMemory(changeComparison.getObjectTreeConstructionMemory());
+		writer.print(result.getChangeTreeMemory());
+		writer.print(",");
+		result.setChangeDiffTime(changeComparison.getDiffTime());
+		writer.print(result.getChangeDiffTime());
+		writer.print(",");
+		result.setChangeDiffMemory(changeComparison.getDiffMemory());
+		writer.print(result.getChangeDiffMemory());
+		writer.print(",");
+		result.setChangeComparisonTime(changeComparison.getComparisonTime());
+		writer.print(result.getChangeComparisonTime());
+		writer.print(",");
+		result.setChangeComparisonMemory(changeComparison.getComparisonMemory());
+		writer.print(result.getChangeComparisonMemory());
+		writer.print(",");
+		
 		System.out.println("Perform EMF Compare comparison as a bechmark ...");
-		doEMFComparison(leftXmi, rightXmi);
-
+		
+		leftXmi.unload();
+		rightXmi.unload();
+		
+		long startTime = 0;
+		long endTime = 0;
+		long startMemory = 0;
+		long endMemory = 0;
+		
+		System.out.println("Loading xmis ...");
+		System.gc();
+		startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory(); 
+		startTime = System.nanoTime();
+		leftXmi.load(options);
+		rightXmi.load(options);
+		endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory(); 
+		endTime = System.nanoTime();
+		
+		ModifiedEMFCompare stateComparison = doEMFComparison(leftXmi, rightXmi);
+		
+		result.setLeftElementCount(leftXmi.getEObjectToIDMap().size());
+		writer.print(result.getLeftElementCount());
+		writer.print(",");
+		result.setRightElementCount(rightXmi.getEObjectToIDMap().size());
+		writer.print(result.getRightElementCount());
+		writer.print(",");
+		result.setStateLoadTime(endTime - startTime);
+		writer.print(result.getStateLoadTime());
+		writer.print(",");
+		result.setStateLoadMemory(endMemory - startMemory);
+		writer.print(result.getStateLoadMemory());
+		writer.print(",");
+		result.setStateDiffCount(stateComparison.getDiffs().size());
+		writer.print(result.getStateDiffCount());
+		writer.print(",");
+		result.setStateMatchTime(stateComparison.getMatchTime());
+		writer.print(result.getStateMatchTime());
+		writer.print(",");
+		result.setStateMatchMemory(stateComparison.getMatchMemory());
+		writer.print(result.getStateMatchMemory());
+		writer.print(",");
+		result.setStateDiffTime(stateComparison.getDiffTime());
+		writer.print(result.getStateDiffTime());
+		writer.print(",");
+		result.setStateDiffMemory(stateComparison.getDiffMemory());
+		writer.print(result.getStateDiffMemory());
+		writer.print(",");
+		result.setStateComparisonTime(stateComparison.getComparisonTime());
+		writer.print(result.getStateComparisonTime());
+		writer.print(",");
+		result.setStateComparisonMemory(stateComparison.getComparisonMemory());
+		writer.print(result.getStateComparisonMemory());
+		writer.println();
+		writer.flush();
+		
+		results.add(result);
+		
+		leftXmi.unload();
+		rightXmi.unload();
+		
 		System.out.println();
 	    }
+	    
+	    
 	}
+	writer.close();
 
-	System.out.println("FINISHED!");
+	System.out.println("FINISHED! " + (new Date()).toString());
 	assertEquals(true, true);
     }
 
@@ -255,6 +375,7 @@ public class BigModelTest {
 	    System.out.print(" " + changeType);
 	    moveModification(eObjectList, cbp);
 	}
+	System.out.print(" " + eObjectList.size());
 
     }
 
@@ -265,6 +386,17 @@ public class BigModelTest {
 	    if (random.nextInt(2) == 0) {
 		int index1 = random.nextInt(eObjectList.size());
 		EObject eObject1 = eObjectList.get(index1);
+		if (eObject1 != null) {
+		    if (eObject1.eResource() == null || eObject1.eContainer() == null) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		    String id = leftCbp.getURIFragment(eObject1);
+		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		}
 		EList<EAttribute> attributes1 = eObject1.eClass().getEAllAttributes();
 		List<EAttribute> filteredEAttributes = new ArrayList<>();
 		for (EAttribute eAttribute : attributes1) {
@@ -310,6 +442,17 @@ public class BigModelTest {
 
 		int index1 = random.nextInt(eObjectList.size());
 		EObject eObject1 = eObjectList.get(index1);
+		if (eObject1 != null) {
+		    if (eObject1.eResource() == null || eObject1.eContainer() == null) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		    String id = leftCbp.getURIFragment(eObject1);
+		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		}
 		EList<EReference> references1 = eObject1.eClass().getEAllContainments();
 		List<EReference> filteredEReferences = new ArrayList<>();
 		for (EReference eReference : references1) {
@@ -362,6 +505,17 @@ public class BigModelTest {
 	    if (random.nextInt(2) == 0) {
 		int index1 = random.nextInt(eObjectList.size());
 		EObject eObject1 = eObjectList.get(index1);
+		if (eObject1.eResource() == null || eObject1.eContainer() == null) {
+		    eObjectList.remove(eObject1);
+		    continue;
+		}
+		if (eObject1 != null) {
+		    String id = leftCbp.getURIFragment(eObject1);
+		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		}
 		EList<EAttribute> attributes1 = eObject1.eClass().getEAllAttributes();
 		List<EAttribute> filteredEAttributes = new ArrayList<>();
 		for (EAttribute eAttribute : attributes1) {
@@ -390,6 +544,17 @@ public class BigModelTest {
 		if (random.nextInt(2) == 0) {
 		    int index1 = random.nextInt(eObjectList.size());
 		    EObject eObject1 = eObjectList.get(index1);
+		    if (eObject1 != null) {
+			if (eObject1.eResource() == null || eObject1.eContainer() == null) {
+			    eObjectList.remove(eObject1);
+			    continue;
+			}
+			String id = leftCbp.getURIFragment(eObject1);
+			if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			    eObjectList.remove(eObject1);
+			    continue;
+			}
+		    }
 		    EList<EReference> references1 = eObject1.eClass().getEAllContainments();
 		    List<EReference> filteredEReferences = new ArrayList<>();
 		    for (EReference eReference : references1) {
@@ -415,8 +580,32 @@ public class BigModelTest {
 		else {
 		    int index1 = random.nextInt(eObjectList.size());
 		    EObject eObject1 = eObjectList.get(index1);
+
+		    if (eObject1 != null) {
+			if (eObject1.eResource() == null || eObject1.eContainer() == null) {
+			    eObjectList.remove(eObject1);
+			    continue;
+			}
+			String id = leftCbp.getURIFragment(eObject1);
+			if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			    eObjectList.remove(eObject1);
+			    continue;
+			}
+		    }
 		    int index2 = random.nextInt(eObjectList.size());
 		    EObject eObject2 = eObjectList.get(index2);
+
+		    if (eObject2 != null) {
+			if (eObject2.eResource() == null || eObject2.eContainer() == null) {
+			    eObjectList.remove(eObject2);
+			    continue;
+			}
+			String id = leftCbp.getURIFragment(eObject2);
+			if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			    eObjectList.remove(eObject2);
+			    continue;
+			}
+		    }
 		    EList<EReference> references1 = eObject1.eClass().getEAllContainments();
 		    List<EReference> filteredEReferences = new ArrayList<>();
 		    for (EReference eReference : references1) {
@@ -436,6 +625,7 @@ public class BigModelTest {
 				try {
 				    int pos = random.nextInt(values.size());
 				    values.add(pos, eObject2);
+				    String x = leftCbp.getURIFragment(eObject2);
 				    found = true;
 				} catch (Exception e) {
 				}
@@ -461,6 +651,17 @@ public class BigModelTest {
 	    if (random.nextInt(2) == 0) {
 		int index1 = random.nextInt(eObjectList.size());
 		EObject eObject1 = eObjectList.get(index1);
+		if (eObject1 != null) {
+		    if (eObject1.eResource() == null || eObject1.eContainer() == null) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		    String id = leftCbp.getURIFragment(eObject1);
+		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		}
 		EList<EAttribute> attributes1 = eObject1.eClass().getEAllAttributes();
 		List<EAttribute> filteredEAttributes = new ArrayList<>();
 		for (EAttribute eAttribute : attributes1) {
@@ -500,10 +701,29 @@ public class BigModelTest {
 	    else {
 		int index1 = random.nextInt(eObjectList.size());
 		EObject eObject1 = eObjectList.get(index1);
+		if (eObject1 != null) {
+		    if (eObject1.eResource() == null || eObject1.eContainer() == null) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		    String id = leftCbp.getURIFragment(eObject1);
+		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			eObjectList.remove(eObject1);
+			continue;
+		    }
+		}
 		int index2 = random.nextInt(eObjectList.size());
 		EObject eObject2 = eObjectList.get(index2);
-		if (eObject2.eContainmentFeature() == null) {
-		    continue;
+		if (eObject2 != null) {
+		    if (eObject2.eResource() == null || eObject2.eContainer() == null) {
+			eObjectList.remove(eObject2);
+			continue;
+		    }
+		    String id = leftCbp.getURIFragment(eObject2);
+		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			eObjectList.remove(eObject2);
+			continue;
+		    }
 		}
 		EList<EReference> references1 = eObject1.eClass().getEAllReferences();
 		List<EReference> filteredEReferences = new ArrayList<>();
@@ -563,6 +783,13 @@ public class BigModelTest {
 	    else {
 		int index = random.nextInt(eObjectList.size());
 		EObject eObject = eObjectList.get(index);
+		if (eObject != null) {
+		    String id = leftCbp.getURIFragment(eObject);
+		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			eObjectList.remove(eObject);
+			continue;
+		    }
+		}
 		if (eObject.eContainingFeature() == null || eObject.eContainer() == null) {
 		    continue;
 		}
@@ -679,7 +906,7 @@ public class BigModelTest {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    private void doEMFComparison(Resource left, Resource right) throws FileNotFoundException, IOException {
+    private ModifiedEMFCompare doEMFComparison(Resource left, Resource right) throws FileNotFoundException, IOException {
 	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
 	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
 	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
@@ -699,6 +926,7 @@ public class BigModelTest {
 	// System.out.println("Compare " + cbp.getURI().lastSegment() + " and "
 	// + xmi.getURI().lastSegment());
 	IComparisonScope2 scope = new DefaultComparisonScope(left, right, null);
+	System.out.println("Start comparison ...");
 	Comparison comparison = comparator.compare(scope);
 	EList<Diff> diffs = comparison.getDifferences();
 
@@ -706,5 +934,148 @@ public class BigModelTest {
 	System.out.println("Diffing Time = " + comparator.getDiffTime() / 1000000.0 + " ms");
 	System.out.println("Comparison Time = " + comparator.getComparisonTime() / 1000000.0 + " ms");
 	System.out.println("State-based Diffs Size = " + diffs.size());
+
+	return comparator;
+    }
+
+    private List<String> exportEMFCompareDiffs(File outputFile, Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {
+	Set<String> set = new HashSet<>();
+	for (Diff diff : diffs) {
+	    String feature = null;
+	    String id = null;
+	    String value = null;
+
+	    if (diff.getMatch().getLeft() != null) {
+		id = left.getURIFragment(diff.getMatch().getLeft());
+	    } else {
+		id = right.getURIFragment(diff.getMatch().getRight());
+	    }
+
+	    if (diff instanceof AttributeChange) {
+		feature = ((AttributeChange) diff).getAttribute().getName();
+		value = String.valueOf(((AttributeChange) diff).getValue());
+	    } else if (diff instanceof ReferenceChange) {
+		feature = ((ReferenceChange) diff).getReference().getName();
+		EObject eObject = ((ReferenceChange) diff).getValue();
+		value = left.getURIFragment(eObject);
+		if (value == null || "/-1".equals(value)) {
+		    value = right.getURIFragment(eObject);
+		}
+	    } else if (diff instanceof MultiplicityElementChange) {
+		// MultiplicityElementChange change =
+		// (MultiplicityElementChange) diff;
+		// if (change.getEReference() != null) {
+		// EObject eObject = change.getDiscriminant();
+		// value = left.getURIFragment(eObject);
+		// if (value == null || "/-1".equals(value)) {
+		// value = right.getURIFragment(eObject);
+		// }
+		// feature = change.getEReference().getName();
+		// } else {
+		// continue;
+		// }
+		continue;
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		feature = "resource";
+		value = new String(id);
+		id = new String(feature);
+
+	    } else if (diff instanceof AssociationChange) {
+		// AssociationChange change = (AssociationChange) diff;
+		// if (change.getEReference() != null) {
+		// EObject eObject = change.getDiscriminant();
+		// value = left.getURIFragment(eObject);
+		// if (value == null || "/-1".equals(value)) {
+		// value = right.getURIFragment(eObject);
+		// }
+		// feature = change.getEReference().getName();
+		// } else {
+		// continue;
+		// }
+		continue;
+
+	    } else if (diff instanceof DirectedRelationshipChange) {
+
+		// DirectedRelationshipChange change =
+		// (DirectedRelationshipChange) diff;
+		// if (change.getEReference() != null) {
+		// EObject eObject = change.getDiscriminant();
+		// value = left.getURIFragment(eObject);
+		// if (value == null || "/-1".equals(value)) {
+		// value = right.getURIFragment(eObject);
+		// }
+		// feature = change.getEReference().getName();
+		// } else {
+		// continue;
+		// }
+		continue;
+	    } else {
+		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
+	    }
+
+	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+	    set.add(x.trim());
+	}
+	// System.out.println("Before Merge Diffs: " + diffs.size());
+
+	List<String> list = new ArrayList<>(set);
+	Collections.sort(list);
+
+	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+	FileOutputStream output = new FileOutputStream(outputFile);
+	for (String item : list) {
+	    output.write(item.getBytes());
+	    output.write(System.lineSeparator().getBytes());
+	}
+	System.out.println("State-based Diffs Size: " + list.size());
+	return list;
+    }
+
+    @Test
+    public void saveCBPasXMI() throws IOException {
+
+	String leftCbpPath = "D:\\TEMP\\FASE\\Debug\\right.cbpxml";
+	String leftXmiPath = leftCbpPath.replace(".cbpxml", ".xmi");
+
+	File leftXmiFile = new File(leftXmiPath);
+	File leftCbpFile = new File(leftCbpPath);
+
+	CBPXMLResourceFactory cbpFactory = new CBPXMLResourceFactory();
+
+	CBPXMLResourceImpl leftCbp = (CBPXMLResourceImpl) cbpFactory.createResource(URI.createFileURI(leftCbpFile.getAbsolutePath()));
+
+	System.out.println("Loading " + leftCbpFile.getName() + "...");
+	leftCbp.load(null);
+
+	System.out.println("Saving changes to Xmis ...");
+	XMIResource leftXmi = saveXmiWithID(leftCbp, leftXmiFile);
+
+    }
+
+    @Test
+    public void testEMFComparison() throws FileNotFoundException, IOException {
+	String leftXmiPath = "D:\\TEMP\\FASE\\Debug\\left.xmi";
+	String rightXmiPath = "D:\\TEMP\\FASE\\Debug\\right.xmi";
+	
+	File outputFile = new File("D:\\TEMP\\FASE\\Debug\\right.txt");
+
+	XMIResource leftXmi = (XMIResource) ((new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiPath)));
+	XMIResource rightXmi = (XMIResource) ((new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiPath)));
+	
+	System.out.println("Start loading models ...");
+	long start = System.nanoTime();
+	leftXmi.load(options);
+	rightXmi.load(options);
+	long end = System.nanoTime();
+	System.out.println("Loading time = " + ((end - start) / 1000000000.0));
+	System.out.println("Left element count = " + leftXmi.getEObjectToIDMap().size());
+	System.out.println("Right element count = "  + rightXmi.getEObjectToIDMap().size());
+	
+	System.out.println("Perform comparison ...");
+	EList<Diff> diffs = this.doEMFComparison(leftXmi, rightXmi).getDiffs();
+	System.out.println("Exporting identified diffs ...");
+	exportEMFCompareDiffs(outputFile, leftXmi, rightXmi, diffs);
+	
+	System.out.println("Finished!");
     }
 }

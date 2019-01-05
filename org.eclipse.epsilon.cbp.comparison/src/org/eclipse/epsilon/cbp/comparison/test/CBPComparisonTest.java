@@ -102,7 +102,7 @@ public class CBPComparisonTest {
 	EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
 	EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
 	EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
-	Logger.getRootLogger().setLevel(Level.OFF);
+//	Logger.getRootLogger().setLevel(Level.OFF);
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_DISCARD);
     }
@@ -1044,7 +1044,7 @@ public class CBPComparisonTest {
 	targetResource.load(options);
 
 	{
-	    String a = "O-52341";
+	    String a = "O-410132";
 	    EObject eObject = originResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -1062,7 +1062,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-52341";
+	    String a = "O-410132";
 	    EObject eObject = rightResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -1080,7 +1080,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-52341";
+	    String a = "O-410132";
 	    EObject eObject = leftResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
@@ -1098,7 +1098,7 @@ public class CBPComparisonTest {
 	}
 
 	{
-	    String a = "O-52341";
+	    String a = "O-410132";
 	    EObject eObject = targetResource.getEObject(a);
 	    if (eObject != null) {
 		EObject eContainer = eObject.eContainer();
