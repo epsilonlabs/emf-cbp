@@ -26,6 +26,15 @@ public class BigModelResult {
     private int leftEventCount = 0;
     private int rightEventCount = 0;
     private int changeDiffCount = 0;
+    private int affectedObjectCount = 0;
+
+    public int getAffectedObjectCount() {
+	return affectedObjectCount;
+    }
+
+    public void setAffectedObjectCount(int affectedObjectCount) {
+	this.affectedObjectCount = affectedObjectCount;
+    }
 
     public int getNumber() {
 	return number;

@@ -3,10 +3,12 @@ package org.eclipse.epsilon.cbp.comparison;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
 public interface ICBPComparison {
@@ -46,4 +48,6 @@ public interface ICBPComparison {
     public long getComparisonMemory();
 
     public long getLoadMemory();
+    
+    public Map<String, CBPMatchObject> getObjectTree();
 }

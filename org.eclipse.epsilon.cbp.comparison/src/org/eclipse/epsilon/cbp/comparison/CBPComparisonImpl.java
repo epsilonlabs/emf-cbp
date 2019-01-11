@@ -89,8 +89,8 @@ public class CBPComparisonImpl implements ICBPComparison {
     private HybridResource rightHybridResource = null;
 
     private List<CBPDiff> diffs = null;
-    private List<CBPChangeEvent<?>> leftEvents = null;
-    private List<CBPChangeEvent<?>> rightEvents = null;
+    private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
     private Map<String, CBPMatchObject> objects = null;
 
     private File objectTreeFile = new File("D:\\TEMP\\COMPARISON2\\test\\object tree.txt");
@@ -163,17 +163,29 @@ public class CBPComparisonImpl implements ICBPComparison {
 	diffs = new ArrayList<>();
 	objects = new HashMap<>();
 
-	System.out.print("Convert CBP String Lines to Events");
-	System.gc();
-	startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-	startInterval = System.nanoTime();
-	this.readFiles(leftFile, rightFile, skip);
-	endInterval = System.nanoTime();
-	endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-	System.out.println(" = " + df.format(((endInterval - startInterval)) / 1000000.0) + " ms");
-	loadTime = endInterval - startInterval;
-	loadMemory = endMemory - startMemory;
-	
+	System.out.print("Convert CBP String Lines to Events\n");
+	int iteration = 6;
+	int threshold = 3;
+	for (int i = 1; i <= iteration; i++) {
+	    leftEvents.clear();
+	    rightEvents.clear();
+	    System.gc();
+	    startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	    startInterval = System.nanoTime();
+	    this.readFiles(leftFile, rightFile, skip);
+	    endInterval = System.nanoTime();
+	    System.gc();
+	    endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	    if (i > threshold) {
+		System.out.println("time = " + df.format(((endInterval - startInterval)) / 1000000.0) + " ms ");
+		System.out.println("memory = " + df.format(((endMemory - startMemory)) / 1000000.0) + " MBs");
+		loadTime = loadTime + (endInterval - startInterval);
+		loadMemory = loadMemory + (endMemory - startMemory);
+	    }
+	}
+	loadTime = (long) (((double) loadTime) / ((double) (iteration - threshold)));
+	loadMemory = (long) (((double) loadMemory) / ((double) (iteration - threshold)));
+
 	System.out.print("Construct Object Tree ");
 	System.gc();
 	startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -856,7 +868,17 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	    if (event instanceof CBPDeleteEObjectEvent) {
 		targetObject.setDeleted(true, side);
-		if (previousEvent instanceof CBPUnsetEReferenceEvent) {
+		if (previousEvent instanceof CBPSetEReferenceEvent) {
+		    CBPSetEReferenceEvent setEvent = (CBPSetEReferenceEvent) previousEvent;
+		    CBPMatchObject previousTargetObject = objects.get(setEvent.getTarget());
+		    CBPMatchFeature previousFeature = previousTargetObject.getFeatures().get(setEvent.getEReference());
+		    CBPMatchObject previousValueObject = objects.get(((CBPEObject) setEvent.getOldValue()).getId());
+		    targetObject.setContainer(previousTargetObject, side);
+		    targetObject.setContainingFeature(previousFeature, side);
+		    if (previousValueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
+			createValueObjectOnTheOppositeSide(previousValueObject);
+		    }
+		} else if (previousEvent instanceof CBPUnsetEReferenceEvent) {
 		    CBPUnsetEReferenceEvent unsetEvent = (CBPUnsetEReferenceEvent) previousEvent;
 		    CBPMatchObject previousTargetObject = objects.get(unsetEvent.getTarget());
 		    CBPMatchFeature previousFeature = previousTargetObject.getFeatures().get(unsetEvent.getEReference());
@@ -1464,8 +1486,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    leftReader.reset();
 	    rightReader.reset();
 
-	    leftEvents = new ArrayList<>();
-	    rightEvents = new ArrayList<>();
+	    leftEvents.clear();
+	    rightEvents.clear();
 	    convertLinesToEvents(leftEvents, leftFile, leftReader);
 	    convertLinesToEvents(rightEvents, rightFile, rightReader);
 
@@ -1752,31 +1774,31 @@ public class CBPComparisonImpl implements ICBPComparison {
     }
 
     public List<CBPChangeEvent<?>> getLeftEvents() {
-        return leftEvents;
+	return leftEvents;
     }
 
     public List<CBPChangeEvent<?>> getRightEvents() {
-        return rightEvents;
+	return rightEvents;
     }
 
     public long getObjectTreeConstructionMemory() {
-        return objectTreeConstructionMemory;
+	return objectTreeConstructionMemory;
     }
 
     public long getDiffMemory() {
-        return diffMemory;
+	return diffMemory;
     }
 
     public long getComparisonMemory() {
-        return comparisonMemory;
+	return comparisonMemory;
     }
 
     public long getLoadMemory() {
-        return loadMemory;
+	return loadMemory;
     }
-    
-    
-    
-    
+
+    public Map<String, CBPMatchObject> getObjectTree() {
+	return objects;
+    }
 
 }

@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.comparison.test;
+package org.eclipse.epsilon.cbp.bigmodel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

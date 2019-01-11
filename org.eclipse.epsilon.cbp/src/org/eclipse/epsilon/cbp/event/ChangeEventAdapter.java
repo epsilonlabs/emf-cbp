@@ -510,7 +510,18 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    } else {
 		event.setPosition(n.getPosition());
 	    }
-	    if (!(event instanceof UnsetEReferenceEvent) && !(event instanceof RemoveFromResourceEvent) && !(event instanceof RemoveFromEReferenceEvent)) {
+
+	    if (event instanceof SetEReferenceEvent) {
+		if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
+		    if (n.getOldValue() instanceof EObject) {
+			handleDeletedEObject(event, (EObject) n.getOldValue());
+		    } else if (n.getOldValue() instanceof EList) {
+			handleDeletedEObject(event, (EObject) event.getValue());
+		    }
+		} else {
+		    changeEvents.add(event);
+		}
+	    } else if (!(event instanceof UnsetEReferenceEvent) && !(event instanceof RemoveFromResourceEvent) && !(event instanceof RemoveFromEReferenceEvent)) {
 		changeEvents.add(event);
 	    }
 	    // this.addToModelHistory(event, position);
@@ -600,7 +611,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    }
 	    event.setComposite(compositeId);
 
-//	    unsetAllEReferences(removedObject);
+	    // unsetAllEReferences(removedObject);
 	    // unsetOppositeEReference(event, removedObject);
 
 	    changeEvents.add(event);
