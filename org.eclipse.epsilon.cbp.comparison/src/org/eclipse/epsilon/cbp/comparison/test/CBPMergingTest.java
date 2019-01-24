@@ -164,22 +164,22 @@ public class CBPMergingTest {
 	    System.out.println(line);
 	}
 
-	System.out.println();
-	System.out.println("CONFLICTS:");
-	List<ConflictedEventPair> conflictedEventPairs = cbpComparison.getConflictedEventPairs();
-	for (ConflictedEventPair pair : conflictedEventPairs) {
-	    System.out.println(pair.getLeftEvent().getEventString() + " != " + pair.getRightEvent().getEventString());
-	}
-
-	System.out.println();
-	System.out.println("MERGED EVENTS:");
-	for (ComparisonEvent event : cbpComparison.getMergedEvents()) {
-	    System.out.println(event.getEventString());
-	}
-
-	System.out.println();
-	System.out.println("MERGED XMI:");
-	System.out.println(actualValue);
+//	System.out.println();
+//	System.out.println("CONFLICTS:");
+//	List<ConflictedEventPair> conflictedEventPairs = cbpComparison.getConflictedEventPairs();
+//	for (ConflictedEventPair pair : conflictedEventPairs) {
+//	    System.out.println(pair.getLeftEvent().getEventString() + " != " + pair.getRightEvent().getEventString());
+//	}
+//
+//	System.out.println();
+//	System.out.println("MERGED EVENTS:");
+//	for (ComparisonEvent event : cbpComparison.getMergedEvents()) {
+//	    System.out.println(event.getEventString());
+//	}
+//
+//	System.out.println();
+//	System.out.println("MERGED XMI:");
+//	System.out.println(actualValue);
 
 	originResource.unload();
 	leftResource.unload();
@@ -295,6 +295,97 @@ public class CBPMergingTest {
 	assertEquals(actualValue, actualValue);
     }
 
+    @Test
+    public void testGenerateTwoUnindependentDifferentModels() throws IOException {
+	initialise("");
+	expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + "  <Node name=\"Node A\"/>\r\n"
+		+ "  <Node name=\"Node 02\">\r\n" + "    <valNodes name=\"Node 03\"/>\r\n" + "    <valNodes name=\"Node 04\"/>\r\n" + "  </Node>\r\n" + "  <Node name=\"Node 05\"/>\r\n" + "</xmi:XMI>";
+	try {
+	    // origin
+	    originalScript.add("var root = new Node;");
+	    originalScript.add("root.name = \"ROOT\";");
+	    originalScript.add("var nodeA = new Node;");
+	    originalScript.add("nodeA.name = \"A\";");
+	    originalScript.add("var nodeB = new Node;");
+	    originalScript.add("nodeB.name = \"B\";");
+	    originalScript.add("var nodeC = new Node;");
+	    originalScript.add("nodeC.name = \"C\";");
+	    originalScript.add("var nodeD = new Node;");
+	    originalScript.add("nodeD.name = \"D\";");
+	    originalScript.add("var nodeE = new Node;");
+	    originalScript.add("nodeE.name = \"E\";");
+	    originalScript.add("var nodeF = new Node;");
+	    originalScript.add("nodeF.name = \"F\";");
+
+	    originalScript.add("root.valNodes.add(nodeA);");
+	    originalScript.add("root.valNodes.add(nodeB);");
+	    originalScript.add("root.valNodes.add(nodeC);");
+	    originalScript.add("root.valNodes.add(nodeD);");
+	    originalScript.add("root.valNodes.add(nodeE);");
+	    originalScript.add("root.valNodes.add(nodeF);");
+
+	    // left
+	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    leftScript.add("root.valNodes.move(4,0);");
+	    leftScript.add("root.valNodes.move(4,0);");
+	    leftScript.add("root.valNodes.move(4,0);");
+	    
+	    // right
+	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    rightScript.add("root.valNodes.move(5,0);");
+	    rightScript.add("root.valNodes.move(1,0);");
+
+	    // merge
+	    targetCbpFile = executeTest(originalScript, leftScript, rightScript, MergeMode.UpdateLeftWithAllLeftSolutions);
+	    actualValue = getXMIString(targetCbpFile);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(1, 1);
+    }
+    
+    @Test
+    public void testGenerateTwoUnindependentDifferentModels2() throws IOException {
+	initialise("");
+	expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + "  <Node name=\"Node A\"/>\r\n"
+		+ "  <Node name=\"Node 02\">\r\n" + "    <valNodes name=\"Node 03\"/>\r\n" + "    <valNodes name=\"Node 04\"/>\r\n" + "  </Node>\r\n" + "  <Node name=\"Node 05\"/>\r\n" + "</xmi:XMI>";
+	try {
+	    // origin
+	    originalScript.add("var root = new Node;");
+	    originalScript.add("root.name = \"Math\";");
+	    originalScript.add("var nodeA = new Node;");
+	    originalScript.add("nodeA.name = \"abs\";");
+	    originalScript.add("var nodeB = new Node;");
+	    originalScript.add("nodeB.name = \"mean\";");
+	    originalScript.add("var nodeC = new Node;");
+	    originalScript.add("nodeC.name = \"pow\";");
+
+	    originalScript.add("root.valNodes.add(nodeA);");
+	    originalScript.add("root.valNodes.add(nodeB);");
+	    originalScript.add("root.valNodes.add(nodeC);");
+
+	    // left
+	    leftScript.add("var root  = Node.allInstances.selectOne(node | node.name == \"Math\");");
+	    leftScript.add("var nodeD = new Node;");
+	    leftScript.add("nodeD.name = \"sqrt\";");
+	    leftScript.add("root.valNodes.add(1, nodeD);");
+	    leftScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"mean\");");
+	    leftScript.add("delete nodeB;");
+	    leftScript.add("root.name = \"MathLib\";");
+	    
+	    // right
+	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"Math\");");
+	    rightScript.add("root.name = \"MathUtil\";");
+	    rightScript.add("root.valNodes.move(2,0);");
+
+	    // merge
+	    targetCbpFile = executeTest(originalScript, leftScript, rightScript, MergeMode.UpdateLeftWithAllLeftSolutions);
+	    actualValue = getXMIString(targetCbpFile);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(1, 1);
+    }
     @Test
     public void testGenerateTwoDifferentModels() throws IOException {
 	initialise("");
