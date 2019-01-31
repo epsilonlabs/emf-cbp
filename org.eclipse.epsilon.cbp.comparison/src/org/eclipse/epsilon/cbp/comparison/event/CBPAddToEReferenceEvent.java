@@ -18,4 +18,9 @@ public class CBPAddToEReferenceEvent extends CBPMultiValueEReferenceEvent implem
 	event.setComposite(this.getComposite());
 	return event;
     }
+    
+    @Override
+    public String toString() {
+	return String.format("add %s to %s.%s at %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getPosition());
+    }
 }

@@ -11,4 +11,9 @@ public class CBPAddToResourceEvent extends CBPResourceEvent {
 		event.setPosition(this.getPosition());;
 		return event;
 	}
+	
+	@Override
+	    public String toString() {
+		return String.format("add %s to %s at %s", this.getValue(), "resource", this.getPosition());
+	    }
 }

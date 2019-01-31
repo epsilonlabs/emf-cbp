@@ -7,57 +7,73 @@ public class CBPDiffPositionEvent {
     Object value = null;
 
     public CBPDiffPositionEvent(CBPPositionEventType eventType, int position, Object value) {
-        this.eventType = eventType;
-        this.position = position;
-        this.value = value;
+	this.eventType = eventType;
+	this.position = position;
+	this.value = value;
     }
 
     public CBPDiffPositionEvent(CBPPositionEventType eventType, int to, int from, Object value) {
-        this.eventType = eventType;
-        this.position = to;
-        this.from = from;
-        this.value = value;
+	this.eventType = eventType;
+	this.position = to;
+	this.from = from;
+	this.value = value;
     }
 
     public CBPPositionEventType getEventType() {
-        return eventType;
+	return eventType;
     }
 
     public void setEventType(CBPPositionEventType eventType) {
-        this.eventType = eventType;
+	this.eventType = eventType;
     }
 
     public int getPosition() {
-        return position;
+	return position;
     }
 
     public void setPosition(int position) {
-        this.position = position;
+	this.position = position;
     }
 
     public int getTo() {
-        return position;
+	return position;
     }
 
     public void setTo(int to) {
-        this.position = to;
+	this.position = to;
     }
 
     public int getFrom() {
-        return from;
+	return from;
     }
 
     public void setFrom(int from) {
-        this.from = from;
+	this.from = from;
     }
 
     public Object getValue() {
-        return value;
+	return value;
     }
 
     public void setValue(Object value) {
-        this.value = value;
+	this.value = value;
     }
-    
-    
+
+    @Override
+    public String toString() {
+	String result = "";
+	if (eventType == CBPPositionEventType.ADD) {
+	    result = getEventType() + ": to " + position;
+	} else if (eventType == CBPPositionEventType.REMOVE) {
+	    result = getEventType() + ": from " + position;
+	} else if (eventType == CBPPositionEventType.MOVE) {
+	    result = getEventType() + ": from " + from + " to " + position;
+	} else if (eventType == CBPPositionEventType.MOVEIN) {
+	    result = getEventType() + ": to " + position;
+	} else if (eventType == CBPPositionEventType.MOVEOUT) {
+	    result = getEventType() + ": from " + position;
+	}
+	return result;
+    }
+
 }

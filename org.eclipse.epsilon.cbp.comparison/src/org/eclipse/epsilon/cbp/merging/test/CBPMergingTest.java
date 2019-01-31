@@ -194,7 +194,7 @@ public class CBPMergingTest {
 	    int startFrom = 1;  
 	    //problems:
 	    // null pointer while merging: 57, 58
-	    int caseNum = 68;
+	    int caseNum = 68; //max 68
 
 	    for (int i = startFrom; i <= caseNum; i++) {
 

@@ -32,4 +32,9 @@ public class CBPMoveWithinEReferenceEvent extends CBPMultiValueEReferenceEvent i
 		event.setComposite(this.getComposite());
 		return event;
 	}
+	
+	@Override
+	    public String toString() {
+		return String.format("move %s in %s.%s from %s to %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getFromPosition(), this.getPosition());
+	    }
 }

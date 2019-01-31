@@ -12,7 +12,7 @@ import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
-public class CBPMatchObject {
+public class CBPMatchObject implements Comparable<Object> {
 
     public enum CBPSide {
 	LEFT, RIGHT;
@@ -37,11 +37,12 @@ public class CBPMatchObject {
     private boolean rightIsCreated = false;
     private boolean rightIsDeleted = false;
     private boolean rightIsMoved = false;
+
     private int leftPosition = -1;
     private int oldLeftPosition = -1;
     private int rightPosition = -1;
     private int oldRightPosition = -1;
-    private Set<CBPChangeEvent<?>> events = new HashSet<>();
+
     private List<CBPDiff> addDiffs = new ArrayList<>();
     private List<CBPDiff> deleteDiffs = new ArrayList<>();
     private List<CBPDiff> moveDiffs = new ArrayList<>();
@@ -52,10 +53,154 @@ public class CBPMatchObject {
     private List<CBPDiff> moveDiffsAsValue = new ArrayList<>();
     private List<CBPDiff> changeDiffsAsValue = new ArrayList<>();
     private List<CBPDiff> diffsAsValue = new ArrayList<>();
+    private List<CBPChangeEvent<?>> leftValueEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> rightValueEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> leftTargetEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> rightTargetEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
+    private Map<CBPMatchFeature, Integer> leftMergePosition = new HashMap<>();
+    private Map<CBPMatchFeature, Integer> rightMergePosition = new HashMap<>();
 
     public CBPMatchObject(String className, String id) {
 	this.className = className;
 	this.id = id;
+    }
+
+    public void setMergePosition(int position, CBPMatchFeature feature, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    setLeftMergePosition(position, feature);
+	} else {
+	    setRightMergePosition(position, feature);
+	}
+    }
+
+    public int getMergePosition(CBPMatchFeature feature, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return getLeftMergePosition(feature);
+	} else {
+	    return getRightMergePosition(feature);
+	}
+    }
+
+    public int getLeftMergePosition(CBPMatchFeature feature) {
+	return leftMergePosition.get(feature);
+    }
+
+    public int getRightMergePosition(CBPMatchFeature feature) {
+	return rightMergePosition.get(feature);
+    }
+
+    public void setLeftMergePosition(int position, CBPMatchFeature feature) {
+	this.leftMergePosition.put(feature, position);
+    }
+
+    public void setRightMergePosition(int position, CBPMatchFeature feature) {
+	this.rightMergePosition.put(feature, position);
+    }
+
+    public List<CBPChangeEvent<?>> getEvents(CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return leftEvents;
+	} else {
+	    return rightEvents;
+	}
+    }
+
+    public List<CBPChangeEvent<?>> getLeftEvents() {
+	return leftEvents;
+    }
+
+    public List<CBPChangeEvent<?>> getRightEvents() {
+	return rightEvents;
+    }
+
+    public List<CBPChangeEvent<?>> getValueEvents(CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return leftValueEvents;
+	} else {
+	    return rightValueEvents;
+	}
+    }
+
+    public List<CBPChangeEvent<?>> getLeftValueEvents() {
+	return leftValueEvents;
+    }
+
+    public List<CBPChangeEvent<?>> getRightValueEvents() {
+	return rightValueEvents;
+    }
+
+    public List<CBPChangeEvent<?>> getTargetEvents(CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return leftTargetEvents;
+	} else {
+	    return rightTargetEvents;
+	}
+    }
+
+    public List<CBPChangeEvent<?>> getLeftTargetEvents() {
+	return leftTargetEvents;
+    }
+
+    public List<CBPChangeEvent<?>> getRightTargetEvents() {
+	return rightTargetEvents;
+    }
+
+    public void addEvents(CBPChangeEvent<?> event, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.leftEvents.add(event);
+	} else {
+	    this.rightEvents.add(event);
+	}
+    }
+
+    public void addLeftEvents(CBPChangeEvent<?> event) {
+	this.leftEvents.add(event);
+    }
+
+    public void addRightEvents(CBPChangeEvent<?> event) {
+	this.rightEvents.add(event);
+    }
+
+    public void addValueEvents(CBPChangeEvent<?> event, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.leftValueEvents.add(event);
+	} else {
+	    this.rightValueEvents.add(event);
+	}
+    }
+
+    public void addLeftValueEvents(CBPChangeEvent<?> event) {
+	this.leftValueEvents.add(event);
+    }
+
+    public void addRightValueEvents(CBPChangeEvent<?> event) {
+	this.rightValueEvents.add(event);
+    }
+
+    public void addTargetEvents(CBPChangeEvent<?> event, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.leftTargetEvents.add(event);
+	} else {
+	    this.rightTargetEvents.add(event);
+	}
+    }
+
+    public void addLeftTargetEvents(CBPChangeEvent<?> event) {
+	this.leftTargetEvents.add(event);
+    }
+
+    public void addRightTargetEvents(CBPChangeEvent<?> event) {
+	this.rightTargetEvents.add(event);
+    }
+
+    public void setLeftPosition(int leftPosition) {
+	this.leftPosition = leftPosition;
+    }
+
+    public void setRightPosition(int rightPosition) {
+	this.rightPosition = rightPosition;
     }
 
     public int getOldLeftPosition() {
@@ -250,14 +395,6 @@ public class CBPMatchObject {
 	this.features = features;
     }
 
-    public Set<CBPChangeEvent<?>> getEvents() {
-	return events;
-    }
-
-    public void setEvents(Set<CBPChangeEvent<?>> events) {
-	this.events = events;
-    }
-
     public void setContainer(CBPMatchObject container, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftContainer = container;
@@ -348,44 +485,45 @@ public class CBPMatchObject {
 	} else if (diff.getKind() == CBPDifferenceKind.MOVE) {
 	    this.moveDiffs.add(diff);
 	}
-	
-//	if (((CBPMatchObject)diff.getValue()).getId().equals("O-28309")){
-//	    System.out.println("");
-//	}
-	
+
+	// if (((CBPMatchObject)diff.getValue()).getId().equals("O-28309")){
+	// System.out.println("");
+	// }
+
 	insertDiff(diff, this.diffs);
-//	Collections.sort(diffs, new CBPDiffComparator());
+	// Collections.sort(diffs, new CBPDiffComparator());
     }
 
     private void insertDiff(CBPDiff diff, List<CBPDiff> diffs) {
 	CBPDiffComparator comparator = new CBPDiffComparator();
 	CBPDiff prevDiff = null;
-	for(int i = 0; i < diffs.size(); i++) {
+	for (int i = 0; i < diffs.size(); i++) {
 	    CBPDiff cursorDiff = diffs.get(i);
 	    if (comparator.compare(diff, cursorDiff) < 0) {
 		diffs.add(i, diff);
 		return;
 	    }
-	    //do adjustment to the diff origin since its position will be shifted when merging
+	    // do adjustment to the diff origin since its position will be
+	    // shifted when merging
 	    if (prevDiff != null && diff.getKind() == CBPDifferenceKind.MOVE) {
-		if (prevDiff.getKind() == CBPDifferenceKind.ADD)  {
+		if (prevDiff.getKind() == CBPDifferenceKind.ADD) {
 		    if (prevDiff.getPosition() < diff.getOrigin()) {
 			diff.setOrigin(diff.getOrigin() + 1);
-		    } 
+		    }
 		} else if (prevDiff.getKind() == CBPDifferenceKind.DELETE) {
 		    if (prevDiff.getPosition() < diff.getOrigin()) {
-			diff.setOrigin(diff.getOrigin() -1 );
-		    } 
+			diff.setOrigin(diff.getOrigin() - 1);
+		    }
 		} else if (prevDiff.getKind() == CBPDifferenceKind.MOVE) {
 		    // move down
 		    if (prevDiff.getPosition() <= diff.getOrigin() && prevDiff.getOrigin() > diff.getOrigin()) {
 			diff.setOrigin(diff.getOrigin() + 1);
-		    } 
-		    //move up
+		    }
+		    // move up
 		    else if (prevDiff.getOrigin() < diff.getOrigin() && prevDiff.getPosition() >= diff.getOrigin()) {
 			diff.setOrigin(diff.getOrigin() - 1);
-		    } 
-		} 
+		    }
+		}
 	    }
 	    prevDiff = cursorDiff;
 	}
@@ -403,8 +541,8 @@ public class CBPMatchObject {
 	    this.moveDiffsAsValue.add(diff);
 	}
 	insertDiff(diff, this.getDiffsAsValue());
-//	this.diffsAsValue.add(diff);
-//	Collections.sort(diffsAsValue, new CBPDiffComparator());
+	// this.diffsAsValue.add(diff);
+	// Collections.sort(diffsAsValue, new CBPDiffComparator());
 
     }
 
@@ -531,5 +669,10 @@ public class CBPMatchObject {
     @Override
     public String toString() {
 	return this.getId();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+	return this.toString().compareTo(o.toString());
     }
 }

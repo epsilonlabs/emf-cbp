@@ -75,4 +75,9 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
 	CBPCreateEObjectEvent event = new CBPCreateEObjectEvent(eClass, resource, id);
 	return event;
     }
+    
+    @Override
+    public String toString() {
+	return String.format("delete %s ", this.getValue());
+    }
 }

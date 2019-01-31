@@ -1,5 +1,10 @@
 package org.eclipse.epsilon.cbp.comparison;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
 
 public class CBPDiff {
@@ -21,6 +26,8 @@ public class CBPDiff {
     private static final String SEP = ".";
     private boolean isResolved = false;
     private boolean underRecursion = false;
+    private Set<CBPDiff> requiresDiffs = new HashSet<>();
+    private Set<CBPDiff> requiredByDiffs = new HashSet<>();
 
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, -1, -1, null, null, value, kind, side);
@@ -55,6 +62,22 @@ public class CBPDiff {
 	if (this.value instanceof CBPMatchObject) {
 	    ((CBPMatchObject) this.value).addDiffAsValue(this);
 	}
+    }
+
+    public Set<CBPDiff> getRequiresDiffs() {
+        return requiresDiffs;
+    }
+
+    public Set<CBPDiff> getRequiredByDiffs() {
+        return requiredByDiffs;
+    }
+
+    public void setRequiresDiffs(Set<CBPDiff> requiresDiffs) {
+        this.requiresDiffs = requiresDiffs;
+    }
+
+    public void setRequiredByDiffs(Set<CBPDiff> requiredByDiffs) {
+        this.requiredByDiffs = requiredByDiffs;
     }
 
     public CBPMatchObject getObject() {

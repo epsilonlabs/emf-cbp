@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.epsilon.cbp.comparison" version="2">
+    <resource path="src/org/eclipse/epsilon/cbp/comparison/CBPMatchFeature.java" type="org.eclipse.epsilon.cbp.comparison.CBPMatchFeature">
+        <filter id="643850349">
+            <message_arguments>
+                <message_argument value="CBPFeatureType"/>
+                <message_argument value="CBPMatchFeature"/>
+                <message_argument value="CBPMatchFeature(CBPMatchObject, String, CBPFeatureType, boolean, boolean)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

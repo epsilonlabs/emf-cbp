@@ -102,7 +102,7 @@ public class CBPComparisonTest {
 	EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
 	EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
 	EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
-//	Logger.getRootLogger().setLevel(Level.OFF);
+	// Logger.getRootLogger().setLevel(Level.OFF);
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_DISCARD);
     }
@@ -342,6 +342,156 @@ public class CBPComparisonTest {
     @Test
     public void testGetContentsOfFeatures() throws IOException {
 
+	File originFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\origin.xmi");
+	File leftFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\left.xmi");
+	File rightFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\right.xmi");
+	File targetFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\target.xmi");
+
+	ResourceSet resourceSet = new ResourceSetImpl();
+	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+	XMIResource originResource = (XMIResource) resourceSet.createResource(URI.createFileURI(originFile.getAbsolutePath()));
+	XMIResource leftResource = (XMIResource) resourceSet.createResource(URI.createFileURI(leftFile.getAbsolutePath()));
+	XMIResource rightResource = (XMIResource) resourceSet.createResource(URI.createFileURI(rightFile.getAbsolutePath()));
+	XMIResource targetResource = (XMIResource) resourceSet.createResource(URI.createFileURI(targetFile.getAbsolutePath()));
+
+	Map<Object, Object> options = new HashMap<>();
+	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
+
+	originResource.load(options);
+	leftResource.load(options);
+	rightResource.load(options);
+	targetResource.load(options);
+
+	String id = "O-43655";
+//	String id = "R-215";
+	String featureName = "packagedElement";
+//	String featureName = "upperValue";
+
+	EObject originObject = originResource.getEObject(id);
+	EReference originReference = null;
+	EList<EObject> originValues = null;
+	if (originObject != null) {
+	    originReference = (EReference) originObject.eClass().getEStructuralFeature(featureName);
+	    originValues = (EList<EObject>) originObject.eGet(originReference);
+	}
+
+	EObject leftObject = leftResource.getEObject(id);
+	EReference leftReference = null;
+	EList<EObject> leftValues = null;
+	if (leftObject != null) {
+	    leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
+	    leftValues = (EList<EObject>) leftObject.eGet(leftReference);
+	}
+
+	EObject rightObject = rightResource.getEObject(id);
+	EReference rightReference = null;
+	EList<EObject> rightValues = null;
+	if (rightObject != null) {
+	    rightReference = (EReference) rightObject.eClass().getEStructuralFeature(featureName);
+	    rightValues = (EList<EObject>) rightObject.eGet(rightReference);
+	}
+
+	EObject targetObject = targetResource.getEObject(id);
+	EReference targetReference = null;
+	EList<EObject> targetValues = null;
+	if (targetObject != null) {
+	    targetReference = (EReference) targetObject.eClass().getEStructuralFeature(featureName);
+	    targetValues = (EList<EObject>) targetObject.eGet(targetReference);
+	}
+
+	Integer size = null;
+	if (leftValues != null && targetValues != null) {
+	    size = (leftValues.size() > targetValues.size()) ? leftValues.size() : targetValues.size();
+	} else if (leftValues != null && rightValues != null) {
+	    size = (leftValues.size() > rightValues.size()) ? leftValues.size() : rightValues.size();
+	}
+
+	System.out.println("\nORIGIN:");
+	if (originValues != null) {
+	    for (int i = 0; i < originValues.size(); i++) {
+		String originId = "";
+		EObject originValue = originValues.get(i);
+		originId = originResource.getURIFragment(originValue);
+		System.out.println(originId);
+	    }
+	}
+
+	System.out.println("\nLEFT:");
+	if (leftValues != null) {
+	    for (int i = 0; i < leftValues.size(); i++) {
+		String leftId = "";
+		EObject leftValue = leftValues.get(i);
+		leftId = leftResource.getURIFragment(leftValue);
+		System.out.println(leftId);
+	    }
+	}
+
+	System.out.println("\nRIGHT:");
+	if (rightValues != null) {
+	    for (int i = 0; i < rightValues.size(); i++) {
+		String rightId = "";
+		EObject rightValue = rightValues.get(i);
+		rightId = rightResource.getURIFragment(rightValue);
+		System.out.println(rightId);
+	    }
+	}
+
+	System.out.println("\nTARGET:");
+	if (targetValues != null) {
+	    for (int i = 0; i < targetValues.size(); i++) {
+		String targetId = "";
+		EObject targetValue = targetValues.get(i);
+		targetId = targetResource.getURIFragment(targetValue);
+		System.out.println(targetId);
+	    }
+	}
+
+	System.out.println("\nPAIR LEFT-RIGHT:");
+	if (leftValues != null && rightValues != null) {
+	    for (int i = 0; i < size; i++) {
+		String leftId = "";
+		String rightId = "";
+		if (i < leftValues.size()) {
+		    EObject leftValue = leftValues.get(i);
+		    leftId = leftResource.getURIFragment(leftValue);
+		}
+		if (i < rightValues.size()) {
+		    EObject rightValue = rightValues.get(i);
+		    rightId = rightResource.getURIFragment(rightValue);
+		}
+		String mark = " x ";
+		if (leftId.equals(rightId)) {
+		    mark = " = ";
+		}
+		System.out.println(i + ": " + leftId + mark + rightId);
+	    }
+	}
+
+	System.out.println("\nPAIR LEFT-TARGET:");
+	if (leftValues != null && targetValues != null) {
+	    for (int i = 0; i < size; i++) {
+		String leftId = "";
+		String rightId = "";
+		if (i < leftValues.size()) {
+		    EObject leftValue = leftValues.get(i);
+		    leftId = leftResource.getURIFragment(leftValue);
+		}
+		if (i < targetValues.size()) {
+		    EObject rightValue = targetValues.get(i);
+		    rightId = targetResource.getURIFragment(rightValue);
+		}
+		String mark = " x ";
+		if (leftId.equals(rightId)) {
+		    mark = " = ";
+		}
+		System.out.println(i + ": " + leftId + mark + rightId);
+	    }
+	}
+    }
+
+    @Test
+    public void testGetValuesOfFeatures() throws IOException {
+
 	File leftFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\left.xmi");
 	File rightFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\right.xmi");
 	File targetFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\target.xmi");
@@ -359,139 +509,26 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	String id = "O-37481";
-	String featureName = "packagedElement";
 
-	EObject leftObject = leftResource.getEObject(id);
-	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
-	EList<EObject> leftValues = (EList<EObject>) leftObject.eGet(leftReference);
+	String id = "R-215";
+	String featureName = "upperValue";
+
+//	EObject leftObject = leftResource.getEObject(id);
+//	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
+//	EObject leftValue = (EObject) leftObject.eGet(leftReference);
+//	System.out.println("LEFT = " + leftResource.getID(leftValue));
 
 	EObject rightObject = rightResource.getEObject(id);
 	EReference rightReference = (EReference) rightObject.eClass().getEStructuralFeature(featureName);
-	EList<EObject> rightValues = (EList<EObject>) rightObject.eGet(rightReference);
+	EObject rightValue = (EObject) rightObject.eGet(rightReference);
+	System.out.println("RIGHT = " + rightResource.getID(rightValue));
 
 	EObject targetObject = targetResource.getEObject(id);
 	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature(featureName);
-	EList<EObject> targetValues = (EList<EObject>) targetObject.eGet(targetReference);
+	EObject targetValue = (EObject) targetObject.eGet(targetReference);
+	System.out.println("TARGET = " + targetResource.getID(targetValue));
 
-//	int size = (leftValues.size() > rightValues.size()) ? leftValues.size() : rightValues.size();
-	 int size = (leftValues.size() > targetValues.size()) ?
-	 leftValues.size() : targetValues.size();
-
-	System.out.println("\nLEFT:");
-	for (int i = 0; i < leftValues.size(); i++) {
-	    String leftId = "";
-	    EObject leftValue = leftValues.get(i);
-	    leftId = leftResource.getURIFragment(leftValue);
-	    System.out.println(leftId);
-
-	}
-
-	System.out.println("\nRIGHT:");
-	for (int i = 0; i < rightValues.size(); i++) {
-	    String rightId = "";
-	    EObject rightValue = rightValues.get(i);
-	    rightId = rightResource.getURIFragment(rightValue);
-	    System.out.println(rightId);
-	}
-
-	System.out.println("\nTARGET:");
-	for (int i = 0; i < targetValues.size(); i++) {
-	    String targetId = "";
-	    EObject targetValue = targetValues.get(i);
-	    targetId = targetResource.getURIFragment(targetValue);
-	    System.out.println(targetId);
-	}
-
-	System.out.println("\nPAIR LEFT-RIGHT:");
-	for (int i = 0; i < size; i++) {
-	    String leftId = "";
-	    String rightId = "";
-
-	    if (i < leftValues.size()) {
-		EObject leftValue = leftValues.get(i);
-		leftId = leftResource.getURIFragment(leftValue);
-	    }
-
-	    if (i < rightValues.size()) {
-		EObject rightValue = rightValues.get(i);
-		rightId = rightResource.getURIFragment(rightValue);
-	    }
-	    
-	    String mark = " x ";
-	    if (leftId.equals(rightId)) {
-		mark = " = ";
-	    }
-
-	    System.out.println(i + ": " + leftId + mark + rightId);
-
-	}
-
-	System.out.println("\nPAIR LEFT-TARGET:");
-	for (int i = 0; i < size; i++) {
-	    String leftId = "";
-	    String rightId = "";
-
-	    if (i < leftValues.size()) {
-		EObject leftValue = leftValues.get(i);
-		leftId = leftResource.getURIFragment(leftValue);
-	    }
-
-	    if (i < targetValues.size()) {
-		EObject rightValue = targetValues.get(i);
-		rightId = targetResource.getURIFragment(rightValue);
-	    }
-
-	    String mark = " x ";
-	    if (leftId.equals(rightId)) {
-		mark = " = ";
-	    }
-	    
-	    System.out.println(i + ": " + leftId + mark + rightId);
-
-	}
     }
-    
-    @Test
-    public void testGetValuesOfFeatures() throws IOException {
-
-   	File leftFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\left.xmi");
-   	File rightFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\right.xmi");
-   	File targetFile = new File("D:\\\\TEMP\\\\FASE\\Debug\\target.xmi");
-
-   	ResourceSet resourceSet = new ResourceSetImpl();
-   	resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-   	XMIResource leftResource = (XMIResource) resourceSet.createResource(URI.createFileURI(leftFile.getAbsolutePath()));
-   	XMIResource rightResource = (XMIResource) resourceSet.createResource(URI.createFileURI(rightFile.getAbsolutePath()));
-   	XMIResource targetResource = (XMIResource) resourceSet.createResource(URI.createFileURI(targetFile.getAbsolutePath()));
-
-   	Map<Object, Object> options = new HashMap<>();
-   	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
-
-   	leftResource.load(options);
-   	rightResource.load(options);
-   	targetResource.load(options);
-
-   	String id = "O-39190";
-   	String featureName = "owningAssociation";
-
-   	EObject leftObject = leftResource.getEObject(id);
-   	EReference leftReference = (EReference) leftObject.eClass().getEStructuralFeature(featureName);
-   	EObject leftValue = (EObject) leftObject.eGet(leftReference);
-   	System.out.println("LEFT = " + leftResource.getID(leftValue));
-
-   	EObject rightObject = rightResource.getEObject(id);
-   	EReference rightReference = (EReference) rightObject.eClass().getEStructuralFeature(featureName);
-   	EObject rightValue = (EObject) rightObject.eGet(rightReference);
-   	System.out.println("RIGHT = " + rightResource.getID(rightValue));
-
-   	EObject targetObject = targetResource.getEObject(id);
-   	EReference targetReference = (EReference) targetObject.eClass().getEStructuralFeature(featureName);
-   	EObject targetValue = (EObject) targetObject.eGet(targetReference);
-   	System.out.println("TARGET = " + targetResource.getID(targetValue));
-
-
-       }
 
     @Test
     public void testModelComparisonPerformance() throws FactoryConfigurationError, Exception {

@@ -10,8 +10,17 @@ public abstract class CBPChangeEvent<T> {
     protected Collection<Object> values = new ArrayList<Object>();
     protected Collection<Object> oldValues = new ArrayList<Object>();
 
+    protected int lineNumber = -1;
     protected int position = -1;
     protected String composite = null;
+
+    public int getLineNumber() {
+	return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+	this.lineNumber = lineNumber;
+    }
 
     public String getComposite() {
 	return composite;
@@ -85,10 +94,10 @@ public abstract class CBPChangeEvent<T> {
 	this.setComposite(null);
 	return this;
     }
-    
+
     @Override
     public String toString() {
-	return this.getClass().getSimpleName() + "." + getOldValue() + "." + getValue() + "." + getPosition(); 
+	return "";
     }
 
 }

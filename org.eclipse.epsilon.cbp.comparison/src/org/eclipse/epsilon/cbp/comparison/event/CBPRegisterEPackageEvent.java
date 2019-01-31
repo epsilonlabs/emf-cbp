@@ -15,4 +15,9 @@ public class CBPRegisterEPackageEvent extends CBPChangeEvent<NullType> {
 	public String getEPackage() {
 		return ePackage;
 	}
+	
+	@Override
+	    public String toString() {
+		return String.format("register %s", this.getEPackage());
+	    }
 }

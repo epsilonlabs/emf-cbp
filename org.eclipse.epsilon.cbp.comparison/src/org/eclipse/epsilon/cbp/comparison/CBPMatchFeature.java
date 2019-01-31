@@ -27,7 +27,6 @@ public class CBPMatchFeature {
     private CBPMatchObject owner;
     private String oppositeFeatureName;
     private String name;
-    private Set<CBPChangeEvent<?>> events = new HashSet<>();
     private String type;
     private boolean isContainment = false;
     private boolean isMany = false;
@@ -38,10 +37,14 @@ public class CBPMatchFeature {
     private Map<Integer, Object> rightValues = new TreeMap<Integer, Object>();
     private Map<Integer, Object> oldLeftValues = new TreeMap<Integer, Object>();
     private Map<Integer, Object> oldRightValues = new TreeMap<Integer, Object>();
+    private Map<Object, Integer> leftValueLineNum = new TreeMap<Object, Integer>();
+    private Map<Object, Integer> rightValueLineNum = new TreeMap<Object, Integer>();
     private List<CBPPositionEvent> leftPositionEvents = new ArrayList<>();
     private List<CBPPositionEvent> rightPositionEvents = new ArrayList<>();
     private List<CBPDiffPositionEvent> leftDiffPositionEvents = new ArrayList<>();
     private List<CBPDiffPositionEvent> rightDiffPositionEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
+    private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
 
     public CBPMatchFeature(CBPMatchObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany) {
 	this.owner = owner;
@@ -49,6 +52,70 @@ public class CBPMatchFeature {
 	this.featureType = featureType;
 	this.isContainment = isContainer;
 	this.isMany = isMany;
+    }
+
+    public void putValueLineNum(Object value, int lineNum, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    leftValueLineNum.put(value, lineNum);
+	} else {
+	    rightValueLineNum.put(value, lineNum);
+	}
+    }
+
+    public Integer getValueLineNum(Object value, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return leftValueLineNum.get(value);
+	} else {
+	    return rightValueLineNum.get(value);
+	}
+    }
+
+    public Integer getLeftValueLineNum(Object value) {
+	return leftValueLineNum.get(value);
+    }
+
+    public Integer getRightValueLineNum(Object value) {
+	return rightValueLineNum.get(value);
+    }
+
+    public void setLeftValueLineNum(Map<Object, Integer> leftValueLineNum) {
+	this.leftValueLineNum = leftValueLineNum;
+    }
+
+    public void setRightValueLineNum(Map<Object, Integer> rightValueLineNum) {
+	this.rightValueLineNum = rightValueLineNum;
+    }
+
+    public List<CBPChangeEvent<?>> getEvents(CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return getLeftEvents();
+	} else {
+	    return getRightEvents();
+	}
+    }
+
+    public List<CBPChangeEvent<?>> getLeftEvents() {
+	return leftEvents;
+    }
+
+    public List<CBPChangeEvent<?>> getRightEvents() {
+	return rightEvents;
+    }
+
+    public void addEvents(CBPChangeEvent<?> event, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.leftEvents.add(event);
+	} else {
+	    this.rightEvents.add(event);
+	}
+    }
+
+    public void addLeftEvents(CBPChangeEvent<?> event) {
+	this.leftEvents.add(event);
+    }
+
+    public void addRightEvents(CBPChangeEvent<?> event) {
+	this.rightEvents.add(event);
     }
 
     public boolean isMany() {
@@ -73,14 +140,6 @@ public class CBPMatchFeature {
 
     public void setName(String name) {
 	this.name = name;
-    }
-
-    public Set<CBPChangeEvent<?>> getEvents() {
-	return events;
-    }
-
-    public void setEvents(Set<CBPChangeEvent<?>> events) {
-	this.events = events;
     }
 
     public String getType() {
@@ -616,7 +675,7 @@ public class CBPMatchFeature {
 	    rightIsSet.put(0, value);
 	}
     }
-    
+
     public void setIsSet(int position, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftIsSet.put(position, true);
@@ -653,4 +712,12 @@ public class CBPMatchFeature {
 	return result;
     }
 
+    @Override
+    public String toString() {
+	if (owner != null) {
+	    return owner.getId() + "." + this.getName();
+	} else {
+	    return "null." + this.getName();
+	}
+    }
 }

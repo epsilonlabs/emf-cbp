@@ -11,4 +11,9 @@ public class CBPRemoveFromResourceEvent extends CBPResourceEvent {
 		event.setPosition(this.getPosition());;
 		return event;
 	}
+	
+	@Override
+	    public String toString() {
+		return String.format("remove %s from %s at %s", this.getValue(), "resource", this.getPosition());
+	    }
 }
