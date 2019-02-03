@@ -18,6 +18,7 @@ public class CBPMatchObject implements Comparable<Object> {
 	LEFT, RIGHT;
     }
 
+    private Map<String, CBPMatchObject> objectTree = null; 
     private String id;
     private String className = null;
     private boolean diffed = false;
@@ -62,9 +63,18 @@ public class CBPMatchObject implements Comparable<Object> {
     private Map<CBPMatchFeature, Integer> leftMergePosition = new HashMap<>();
     private Map<CBPMatchFeature, Integer> rightMergePosition = new HashMap<>();
 
-    public CBPMatchObject(String className, String id) {
+    public CBPMatchObject(String className, String id, Map<String, CBPMatchObject> tree) {
+	this.objectTree = tree;
 	this.className = className;
 	this.id = id;
+    }
+
+    public Map<String, CBPMatchObject> getObjectTree() {
+        return objectTree;
+    }
+
+    public void setObjectTree(Map<String, CBPMatchObject> objectTree) {
+        this.objectTree = objectTree;
     }
 
     public void setMergePosition(int position, CBPMatchFeature feature, CBPSide side) {
@@ -83,19 +93,19 @@ public class CBPMatchObject implements Comparable<Object> {
 	}
     }
 
-    public int getLeftMergePosition(CBPMatchFeature feature) {
+    public Integer getLeftMergePosition(CBPMatchFeature feature) {
 	return leftMergePosition.get(feature);
     }
 
-    public int getRightMergePosition(CBPMatchFeature feature) {
+    public Integer getRightMergePosition(CBPMatchFeature feature) {
 	return rightMergePosition.get(feature);
     }
 
-    public void setLeftMergePosition(int position, CBPMatchFeature feature) {
+    public void setLeftMergePosition(Integer position, CBPMatchFeature feature) {
 	this.leftMergePosition.put(feature, position);
     }
 
-    public void setRightMergePosition(int position, CBPMatchFeature feature) {
+    public void setRightMergePosition(Integer position, CBPMatchFeature feature) {
 	this.rightMergePosition.put(feature, position);
     }
 

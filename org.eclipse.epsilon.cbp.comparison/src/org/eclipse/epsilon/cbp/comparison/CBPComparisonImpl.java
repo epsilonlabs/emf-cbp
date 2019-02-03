@@ -743,17 +743,16 @@ public class CBPComparisonImpl implements ICBPComparison {
     private void contructObjectTree(List<CBPChangeEvent<?>> events, CBPSide side) {
 	CBPMatchObject resource = objects.get(CBPMatchResource.RESOURCE_STRING);
 	if (resource == null) {
-	    resource = new CBPMatchResource(CBPMatchResource.RESOURCE_STRING);
+	    resource = new CBPMatchResource(CBPMatchResource.RESOURCE_STRING, objects);
 	    objects.put(CBPMatchResource.RESOURCE_STRING, resource);
 	}
 
 	// get resource feature
 	CBPMatchFeature resourceFeature = ((CBPMatchResource) resource).getResourceFeature();
-
 	CBPChangeEvent<?> previousEvent = null;
 
 	for (CBPChangeEvent<?> event : events) {
-
+	    
 	    // System.out.println(event.toString());
 	    // {
 	    // CBPMatchObject obj = objects.get("O-410132");
@@ -805,7 +804,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // get target object
 	    CBPMatchObject targetObject = objects.get(targetId);
 	    if (targetObject == null) {
-		targetObject = new CBPMatchObject(targetClassName, targetId);
+		targetObject = new CBPMatchObject(targetClassName, targetId, this.objects);
 		objects.put(targetId, targetObject);
 	    }
 	    targetObject.getTargetEvents(side).add(event);
@@ -825,7 +824,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    // get or create new object
 		    valueObject = objects.get(valueId);
 		    if (valueObject == null) {
-			valueObject = new CBPMatchObject(valueClassName, valueId);
+			valueObject = new CBPMatchObject(valueClassName, valueId, this.objects);
 			objects.put(valueId, valueObject);
 		    }
 
@@ -906,6 +905,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    targetObject.setContainer(null, side);
 		    targetObject.setContainingFeature(null, side);
 		    targetObject.setPosition(-1, side, previousFeature.isContainment());
+		    
 
 		    if (previousValueObject.getLeftIsDeleted() == false && previousValueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
 			// if (side == CBPSide.RIGHT) {
@@ -934,6 +934,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		resourceFeature.removeValue(targetObject, position, side);
 		resourceFeature.setIsSet(position, side);
 		resourceFeature.putValueLineNum(targetObject, event.getLineNumber(), side);
+		resourceFeature.getEvents(side).add(event);
 
 		if (targetObject.getLeftIsDeleted() == false && targetObject.getRightContainer() == null && side == CBPSide.LEFT) {
 		    createValueObjectOnTheOppositeSide(targetObject, CBPSide.LEFT);
@@ -957,6 +958,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		resourceFeature.addValue(targetObject, position, side);
 		resourceFeature.setIsSet(position, side);
 		resourceFeature.putValueLineNum(targetObject, event.getLineNumber(), side);
+		resourceFeature.getEvents(side).add(event);
 	    } else
 
 	    // ------------------------
@@ -995,7 +997,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    valueObject.setContainingFeature(feature, side);
 		    valueObject.setPosition(position, side, feature.isContainment());
 		    valueObject.setMergePosition(position, feature, side);
-
+		    
+//		    feature.updateMergePosition(event, side);
+		    
 		    if (valueObject.getLeftIsDeleted() == false && valueObject.getRightIsDeleted() == false && valueObject.getRightContainer() == null && side == CBPSide.LEFT) {
 			createValueObjectOnTheOppositeSide(valueObject, CBPSide.LEFT);
 		    } else if (!valueObject.getLeftIsDeleted() && valueObject.getRightIsDeleted() == false && valueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
@@ -1041,6 +1045,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    valueObject.setOldPosition(fromPosition, side);
 		valueObject.setPosition(position, side, feature.isContainment());
 		valueObject.setMergePosition(position, feature, side);
+		
+//		feature.updateMergePosition(event, side);
 
 		if (valueObject.getLeftIsDeleted() == false && valueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
 		    createValueObjectOnTheOppositeSide(valueObject);
@@ -1105,7 +1111,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    }
 		    CBPMatchObject oldValue = objects.get(oldId);
 		    if (oldValue == null) {
-			oldValue = new CBPMatchObject(oldClassName, oldId);
+			oldValue = new CBPMatchObject(oldClassName, oldId, this.objects);
 			objects.put(oldId, oldValue);
 		    }
 
@@ -1148,7 +1154,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		}
 		CBPMatchObject oldValue = objects.get(oldId);
 		if (oldValue == null) {
-		    oldValue = new CBPMatchObject(oldClassName, oldId);
+		    oldValue = new CBPMatchObject(oldClassName, oldId, this.objects);
 		    objects.put(oldId, oldValue);
 		}
 

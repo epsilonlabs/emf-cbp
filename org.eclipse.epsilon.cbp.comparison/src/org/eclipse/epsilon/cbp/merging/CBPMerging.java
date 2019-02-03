@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.EList;
@@ -31,6 +33,10 @@ import org.junit.Test;
 import org.eclipse.epsilon.cbp.comparison.CBPDiffComparator;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchFeature;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject;
+import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEObject;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEReferenceEvent;
+import org.hamcrest.core.IsInstanceOf;
 
 public class CBPMerging {
 
@@ -41,6 +47,12 @@ public class CBPMerging {
     Resource leftResource = null;
     Resource rightResource = null;
     Resource targetResource = null;
+
+    // to temporarily contain objects that are unintentionally removed because
+    // of
+    // moving an object to a single-valued containment that already hasan
+    // object.
+    Map<String, EObject> deletedObjects = new HashMap<>();
 
     public void mergeAllLeftToRight(File targetXmiFile, File leftXmiFile, File rightXmiFile, List<CBPDiff> diffs) throws Exception {
 
@@ -100,11 +112,12 @@ public class CBPMerging {
 	    resolveDiff(targetResource, leftResource, subDiff);
 	}
 	System.out.println(diff.toString());
-//	if (diff.getObject().toString().equals("O-27472") && diff.getValue().toString().equals("O-36149")) {
+	// if (diff.getObject().toString().equals("O-27472") &&
+	// diff.getValue().toString().equals("O-36149")) {
 	if (diff.getObject().toString().equals("O-27472") && diff.getValue().toString().equals("O-36149")) {
 	    System.console();
 	}
-	
+
 	// OBJECT AT RESOURCE
 	if (diff.getObject().getId().equals("resource") && diff.getFeature().getName().equals("resource")) {
 	    this.handleResourceDiff(diff, targetResource, leftResource);
@@ -121,9 +134,6 @@ public class CBPMerging {
 		this.handleMoveDiff(diff, targetResource, leftResource);
 	    }
 	}
-	
-	System.out.println("X = " + targetResource.getEObject("O-27474"));
-
     }
 
     @SuppressWarnings("unchecked")
@@ -142,7 +152,7 @@ public class CBPMerging {
 	CBPMatchObject fromTarget = diff.getOriginObject();
 	CBPMatchFeature fromFeature = diff.getOriginFeature();
 
-	if (value.toString().equals("O-41884")) {
+	if (value.toString().equals("O-41331")) {
 	    System.console();
 	}
 
@@ -151,6 +161,9 @@ public class CBPMerging {
 	EObject eFromTarget = targetResource.getEObject(fromTarget.toString());
 	EReference eFromReference = (EReference) eTarget.eClass().getEStructuralFeature(fromFeature.getName());
 	EObject eValue = targetResource.getEObject(value.toString());
+	if (eValue == null) {
+	    eValue = deletedObjects.get(value.toString());
+	}
 
 	// within
 	if (eTarget.equals(eFromTarget) && eReference.equals(eFromReference)) {
@@ -164,6 +177,11 @@ public class CBPMerging {
 		eList.add(position, eValue);
 		setID(eValue, value.toString());
 	    } else {
+		EObject eOldValue = (EObject) eTarget.eGet(eReference);
+		if (eOldValue != null) {
+		    String eOldValueId = targetResource.getURIFragment(eOldValue);
+		    deletedObjects.put(eOldValueId, eOldValue);
+		}
 		eTarget.eSet(eReference, eValue);
 		setID(eValue, value.toString());
 	    }
@@ -186,13 +204,13 @@ public class CBPMerging {
 	}
 
 	EObject eTarget = targetResource.getEObject(target.toString());
-//	if (eTarget == null) {
-//	    EObject eLeftTarget = leftResource.getEObject(target.toString());
-//	    eTarget = EcoreUtil.copy(eLeftTarget);
-//	    clearContainedObjects(eTarget);
-//	    targetResource.getContents().add(eTarget);
-//	    setID(eTarget, target.toString());
-//	}
+	// if (eTarget == null) {
+	// EObject eLeftTarget = leftResource.getEObject(target.toString());
+	// eTarget = EcoreUtil.copy(eLeftTarget);
+	// clearContainedObjects(eTarget);
+	// targetResource.getContents().add(eTarget);
+	// setID(eTarget, target.toString());
+	// }
 	EStructuralFeature eFeature = eTarget.eClass().getEStructuralFeature(feature.getName());
 
 	// FEATURES
@@ -228,7 +246,7 @@ public class CBPMerging {
 	}
 
 	EObject eTarget = targetResource.getEObject(target.toString());
-	
+
 	EStructuralFeature eFeature = eTarget.eClass().getEStructuralFeature(feature.getName());
 	EObject eValue = targetResource.getEObject(value.toString());
 
@@ -275,10 +293,35 @@ public class CBPMerging {
 	} else {
 	    value = diff.getValue();
 	}
+
 	int position = valueObject.getLeftMergePosition(feature);
 
-	if (value.toString().equals("L-23")) {
+	if (value.toString().equals("L-520")) {
 	    System.console();
+	}
+
+	// check if the objects affected by the remaining events have difference
+	int leftLineNum = feature.getLeftValueLineNum(valueObject);
+	Stream<CBPChangeEvent<?>> s = feature.getLeftEvents().stream().filter(event -> event.getLineNumber() > leftLineNum);
+	List<CBPChangeEvent<?>> afterEvents = s.collect(Collectors.<CBPChangeEvent<?>>toList());
+	for (CBPChangeEvent<?> event : afterEvents) {
+	    if (event.getValue() instanceof CBPEObject) {
+		CBPEObject x = (CBPEObject) event.getValue();
+		CBPMatchObject val = valueObject.getObjectTree().get(x.getId());
+		if (val != null && val instanceof CBPMatchObject) {
+		    if (val.getDiffsAsValue().size() == 0) {
+			position = diff.getPosition();
+			break;
+		    } else {
+			if (event instanceof CBPRemoveFromEReferenceEvent) {
+			    if (event.getPosition() < position) {
+				position = diff.getPosition();
+				break;
+			    }
+			}
+		    }
+		}
+	    }
 	}
 
 	EObject eTarget = targetResource.getEObject(target.toString());
@@ -296,11 +339,11 @@ public class CBPMerging {
 	    if (eReference.isContainment()) {
 		if (eReference.isMany()) {
 		    EList<EObject> eList = (EList<EObject>) eTarget.eGet(eReference);
-		    if (position <= eList.size()) {
-			eList.add(position, eValue);
-		    } else {
-			eList.add(valueObject.getLeftPosition(), eValue);
-		    }
+		    // if (position <= eList.size()) {
+		    eList.add(position, eValue);
+		    // } else {
+		    // eList.add(valueObject.getLeftPosition(), eValue);
+		    // }
 		} else {
 		    eTarget.eSet(eReference, eValue);
 		}
@@ -332,6 +375,7 @@ public class CBPMerging {
     private void handleResourceDiff(CBPDiff diff, Resource targetResource, Resource leftResource) {
 	CBPDifferenceKind kind = diff.getKind();
 	CBPMatchObject valueObject = null;
+	CBPMatchFeature feature = diff.getFeature();
 	Object value = null;
 	if (diff.getValue() instanceof CBPMatchObject) {
 	    value = ((CBPMatchObject) diff.getValue()).getId();
@@ -340,12 +384,38 @@ public class CBPMerging {
 	    value = diff.getValue();
 	}
 
-	if (value.toString().equals("R-0")) {
+	if (value.toString().equals("L-520")) {
 	    System.console();
 	}
 
 	if (kind == CBPDifferenceKind.ADD) {
 	    int position = valueObject.getLeftMergePosition(diff.getFeature());
+
+	    // check if the objects affected by the remaining events have
+	    // difference
+	    int leftLineNum = feature.getLeftValueLineNum(valueObject);
+	    Stream<CBPChangeEvent<?>> s = feature.getLeftEvents().stream().filter(event -> event.getLineNumber() > leftLineNum);
+	    List<CBPChangeEvent<?>> afterEvents = s.collect(Collectors.<CBPChangeEvent<?>>toList());
+	    for (CBPChangeEvent<?> event : afterEvents) {
+		if (event.getValue() instanceof CBPEObject) {
+		    CBPEObject x = (CBPEObject) event.getValue();
+		    CBPMatchObject val = valueObject.getObjectTree().get(x.getId());
+		    if (val != null && val instanceof CBPMatchObject) {
+			if (val.getDiffsAsValue().size() == 0) {
+			    position = diff.getPosition();
+			    break;
+			} else {
+			    if (event instanceof CBPRemoveFromEReferenceEvent) {
+				if (event.getPosition() < position) {
+				    position = diff.getPosition();
+				    break;
+				}
+			    }
+			}
+		    }
+		}
+	    }
+
 	    EObject eLeftValue = leftResource.getEObject(value.toString());
 	    EObject eValue = EcoreUtil.copy(eLeftValue);
 	    clearContainedObjects(eValue);

@@ -3,11 +3,15 @@ package org.eclipse.epsilon.cbp.merging;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.epsilon.cbp.comparison.CBPDiff;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchFeature;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject;
+import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEObject;
 
 public class CBPDependencyDeterminator {
 
@@ -69,15 +73,20 @@ public class CBPDependencyDeterminator {
     }
 
     private void handleMoveVsMoveDiff(CBPDiff leftDiff, CBPDiff rightDiff) {
-	if (leftDiff.getObject().equals(rightDiff.getOriginObject()) && leftDiff.getFeature().equals(rightDiff.getOriginFeature()) && leftDiff.getPosition() == rightDiff.getOrigin()) {
-	    leftDiff.getRequiresDiffs().add(rightDiff);
-	    rightDiff.getRequiredByDiffs().add(leftDiff);
-	} else if (rightDiff.getObject().equals(leftDiff.getOriginObject()) && rightDiff.getFeature().equals(leftDiff.getOriginFeature()) && rightDiff.getPosition() == leftDiff.getOrigin()) {
-	    rightDiff.getRequiresDiffs().add(leftDiff);
-	    leftDiff.getRequiredByDiffs().add(rightDiff);
-	}
+	// if (leftDiff.getObject().equals(rightDiff.getOriginObject()) &&
+	// leftDiff.getFeature().equals(rightDiff.getOriginFeature()) &&
+	// leftDiff.getPosition() == rightDiff.getOrigin()) {
+	// leftDiff.getRequiresDiffs().add(rightDiff);
+	// rightDiff.getRequiredByDiffs().add(leftDiff);
+	// } else if (rightDiff.getObject().equals(leftDiff.getOriginObject())
+	// && rightDiff.getFeature().equals(leftDiff.getOriginFeature()) &&
+	// rightDiff.getPosition() == leftDiff.getOrigin()) {
+	// rightDiff.getRequiresDiffs().add(leftDiff);
+	// leftDiff.getRequiredByDiffs().add(rightDiff);
+	// }
 	//
-	else if (leftDiff.getObject().equals(rightDiff.getObject()) && leftDiff.getFeature().equals(rightDiff.getFeature())) {
+	// else
+	if (leftDiff.getObject().equals(rightDiff.getObject()) && leftDiff.getFeature().equals(rightDiff.getFeature())) {
 	    CBPMatchObject leftValue = (CBPMatchObject) leftDiff.getValue();
 	    CBPMatchObject rightValue = (CBPMatchObject) rightDiff.getValue();
 	    Integer leftLineNum = leftDiff.getFeature().getLeftValueLineNum(leftValue);
@@ -114,20 +123,9 @@ public class CBPDependencyDeterminator {
 	    deleteDiff.getRequiresDiffs().add(moveDiff);
 	    moveDiff.getRequiredByDiffs().add(deleteDiff);
 	}
-	// else if (deleteDiff.getValue() instanceof CBPMatchObject &&
-	// moveDiff.getValue() instanceof CBPMatchObject) {
-	// CBPMatchObject deleteValue = (CBPMatchObject) deleteDiff.getValue();
-	// CBPMatchObject moveValue = (CBPMatchObject) moveDiff.getValue();
-	// CBPMatchFeature feature =
-	// deleteValue.getFeatures().get(moveDiff.getOriginFeature().getName());
-	// if ()
-	//
-	// }
-
     }
 
     private void handleDeleteVsChangeDiff(CBPDiff deleteDiff, CBPDiff changeDiff) {
-	// IMPORTANT
 	if (deleteDiff.getValue().equals(changeDiff.getObject())) {
 	    deleteDiff.getRequiresDiffs().add(changeDiff);
 	    changeDiff.getRequiredByDiffs().add(deleteDiff);
@@ -138,7 +136,6 @@ public class CBPDependencyDeterminator {
     }
 
     private void handleDeleteVsDeleteDiff(CBPDiff leftDeleteDiff, CBPDiff rightDeleteDiff) {
-	// IMPORTANT
 	if (rightDeleteDiff.getObject().equals(leftDeleteDiff.getValue())) {
 	    leftDeleteDiff.getRequiresDiffs().add(rightDeleteDiff);
 	    rightDeleteDiff.getRequiredByDiffs().add(leftDeleteDiff);
@@ -150,25 +147,45 @@ public class CBPDependencyDeterminator {
     }
 
     private void handleAddVsDeleteDiff(CBPDiff addDiff, CBPDiff deleteDiff) {
-	// IMPORTANT
 	if (deleteDiff.getValue().equals(addDiff.getObject())) {
 	    deleteDiff.getRequiresDiffs().add(addDiff);
 	    addDiff.getRequiredByDiffs().add(deleteDiff);
 	} else if (deleteDiff.getValue().equals(addDiff.getValue())) {
 	    deleteDiff.getRequiresDiffs().add(addDiff);
 	    addDiff.getRequiredByDiffs().add(deleteDiff);
-	}
-	// else if (addDiff.getObject().equals(deleteDiff.getObject()) &&
-	// addDiff.getFeature().equals(deleteDiff.getFeature())) {
-	// CBPMatchObject addValue = (CBPMatchObject) addDiff.getValue();
-	// CBPMatchObject deleteValue = (CBPMatchObject) deleteDiff.getValue();
-	// if (addValue.getLeftMergePosition(addDiff.getFeature()) >
-	// deleteValue.getLeftMergePosition(deleteDiff.getFeature())) {
-	// addDiff.getRequiresDiffs().add(deleteDiff);
-	// } else {
-	// deleteDiff.getRequiresDiffs().add(addDiff);
-	// }
-	// }
+	} 
+//	else if (addDiff.getObject().equals(deleteDiff.getObject()) && addDiff.getFeature().equals(deleteDiff.getFeature()) && addDiff.getPosition() == deleteDiff.getPosition()) {
+//	    if (deleteDiff.getValue() instanceof CBPMatchObject) {
+//		CBPMatchObject x = ((CBPMatchObject) deleteDiff.getValue());
+//		if (x.getId().equals("R-520")) {
+//		    System.console();
+//		}
+//	    }
+
+	    // if (addDiff.getValue() instanceof CBPMatchObject &&
+	    // deleteDiff.getValue() instanceof CBPMatchObject) {
+	    // CBPMatchFeature feature = addDiff.getFeature();
+	    // List<CBPDiff> diffs = feature.getDiffs();
+	    // for (CBPDiff diff : diffs) {
+	    // Integer addPos = ((CBPMatchObject)
+	    // addDiff.getValue()).getLeftMergePosition(feature);
+	    // Integer diffPos = ((CBPMatchObject)
+	    // diff.getValue()).getLeftMergePosition(feature);
+	    // if ( addPos != null && diffPos != null && diffPos > addPos) {
+	    // addDiff.getRequiresDiffs().add(deleteDiff);
+	    // deleteDiff.getRequiredByDiffs().add(addDiff);
+	    // break;
+	    // }
+	    // }
+	    //
+	    // }
+
+	    // addDiff.getRequiresDiffs().add(deleteDiff);
+	    // deleteDiff.getRequiredByDiffs().add(addDiff);
+	    // deleteDiff.getRequiresDiffs().add(addDiff);
+	    // addDiff.getRequiredByDiffs().add(deleteDiff);
+
+//	}
     }
 
     private void handleAddVsMoveDiff(CBPDiff addDiff, CBPDiff moveDiff) {
@@ -178,6 +195,20 @@ public class CBPDependencyDeterminator {
 	} else if (moveDiff.getValue().equals(addDiff.getValue())) {
 	    moveDiff.getRequiresDiffs().add(addDiff);
 	    addDiff.getRequiredByDiffs().add(moveDiff);
+	} else if (moveDiff.getObject().equals(addDiff.getObject()) && moveDiff.getFeature().equals(addDiff.getFeature())) {
+	    CBPMatchObject leftValue = (CBPMatchObject) moveDiff.getValue();
+	    CBPMatchObject rightValue = (CBPMatchObject) addDiff.getValue();
+	    Integer leftLineNum = moveDiff.getFeature().getLeftValueLineNum(leftValue);
+	    Integer rightLineNum = addDiff.getFeature().getLeftValueLineNum(rightValue);
+	    if (leftLineNum != null && rightLineNum != null) {
+		if (leftLineNum > rightLineNum) {
+		    moveDiff.getRequiresDiffs().add(addDiff);
+		    addDiff.getRequiredByDiffs().add(moveDiff);
+		} else {
+		    addDiff.getRequiresDiffs().add(moveDiff);
+		    moveDiff.getRequiredByDiffs().add(addDiff);
+		}
+	    }
 	}
 
     }
@@ -192,27 +223,33 @@ public class CBPDependencyDeterminator {
 	}
     }
 
-    private void handleAddVsAddDiff(CBPDiff leftAddDiff, CBPDiff rightAddDiff) {
-	if (rightAddDiff.getObject().equals(leftAddDiff.getValue())) {
-	    rightAddDiff.getRequiresDiffs().add(leftAddDiff);
-	    leftAddDiff.getRequiredByDiffs().add(rightAddDiff);
-	} else if (leftAddDiff.getObject().equals(rightAddDiff.getValue())) {
-	    leftAddDiff.getRequiresDiffs().add(rightAddDiff);
-	    rightAddDiff.getRequiredByDiffs().add(leftAddDiff);
-	} else if (leftAddDiff.getObject().equals(rightAddDiff.getObject()) && leftAddDiff.getFeature().equals(rightAddDiff.getFeature())) {
-	    CBPMatchObject leftValue = (CBPMatchObject) leftAddDiff.getValue();
-	    CBPMatchObject rightValue = (CBPMatchObject) rightAddDiff.getValue();
-	    Integer leftLineNum = leftAddDiff.getFeature().getLeftValueLineNum(leftValue);
-	    Integer rightLineNum = rightAddDiff.getFeature().getLeftValueLineNum(rightValue);
+    private void handleAddVsAddDiff(CBPDiff leftDiff, CBPDiff rightDiff) {
+	if (rightDiff.getObject().equals(leftDiff.getValue())) {
+	    rightDiff.getRequiresDiffs().add(leftDiff);
+	    leftDiff.getRequiredByDiffs().add(rightDiff);
+	} else if (leftDiff.getObject().equals(rightDiff.getValue())) {
+	    leftDiff.getRequiresDiffs().add(rightDiff);
+	    rightDiff.getRequiredByDiffs().add(leftDiff);
+	} else if (leftDiff.getObject().equals(rightDiff.getObject()) && leftDiff.getFeature().equals(rightDiff.getFeature())) {
+	    CBPMatchObject leftValue = (CBPMatchObject) leftDiff.getValue();
+	    CBPMatchObject rightValue = (CBPMatchObject) rightDiff.getValue();
+	    Integer leftLineNum = leftDiff.getFeature().getLeftValueLineNum(leftValue);
+	    Integer rightLineNum = rightDiff.getFeature().getLeftValueLineNum(rightValue);
 	    if (leftLineNum != null && rightLineNum != null) {
 		if (leftLineNum > rightLineNum) {
-		    leftAddDiff.getRequiresDiffs().add(rightAddDiff);
-		    rightAddDiff.getRequiredByDiffs().add(leftAddDiff);
+		    leftDiff.getRequiresDiffs().add(rightDiff);
+		    rightDiff.getRequiredByDiffs().add(leftDiff);
 		} else {
-		    rightAddDiff.getRequiresDiffs().add(leftAddDiff);
-		    leftAddDiff.getRequiredByDiffs().add(rightAddDiff);
+		    rightDiff.getRequiresDiffs().add(leftDiff);
+		    leftDiff.getRequiredByDiffs().add(rightDiff);
 		}
 	    }
+	} else if (leftDiff.getValue().equals(rightDiff.getValue()) && leftDiff.getFeature().isContainment()) {
+	    rightDiff.getRequiresDiffs().add(leftDiff);
+	    leftDiff.getRequiredByDiffs().add(rightDiff);
+	} else if (leftDiff.getValue().equals(rightDiff.getValue()) && rightDiff.getFeature().isContainment()) {
+	    leftDiff.getRequiresDiffs().add(rightDiff);
+	    rightDiff.getRequiredByDiffs().add(leftDiff);
 	}
 
     }

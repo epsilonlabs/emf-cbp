@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,7 +150,6 @@ public class CBPMergingTest {
 	File leftXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + "\\left.xmi");
 	File targetXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + "\\target.xmi");
 
-
 	// evaluate merging result
 	Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
 	targetXmi.load(options);
@@ -184,6 +184,7 @@ public class CBPMergingTest {
 
 	assertEquals(0, evalDiffs.size());
     }
+
     @Test
     public void testBatchCBPMerging() throws FactoryConfigurationError, Exception {
 
@@ -191,10 +192,10 @@ public class CBPMergingTest {
 
 	try {
 	    String dir = "Epsilon";
-	    int startFrom = 1;  
-	    //problems:
+	    int startFrom = 1;
+	    // problems:
 	    // null pointer while merging: 57, 58
-	    int caseNum = 68; //max 68
+	    int caseNum = 68; // max 68
 
 	    for (int i = startFrom; i <= caseNum; i++) {
 
@@ -221,40 +222,14 @@ public class CBPMergingTest {
 		// evaluate merging result
 		Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
 		targetXmi.load(options);
+		Resource rightXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
+		rightXmi.load(options);
 		Resource leftXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 		leftXmi.load(options);
 
-		IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
-		IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
-		IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
-		matchEngineFactory.setRanking(100);
-		IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
-		matchEngineRegistry.add(matchEngineFactory);
+		doEmfCompareLeftAndRightModels(leftXmi, rightXmi, diffs);
+		result = doEmfCompareLeftAndTargetModels(result, i, targetXmi, leftXmi);
 
-		IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
-		BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
-		postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
-
-		Builder builder = EMFCompare.builder();
-		builder.setPostProcessorRegistry(postProcessorRegistry);
-		builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
-		EMFCompare comparator = builder.build();
-
-		System.out.println("Compare");
-		IComparisonScope2 scope = new DefaultComparisonScope(targetXmi, leftXmi, null);
-		long start = System.nanoTime();
-		Comparison emfComparison = comparator.compare(scope);
-		long end = System.nanoTime();
-		System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
-		EList<Diff> evalDiffs = emfComparison.getDifferences();
-		System.out.println("Diffs Count after Merging the CBP = " + evalDiffs.size());
-		printEMFCompareDiffs(targetXmi, leftXmi, evalDiffs);
-
-		if (evalDiffs.size() > 0) {
-		    result = -1;
-		    throw new Exception("MODEL " + i + ": Diffs Count after Merging the CBP = " + evalDiffs.size() + ". It should be 0.");
-		}
-		
 		targetXmi.unload();
 		leftXmi.unload();
 	    }
@@ -262,6 +237,73 @@ public class CBPMergingTest {
 	    e.printStackTrace();
 	}
 	assertEquals(0, result);
+    }
+
+    private void doEmfCompareLeftAndRightModels(Resource leftXmi, Resource rightXmi, List<CBPDiff> diffs) throws FileNotFoundException, IOException, Exception {
+	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+	matchEngineFactory.setRanking(100);
+	IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+	matchEngineRegistry.add(matchEngineFactory);
+
+	IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+	BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+	postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+
+	Builder builder = EMFCompare.builder();
+	builder.setPostProcessorRegistry(postProcessorRegistry);
+	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
+	EMFCompare comparator = builder.build();
+
+	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, rightXmi, null);
+	System.out.println("Do EMF Compare between Left and Right Models");
+	Comparison emfComparison = comparator.compare(scope);
+	EList<Diff> evalDiffs = emfComparison.getDifferences();
+	Iterator<Diff> iterator = evalDiffs.iterator();
+	while(iterator.hasNext()) {
+	    Diff x = iterator.next();
+	    if (x instanceof MultiplicityElementChange || x instanceof AssociationChange
+		|| x instanceof DirectedRelationshipChange) {
+		iterator.remove();
+	    }
+	}
+	System.out.println("Change-based Diff Size = " + diffs.size());
+	System.out.println("State-based Diff Size = " + evalDiffs.size());
+    }
+
+    private int doEmfCompareLeftAndTargetModels(int result, int i, Resource targetXmi, Resource leftXmi) throws FileNotFoundException, IOException, Exception {
+	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+	matchEngineFactory.setRanking(100);
+	IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+	matchEngineRegistry.add(matchEngineFactory);
+
+	IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+	BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+	postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+
+	Builder builder = EMFCompare.builder();
+	builder.setPostProcessorRegistry(postProcessorRegistry);
+	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
+	EMFCompare comparator = builder.build();
+
+	System.out.println("Compare");
+	IComparisonScope2 scope = new DefaultComparisonScope(targetXmi, leftXmi, null);
+	long start = System.nanoTime();
+	Comparison emfComparison = comparator.compare(scope);
+	long end = System.nanoTime();
+	System.out.println("Compute differences time = " + ((end - start) / 1000000000.0));
+	EList<Diff> evalDiffs = emfComparison.getDifferences();
+	System.out.println("Diffs Count after Merging the CBP = " + evalDiffs.size());
+	printEMFCompareDiffs(targetXmi, leftXmi, evalDiffs);
+
+	if (evalDiffs.size() > 0) {
+	    result = -1;
+	    throw new Exception("MODEL " + i + ": Diffs Count after Merging the CBP = " + evalDiffs.size() + ". It should be 0.");
+	}
+	return result;
     }
 
     private List<String> printEMFCompareDiffs(Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {

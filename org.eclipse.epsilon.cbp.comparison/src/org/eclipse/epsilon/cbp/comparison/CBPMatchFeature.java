@@ -13,6 +13,8 @@ import java.util.TreeMap;
 
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPMoveWithinEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEReferenceEvent;
 
 enum CBPFeatureType {
     ATTRIBUTE, REFERENCE
@@ -45,6 +47,7 @@ public class CBPMatchFeature {
     private List<CBPDiffPositionEvent> rightDiffPositionEvents = new ArrayList<>();
     private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
     private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
+    private List<CBPDiff> diffs = new ArrayList<>();
 
     public CBPMatchFeature(CBPMatchObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany) {
 	this.owner = owner;
@@ -52,6 +55,14 @@ public class CBPMatchFeature {
 	this.featureType = featureType;
 	this.isContainment = isContainer;
 	this.isMany = isMany;
+    }
+
+    public List<CBPDiff> getDiffs() {
+        return diffs;
+    }
+
+    public void setDiffs(List<CBPDiff> diffs) {
+        this.diffs = diffs;
     }
 
     public void putValueLineNum(Object value, int lineNum, CBPSide side) {
@@ -718,6 +729,34 @@ public class CBPMatchFeature {
 	    return owner.getId() + "." + this.getName();
 	} else {
 	    return "null." + this.getName();
+	}
+    }
+
+    public void updateMergePosition(CBPChangeEvent<?> event, CBPSide side) {
+	Map<Integer, Object> vals = getValues(side);
+	for (Object val : vals.values()) {
+	    if (val == null)
+		continue;
+	    CBPMatchObject valObj = (CBPMatchObject) val;
+	    int pos = valObj.getMergePosition(this, side);
+	    if (event instanceof CBPRemoveFromEReferenceEvent) {
+		if (pos > event.getPosition()) {
+		    valObj.setMergePosition(pos - 1, this, side);
+		}
+	    } else if (event instanceof CBPMoveWithinEReferenceEvent) {
+		CBPMoveWithinEReferenceEvent evt = (CBPMoveWithinEReferenceEvent) event;
+		if (evt.getPosition() > evt.getFromPosition()) {
+		    if (pos > evt.getFromPosition() && pos <= evt.getPosition()) {
+			valObj.setMergePosition(pos - 1, this, side);
+//			this.putValueLineNum(valObj, event.getLineNumber(), side);
+		    }
+		} else if (event.getPosition() < evt.getFromPosition()) {
+		    if (pos >= evt.getPosition() && pos < evt.getFromPosition()) {
+			valObj.setMergePosition(pos + 1, this, side);
+//			this.putValueLineNum(valObj, event.getLineNumber(), side);
+		    }
+		}
+	    }
 	}
     }
 }

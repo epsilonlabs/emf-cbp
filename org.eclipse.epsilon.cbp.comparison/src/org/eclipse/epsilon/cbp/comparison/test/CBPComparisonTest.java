@@ -362,8 +362,9 @@ public class CBPComparisonTest {
 	rightResource.load(options);
 	targetResource.load(options);
 
-	String id = "O-43655";
+	String id = "O-37481";
 //	String id = "R-215";
+//	String featureName = "ownedOperation";
 	String featureName = "packagedElement";
 //	String featureName = "upperValue";
 

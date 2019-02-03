@@ -36,7 +36,7 @@ public class CBPDiff {
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, Object value, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, position, -1, null, null, value, kind, side);
     }
-    
+
     public CBPDiff(CBPMatchObject object, CBPMatchFeature feature, int position, Object value, Object otherSideValue, CBPDifferenceKind kind, CBPSide side) {
 	this(object, feature, position, -1, null, null, value, otherSideValue, kind, side);
     }
@@ -50,6 +50,7 @@ public class CBPDiff {
 	    CBPDifferenceKind kind, CBPSide side) {
 	this.object = object;
 	this.feature = feature;
+	this.feature.getDiffs().add(this);
 	this.position = position;
 	this.origin = origin;
 	this.originFeature = originFeature;
@@ -65,19 +66,19 @@ public class CBPDiff {
     }
 
     public Set<CBPDiff> getRequiresDiffs() {
-        return requiresDiffs;
+	return requiresDiffs;
     }
 
     public Set<CBPDiff> getRequiredByDiffs() {
-        return requiredByDiffs;
+	return requiredByDiffs;
     }
 
     public void setRequiresDiffs(Set<CBPDiff> requiresDiffs) {
-        this.requiresDiffs = requiresDiffs;
+	this.requiresDiffs = requiresDiffs;
     }
 
     public void setRequiredByDiffs(Set<CBPDiff> requiredByDiffs) {
-        this.requiredByDiffs = requiredByDiffs;
+	this.requiredByDiffs = requiredByDiffs;
     }
 
     public CBPMatchObject getObject() {
@@ -164,33 +165,38 @@ public class CBPDiff {
     }
 
     public Object getOtherSideValue() {
-        return otherSideValue;
+	return otherSideValue;
     }
 
     public void setOtherSideValue(Object otherSideValue) {
-        this.otherSideValue = otherSideValue;
+	this.otherSideValue = otherSideValue;
     }
 
     public boolean isUnderRecursion() {
-        return underRecursion;
+	return underRecursion;
     }
 
     public void setUnderRecursion(boolean underRecursion) {
-        this.underRecursion = underRecursion;
+	this.underRecursion = underRecursion;
     }
 
     @Override
     public String toString() {
 	String str = null;
 	String valueStr = "";
+	String mergePos = "";
 	if (value != null) {
 	    if (value instanceof CBPMatchObject) {
 		valueStr = ((CBPMatchObject) value).getId();
+		if (((CBPMatchObject) value).getLeftMergePosition(feature) != null){
+		    mergePos = ((CBPMatchObject) value).getLeftMergePosition(feature).toString();    
+		}	
 	    } else {
 		valueStr = String.valueOf(value);
 	    }
 	}
-	str = object.getId() + SEP + feature.getName() + SEP + position + SEP + valueStr + SEP + kind + SEP + side;
+	str = object.getId() + SEP + feature.getName() + SEP + position + SEP + valueStr + SEP + kind + SEP + side + SEP +
+		mergePos;
 	return str;
     }
 
