@@ -98,7 +98,7 @@ import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.VisibilityKind;
 
-public class BigModelTest {
+public class DeleteOnlyTest {
 
     private XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
     private Random random = new Random();
@@ -109,7 +109,7 @@ public class BigModelTest {
 	CHANGE, ADD, MOVE, DELETE;
     }
 
-    public BigModelTest() {
+    public DeleteOnlyTest() {
 	JavaPackage.eINSTANCE.eClass();
 	UMLPackage.eINSTANCE.eClass();
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
@@ -202,6 +202,7 @@ public class BigModelTest {
 
 	List<EObject> leftEObjectList = identifyAllEObjects(leftCbp);
 	List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
+	Collections.reverse(rightEObjectList);
 
 	List<BigModelResult> results = new ArrayList<>();
 	int modificationCount = 1100000;
@@ -813,35 +814,35 @@ public class BigModelTest {
 	    }
 	    // 1 for References
 	    else {
-		int index = random.nextInt(eObjectList.size());
-		EObject eObject = eObjectList.get(index);
-		if (eObject != null) {
-		    String id = leftCbp.getURIFragment(eObject);
-		    if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
-			eObjectList.remove(eObject);
-			continue;
+		for (int index = 0; index < eObjectList.size(); index++) {
+		    EObject eObject = eObjectList.get(index);
+		    if (eObject != null) {
+			String id = leftCbp.getURIFragment(eObject);
+			if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+			    eObjectList.remove(eObject);
+			}
 		    }
-		}
-		if (eObject.eResource() == null) {
-		    eObjectList.remove(eObject);
-		    continue;
-		}
-
-		if (!eObject.eContents().isEmpty()) {
-		    continue;
-		}
-
-		if (((EReference) eObject.eContainingFeature()).isContainment()) {
-		    removeObjectFromEObjectList(eObject, eObjectList);
-		    EcoreUtil.remove(eObject);
-		    eObjectList.remove(eObject);
-		    found = true;
-		} else {
-		    EcoreUtil.remove(eObject);
-		    if (eObject.eContainer() == null) {
+		    if (eObject.eResource() == null) {
 			eObjectList.remove(eObject);
 		    }
-		    found = true;
+		    if (eObject.eContents().isEmpty() && eObject.eContainingFeature() != null) {
+			if (((EReference) eObject.eContainingFeature()).isContainment()) {
+			    removeObjectFromEObjectList(eObject, eObjectList);
+			    EcoreUtil.remove(eObject);
+			    eObjectList.remove(eObject);
+			    found = true;
+			    break;
+			} else {
+			    EcoreUtil.remove(eObject);
+			    if (eObject.eContainer() == null) {
+				eObjectList.remove(eObject);
+			    }
+			    found = true;
+			    break;
+			}
+		    }else {
+			eObjectList.remove(eObject);
+		    }
 		}
 	    }
 	}

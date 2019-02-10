@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
 
-public class CBPDiffComparatorBackup implements Comparator<CBPDiff> {
+public class CBPDiffComparatorBackup2 implements Comparator<CBPDiff> {
 
     @Override
     public int compare(CBPDiff left, CBPDiff right) {

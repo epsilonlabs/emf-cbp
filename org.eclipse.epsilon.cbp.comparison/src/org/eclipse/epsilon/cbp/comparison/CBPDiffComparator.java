@@ -67,12 +67,30 @@ public class CBPDiffComparator implements Comparator<CBPDiff> {
 
 	leftLineNum = left.getFeature().getLeftValueLineNum(left.getValue());
 	if (leftLineNum == null || leftLineNum == 0) {
-	    leftLineNum = 1 * - left.getFeature().getRightValueLineNum(left.getValue());
+	    if (left.getFeature() != null && left.getValue() != null) {
+		Integer value = left.getFeature().getRightValueLineNum(left.getValue());
+		if (value != null) {
+		    leftLineNum = 1 * -value;
+		} else {
+		    leftLineNum = Integer.MAX_VALUE;
+		}
+	    } else {
+		leftLineNum = Integer.MAX_VALUE;
+	    }
 	}
 
 	rightLineNum = right.getFeature().getLeftValueLineNum(right.getValue());
 	if (rightLineNum == null || rightLineNum == 0) {
-	    rightLineNum = 1 * - right.getFeature().getRightValueLineNum(right.getValue());
+	    if (right.getFeature() != null && right.getValue() != null) {
+		Integer value = right.getFeature().getRightValueLineNum(right.getValue());
+		if (value != null) {
+		rightLineNum = 1 * - value;
+		} else {
+		    rightLineNum = Integer.MAX_VALUE;
+		}
+	    } else {
+		rightLineNum = Integer.MAX_VALUE;
+	    }
 	}
 
 	if (leftLineNum > rightLineNum) {

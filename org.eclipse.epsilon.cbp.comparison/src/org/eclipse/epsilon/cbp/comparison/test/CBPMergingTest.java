@@ -235,6 +235,36 @@ public class CBPMergingTest {
 
     }
 
+    
+    @Test
+    public void unsetAllReferenceWhenDelete() throws IOException {
+	initialise("testGenerateTwoDifferentModels");
+	expectedValue = "<?xml version=\"1.0\" encoding=\"ASCII\"?>\r\n" + "<xmi:XMI xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns=\"node\">\r\n" + "  <Node name=\"Node A\"/>\r\n"
+		+ "  <Node name=\"Node 02\">\r\n" + "    <valNodes name=\"Node 03\"/>\r\n" + "    <valNodes name=\"Node 04\"/>\r\n" + "  </Node>\r\n" + "  <Node name=\"Node 05\"/>\r\n" + "</xmi:XMI>";
+	try {
+	    // origin
+	    originalScript.add("var node0 = new Node;");
+	    originalScript.add("node0.name = \"Node 00\";");
+	    originalScript.add("var node1 = new Node;");
+	    originalScript.add("node1.name = \"Node 01\";");
+	    originalScript.add("var node2 = new Node;");
+	    originalScript.add("node2.name = \"Node 02\";");
+	    originalScript.add("node0.valNodes.add(node1);");
+	    originalScript.add("node1.refNodes.add(node0);");
+	    originalScript.add("node1.valNodes.add(node2);");
+	    originalScript.add("node2.refNodes.add(node1);");
+//	    originalScript.add("node0.valNodes.remove(node1);");
+	    originalScript.add("delete node1;");
+	    
+	    // merge
+	    targetCbpFile = executeTest(originalScript, leftScript, rightScript, MergeMode.UpdateLeftWithAllLeftSolutions);
+	    actualValue = getXMIString(targetCbpFile);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(true, true);
+    }
+    
     @Test
     public void deleteUsingSet() throws IOException {
 	initialise("testGenerateTwoDifferentModels");

@@ -722,13 +722,19 @@ public class CBPComparisonImpl implements ICBPComparison {
 			    if (object.getLeftIsCreated() || object.getLeftIsDeleted() || object.getRightIsCreated() || object.getRightIsDeleted()) {
 				continue;
 			    } else if (!object.getLeftIsCreated() && !object.getLeftIsDeleted() && !object.getRightIsCreated() && !object.getRightIsDeleted()) {
-
-				Object value = leftValue;
-				if (value == null)
-				    value = rightValue;
-
-				CBPDiff diff = new CBPDiff(object, feature, pos, value, CBPDifferenceKind.CHANGE, referenceSide);
-				diffs.add(diff);
+				if (leftValue != null && !leftValue.equals(rightValue)) {
+				    Object value = leftValue;
+				    CBPDiff diff = new CBPDiff(object, feature, pos, value, CBPDifferenceKind.CHANGE, referenceSide);
+				    diffs.add(diff);
+				} else if (rightValue != null && !rightValue.equals(leftValue)) {
+				    Object value = leftValue;
+				    if (value == null)
+					value = rightValue;
+				    CBPDiff diff = new CBPDiff(object, feature, pos, value, CBPDifferenceKind.CHANGE, referenceSide);
+				    diffs.add(diff);
+				} else {
+				    continue;
+				}
 
 			    }
 			}
@@ -752,7 +758,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	CBPChangeEvent<?> previousEvent = null;
 
 	for (CBPChangeEvent<?> event : events) {
-	    
+
 	    // System.out.println(event.toString());
 	    // {
 	    // CBPMatchObject obj = objects.get("O-410132");
@@ -905,7 +911,6 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    targetObject.setContainer(null, side);
 		    targetObject.setContainingFeature(null, side);
 		    targetObject.setPosition(-1, side, previousFeature.isContainment());
-		    
 
 		    if (previousValueObject.getLeftIsDeleted() == false && previousValueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
 			// if (side == CBPSide.RIGHT) {
@@ -997,9 +1002,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    valueObject.setContainingFeature(feature, side);
 		    valueObject.setPosition(position, side, feature.isContainment());
 		    valueObject.setMergePosition(position, feature, side);
-		    
-//		    feature.updateMergePosition(event, side);
-		    
+
+		    // feature.updateMergePosition(event, side);
+
 		    if (valueObject.getLeftIsDeleted() == false && valueObject.getRightIsDeleted() == false && valueObject.getRightContainer() == null && side == CBPSide.LEFT) {
 			createValueObjectOnTheOppositeSide(valueObject, CBPSide.LEFT);
 		    } else if (!valueObject.getLeftIsDeleted() && valueObject.getRightIsDeleted() == false && valueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
@@ -1045,8 +1050,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    valueObject.setOldPosition(fromPosition, side);
 		valueObject.setPosition(position, side, feature.isContainment());
 		valueObject.setMergePosition(position, feature, side);
-		
-//		feature.updateMergePosition(event, side);
+
+		// feature.updateMergePosition(event, side);
 
 		if (valueObject.getLeftIsDeleted() == false && valueObject.getLeftContainer() == null && side == CBPSide.RIGHT) {
 		    createValueObjectOnTheOppositeSide(valueObject);
