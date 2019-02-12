@@ -32,6 +32,7 @@ public class CBPMatchFeature {
     private String type;
     private boolean isContainment = false;
     private boolean isMany = false;
+    private boolean isUnique = false;
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
     private Map<Integer, Boolean> leftIsSet = new TreeMap<Integer, Boolean>();
     private Map<Integer, Boolean> rightIsSet = new TreeMap<Integer, Boolean>();
@@ -49,13 +50,26 @@ public class CBPMatchFeature {
     private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
     private List<CBPDiff> diffs = new ArrayList<>();
 
-    public CBPMatchFeature(CBPMatchObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany) {
+    public CBPMatchFeature(CBPMatchObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany, boolean isUnique) {
 	this.owner = owner;
 	this.name = name;
 	this.featureType = featureType;
 	this.isContainment = isContainer;
 	this.isMany = isMany;
+	this.isUnique = isUnique;
     }
+    
+    public boolean isUnique() {
+        return isUnique;
+    }
+
+
+
+    public void setUnique(boolean isUnique) {
+        this.isUnique = isUnique;
+    }
+
+
 
     public List<CBPDiff> getDiffs() {
         return diffs;
@@ -363,6 +377,9 @@ public class CBPMatchFeature {
 	    Entry<Integer, Object> entry = iterator.next();
 	    int pos = entry.getKey();
 	    Object val = entry.getValue();
+	    if (value.equals(val) && isUnique) {
+		return;
+	    }
 	    if (pos >= position) {
 		temp.put(pos + 1, val);
 		if (val instanceof CBPMatchObject && isContainment) {

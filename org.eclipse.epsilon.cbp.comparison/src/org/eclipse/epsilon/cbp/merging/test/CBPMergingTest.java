@@ -192,7 +192,7 @@ public class CBPMergingTest {
 
 	try {
 	    String dir = "Epsilon";
-	    int startFrom = 1;
+	    int startFrom = 61;
 	    // problems:
 	    // null pointer while merging: 57, 58
 	    int caseNum = 68; // max 68

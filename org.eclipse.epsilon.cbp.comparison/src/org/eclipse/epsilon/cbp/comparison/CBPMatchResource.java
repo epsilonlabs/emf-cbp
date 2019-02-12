@@ -13,7 +13,7 @@ public class CBPMatchResource extends CBPMatchObject {
     public CBPMatchResource(String id, Map<String, CBPMatchObject> objectTree) {
 	super("Resource", id, objectTree);
 	
-	CBPMatchFeature feature = new CBPMatchFeature(this, RESOURCE_STRING, CBPFeatureType.REFERENCE, true, true);
+	CBPMatchFeature feature = new CBPMatchFeature(this, RESOURCE_STRING, CBPFeatureType.REFERENCE, true, true, true);
 	this.getFeatures().put(RESOURCE_STRING, feature);
     }
 

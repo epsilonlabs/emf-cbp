@@ -79,12 +79,14 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 	CBPFeatureType featureType = CBPFeatureType.ATTRIBUTE;
 	boolean isContainment = false;
 	boolean isMany = false;
+	boolean isUnique = false;
 
 	EClass eClass = (EClass) ePackage.getEClassifier(eClassName);
 	EStructuralFeature eFeature = eClass.getEStructuralFeature(featureName);
 	if (eFeature.isMany()) {
 	    isMany = true;
 	}
+	isUnique = eFeature.isUnique();
 	if (eFeature instanceof EReference) {
 	    featureType = CBPFeatureType.REFERENCE;
 	    if (((EReference) eFeature).isContainment()) {
@@ -94,7 +96,7 @@ public class UMLObjectTreePostProcessor implements ICBPObjectTreePostProcessor {
 
 	CBPMatchFeature feature = targetObject.getFeatures().get(featureName);
 	if (feature == null) {
-	    feature = new CBPMatchFeature(targetObject, featureName, featureType, isContainment, isMany);
+	    feature = new CBPMatchFeature(targetObject, featureName, featureType, isContainment, isMany, isUnique);
 	    targetObject.getFeatures().put(featureName, feature);
 	}
 	return feature;

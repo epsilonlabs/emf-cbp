@@ -1086,8 +1086,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // ------------
 	    if (event instanceof CBPSetEReferenceEvent) {
 
-		if (targetId.equals("O-194750") && valueId.equals("O-410132")) {
-		    System.out.println();
+		if (valueId.equals("O-8375")) {
+		    System.console();
 		}
 
 		if (valueObject.isDeleted(side)) {
@@ -1136,12 +1136,12 @@ public class CBPComparisonImpl implements ICBPComparison {
 			if (!targetObject.getRightIsCreated() && side == CBPSide.RIGHT) {
 			    if (!feature.getIsSet(CBPSide.LEFT)) {
 				feature.setValue(oldValue, CBPSide.LEFT);
-				// feature.setIsSet(CBPSide.LEFT);
+				feature.setIsSet(CBPSide.LEFT);
 			    }
 			} else if (!targetObject.getLeftIsCreated() && side == CBPSide.LEFT) {
 			    if (!feature.getIsSet(CBPSide.RIGHT)) {
 				feature.setValue(oldValue, CBPSide.RIGHT);
-				// feature.setIsSet(CBPSide.RIGHT);
+				feature.setIsSet(CBPSide.RIGHT);
 			    }
 			}
 		    }
@@ -1161,6 +1161,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 		if (oldValue == null) {
 		    oldValue = new CBPMatchObject(oldClassName, oldId, this.objects);
 		    objects.put(oldId, oldValue);
+		}
+		if (oldId != null && oldId.equals("O-8375")) {
+		    System.console();
 		}
 
 		feature.putValueLineNum(oldValue, event.getLineNumber(), side);
@@ -1316,6 +1319,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    CBPFeatureType featureType = CBPFeatureType.ATTRIBUTE;
 	    boolean isContainment = false;
 	    boolean isMany = false;
+	    boolean isUnique = false;
 	    String oppositeFeatureName = null;
 
 	    EClass eClass = (EClass) ePackage.getEClassifier(eClassName);
@@ -1325,12 +1329,12 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    if (eFeature.isMany()) {
 		isMany = true;
 	    }
+	    isUnique = eFeature.isUnique();
 	    if (eFeature instanceof EReference) {
 		featureType = CBPFeatureType.REFERENCE;
 		if (((EReference) eFeature).isContainment()) {
 		    isContainment = true;
 		}
-
 		eOpposite = ((EReference) eFeature).getEOpposite();
 		if (eOpposite != null) {
 		    oppositeFeatureName = eOpposite.getName();
@@ -1339,7 +1343,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	    feature = targetObject.getFeatures().get(featureName);
 	    if (feature == null) {
-		feature = new CBPMatchFeature(targetObject, featureName, featureType, isContainment, isMany);
+		feature = new CBPMatchFeature(targetObject, featureName, featureType, isContainment, isMany, isUnique);
 		feature.setOppositeFeatureName(oppositeFeatureName);
 		targetObject.getFeatures().put(featureName, feature);
 	    }
@@ -1355,7 +1359,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 		CBPMatchFeature oppositeFeature = valueObject.getFeatures().get(oppositeFeatureName);
 		if (oppositeFeature == null) {
-		    oppositeFeature = new CBPMatchFeature(valueObject, oppositeFeatureName, featureType, isContainment, isMany);
+		    oppositeFeature = new CBPMatchFeature(valueObject, oppositeFeatureName, featureType, isContainment, isMany, isUnique);
 		    oppositeFeature.setOppositeFeatureName(oppositeFeatureName);
 		    valueObject.getFeatures().put(oppositeFeatureName, oppositeFeature);
 		}
@@ -1404,7 +1408,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 				isContainment = true;
 			    }
 			}
-			leftFeature = new CBPMatchFeature(leftContainer, rightFeature.getName(), featureType, isContainment, rightFeature.isMany());
+			leftFeature = new CBPMatchFeature(leftContainer, rightFeature.getName(), featureType, isContainment, rightFeature.isMany(), rightFeature.isUnique());
 			leftContainer.getFeatures().put(new String(rightFeature.getName()), leftFeature);
 		    }
 		    int pos = valueObject.getOldRightPosition();
@@ -1442,7 +1446,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 				isContainment = true;
 			    }
 			}
-			rightFeature = new CBPMatchFeature(rightContainer, leftFeature.getName(), featureType, isContainment, leftFeature.isMany());
+			rightFeature = new CBPMatchFeature(rightContainer, leftFeature.getName(), featureType, isContainment, leftFeature.isMany(), leftFeature.isUnique());
 			rightContainer.getFeatures().put(new String(leftFeature.getName()), rightFeature);
 		    }
 		    int pos = valueObject.getOldLeftPosition();
