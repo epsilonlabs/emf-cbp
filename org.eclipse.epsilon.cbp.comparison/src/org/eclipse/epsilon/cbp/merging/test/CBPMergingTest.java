@@ -25,6 +25,8 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.AttributeChange;
 import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.Conflict;
+import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.ReferenceChange;
@@ -192,11 +194,13 @@ public class CBPMergingTest {
 
 	try {
 	    String dir = "Epsilon";
-	    int startFrom = 61;
+	    int startFrom = 2;
 	    // problems:
 	    // null pointer while merging: 57, 58
 	    int caseNum = 68; // max 68
 
+	    
+	    
 	    for (int i = startFrom; i <= caseNum; i++) {
 
 		System.out.println("\nMODEL " + i + "---------------------------");
@@ -204,6 +208,7 @@ public class CBPMergingTest {
 		File originFile = new File("D:\\TEMP\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\origin.cbpxml");
 		File leftFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\left.cbpxml");
 		File rightFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\right.cbpxml");
+		File originXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\origin.xmi");
 		File leftXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\left.xmi");
 		File rightXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\right.xmi");
 		File targetXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\target.xmi");
@@ -220,6 +225,8 @@ public class CBPMergingTest {
 		merging.mergeAllLeftToRight(targetXmiFile, leftXmiFile, rightXmiFile, diffs);
 
 		// evaluate merging result
+		Resource originXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiFile.getAbsolutePath()));
+		originXmi.load(options);
 		Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
 		targetXmi.load(options);
 		Resource rightXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
@@ -227,7 +234,7 @@ public class CBPMergingTest {
 		Resource leftXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
 		leftXmi.load(options);
 
-		doEmfCompareLeftAndRightModels(leftXmi, rightXmi, diffs);
+		doEmfCompareThreeWayModels(leftXmi, rightXmi, originXmi, diffs);
 		result = doEmfCompareLeftAndTargetModels(result, i, targetXmi, leftXmi);
 
 		targetXmi.unload();
@@ -239,7 +246,7 @@ public class CBPMergingTest {
 	assertEquals(0, result);
     }
 
-    private void doEmfCompareLeftAndRightModels(Resource leftXmi, Resource rightXmi, List<CBPDiff> diffs) throws FileNotFoundException, IOException, Exception {
+    private void doEmfCompareThreeWayModels(Resource leftXmi, Resource rightXmi, Resource originXmi, List<CBPDiff> diffs) throws FileNotFoundException, IOException, Exception {
 	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
 	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
 	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
@@ -256,10 +263,10 @@ public class CBPMergingTest {
 	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
 	EMFCompare comparator = builder.build();
 
-	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, rightXmi, null);
+	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, rightXmi, originXmi);
 	System.out.println("Do EMF Compare between Left and Right Models");
 	Comparison emfComparison = comparator.compare(scope);
-	EList<Diff> evalDiffs = emfComparison.getDifferences();
+	EList<Diff> evalDiffs = emfComparison.getDifferences();	
 	Iterator<Diff> iterator = evalDiffs.iterator();
 	while(iterator.hasNext()) {
 	    Diff x = iterator.next();
@@ -268,8 +275,26 @@ public class CBPMergingTest {
 		iterator.remove();
 	    }
 	}
+	
+	EList<Conflict> evalConflicts = emfComparison.getConflicts();
+//	for (Conflict conf : evalConflicts) {
+//	    Diff left = conf.getLeftDifferences().get(0);
+//	    Diff right = conf.getRightDifferences().get(0);
+//	    ConflictKind kind = conf.getKind();
+//	    boolean a = evalDiffs.contains(left);
+//	    boolean b = evalDiffs.contains(right);
+//	    Object x1 = left.getMatch().getLeft();
+//	    Object x2 = left.getMatch().getRight();
+//	    Object x3 = left.getMatch().getOrigin();
+//	    Object y1 = right.getMatch().getLeft();
+//	    Object y2 = right.getMatch().getRight();
+//	    Object y3 = right.getMatch().getOrigin();
+//	    System.out.println(left + " vs " + right);
+//	}
+	
 	System.out.println("Change-based Diff Size = " + diffs.size());
 	System.out.println("State-based Diff Size = " + evalDiffs.size());
+	System.out.println("State-based Conflict Size = " + evalConflicts.size());
     }
 
     private int doEmfCompareLeftAndTargetModels(int result, int i, Resource targetXmi, Resource leftXmi) throws FileNotFoundException, IOException, Exception {
