@@ -335,13 +335,13 @@ public class Application implements IApplication {
 			String className = ((CreateDeleteOperation) operation).getModelElement().eClass().getName();
 			ESModelElementIdImpl esId = ((CreateDeleteOperation) operation).getModelElementId().toAPI();
 			String value = esId2IdMap.get(esId);
-			result = "DELETE " + value + " TYPE OF " + className;
+			result = "DELETE " + value + " TYPE " + className;
 		} else if (operation instanceof CreateDeleteOperation
 			&& !((CreateDeleteOperation) operation).isDelete()) {
 			String className = ((CreateDeleteOperation) operation).getModelElement().eClass().getName();
 			ESModelElementIdImpl esId = ((CreateDeleteOperation) operation).getModelElementId().toAPI();
 			String value = esId2IdMap.get(esId);
-			result = "CREATE " + value + " TYPE OF " + className;
+			result = "CREATE " + value + " TYPE " + className;
 		} else if (operation instanceof AttributeOperation
 			&& (((AttributeOperation) operation).getUnset() == UnsetType.NONE
 				|| ((AttributeOperation) operation).getUnset() == UnsetType.WAS_UNSET)) {

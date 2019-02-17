@@ -30,6 +30,8 @@ import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Conflict;
 import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
+import org.eclipse.emf.compare.DifferenceKind;
+import org.eclipse.emf.compare.DifferenceSource;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.ReferenceChange;
 import org.eclipse.emf.compare.ResourceAttachmentChange;
@@ -52,6 +54,7 @@ import org.eclipse.emf.compare.uml2.internal.DirectedRelationshipChange;
 import org.eclipse.emf.compare.uml2.internal.MultiplicityElementChange;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -69,6 +72,7 @@ import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Test;
 
@@ -249,7 +253,7 @@ public class CBPConflictTest {
 		iterator.remove();
 	    }
 	}
-	printEMFCompareDiffs(leftXmi, rightXmi, evalDiffs, emfComparison);
+	// printEMFCompareDiffs(leftXmi, rightXmi, evalDiffs, emfComparison);
 	printConflicts(leftXmi, rightXmi, originXmi, emfComparison.getConflicts());
 
     }
@@ -309,84 +313,231 @@ public class CBPConflictTest {
 	}
     }
 
-    private void printConflicts(XMIResource left, XMIResource right, XMIResource origin, EList<Conflict> conflicts) {
-	Set<String> set = new HashSet<>();
+    private void printConflicts(XMIResource left, XMIResource right, XMIResource origin, EList<Conflict> conflicts) throws FileNotFoundException, IOException {
 	System.out.println("\nCONFLICTS:");
 	System.out.println("Conflict count:" + conflicts.size());
 	for (Conflict conflict : conflicts) {
-	    if (conflict.getKind() == ConflictKind.REAL) {
-		EList<Diff> leftDiffs = conflict.getLeftDifferences();
-		EList<Diff> rightDiffs = conflict.getRightDifferences();
+	    EList<Diff> leftDiffs = conflict.getLeftDifferences();
+	    EList<Diff> rightDiffs = conflict.getRightDifferences();
 
+	    Iterator<Diff> leftIterator = leftDiffs.iterator();
+	    Iterator<Diff> rightIterator = rightDiffs.iterator();
+	    while (leftIterator.hasNext() || rightIterator.hasNext()) {
+		Diff leftDiff = leftIterator.next();
+		Diff rightDiff = rightIterator.next();
+		String leftString = "";
+		String rightString = "";
+		if (leftDiff instanceof AttributeChange || leftDiff instanceof ReferenceChange || leftDiff instanceof ResourceAttachmentChange) {
+		    leftString = diffToString(left, origin, leftDiff);
+		}
+		if (rightDiff instanceof AttributeChange || rightDiff instanceof ReferenceChange || rightDiff instanceof ResourceAttachmentChange) {
+		    rightString = diffToString(right, origin, rightDiff);
+		}
+		System.out.println(leftString + " <-> " + rightString);
 		System.console();
 	    }
 	}
     }
 
-    private void printEMFCompareDiffs(XMIResource left, XMIResource right, EList<Diff> diffs, Comparison emfComparison) throws FileNotFoundException, IOException {
-	Set<String> set = new HashSet<>();
-	for (Diff diff : diffs) {
-	    String feature = null;
-	    String id = null;
-	    String value = null;
-	    int position = 0;
+    @SuppressWarnings("unchecked")
+    private String diffToString(XMIResource leftModel, XMIResource rightModel, Diff diff) throws FileNotFoundException, IOException {
 
-	    if (diff.getMatch().getLeft() != null) {
-		id = left.getURIFragment(diff.getMatch().getLeft());
-	    } else {
-		id = right.getURIFragment(diff.getMatch().getRight());
-	    }
+	String result = "";
+	String leftTarget = null;
+	String rightTarget = null;
+	EObject eLeftTarget = null;
+	EObject eRightTarget = null;
 
+	if (diff.getSource() == DifferenceSource.LEFT) {
+	    eLeftTarget = diff.getMatch().getLeft();
+	    eRightTarget = diff.getMatch().getOrigin();
+	} else {
+	    eLeftTarget = diff.getMatch().getRight();
+	    eRightTarget = diff.getMatch().getOrigin();
+	}
+
+	if (eLeftTarget != null) {
+	    leftTarget = leftModel.getURIFragment(eLeftTarget);
+	}
+	if (eRightTarget != null) {
+	    rightTarget = rightModel.getURIFragment(eRightTarget);
+	}
+
+	if (diff.getKind() == DifferenceKind.ADD) {
 	    if (diff instanceof AttributeChange) {
-		feature = ((AttributeChange) diff).getAttribute().getName();
-		value = String.valueOf(((AttributeChange) diff).getValue());
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object value = ((AttributeChange) diff).getValue();
+		if (value instanceof String) {
+		    value = "\"" + value + "\"";
+		}
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eLeftTarget.eGet(eFeature);
+		    index = list.indexOf(value);
+		}
+		result = "ADD " + value + " TO " + leftTarget + "." + featureName + " AT " + index;
 	    } else if (diff instanceof ReferenceChange) {
-		feature = ((ReferenceChange) diff).getReference().getName();
-		EObject eValue1 = ((ReferenceChange) diff).getValue();
-		value = left.getURIFragment(eValue1);
-		if (value == null || "/-1".equals(value)) {
-		    EObject eValue2 = emfComparison.getMatch(eValue1).getRight();
-		    if (eValue2 != null) {
-			value = right.getURIFragment(eValue2);
-		    } else {
-			EObject eValue3 = emfComparison.getMatch(eValue1).getLeft();
-			value = left.getURIFragment(eValue3);
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		String featureName = eFeature.getName();
+		EObject eValue = ((ReferenceChange) diff).getValue();
+		String value = leftModel.getID(eValue);
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eLeftTarget.eGet(eFeature);
+		    index = list.indexOf(eValue);
+		}
+		result = "ADD " + value + " TO " + leftTarget + "." + featureName + " AT " + index;
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		String featureName = "resource";
+		String value = leftModel.getID(eLeftTarget);
+		int index = leftModel.getContents().indexOf(eLeftTarget);
+		result = "ADD " + value + " TO " + featureName + " AT " + index;
+	    }
+	} else if (diff.getKind() == DifferenceKind.CHANGE) {
+	    if (diff instanceof AttributeChange) {
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object rightValue = eRightTarget.eGet(eFeature);
+		Object leftValue = eLeftTarget.eGet(eFeature);
+		if (rightValue instanceof String) {
+		    rightValue = "\"" + rightValue + "\"";
+		}
+		if (leftValue instanceof String) {
+		    leftValue = "\"" + leftValue + "\"";
+		}
+		result = "SET " + leftTarget + "." + featureName + " FROM " + rightValue + " TO " + leftValue;
+	    } else if (diff instanceof ReferenceChange) {
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		String featureName = eFeature.getName();
+		EObject eOldValue = (EObject) eRightTarget.eGet(eFeature);
+		String oldValue = rightModel.getID(eOldValue);
+		EObject eValue = (EObject) eLeftTarget.eGet(eFeature);
+		String value = leftModel.getID(eValue);
+		result = "SET " + leftTarget + "." + featureName + " FROM " + oldValue + " TO " + value;
+	    }
+	} else if (diff.getKind() == DifferenceKind.MOVE) {
+	    if (diff instanceof AttributeChange) {
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object value = ((AttributeChange) diff).getValue();
+		String oldPosition = "";
+		String position = "";
+		EList<EObject> list1 = (EList<EObject>) eRightTarget.eGet(eFeature);
+		oldPosition = "" + list1.indexOf(value);
+		EList<EObject> list2 = (EList<EObject>) eLeftTarget.eGet(eFeature);
+		position = "" + list2.indexOf(value);
+		result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
+	    } else if (diff instanceof ReferenceChange) {
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		String featureName = eFeature.getName();
+		EObject eValue = ((ReferenceChange) diff).getValue();
+		String value = leftModel.getID(eValue);
+		EObject eOldValue = rightModel.getEObject(value);
+		EReference eOldFeature = (EReference) eOldValue.eContainingFeature();
+		String eOldFeatureName = null;
+		if (eOldFeature != null) {
+		    eOldFeatureName = eOldFeature.getName();
+		}
+		eRightTarget = eOldValue.eContainer();
+		rightTarget = rightModel.getID(eRightTarget);
+		String oldPosition = "";
+		if (eOldFeature.isMany()) {
+		    EList<EObject> list = (EList<EObject>) eRightTarget.eGet(eOldFeature);
+		    oldPosition = "" + list.indexOf(eOldValue);
+		}
+		String position = "";
+		if (eFeature.isMany()) {
+		    EList<EObject> list = (EList<EObject>) eLeftTarget.eGet(eFeature);
+		    position = "" + list.indexOf(eValue);
+		}
+		// cross container
+		if ((!leftTarget.equals(rightTarget) || !featureName.equals(eOldFeatureName))) {
+		    // from other container/feature
+		    if (eRightTarget != null) {
+			if (eOldFeature.isMany())
+			    oldPosition = "." + oldPosition;
+			if (eFeature.isMany())
+			    position = "." + position;
+			result = "MOVE " + value + " FROM " + rightTarget + "." + eOldFeatureName + oldPosition + " TO " + leftTarget + "." + featureName + position;
+		    }
+		    // from resource
+		    else {
+			eOldFeatureName = "resource";
+			oldPosition = "" + rightModel.getContents().indexOf(eValue);
+			if (eFeature.isMany())
+			    position = "." + position;
+			result = "MOVE " + value + " FROM " + eOldFeatureName + oldPosition + " TO " + leftTarget + "." + featureName + position;
 		    }
 		}
-		EObject obj = left.getEObject(value);
-		if (obj != null && obj.eContainingFeature().isMany()) {
-		    EList<EObject> list = (EList<EObject>) obj.eContainer().eGet(obj.eContainingFeature());
-		    position = list.indexOf(obj);
-		} else {
-		    obj = right.getEObject(value);
-		    EList<EObject> list = (EList<EObject>) obj.eContainer().eGet(obj.eContainingFeature());
-		    position = list.indexOf(obj);
+		// within container
+		else {
+		    result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
 		}
-
-	    } else if (diff instanceof MultiplicityElementChange) {
-		continue;
-	    } else if (diff instanceof ResourceAttachmentChange) {
-		feature = "resource";
-		value = new String(id);
-		id = new String(feature);
-		EObject eObject = left.getEObject(id);
-		position = left.getContents().indexOf(eObject);
-	    } else if (diff instanceof AssociationChange) {
-		continue;
-	    } else if (diff instanceof DirectedRelationshipChange) {
-		continue;
-	    } else {
-		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
 	    }
 
-	    String x = id + "." + feature + "." + position + "." + value + "." + diff.getKind();
-	    set.add(x.trim());
+	} else if (diff instanceof ResourceAttachmentChange) {
+	    String featureName = "resource";
+	    EObject eValue = eLeftTarget;
+	    String value = leftModel.getID(eValue);
+	    EObject eOldValue = rightModel.getEObject(value);
+
+	    // from container/feature
+	    if (eOldValue.eContainer() != null) {
+		eRightTarget = eOldValue.eContainer();
+		rightTarget = rightModel.getID(eRightTarget);
+		EReference eOldFeature = (EReference) eOldValue.eContainingFeature();
+		String eOldFeatureName = eOldFeature.getName();
+
+		String oldPosition = "";
+		if (eOldFeature.isMany()) {
+		    EList<Object> list = (EList<Object>) eRightTarget.eGet(eOldFeature);
+		    oldPosition = "." + list.indexOf(eOldValue);
+		}
+		String position = "." + leftModel.getContents().indexOf(eValue);
+		result = "MOVE " + value + " FROM " + rightTarget + "." + eOldFeatureName + oldPosition + " TO " + featureName + position;
+	    }
+	    // within resource / root level
+	    else {
+		String oldPosition = "" + rightModel.getContents().indexOf(eOldValue);
+		String position = "" + leftModel.getContents().indexOf(eValue);
+		result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
+	    }
+	} else if (diff.getKind() == DifferenceKind.DELETE) {
+	    if (diff instanceof AttributeChange) {
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object value = ((AttributeChange) diff).getValue();
+		if (value instanceof String) {
+		    value = "\"" + value + "\"";
+		}
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eRightTarget.eGet(eFeature);
+		    index = list.indexOf(value);
+		}
+		result = "DELETE " + value + " FROM " + rightTarget + "." + featureName + " AT " + index;
+	    } else if (diff instanceof ReferenceChange) {
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		String featureName = eFeature.getName();
+		EObject eValue = ((ReferenceChange) diff).getValue();
+		String value = rightModel.getID(eValue);
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eRightTarget.eGet(eFeature);
+		    index = list.indexOf(eValue);
+		}
+		result = "DELETE " + value + " FROM " + rightTarget + "." + featureName + " AT " + index;
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		String featureName = "resource";
+		String value = rightModel.getID(eRightTarget);
+		int index = rightModel.getContents().indexOf(eRightTarget);
+		result = "DELETE " + value + " FROM " + featureName + " AT " + index;
+	    }
 	}
 
-	List<String> list = new ArrayList<>(set);
-	for (String item : list) {
-	    System.out.println(item);
-	}
+	return result;
+
     }
 
 }
