@@ -15,6 +15,10 @@ public class CBPAddToEAttributeEvent extends CBPMultiValueEAttributeEvent {
 
     @Override
     public String toString() {
-	return String.format("add %s to %s.%s at %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getPosition());
+	String val = this.getValue().toString();
+	if (this.getValue() instanceof String) {
+	    val = "\"" + val + "\"";
+	}
+	return String.format("ADD %s TO %s.%s AT %s", val, this.getTarget(), this.getEStructuralFeature(), this.getPosition());
     }
 }

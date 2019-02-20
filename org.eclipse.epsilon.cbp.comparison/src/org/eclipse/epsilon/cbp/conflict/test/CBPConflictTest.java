@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.cbp.merging.test;
+package org.eclipse.epsilon.cbp.conflict.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,6 +9,7 @@ import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
@@ -63,15 +65,23 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.edit.command.ReplaceCommand;
+import org.eclipse.epsilon.cbp.comparison.CBPComparisonImpl;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff;
+import org.eclipse.epsilon.cbp.comparison.ICBPComparison;
+import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
 import org.eclipse.epsilon.cbp.comparison.model.node.Node;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
+import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
+import org.eclipse.epsilon.cbp.merging.CBPMerging;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
+import org.eclipse.gmt.modisco.java.emf.JavaPackage;
+import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
+import org.eclipse.uml2.uml.UMLPackage;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Test;
@@ -96,29 +106,23 @@ public class CBPConflictTest {
     private EolModule module;
     private EPackage ePackage = NodePackage.eINSTANCE;
 
+    Map<Object, Object> options = new HashMap<>();
+
     public CBPConflictTest() {
 
+	EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
+	EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
+	EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
+	EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
+	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 	Logger.getRootLogger().setLevel(Level.OFF);
 
-	cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\temp\\original.cbpxml");
+	cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\temp\\origin.cbpxml");
 	cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\temp\\left.cbpxml");
 	cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\temp\\right.cbpxml");
 	xmiOriginalFile = new File("D:\\TEMP\\CONFLICTS\\temp\\original.xmi");
 	xmiLeftFile = new File("D:\\TEMP\\CONFLICTS\\temp\\left.xmi");
 	xmiRightFile = new File("D:\\TEMP\\CONFLICTS\\temp\\right.xmi");
-
-	if (cbpOriginalFile.exists())
-	    cbpOriginalFile.delete();
-	if (cbpLeftFile.exists())
-	    cbpLeftFile.delete();
-	if (cbpRightFile.exists())
-	    cbpRightFile.delete();
-	if (xmiOriginalFile.exists())
-	    xmiOriginalFile.delete();
-	if (xmiLeftFile.exists())
-	    xmiLeftFile.delete();
-	if (xmiRightFile.exists())
-	    xmiRightFile.delete();
 
 	cbpOriginalResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpOriginalFile.getAbsolutePath()));
 	cbpOriginalResource.setIdType(IdType.NUMERIC, "O-");
@@ -138,30 +142,48 @@ public class CBPConflictTest {
     @Test
     public void testConflicts() {
 	try {
+	    if (cbpOriginalFile.exists())
+		cbpOriginalFile.delete();
+	    if (cbpLeftFile.exists())
+		cbpLeftFile.delete();
+	    if (cbpRightFile.exists())
+		cbpRightFile.delete();
+	    if (xmiOriginalFile.exists())
+		xmiOriginalFile.delete();
+	    if (xmiLeftFile.exists())
+		xmiLeftFile.delete();
+	    if (xmiRightFile.exists())
+		xmiRightFile.delete();
+
 	    originalScript.add("var node0 = new Node;");
-	    originalScript.add("node0.name = \"Node 00\";");
+	    originalScript.add("node0.name = \"Node ROOT\";");
 	    originalScript.add("var node1 = new Node;");
-	    originalScript.add("node1.name = \"Node 01\";");
+	    originalScript.add("node1.name = \"Node A\";");
 	    originalScript.add("var node2 = new Node;");
-	    originalScript.add("node2.name = \"Node 02\";");
+	    originalScript.add("node2.name = \"Node B\";");
 	    originalScript.add("var node3 = new Node;");
-	    originalScript.add("node3.name = \"Node 03\";");
+	    originalScript.add("node3.name = \"Node C\";");
 	    originalScript.add("var node4 = new Node;");
-	    originalScript.add("node4.name = \"Node 04\";");
+	    originalScript.add("node4.name = \"Node D\";");
 	    originalScript.add("node3.valNodes.add(node4);");
 	    originalScript.add("node0.valNodes.add(node1);");
 	    originalScript.add("node0.valNodes.add(node2);");
 	    originalScript.add("node0.valNodes.add(node3);");
+	    // originalScript.add("node0.valNodes.add(node4);");
 
-	    leftScript.add("var node0 = Node.allInstances.selectOne(node | node.name == \"Node 00\");");
+	    leftScript.add("var node0 = Node.allInstances.selectOne(node | node.name == \"Node ROOT\");");
 	    leftScript.add("node0.name = \"Node A\";");
-	    leftScript.add("node0.valNodes.move(2, 1);");
-	    leftScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
-	    leftScript.add("node4.name = \"Node 44\";");
-	    leftScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
-	    leftScript.add("var node5 = new Node;");
-	    leftScript.add("node5.name = \"Node 05\";");
-	    leftScript.add("node1.valNodes.add(0, node5);");
+	    // leftScript.add("node0.valNodes.move(2, 1);");
+	    // leftScript.add("var node4 = Node.allInstances.selectOne(node |
+	    // node.name == \"Node 04\");");
+	    // leftScript.add("node4.name = \"Node 44\";");
+	    // leftScript.add("var node1 = Node.allInstances.selectOne(node |
+	    // node.name == \"Node 01\");");
+	    // leftScript.add("var node5 = new Node;");
+	    // leftScript.add("node5.name = \"Node 05\";");
+	    // leftScript.add("node1.valNodes.add(0, node5);");
+	    // leftScript.add("node0.name = \"Node A\";");
+	    leftScript.add("node0.valNodes.move(0, 1);");
 	    // leftScript.add("var node3 = Node.allInstances.selectOne(node |
 	    // node.name == \"Node 03\");");
 	    // leftScript.add("delete node3;");
@@ -170,13 +192,16 @@ public class CBPConflictTest {
 	    // leftScript.add("delete node2;");
 	    // leftScript.add("node0.valNodes.remove(1);");
 
-	    rightScript.add("var node0 = Node.allInstances.selectOne(node | node.name == \"Node 00\");");
+	    rightScript.add("var node0 = Node.allInstances.selectOne(node | node.name == \"Node ROOT\");");
 	    rightScript.add("node0.name = \"Node Z\";");
-	    rightScript.add("node0.valNodes.move(0, 1);");
-	    rightScript.add("var node4 = Node.allInstances.selectOne(node | node.name == \"Node 04\");");
-	    rightScript.add("node4.name = \"Node 44\";");
-	    rightScript.add("var node1 = Node.allInstances.selectOne(node | node.name == \"Node 01\");");
-	    rightScript.add("delete node1;");
+	    // rightScript.add("node0.valNodes.move(0, 1);");
+	    // rightScript.add("var node4 = Node.allInstances.selectOne(node |
+	    // node.name == \"Node 04\");");
+	    // rightScript.add("node4.name = \"Node 44\";");
+	    // rightScript.add("var node1 = Node.allInstances.selectOne(node |
+	    // node.name == \"Node 01\");");
+	    // rightScript.add("delete node1;");
+	    rightScript.add("node0.valNodes.move(2, 1);");
 	    // rightScript.add("var node3 = Node.allInstances.selectOne(node |
 	    // node.name == \"Node 03\");");
 	    // rightScript.add("node3.name = \"Node XYZ\";");
@@ -194,36 +219,102 @@ public class CBPConflictTest {
 	    rightScript.run("RIGHT");
 	    rightScript.save(null);
 
+	    // -------------------------
+	    System.out.println("ORIGIN:");
+	    for (String line : Files.readAllLines(cbpOriginalFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("RIGHT:");
+	    for (String line : Files.readAllLines(cbpRightFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("LEFT:");
+	    for (String line : Files.readAllLines(cbpLeftFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("DIFFS:");
+	    // doThreeWayComparison(xmiLeftResource, xmiRightResource, null);
+	    doThreeWayComparison(xmiLeftResource, xmiRightResource, xmiOriginalResource);
+
+	    doCbpComparison(cbpLeftFile, cbpRightFile, cbpOriginalFile);
+
+	    cbpOriginalResource.unload();
+	    cbpLeftResource.unload();
+	    cbpRightResource.unload();
+
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
 	assertEquals(true, true);
     }
 
-    @After
-    public void postTest() throws Exception {
-	System.out.println("ORIGIN:");
-	for (String line : Files.readAllLines(cbpOriginalFile.toPath())) {
-	    System.out.println(line);
-	}
-	System.out.println();
-	System.out.println("RIGHT:");
-	for (String line : Files.readAllLines(cbpRightFile.toPath())) {
-	    System.out.println(line);
-	}
-	System.out.println();
-	System.out.println("LEFT:");
-	for (String line : Files.readAllLines(cbpLeftFile.toPath())) {
-	    System.out.println(line);
-	}
-	System.out.println();
-	System.out.println("DIFFS:");
-	// doThreeWayComparison(xmiLeftResource, xmiRightResource, null);
-	doThreeWayComparison(xmiLeftResource, xmiRightResource, xmiOriginalResource);
+    @Test
+    public void testBatchConflicts() {
 
-	cbpOriginalResource.unload();
-	cbpLeftResource.unload();
-	cbpRightResource.unload();
+	int result = 0;
+
+	try {
+	    String dir = "Epsilon";
+	    int startFrom = 2; // min 1
+	    // problems:
+	    // null pointer while merging: 57, 58
+	    int caseNum = 2; // max 68
+
+	    for (int i = startFrom; i <= caseNum; i++) {
+
+		System.out.println("\nMODEL " + i + "---------------------------");
+
+		File originFile = new File("D:\\TEMP\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\origin.cbpxml");
+		File leftFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\left.cbpxml");
+		File rightFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\right.cbpxml");
+		File originXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\origin.xmi");
+		File leftXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\left.xmi");
+		File rightXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\right.xmi");
+		File targetXmiFile = new File("D:\\\\TEMP\\\\FASE\\" + dir + File.separator + "data" + File.separator + i + "\\target.xmi");
+
+		// do cbp comparison
+		doCbpComparison(leftFile, rightFile, originFile);
+
+		XMIResource originXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(originXmiFile.getAbsolutePath()));
+		originXmi.load(options);
+		XMIResource targetXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
+		targetXmi.load(options);
+		
+		XMIResource rightXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath()));
+		rightXmi.load(options);
+		XMIResource leftXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath()));
+		leftXmi.load(options);
+
+		// do emf comparison
+		doThreeWayComparison(leftXmi, rightXmi, originXmi);
+
+		targetXmi.unload();
+		leftXmi.unload();
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(true, true);
+    }
+
+    /**
+     * @param cbpOriginalFile
+     * @param cbpRightFile
+     * @param cbpLeftFile
+     * @throws IOException
+     * @throws FactoryConfigurationError
+     * @throws XMLStreamException
+     */
+    private void doCbpComparison(File cbpLeftFile, File cbpRightFile, File cbpOriginalFile) throws IOException, FactoryConfigurationError, XMLStreamException {
+	ICBPComparison comparison = new CBPComparisonImpl();
+	comparison.setDiffEMFCompareFile(new File(cbpOriginalFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
+	comparison.setObjectTreeFile(new File(cbpOriginalFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
+	comparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
+	comparison.compare(cbpLeftFile, cbpRightFile, cbpOriginalFile);
+	comparison.getConflicts();
     }
 
     private void doThreeWayComparison(XMIResource leftXmi, XMIResource rightXmi, XMIResource originXmi) throws FileNotFoundException, IOException, Exception {
@@ -314,7 +405,7 @@ public class CBPConflictTest {
     }
 
     private void printConflicts(XMIResource left, XMIResource right, XMIResource origin, EList<Conflict> conflicts) throws FileNotFoundException, IOException {
-	System.out.println("\nCONFLICTS:");
+	System.out.println("\nEMF COMPARE CONFLICTS:");
 	System.out.println("Conflict count:" + conflicts.size());
 	for (Conflict conflict : conflicts) {
 	    EList<Diff> leftDiffs = conflict.getLeftDifferences();

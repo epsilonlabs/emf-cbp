@@ -14,6 +14,6 @@ public class CBPAddToResourceEvent extends CBPResourceEvent {
 	
 	@Override
 	    public String toString() {
-		return String.format("add %s to %s at %s", this.getValue(), "resource", this.getPosition());
+		return String.format("ADD %s TO %s AT %s", this.getValue(), "resource", this.getPosition());
 	    }
 }

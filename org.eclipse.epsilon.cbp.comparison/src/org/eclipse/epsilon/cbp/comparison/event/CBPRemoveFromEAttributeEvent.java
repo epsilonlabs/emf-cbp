@@ -19,6 +19,10 @@ public class CBPRemoveFromEAttributeEvent extends CBPMultiValueEAttributeEvent {
 
     @Override
     public String toString() {
-	return String.format("remove %s from %s.%s at %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getPosition());
+	String val = this.getValue().toString();
+	if (this.getValue() instanceof String) {
+	    val = "\"" + val + "\"";
+	}
+	return String.format("REMOVE %s FROM %s.%s AT %s", val, this.getTarget(), this.getEStructuralFeature(), this.getPosition());
     }
 }

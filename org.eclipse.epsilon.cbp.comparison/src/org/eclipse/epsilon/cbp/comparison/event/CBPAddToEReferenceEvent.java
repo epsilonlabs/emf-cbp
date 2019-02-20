@@ -21,6 +21,6 @@ public class CBPAddToEReferenceEvent extends CBPMultiValueEReferenceEvent implem
     
     @Override
     public String toString() {
-	return String.format("add %s to %s.%s at %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getPosition());
+	return String.format("ADD %s TO %s.%s AT %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getPosition());
     }
 }

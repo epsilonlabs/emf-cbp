@@ -49,7 +49,7 @@ public class CBPCreateEObjectEvent extends CBPEObjectEvent {
 
     @Override
     public String toString() {
-	return String.format("create %s type %s", this.getValue(), this.getEClass());
+	return String.format("CREATE %s TYPE %s", this.getValue(), this.getEClass());
     }
 
 }

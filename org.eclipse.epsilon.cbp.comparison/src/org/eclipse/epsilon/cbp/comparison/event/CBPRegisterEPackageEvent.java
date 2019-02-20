@@ -18,6 +18,6 @@ public class CBPRegisterEPackageEvent extends CBPChangeEvent<NullType> {
 	
 	@Override
 	    public String toString() {
-		return String.format("register %s", this.getEPackage());
+		return String.format("REGISTER %s", this.getEPackage());
 	    }
 }

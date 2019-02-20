@@ -16,10 +16,19 @@ public class CBPSetEAttributeEvent extends CBPSingleValueEAttributeEvent {
 
     @Override
     public String toString() {
+	String val = this.getValue().toString();
+	if (this.getValue() instanceof String) {
+	    val = "\"" + val + "\"";
+	}
+
 	if (this.getOldValue() != null) {
-	    return String.format("set %s.%s to %s", this.getTarget(), this.getEStructuralFeature(), this.getValue());
+	    String oldVal = this.getOldValue().toString();
+	    if (this.getOldValue() instanceof String) {
+		oldVal = "\"" + oldVal + "\"";
+	    }
+	    return String.format("SET %s.%s FROM %s TO %s", this.getTarget(), this.getEStructuralFeature(), oldVal, val);
 	} else {
-	    return String.format("set %s.%s from %s to %s", this.getTarget(), this.getEStructuralFeature(), this.getOldValue(), this.getValue());
+	    return String.format("SET %s.%s TO %s", this.getTarget(), this.getEStructuralFeature(), val);
 	}
     }
 }

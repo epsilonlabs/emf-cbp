@@ -17,9 +17,13 @@ public class CBPUnsetEAttributeEvent extends CBPSingleValueEAttributeEvent {
     @Override
     public String toString() {
 	if (this.getOldValue() != null) {
-	    return String.format("unset %s.%s to %s", this.getTarget(), this.getEStructuralFeature(), this.getValue());
+	    String oldVal = this.getOldValue().toString();
+	    if (this.getOldValue() instanceof String) {
+		oldVal = "\"" + oldVal + "\"";
+	    }
+	    return String.format("UNSET %s.%s FROM %s TO %s", this.getTarget(), this.getEStructuralFeature(), oldVal, this.getValue());
 	} else {
-	    return String.format("unset %s.%s from %s to %s", this.getTarget(), this.getEStructuralFeature(), this.getOldValue(), this.getValue());
+	    return String.format("UNSET %s.%s TO %s", this.getTarget(), this.getEStructuralFeature(), this.getValue());
 	}
     }
 }

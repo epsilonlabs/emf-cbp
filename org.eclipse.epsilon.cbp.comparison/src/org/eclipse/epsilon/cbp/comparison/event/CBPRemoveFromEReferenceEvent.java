@@ -22,6 +22,6 @@ public class CBPRemoveFromEReferenceEvent extends CBPMultiValueEReferenceEvent i
     
     @Override
     public String toString() {
-	return String.format("remove %s from %s.%s at %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getPosition());
+	return String.format("REMOVE %s FROM %s.%s AT %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getPosition());
     }
 }

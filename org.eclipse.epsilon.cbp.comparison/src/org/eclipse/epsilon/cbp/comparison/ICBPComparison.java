@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
+import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 
 public interface ICBPComparison {
 
@@ -50,4 +51,6 @@ public interface ICBPComparison {
     public long getLoadMemory();
     
     public Map<String, CBPMatchObject> getObjectTree();
+    
+    public List<CBPConflict> getConflicts();
 }

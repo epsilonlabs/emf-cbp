@@ -40,7 +40,7 @@ public class CBPStartNewSessionEvent extends CBPChangeEvent<NullType> {
 
     @Override
     public String toString() {
-	return String.format("session %s", this.getSessionId());
+	return String.format("SESSION %s", this.getSessionId());
 
     }
 }

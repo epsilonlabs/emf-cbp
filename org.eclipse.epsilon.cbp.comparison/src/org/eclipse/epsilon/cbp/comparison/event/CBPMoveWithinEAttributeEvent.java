@@ -32,6 +32,10 @@ public class CBPMoveWithinEAttributeEvent extends CBPMultiValueEAttributeEvent i
     
     @Override
     public String toString() {
-	return String.format("move %s in %s.%s from %s to %s", this.getValue(), this.getTarget(), this.getEStructuralFeature(), this.getFromPosition(), this.getPosition());
+	String val = this.getValue().toString();
+	if (this.getValue() instanceof String) {
+	    val = "\"" + val + "\"";
+	}
+	return String.format("MOVE %s IN %s.%s FROM %s TO %s", val, this.getTarget(), this.getEStructuralFeature(), this.getFromPosition(), this.getPosition());
     }
 }

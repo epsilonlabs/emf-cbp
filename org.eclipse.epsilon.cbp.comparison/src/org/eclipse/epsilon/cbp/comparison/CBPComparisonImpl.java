@@ -34,6 +34,10 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.compare.Diff;
+import org.eclipse.emf.compare.uml2.internal.AssociationChange;
+import org.eclipse.emf.compare.uml2.internal.DirectedRelationshipChange;
+import org.eclipse.emf.compare.uml2.internal.MultiplicityElementChange;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.OpaqueElementBodyChangePostProcessor;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -72,6 +76,7 @@ import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEReferenceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.ICBPEObjectValuesEvent;
 import org.eclipse.epsilon.cbp.comparison.event.ICBPFromPositionEvent;
+import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource.IdType;
@@ -85,6 +90,7 @@ public class CBPComparisonImpl implements ICBPComparison {
     private EPackage ePackage = null;
 
     private List<CBPDiff> diffs = null;
+    private List<CBPConflict> conflicts = null;
     private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
     private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
     private Map<String, CBPMatchObject> objects = null;
@@ -100,7 +106,10 @@ public class CBPComparisonImpl implements ICBPComparison {
     private long objectTreeConstructionMemory = 0;
     private long diffMemory = 0;
     private long comparisonMemory = 0;
+    private long conflictMemory = 0;
+    private long conflictTime = 0;
 
+    private int conflictCount = 0;
     private int diffCount = 0;
     private long loadTime = 0;
     private long loadMemory = 0;
@@ -141,6 +150,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 	return diffCount;
     }
 
+    public List<CBPConflict> getConflicts() {
+	return conflicts;
+    }
+
     public List<CBPDiff> compare(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException {
 	return this.compare(leftFile, rightFile, null);
     }
@@ -157,6 +170,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	}
 	ePackage = this.getEPackageFromFiles(leftFile, rightFile);
 	diffs = new ArrayList<>();
+	conflicts = new ArrayList<>();
 	objects = new HashMap<>();
 
 	System.out.print("Convert CBP String Lines to Events\n");
@@ -212,15 +226,33 @@ public class CBPComparisonImpl implements ICBPComparison {
 	comparisonTime = objectTreeConstructionTime + diffTime;
 	comparisonMemory = objectTreeConstructionMemory + diffMemory;
 
+	// System.out.println("Comparison Time = " + df.format(((comparisonTime)
+	// / 1000000.0)) + " ms");
+
+	System.out.print("Determine Conflicts");
+	System.gc();
+	startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	startInterval = System.nanoTime();
+	this.computeConflicts();
+	endInterval = System.nanoTime();
+	endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	System.out.println(" = " + df.format(((endInterval - startInterval) / 1000000.0)) + " ms");
+	conflictTime = endInterval - startInterval;
+	conflictMemory = endMemory - startMemory;
+
+	comparisonTime = comparisonTime + conflictTime;
+	comparisonMemory = comparisonMemory + conflictMemory;
+
 	System.out.println("Comparison Time = " + df.format(((comparisonTime) / 1000000.0)) + " ms");
 
-	//
 	// System.out.println("\nDIFFERENCES:");
 	// printDifferences();
 
 	// System.out.println("\nEXPORT FOR COMPARISON WITH EMF COMPARE:");
 	// this.exportForComparisonWithEMFCompare();
-	this.exportForComparisonWithEMFCompare(true);
+	this.exportDiffsToFile(true);
+	System.out.println();
+	this.exportConflictsToFile();
 	//
 
 	// closing
@@ -270,6 +302,151 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsUri);
 	return ePackage;
+    }
+
+    protected void computeConflicts() {
+	Iterator<Entry<String, CBPMatchObject>> iterator = objects.entrySet().iterator();
+	while (iterator.hasNext()) {
+	    Entry<String, CBPMatchObject> objectEntry = iterator.next();
+	    CBPMatchObject cTarget = objectEntry.getValue();
+
+	    if (cTarget.getLeftIsDeleted() && cTarget.getRightIsDeleted()) {
+		continue;
+	    }
+
+	    for (Entry<String, CBPMatchFeature> featureEntry : cTarget.getFeatures().entrySet()) {
+		CBPMatchFeature cFeature = featureEntry.getValue();
+
+		Map<Integer, Object> leftValues = cFeature.getValues(CBPSide.LEFT);
+		Map<Integer, Object> rightValues = cFeature.getValues(CBPSide.RIGHT);
+		Map<Integer, Object> originalValues = cFeature.getOldLeftValues();
+		for (Entry<Integer, Object> valueEntry : leftValues.entrySet()) {
+		    int pos = valueEntry.getKey();
+		    Object leftValue = valueEntry.getValue();
+		    Object rightValue = rightValues.get(pos);
+		    Object originalValue = originalValues.get(pos);
+
+		    if (leftValue == null && rightValue == null) {
+			continue;
+		    } else if (originalValue != null && leftValue != null && rightValue != null && leftValue.equals(rightValue) && leftValue.equals(originalValue)
+			    && rightValue.equals(originalValue)) {
+			continue;
+		    }
+
+		    // CONTAINMENT REFERENCE
+		    if (cFeature.getFeatureType() == CBPFeatureType.REFERENCE && cFeature.isContainment()) {
+			CBPMatchObject cLeftValue = (CBPMatchObject) leftValue;
+			CBPMatchObject cRightValue = (CBPMatchObject) rightValue;
+			if (originalValue instanceof CBPEObject) {
+			    System.console();
+			}
+			CBPMatchObject cOriginalValue = (CBPMatchObject) originalValue;
+
+			if (cRightValue instanceof CBPMatchObject) {
+			    if (!cRightValue.getLeftIsCreated() && !cRightValue.getLeftIsDeleted() && !cRightValue.getLeftIsCreated() && cRightValue.getRightIsDeleted()) {
+				CBPConflict conflict = new CBPConflict(cRightValue.getLeftContainer(), cRightValue.getRightContainer(), cRightValue.getOldLeftContainer(), //
+					cRightValue.getLeftContainingFeature(), cRightValue.getRightContainingFeature(), cRightValue.getOldLeftContainingFeature(), //
+					cRightValue.getLeftPosition(), cRightValue.getRightPosition(), cRightValue.getOldLeftPosition(), //
+					rightValue, rightValue, rightValue, cRightValue.getLeftEvents(), cRightValue.getRightTargetEvents());
+				conflicts.add(conflict);
+			    } else if (!cRightValue.getLeftIsCreated() && cRightValue.getLeftIsDeleted() && !cRightValue.getLeftIsCreated() && !cRightValue.getRightIsDeleted()) {
+				CBPConflict conflict = new CBPConflict(cRightValue.getLeftContainer(), cRightValue.getRightContainer(), cRightValue.getOldLeftContainer(), //
+					cRightValue.getLeftContainingFeature(), cRightValue.getRightContainingFeature(), cRightValue.getOldLeftContainingFeature(), //
+					cRightValue.getLeftPosition(), cRightValue.getRightPosition(), cRightValue.getOldLeftPosition(), //
+					rightValue, rightValue, rightValue, cRightValue.getLeftTargetEvents(), cRightValue.getRightEvents());
+				conflicts.add(conflict);
+			    } else if (!cRightValue.getLeftIsCreated() && !cRightValue.getLeftIsDeleted() && !cRightValue.getLeftIsCreated() && !cRightValue.getRightIsDeleted()) {
+				// this will be handled at its left value
+				continue;
+			    }
+			}
+
+			if (cLeftValue instanceof CBPMatchObject) {
+			    if (!cLeftValue.getLeftIsCreated() && !cLeftValue.getLeftIsDeleted() && !cLeftValue.getLeftIsCreated() && cLeftValue.getRightIsDeleted()) {
+				CBPConflict conflict = new CBPConflict(cLeftValue.getLeftContainer(), cLeftValue.getRightContainer(), cLeftValue.getOldLeftContainer(), //
+					cLeftValue.getLeftContainingFeature(), cLeftValue.getRightContainingFeature(), cLeftValue.getOldLeftContainingFeature(), //
+					cLeftValue.getLeftPosition(), cLeftValue.getRightPosition(), cLeftValue.getOldLeftPosition(), //
+					leftValue, rightValue, originalValue, cLeftValue.getLeftEvents(), cLeftValue.getRightTargetEvents());
+				conflicts.add(conflict);
+			    } else if (!cLeftValue.getLeftIsCreated() && cLeftValue.getLeftIsDeleted() && !cLeftValue.getLeftIsCreated() && !cLeftValue.getRightIsDeleted()) {
+				CBPConflict conflict = new CBPConflict(cLeftValue.getLeftContainer(), cLeftValue.getRightContainer(), cLeftValue.getOldLeftContainer(), //
+					cLeftValue.getLeftContainingFeature(), cLeftValue.getRightContainingFeature(), cLeftValue.getOldLeftContainingFeature(), //
+					cLeftValue.getLeftPosition(), cLeftValue.getRightPosition(), cLeftValue.getOldLeftPosition(), //
+					leftValue, leftValue, leftValue, cLeftValue.getLeftTargetEvents(), cLeftValue.getRightEvents());
+				conflicts.add(conflict);
+			    } else if (!cLeftValue.getLeftIsCreated() && !cLeftValue.getLeftIsDeleted() && !cLeftValue.getLeftIsCreated() && !cLeftValue.getRightIsDeleted()) {
+				if (cLeftValue.getLeftContainer() == null) {
+				    continue;
+				} else if (cLeftValue.getRightContainer() == null) {
+				    continue;
+				} else if ((!cLeftValue.getLeftContainer().equals(cLeftValue.getRightContainer()) && !cLeftValue.getLeftContainer().equals(cLeftValue.getOldLeftContainer())
+					&& !cLeftValue.getRightContainer().equals(cLeftValue.getOldLeftContainer()))
+					|| (!cLeftValue.getLeftContainingFeature().equals(cLeftValue.getRightContainingFeature())
+						&& !cLeftValue.getLeftContainingFeature().equals(cLeftValue.getOldLeftContainingFeature())
+						&& !cLeftValue.getRightContainingFeature().equals(cLeftValue.getOldLeftContainingFeature()))) {
+				    CBPConflict conflict = new CBPConflict(cLeftValue.getLeftContainer(), cLeftValue.getRightContainer(), cLeftValue.getOldLeftContainer(), //
+					    cLeftValue.getLeftContainingFeature(), cLeftValue.getRightContainingFeature(), cLeftValue.getOldLeftContainingFeature(), //
+					    cLeftValue.getLeftPosition(), cLeftValue.getRightPosition(), cLeftValue.getOldLeftPosition(), //
+					    leftValue, leftValue, leftValue, cLeftValue.getLeftValueEvents(), cLeftValue.getRightValueEvents());
+				    conflicts.add(conflict);
+				} else if (cLeftValue.getLeftPosition() != cLeftValue.getRightPosition() && cLeftValue.getLeftPosition() != cLeftValue.getOldLeftPosition()
+					&& cLeftValue.getRightPosition() != cLeftValue.getOldLeftPosition()) {
+				    CBPConflict conflict = new CBPConflict(cLeftValue.getLeftContainer(), cLeftValue.getRightContainer(), cLeftValue.getOldLeftContainer(), //
+					    cLeftValue.getLeftContainingFeature(), cLeftValue.getRightContainingFeature(), cLeftValue.getOldLeftContainingFeature(), //
+					    cLeftValue.getLeftPosition(), cLeftValue.getRightPosition(), cLeftValue.getOldLeftPosition(), //
+					    leftValue, leftValue, leftValue, cFeature.getLeftEvents(), cFeature.getRightEvents());
+				    conflicts.add(conflict);
+				}
+			    }
+			}
+
+		    }
+		    // NON-CONTAINMENT REFERENCE
+		    else if (cFeature.getFeatureType() == CBPFeatureType.REFERENCE && !cFeature.isContainment()) {
+			// MULTIPLE VALUES
+			if (cFeature.isMany()) {
+
+			}
+			// SINGLE VALUES
+			else {
+
+			}
+		    }
+		    // ATTRIBUTE
+		    else if (cFeature.getFeatureType() == CBPFeatureType.ATTRIBUTE) {
+			// MULTIPLE VALUES
+			if (cFeature.isMany()) {
+
+			}
+			// SINGLE VALUES
+			else {
+			    if (originalValue == null && (leftValue == null || rightValue == null)) {
+				continue;
+			    } else if (leftValue != null && rightValue != null) {
+				if (!leftValue.equals(rightValue) && !leftValue.equals(originalValue) && !rightValue.equals(originalValue)) {
+				    CBPConflict conflict = new CBPConflict(cTarget, cTarget, cTarget, cFeature, cFeature, cFeature, 0, 0, 0, //
+					    leftValue, rightValue, originalValue, cFeature.getLeftEvents(), cFeature.getRightEvents());
+				    conflicts.add(conflict);
+				}
+			    } else if (leftValue != null && rightValue == null) {
+				if (!leftValue.equals(rightValue) && !leftValue.equals(originalValue) && !originalValue.equals(rightValue)) {
+				    CBPConflict conflict = new CBPConflict(cTarget, cTarget, cTarget, cFeature, cFeature, cFeature, 0, 0, 0, //
+					    leftValue, rightValue, originalValue, cFeature.getLeftEvents(), cFeature.getRightEvents());
+				    conflicts.add(conflict);
+				}
+			    } else if (leftValue == null && rightValue != null) {
+				if (!rightValue.equals(leftValue) && !originalValue.equals(leftValue) && !rightValue.equals(originalValue)) {
+				    CBPConflict conflict = new CBPConflict(cTarget, cTarget, cTarget, cFeature, cFeature, cFeature, 0, 0, 0, //
+					    leftValue, rightValue, originalValue, cFeature.getLeftEvents(), cFeature.getRightEvents());
+				    conflicts.add(conflict);
+				}
+			    }
+			}
+		    }
+		}
+	    }
+
+	}
     }
 
     /**
@@ -1086,7 +1263,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // ------------
 	    if (event instanceof CBPSetEReferenceEvent) {
 
-		if (valueId.equals("O-8375")) {
+		if (valueId.equals("O-27474")) {
 		    System.console();
 		}
 
@@ -1095,7 +1272,6 @@ public class CBPComparisonImpl implements ICBPComparison {
 		}
 
 		feature.putValueLineNum(valueObject, event.getLineNumber(), side);
-		feature.setOldValue(event.getOldValue(), side);
 		feature.setValue(valueObject, side);
 		feature.setIsSet(side);
 
@@ -1119,7 +1295,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 			oldValue = new CBPMatchObject(oldClassName, oldId, this.objects);
 			objects.put(oldId, oldValue);
 		    }
-
+		    feature.setOldValue(oldValue, side);
+		    
 		    if (feature.isContainment()) {
 			oldValue.setOldContainer(targetObject, side);
 			oldValue.setOldContainingFeature(feature, side);
@@ -1758,14 +1935,57 @@ public class CBPComparisonImpl implements ICBPComparison {
 	System.out.println("Diffs size = " + diffs.size());
     }
 
-    protected void exportForComparisonWithEMFCompare() throws IOException {
-	exportForComparisonWithEMFCompare(false);
+    protected void exportConflictsToFile() throws IOException {
+	exportConflictsToFile(false);
     }
 
-    protected void exportForComparisonWithEMFCompare(boolean saveToFile) throws IOException {
+    private void exportConflictsToFile(boolean saveToFile) {
+	Set<String> set = new HashSet<>();
+	String str = null;
+	int num = 0;
+	System.out.println("CHANGE-BASED CONFLICTS:");
+	for (CBPConflict conflict : conflicts) {
+	    num++;
+	    Set<CBPChangeEvent<?>> leftEvents = conflict.getLeftEvents();
+	    Set<CBPChangeEvent<?>> rightEvents = conflict.getRightEvents();
+	    Iterator<CBPChangeEvent<?>> leftIterator = leftEvents.iterator();
+	    Iterator<CBPChangeEvent<?>> rightIterator = rightEvents.iterator();
+	    while (leftIterator.hasNext() || rightIterator.hasNext()) {
+		CBPChangeEvent<?> leftEvent = null;
+		if (leftIterator.hasNext()) {
+		    leftEvent = leftIterator.next();
+		}
+		CBPChangeEvent<?> rightEvent = null;
+		if (rightIterator.hasNext()) {
+		    rightEvent = rightIterator.next();
+		}
+		String leftString = "";
+		String rightString = "";
+		if (leftEvent != null) {
+		    leftString = leftEvent.toString();
+		}
+		if (rightEvent != null) {
+		    rightString = rightEvent.toString();
+		}
+		String result = num + ": " + leftString + " <-> " + rightString;
+		System.out.println(result);
+		set.add(result);
+	    }
+	}
+	System.out.println("Change-based Conflicts size = " + conflicts.size());
+    }
+
+    protected void exportDiffsToFile() throws IOException {
+	exportDiffsToFile(false);
+    }
+
+    protected void exportDiffsToFile(boolean saveToFile) throws IOException {
 	Set<String> set = new HashSet<>();
 	String str = null;
 	for (CBPDiff diff : diffs) {
+	    if (diff instanceof MultiplicityElementChange || diff instanceof AssociationChange || diff instanceof DirectedRelationshipChange) {
+		continue;
+	    }
 	    if (diff.getValue() instanceof CBPMatchObject) {
 		str = diff.getObject().getId() + "." + diff.getFeature().getName() + "." + ((CBPMatchObject) diff.getValue()).getId() + "." + diff.getKind();
 	    } else {

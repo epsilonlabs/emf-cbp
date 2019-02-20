@@ -78,6 +78,6 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
     
     @Override
     public String toString() {
-	return String.format("delete %s ", this.getValue());
+	return String.format("DELETE %s TYPE %s", this.getValue(), eClass);
     }
 }
