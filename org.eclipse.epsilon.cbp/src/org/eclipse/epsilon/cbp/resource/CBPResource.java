@@ -175,8 +175,10 @@ public abstract class CBPResource extends ResourceImpl {
     }
 
     public void adopt(EObject eObject, String id) {
-	if (!eObjectToIdMap.containsKey(eObject)) {
+	if (!eObjectToIdMap.containsKey(eObject) && !eObjectToIdMap.containsValue(id)) {
 	    eObjectToIdMap.put(eObject, id);
+	}else {
+	    eObjectToIdMap.replace(eObject, id);
 	}
     }
 

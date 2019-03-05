@@ -119,17 +119,8 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * <!-- end-user-doc -->
          * @generated
          */
-        public EReference getNode_Parent() {
-                return (EReference)nodeEClass.getEStructuralFeatures().get(2);
-        }
-
-        /**
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
         public EAttribute getNode_Name() {
-                return (EAttribute)nodeEClass.getEStructuralFeatures().get(3);
+                return (EAttribute)nodeEClass.getEStructuralFeatures().get(2);
         }
 
         /**
@@ -138,7 +129,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EAttribute getNode_DefName() {
-                return (EAttribute)nodeEClass.getEStructuralFeatures().get(4);
+                return (EAttribute)nodeEClass.getEStructuralFeatures().get(3);
         }
 
         /**
@@ -147,7 +138,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EAttribute getNode_Values() {
-                return (EAttribute)nodeEClass.getEStructuralFeatures().get(5);
+                return (EAttribute)nodeEClass.getEStructuralFeatures().get(4);
         }
 
         /**
@@ -156,7 +147,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EAttribute getNode_ListValues() {
-                return (EAttribute)nodeEClass.getEStructuralFeatures().get(6);
+                return (EAttribute)nodeEClass.getEStructuralFeatures().get(5);
         }
 
         /**
@@ -165,7 +156,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EReference getNode_RefNode() {
-                return (EReference)nodeEClass.getEStructuralFeatures().get(7);
+                return (EReference)nodeEClass.getEStructuralFeatures().get(6);
         }
 
         /**
@@ -174,7 +165,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EReference getNode_ValNode() {
-                return (EReference)nodeEClass.getEStructuralFeatures().get(8);
+                return (EReference)nodeEClass.getEStructuralFeatures().get(7);
         }
 
         /**
@@ -183,7 +174,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EReference getNode_ValNodes() {
-                return (EReference)nodeEClass.getEStructuralFeatures().get(9);
+                return (EReference)nodeEClass.getEStructuralFeatures().get(8);
         }
 
         /**
@@ -192,7 +183,7 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EReference getNode_RefNodes() {
-                return (EReference)nodeEClass.getEStructuralFeatures().get(10);
+                return (EReference)nodeEClass.getEStructuralFeatures().get(9);
         }
 
         /**
@@ -201,7 +192,25 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
          * @generated
          */
         public EReference getNode_UorderedValNodes() {
+                return (EReference)nodeEClass.getEStructuralFeatures().get(10);
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        public EReference getNode_Children() {
                 return (EReference)nodeEClass.getEStructuralFeatures().get(11);
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        public EReference getNode_Parent() {
+                return (EReference)nodeEClass.getEStructuralFeatures().get(12);
         }
 
         /**
@@ -235,7 +244,6 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
                 nodeEClass = createEClass(NODE);
                 createEAttribute(nodeEClass, NODE__ID);
                 createEAttribute(nodeEClass, NODE__DEEP);
-                createEReference(nodeEClass, NODE__PARENT);
                 createEAttribute(nodeEClass, NODE__NAME);
                 createEAttribute(nodeEClass, NODE__DEF_NAME);
                 createEAttribute(nodeEClass, NODE__VALUES);
@@ -245,6 +253,8 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
                 createEReference(nodeEClass, NODE__VAL_NODES);
                 createEReference(nodeEClass, NODE__REF_NODES);
                 createEReference(nodeEClass, NODE__UORDERED_VAL_NODES);
+                createEReference(nodeEClass, NODE__CHILDREN);
+                createEReference(nodeEClass, NODE__PARENT);
         }
 
         /**
@@ -280,7 +290,6 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
                 initEClass(nodeEClass, Node.class, "Node", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
                 initEAttribute(getNode_ID(), ecorePackage.getEString(), "ID", null, 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
                 initEAttribute(getNode_Deep(), ecorePackage.getEIntegerObject(), "deep", "0", 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-                initEReference(getNode_Parent(), this.getNode(), null, "parent", null, 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
                 initEAttribute(getNode_Name(), ecorePackage.getEString(), "name", null, 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
                 initEAttribute(getNode_DefName(), ecorePackage.getEString(), "defName", "Foo", 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
                 initEAttribute(getNode_Values(), ecorePackage.getEIntegerObject(), "values", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -290,6 +299,8 @@ public class NodePackageImpl extends EPackageImpl implements NodePackage {
                 initEReference(getNode_ValNodes(), this.getNode(), null, "valNodes", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
                 initEReference(getNode_RefNodes(), this.getNode(), null, "refNodes", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
                 initEReference(getNode_UorderedValNodes(), this.getNode(), null, "uorderedValNodes", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, !IS_ORDERED);
+                initEReference(getNode_Children(), this.getNode(), this.getNode_Parent(), "children", null, 0, -1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+                initEReference(getNode_Parent(), this.getNode(), this.getNode_Children(), "parent", null, 0, 1, Node.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
                 // Create resource
                 createResource(eNS_URI);

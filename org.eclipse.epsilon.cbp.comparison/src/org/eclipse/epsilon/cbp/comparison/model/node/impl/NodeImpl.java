@@ -18,7 +18,9 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.util.EDataTypeEList;
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.eclipse.epsilon.cbp.comparison.model.node.Node;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
@@ -33,7 +35,6 @@ import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getID <em>ID</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getDeep <em>Deep</em>}</li>
- *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getParent <em>Parent</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getDefName <em>Def Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getValues <em>Values</em>}</li>
@@ -43,6 +44,8 @@ import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getValNodes <em>Val Nodes</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getRefNodes <em>Ref Nodes</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getUorderedValNodes <em>Uordered Val Nodes</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getChildren <em>Children</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeImpl#getParent <em>Parent</em>}</li>
  * </ul>
  *
  * @generated
@@ -87,16 +90,6 @@ public class NodeImpl extends EObjectImpl implements Node {
          * @ordered
          */
         protected Integer deep = DEEP_EDEFAULT;
-
-        /**
-         * The cached value of the '{@link #getParent() <em>Parent</em>}' reference.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @see #getParent()
-         * @generated
-         * @ordered
-         */
-        protected Node parent;
 
         /**
          * The default value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -209,6 +202,16 @@ public class NodeImpl extends EObjectImpl implements Node {
         protected EList<Node> uorderedValNodes;
 
         /**
+         * The cached value of the '{@link #getChildren() <em>Children</em>}' containment reference list.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see #getChildren()
+         * @generated
+         * @ordered
+         */
+        protected EList<Node> children;
+
+        /**
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -267,44 +270,6 @@ public class NodeImpl extends EObjectImpl implements Node {
                 deep = newDeep;
                 if (eNotificationRequired())
                         eNotify(new ENotificationImpl(this, Notification.SET, NodePackage.NODE__DEEP, oldDeep, deep));
-        }
-
-        /**
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        public Node getParent() {
-                if (parent != null && parent.eIsProxy()) {
-                        InternalEObject oldParent = (InternalEObject)parent;
-                        parent = (Node)eResolveProxy(oldParent);
-                        if (parent != oldParent) {
-                                if (eNotificationRequired())
-                                        eNotify(new ENotificationImpl(this, Notification.RESOLVE, NodePackage.NODE__PARENT, oldParent, parent));
-                        }
-                }
-                return parent;
-        }
-
-        /**
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        public Node basicGetParent() {
-                return parent;
-        }
-
-        /**
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        public void setParent(Node newParent) {
-                Node oldParent = parent;
-                parent = newParent;
-                if (eNotificationRequired())
-                        eNotify(new ENotificationImpl(this, Notification.SET, NodePackage.NODE__PARENT, oldParent, parent));
         }
 
         /**
@@ -495,6 +460,78 @@ public class NodeImpl extends EObjectImpl implements Node {
          * <!-- end-user-doc -->
          * @generated
          */
+        public EList<Node> getChildren() {
+                if (children == null) {
+                        children = new EObjectContainmentWithInverseEList<Node>(Node.class, this, NodePackage.NODE__CHILDREN, NodePackage.NODE__PARENT);
+                }
+                return children;
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        public Node getParent() {
+                if (eContainerFeatureID() != NodePackage.NODE__PARENT) return null;
+                return (Node)eInternalContainer();
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        public NotificationChain basicSetParent(Node newParent, NotificationChain msgs) {
+                msgs = eBasicSetContainer((InternalEObject)newParent, NodePackage.NODE__PARENT, msgs);
+                return msgs;
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        public void setParent(Node newParent) {
+                if (newParent != eInternalContainer() || (eContainerFeatureID() != NodePackage.NODE__PARENT && newParent != null)) {
+                        if (EcoreUtil.isAncestor(this, newParent))
+                                throw new IllegalArgumentException("Recursive containment not allowed for " + toString());
+                        NotificationChain msgs = null;
+                        if (eInternalContainer() != null)
+                                msgs = eBasicRemoveFromContainer(msgs);
+                        if (newParent != null)
+                                msgs = ((InternalEObject)newParent).eInverseAdd(this, NodePackage.NODE__CHILDREN, Node.class, msgs);
+                        msgs = basicSetParent(newParent, msgs);
+                        if (msgs != null) msgs.dispatch();
+                }
+                else if (eNotificationRequired())
+                        eNotify(new ENotificationImpl(this, Notification.SET, NodePackage.NODE__PARENT, newParent, newParent));
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        @SuppressWarnings("unchecked")
+        @Override
+        public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+                switch (featureID) {
+                        case NodePackage.NODE__CHILDREN:
+                                return ((InternalEList<InternalEObject>)(InternalEList<?>)getChildren()).basicAdd(otherEnd, msgs);
+                        case NodePackage.NODE__PARENT:
+                                if (eInternalContainer() != null)
+                                        msgs = eBasicRemoveFromContainer(msgs);
+                                return basicSetParent((Node)otherEnd, msgs);
+                }
+                return super.eInverseAdd(otherEnd, featureID, msgs);
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
         @Override
         public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
                 switch (featureID) {
@@ -502,8 +539,26 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 return basicSetValNode(null, msgs);
                         case NodePackage.NODE__VAL_NODES:
                                 return ((InternalEList<?>)getValNodes()).basicRemove(otherEnd, msgs);
+                        case NodePackage.NODE__CHILDREN:
+                                return ((InternalEList<?>)getChildren()).basicRemove(otherEnd, msgs);
+                        case NodePackage.NODE__PARENT:
+                                return basicSetParent(null, msgs);
                 }
                 return super.eInverseRemove(otherEnd, featureID, msgs);
+        }
+
+        /**
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        @Override
+        public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
+                switch (eContainerFeatureID()) {
+                        case NodePackage.NODE__PARENT:
+                                return eInternalContainer().eInverseRemove(this, NodePackage.NODE__CHILDREN, Node.class, msgs);
+                }
+                return super.eBasicRemoveFromContainerFeature(msgs);
         }
 
         /**
@@ -518,9 +573,6 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 return getID();
                         case NodePackage.NODE__DEEP:
                                 return getDeep();
-                        case NodePackage.NODE__PARENT:
-                                if (resolve) return getParent();
-                                return basicGetParent();
                         case NodePackage.NODE__NAME:
                                 return getName();
                         case NodePackage.NODE__DEF_NAME:
@@ -540,6 +592,10 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 return getRefNodes();
                         case NodePackage.NODE__UORDERED_VAL_NODES:
                                 return getUorderedValNodes();
+                        case NodePackage.NODE__CHILDREN:
+                                return getChildren();
+                        case NodePackage.NODE__PARENT:
+                                return getParent();
                 }
                 return super.eGet(featureID, resolve, coreType);
         }
@@ -558,9 +614,6 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 return;
                         case NodePackage.NODE__DEEP:
                                 setDeep((Integer)newValue);
-                                return;
-                        case NodePackage.NODE__PARENT:
-                                setParent((Node)newValue);
                                 return;
                         case NodePackage.NODE__NAME:
                                 setName((String)newValue);
@@ -594,6 +647,13 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 getUorderedValNodes().clear();
                                 getUorderedValNodes().addAll((Collection<? extends Node>)newValue);
                                 return;
+                        case NodePackage.NODE__CHILDREN:
+                                getChildren().clear();
+                                getChildren().addAll((Collection<? extends Node>)newValue);
+                                return;
+                        case NodePackage.NODE__PARENT:
+                                setParent((Node)newValue);
+                                return;
                 }
                 super.eSet(featureID, newValue);
         }
@@ -611,9 +671,6 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 return;
                         case NodePackage.NODE__DEEP:
                                 setDeep(DEEP_EDEFAULT);
-                                return;
-                        case NodePackage.NODE__PARENT:
-                                setParent((Node)null);
                                 return;
                         case NodePackage.NODE__NAME:
                                 setName(NAME_EDEFAULT);
@@ -642,6 +699,12 @@ public class NodeImpl extends EObjectImpl implements Node {
                         case NodePackage.NODE__UORDERED_VAL_NODES:
                                 getUorderedValNodes().clear();
                                 return;
+                        case NodePackage.NODE__CHILDREN:
+                                getChildren().clear();
+                                return;
+                        case NodePackage.NODE__PARENT:
+                                setParent((Node)null);
+                                return;
                 }
                 super.eUnset(featureID);
         }
@@ -658,8 +721,6 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 return ID_EDEFAULT == null ? id != null : !ID_EDEFAULT.equals(id);
                         case NodePackage.NODE__DEEP:
                                 return DEEP_EDEFAULT == null ? deep != null : !DEEP_EDEFAULT.equals(deep);
-                        case NodePackage.NODE__PARENT:
-                                return parent != null;
                         case NodePackage.NODE__NAME:
                                 return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
                         case NodePackage.NODE__DEF_NAME:
@@ -678,6 +739,10 @@ public class NodeImpl extends EObjectImpl implements Node {
                                 return refNodes != null && !refNodes.isEmpty();
                         case NodePackage.NODE__UORDERED_VAL_NODES:
                                 return uorderedValNodes != null && !uorderedValNodes.isEmpty();
+                        case NodePackage.NODE__CHILDREN:
+                                return children != null && !children.isEmpty();
+                        case NodePackage.NODE__PARENT:
+                                return getParent() != null;
                 }
                 return super.eIsSet(featureID);
         }

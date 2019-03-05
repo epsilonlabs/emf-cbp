@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.cbp.comparison.CBPFeatureType;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchFeature;
@@ -17,7 +18,8 @@ import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 
 public class CBPConflictDetector {
 
-    public void computeConflicts(Map<String, CBPMatchObject> objects, List<CBPConflict> conflicts) {
+    public void computeConflicts(Map<String, CBPMatchObject> objects, List<CBPConflict> conflicts, Map<String, Set<CBPChangeEvent<?>>> leftCompositeEvents,
+	    Map<String, Set<CBPChangeEvent<?>>> rightCompositeEvents) {
 
 	Iterator<Entry<String, CBPMatchObject>> iterator = objects.entrySet().iterator();
 	while (iterator.hasNext()) {
@@ -31,10 +33,30 @@ public class CBPConflictDetector {
 	    if (cTarget.getLeftIsDeleted() && cTarget.getRightIsDeleted()) {
 		continue;
 	    } else if (cTarget.getLeftIsDeleted()) {
+
 		Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
 		getAllEvents(leftEvents, cTarget, CBPSide.LEFT);
+
 		Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
 		getAllEvents(rightEvents, cTarget, CBPSide.RIGHT);
+
+		// also add composite events
+		Set<String> leftComposites = leftEvents.stream().map(x -> x.getComposite()).collect(Collectors.toSet());
+		if (leftCompositeEvents.size() > 0) {
+		    for (String composite : leftComposites) {
+			Set<CBPChangeEvent<?>> events = leftCompositeEvents.get(composite);
+			leftEvents.addAll(events);
+		    }
+		}
+
+		Set<String> rightComposites = rightEvents.stream().map(x -> x.getComposite()).collect(Collectors.toSet());
+		if (rightCompositeEvents.size() > 0) {
+		    for (String composite : rightComposites) {
+			Set<CBPChangeEvent<?>> events = rightCompositeEvents.get(composite);
+			rightEvents.addAll(events);
+		    }
+		}
+
 		if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 		    CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
 		    conflicts.add(conflict);
@@ -44,8 +66,45 @@ public class CBPConflictDetector {
 		getAllEvents(leftEvents, cTarget, CBPSide.LEFT);
 		Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
 		getAllEvents(rightEvents, cTarget, CBPSide.RIGHT);
+
+		// also add composite events
+		Set<String> leftComposites = leftEvents.stream().map(x -> x.getComposite()).collect(Collectors.toSet());
+		if (leftCompositeEvents.size() > 0) {
+		    for (String composite : leftComposites) {
+			Set<CBPChangeEvent<?>> events = leftCompositeEvents.get(composite);
+			leftEvents.addAll(events);
+		    }
+		}
+
+		Set<String> rightComposites = rightEvents.stream().map(x -> x.getComposite()).collect(Collectors.toSet());
+		if (rightCompositeEvents.size() > 0) {
+		    for (String composite : rightComposites) {
+			Set<CBPChangeEvent<?>> events = rightCompositeEvents.get(composite);
+			rightEvents.addAll(events);
+		    }
+		}
+
 		if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 		    CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
+		    conflicts.add(conflict);
+		}
+	    }
+
+	    // movement conflict
+	    else if (!cTarget.getLeftIsCreated() && !cTarget.getLeftIsDeleted() && !cTarget.getLeftIsCreated() && !cTarget.getRightIsDeleted()) {
+		if (cTarget.getLeftContainer() == null) {
+		    continue;
+		} else if (cTarget.getRightContainer() == null) {
+		    continue;
+		} else if ((!cTarget.getLeftContainer().equals(cTarget.getRightContainer()) && !cTarget.getLeftContainer().equals(cTarget.getOldLeftContainer())
+			&& !cTarget.getRightContainer().equals(cTarget.getOldLeftContainer()))
+			|| (!cTarget.getLeftContainingFeature().equals(cTarget.getRightContainingFeature()) && !cTarget.getLeftContainingFeature().equals(cTarget.getOldLeftContainingFeature())
+				&& !cTarget.getRightContainingFeature().equals(cTarget.getOldLeftContainingFeature()))) {
+		    CBPConflict conflict = new CBPConflict(cTarget.getLeftValueEvents(), cTarget.getRightValueEvents());
+		    conflicts.add(conflict);
+		} else if (cTarget.getLeftPosition() != cTarget.getRightPosition() && cTarget.getLeftPosition() != cTarget.getOldLeftPosition()
+			&& cTarget.getRightPosition() != cTarget.getOldLeftPosition()) {
+		    CBPConflict conflict = new CBPConflict(cTarget.getLeftValueEvents(), cTarget.getRightValueEvents());
 		    conflicts.add(conflict);
 		}
 	    }

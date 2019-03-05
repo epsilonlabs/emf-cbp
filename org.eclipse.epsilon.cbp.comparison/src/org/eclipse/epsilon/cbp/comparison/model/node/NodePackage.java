@@ -84,22 +84,13 @@ public interface NodePackage extends EPackage {
         int NODE__DEEP = 1;
 
         /**
-         * The feature id for the '<em><b>Parent</b></em>' reference.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         * @ordered
-         */
-        int NODE__PARENT = 2;
-
-        /**
          * The feature id for the '<em><b>Name</b></em>' attribute.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          * @ordered
          */
-        int NODE__NAME = 3;
+        int NODE__NAME = 2;
 
         /**
          * The feature id for the '<em><b>Def Name</b></em>' attribute.
@@ -108,7 +99,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__DEF_NAME = 4;
+        int NODE__DEF_NAME = 3;
 
         /**
          * The feature id for the '<em><b>Values</b></em>' attribute list.
@@ -117,7 +108,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__VALUES = 5;
+        int NODE__VALUES = 4;
 
         /**
          * The feature id for the '<em><b>List Values</b></em>' attribute list.
@@ -126,7 +117,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__LIST_VALUES = 6;
+        int NODE__LIST_VALUES = 5;
 
         /**
          * The feature id for the '<em><b>Ref Node</b></em>' reference.
@@ -135,7 +126,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__REF_NODE = 7;
+        int NODE__REF_NODE = 6;
 
         /**
          * The feature id for the '<em><b>Val Node</b></em>' containment reference.
@@ -144,7 +135,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__VAL_NODE = 8;
+        int NODE__VAL_NODE = 7;
 
         /**
          * The feature id for the '<em><b>Val Nodes</b></em>' containment reference list.
@@ -153,7 +144,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__VAL_NODES = 9;
+        int NODE__VAL_NODES = 8;
 
         /**
          * The feature id for the '<em><b>Ref Nodes</b></em>' reference list.
@@ -162,7 +153,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__REF_NODES = 10;
+        int NODE__REF_NODES = 9;
 
         /**
          * The feature id for the '<em><b>Uordered Val Nodes</b></em>' reference list.
@@ -171,7 +162,25 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE__UORDERED_VAL_NODES = 11;
+        int NODE__UORDERED_VAL_NODES = 10;
+
+        /**
+         * The feature id for the '<em><b>Children</b></em>' containment reference list.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         * @ordered
+         */
+        int NODE__CHILDREN = 11;
+
+        /**
+         * The feature id for the '<em><b>Parent</b></em>' container reference.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         * @ordered
+         */
+        int NODE__PARENT = 12;
 
         /**
          * The number of structural features of the '<em>Node</em>' class.
@@ -180,7 +189,7 @@ public interface NodePackage extends EPackage {
          * @generated
          * @ordered
          */
-        int NODE_FEATURE_COUNT = 12;
+        int NODE_FEATURE_COUNT = 13;
 
 
         /**
@@ -214,17 +223,6 @@ public interface NodePackage extends EPackage {
          * @generated
          */
         EAttribute getNode_Deep();
-
-        /**
-         * Returns the meta object for the reference '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent <em>Parent</em>}'.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @return the meta object for the reference '<em>Parent</em>'.
-         * @see org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent()
-         * @see #getNode()
-         * @generated
-         */
-        EReference getNode_Parent();
 
         /**
          * Returns the meta object for the attribute '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getName <em>Name</em>}'.
@@ -326,6 +324,28 @@ public interface NodePackage extends EPackage {
         EReference getNode_UorderedValNodes();
 
         /**
+         * Returns the meta object for the containment reference list '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getChildren <em>Children</em>}'.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @return the meta object for the containment reference list '<em>Children</em>'.
+         * @see org.eclipse.epsilon.cbp.comparison.model.node.Node#getChildren()
+         * @see #getNode()
+         * @generated
+         */
+        EReference getNode_Children();
+
+        /**
+         * Returns the meta object for the container reference '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent <em>Parent</em>}'.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @return the meta object for the container reference '<em>Parent</em>'.
+         * @see org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent()
+         * @see #getNode()
+         * @generated
+         */
+        EReference getNode_Parent();
+
+        /**
          * Returns the factory that creates the instances of the model.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
@@ -372,14 +392,6 @@ public interface NodePackage extends EPackage {
                  * @generated
                  */
                 EAttribute NODE__DEEP = eINSTANCE.getNode_Deep();
-
-                /**
-                 * The meta object literal for the '<em><b>Parent</b></em>' reference feature.
-                 * <!-- begin-user-doc -->
-                 * <!-- end-user-doc -->
-                 * @generated
-                 */
-                EReference NODE__PARENT = eINSTANCE.getNode_Parent();
 
                 /**
                  * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
@@ -452,6 +464,22 @@ public interface NodePackage extends EPackage {
                  * @generated
                  */
                 EReference NODE__UORDERED_VAL_NODES = eINSTANCE.getNode_UorderedValNodes();
+
+                /**
+                 * The meta object literal for the '<em><b>Children</b></em>' containment reference list feature.
+                 * <!-- begin-user-doc -->
+                 * <!-- end-user-doc -->
+                 * @generated
+                 */
+                EReference NODE__CHILDREN = eINSTANCE.getNode_Children();
+
+                /**
+                 * The meta object literal for the '<em><b>Parent</b></em>' container reference feature.
+                 * <!-- begin-user-doc -->
+                 * <!-- end-user-doc -->
+                 * @generated
+                 */
+                EReference NODE__PARENT = eINSTANCE.getNode_Parent();
 
         }
 

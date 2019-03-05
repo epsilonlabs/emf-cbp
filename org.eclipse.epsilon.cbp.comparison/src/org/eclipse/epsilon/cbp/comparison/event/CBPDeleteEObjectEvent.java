@@ -83,6 +83,7 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
     @Override
     public CBPChangeEvent<?> reverse() {
 	CBPCreateEObjectEvent event = new CBPCreateEObjectEvent(eClass, resource, id, ePackage);
+	event.setComposite(getComposite());
 	return event;
     }
     

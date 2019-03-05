@@ -17,7 +17,6 @@ import org.eclipse.emf.ecore.EObject;
  * <ul>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getID <em>ID</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getDeep <em>Deep</em>}</li>
- *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent <em>Parent</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getName <em>Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getDefName <em>Def Name</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getValues <em>Values</em>}</li>
@@ -27,6 +26,8 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getValNodes <em>Val Nodes</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getRefNodes <em>Ref Nodes</em>}</li>
  *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getUorderedValNodes <em>Uordered Val Nodes</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getChildren <em>Children</em>}</li>
+ *   <li>{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent <em>Parent</em>}</li>
  * </ul>
  *
  * @see org.eclipse.epsilon.cbp.comparison.model.node.NodePackage#getNode()
@@ -86,32 +87,6 @@ public interface Node extends EObject {
          * @generated
          */
         void setDeep(Integer value);
-
-        /**
-         * Returns the value of the '<em><b>Parent</b></em>' reference.
-         * <!-- begin-user-doc -->
-         * <p>
-         * If the meaning of the '<em>Parent</em>' reference isn't clear,
-         * there really should be more of a description here...
-         * </p>
-         * <!-- end-user-doc -->
-         * @return the value of the '<em>Parent</em>' reference.
-         * @see #setParent(Node)
-         * @see org.eclipse.epsilon.cbp.comparison.model.node.NodePackage#getNode_Parent()
-         * @model
-         * @generated
-         */
-        Node getParent();
-
-        /**
-         * Sets the value of the '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent <em>Parent</em>}' reference.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @param value the new value of the '<em>Parent</em>' reference.
-         * @see #getParent()
-         * @generated
-         */
-        void setParent(Node value);
 
         /**
          * Returns the value of the '<em><b>Name</b></em>' attribute.
@@ -297,5 +272,51 @@ public interface Node extends EObject {
          * @generated
          */
         EList<Node> getUorderedValNodes();
+
+        /**
+         * Returns the value of the '<em><b>Children</b></em>' containment reference list.
+         * The list contents are of type {@link org.eclipse.epsilon.cbp.comparison.model.node.Node}.
+         * It is bidirectional and its opposite is '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent <em>Parent</em>}'.
+         * <!-- begin-user-doc -->
+         * <p>
+         * If the meaning of the '<em>Children</em>' containment reference list isn't clear,
+         * there really should be more of a description here...
+         * </p>
+         * <!-- end-user-doc -->
+         * @return the value of the '<em>Children</em>' containment reference list.
+         * @see org.eclipse.epsilon.cbp.comparison.model.node.NodePackage#getNode_Children()
+         * @see org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent
+         * @model opposite="parent" containment="true"
+         * @generated
+         */
+        EList<Node> getChildren();
+
+        /**
+         * Returns the value of the '<em><b>Parent</b></em>' container reference.
+         * It is bidirectional and its opposite is '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getChildren <em>Children</em>}'.
+         * <!-- begin-user-doc -->
+         * <p>
+         * If the meaning of the '<em>Parent</em>' container reference isn't clear,
+         * there really should be more of a description here...
+         * </p>
+         * <!-- end-user-doc -->
+         * @return the value of the '<em>Parent</em>' container reference.
+         * @see #setParent(Node)
+         * @see org.eclipse.epsilon.cbp.comparison.model.node.NodePackage#getNode_Parent()
+         * @see org.eclipse.epsilon.cbp.comparison.model.node.Node#getChildren
+         * @model opposite="children" transient="false"
+         * @generated
+         */
+        Node getParent();
+
+        /**
+         * Sets the value of the '{@link org.eclipse.epsilon.cbp.comparison.model.node.Node#getParent <em>Parent</em>}' container reference.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @param value the new value of the '<em>Parent</em>' container reference.
+         * @see #getParent()
+         * @generated
+         */
+        void setParent(Node value);
 
 } // Node

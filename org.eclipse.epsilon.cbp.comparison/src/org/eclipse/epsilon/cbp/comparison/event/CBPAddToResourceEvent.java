@@ -8,7 +8,8 @@ public class CBPAddToResourceEvent extends CBPResourceEvent {
 		CBPRemoveFromResourceEvent event = new CBPRemoveFromResourceEvent();
 		event.setValues(this.getValues());
 		event.setOldValues(this.getOldValue());
-		event.setPosition(this.getPosition());;
+		event.setPosition(this.getPosition());
+		event.setComposite(getComposite());
 		return event;
 	}
 	

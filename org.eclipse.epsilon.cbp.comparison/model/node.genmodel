@@ -8,7 +8,6 @@
     <genClasses ecoreClass="node.ecore#//Node">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/ID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/deep"/>
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference node.ecore#//Node/parent"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/defName"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute node.ecore#//Node/values"/>
@@ -18,6 +17,8 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference node.ecore#//Node/valNodes"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference node.ecore#//Node/refNodes"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference node.ecore#//Node/uorderedValNodes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference node.ecore#//Node/children"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference node.ecore#//Node/parent"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

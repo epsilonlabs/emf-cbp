@@ -4,7 +4,6 @@ package node;
 class Node {
     attr String ID;
 	attr Integer deep = 0;
-	ref  Node parent;
 	attr String name;
 	attr String defName = "Foo";
 	attr Integer[*] values;
@@ -13,6 +12,10 @@ class Node {
 	val Node valNode;
 	val Node[*] valNodes;
 	ref Node[*] refNodes;
-	!ordered ref Node[*] uorderedValNodes;  
+	!ordered ref Node[*] uorderedValNodes;
+	
+    val Node[*]#parent children;
+    ref Node#children parent;
+  
 }
 

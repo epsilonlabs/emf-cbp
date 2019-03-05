@@ -89,6 +89,8 @@ public class Application implements IApplication {
 	public Object start(IApplicationContext context) {
 
 		try {
+			// Logger.getRootLogger().setLevel(Level.OFF);
+
 			// Create a client representation for a local server and start a local server.
 			final ESServer localServer = ESServer.FACTORY.createAndStartLocalServer();
 			// Run a client on the local server that shows the basic features of the EMFstore
@@ -196,15 +198,14 @@ public class Application implements IApplication {
 		long skip = cbpOriginalFile.length();
 
 		try {
+			System.out.println("LOADING ORIGINAL MODEL");
 			originalAdapater.load(cbpOriginalFile);
 			originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
 			rightProject.update(new ESSystemOutProgressMonitor());
 			leftProject.update(new ESSystemOutProgressMonitor());
 
-			// EObject originalObject = id2EObjectMap.get("O-0");
-			// ESModelElementId originalEsId = originalProject.getModelElementId(originalObject);
-
 			// process right file first
+			System.out.println("LOADING RIGHT MODEL");
 			String rightText = readFiles(cbpRightFile, skip);
 			InputStream rightStream = new ByteArrayInputStream(rightText.getBytes());
 			rightAdapater.load(rightStream);
@@ -214,6 +215,7 @@ public class Application implements IApplication {
 			// ESModelElementId rightEsId = rightProject.getModelElementId(rightObject);
 
 			// process left
+			System.out.println("LOADING LEFT MODEL");
 			String leftText = readFiles(cbpLeftFile, skip);
 			InputStream leftStream = new ByteArrayInputStream(leftText.getBytes());
 			leftAdapater.load(leftStream);

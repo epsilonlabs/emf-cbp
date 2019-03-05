@@ -5,27 +5,15 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -42,9 +30,9 @@ import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.emf.compare.DifferenceSource;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.EMFCompare.Builder;
 import org.eclipse.emf.compare.ReferenceChange;
 import org.eclipse.emf.compare.ResourceAttachmentChange;
-import org.eclipse.emf.compare.EMFCompare.Builder;
 import org.eclipse.emf.compare.match.DefaultComparisonFactory;
 import org.eclipse.emf.compare.match.DefaultEqualityHelperFactory;
 import org.eclipse.emf.compare.match.DefaultMatchEngine;
@@ -61,14 +49,10 @@ import org.eclipse.emf.compare.postprocessor.IPostProcessor;
 import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope2;
-import org.eclipse.emf.compare.uml2.internal.AssociationChange;
-import org.eclipse.emf.compare.uml2.internal.DirectedRelationshipChange;
-import org.eclipse.emf.compare.uml2.internal.MultiplicityElementChange;
 import org.eclipse.emf.compare.uml2.internal.merge.UMLMerger;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -76,32 +60,17 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.emf.edit.command.ReplaceCommand;
 import org.eclipse.epsilon.cbp.comparison.CBPComparisonImpl;
-import org.eclipse.epsilon.cbp.comparison.CBPDiff;
 import org.eclipse.epsilon.cbp.comparison.ICBPComparison;
 import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
-import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.conflict.CBPConflict;
-import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 import org.eclipse.epsilon.cbp.merging.CBPMerging;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
 import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.gmt.modisco.java.emf.JavaPackage;
-import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
-import org.eclipse.uml2.uml.Class;
-import org.eclipse.uml2.uml.Interface;
-import org.eclipse.uml2.uml.InterfaceRealization;
-import org.eclipse.uml2.uml.Operation;
-import org.eclipse.uml2.uml.Package;
-import org.eclipse.uml2.uml.UMLFactory;
-import org.eclipse.uml2.uml.UMLPackage;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.After;
 import org.junit.Test;
 
 public class CBPConflictTest {
@@ -232,10 +201,14 @@ public class CBPConflictTest {
 	    originalScript.add("node5.name = \"Node 5\";");
 	    originalScript.add("var node6 = new Node;");
 	    originalScript.add("node6.name = \"Node 6\";");
+	    originalScript.add("var node7 = new Node;");
+	    originalScript.add("node7.name = \"Node 7\";");
 	    originalScript.add("node0.valNodes.add(node1);");
 	    originalScript.add("node0.valNodes.add(node2);");
 	    originalScript.add("node0.valNodes.add(node3);");
 	    originalScript.add("node0.valNodes.add(node5);");
+	    originalScript.add("node1.children.add(node7);");
+	    originalScript.add("node7.parent = node1;");
 	    originalScript.add("node5.valNodes.add(node6);");
 	    originalScript.add("node0.refNodes.add(node1);");
 	    originalScript.add("node0.refNodes.add(node2);");
@@ -253,7 +226,10 @@ public class CBPConflictTest {
 	    leftScript.add("node0.refNodes.move(0, 1);");
 	    leftScript.add("node3.name = \"Node XXX\";");
 	    leftScript.add("node3.refNode = node0;");
-
+	    leftScript.add("var node7 = Node.allInstances.selectOne(node | node.name == \"Node 7\");");
+	    leftScript.add("var node2 = Node.allInstances.selectOne(node | node.name == \"Node 2\");");
+	    leftScript.add("node7.parent = node2;");
+	    
 	    rightScript.add("var node0 = Node.allInstances.selectOne(node | node.name == \"Node 0\");");
 	    rightScript.add("node0.name = \"Node R0\";");
 	    rightScript.add("node0.valNodes.move(2, 0);");
@@ -266,6 +242,9 @@ public class CBPConflictTest {
 	    rightScript.add("node0.refNodes.move(2, 1);");
 	    rightScript.add("node3.name = \"Node XXX\";");
 	    rightScript.add("node3.refNode = node0;");
+	    rightScript.add("var node7 = Node.allInstances.selectOne(node | node.name == \"Node 7\");");
+	    rightScript.add("var node3 = Node.allInstances.selectOne(node | node.name == \"Node 3\");");
+	    rightScript.add("node7.parent = node3;");
 
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
@@ -330,8 +309,10 @@ public class CBPConflictTest {
      * @throws Exception
      */
     private void doCbpMerging(ICBPComparison comparison) throws Exception {
+	System.out.println("\nDo CBP Merging ...");
+	
 	List<CBPConflict> conflicts = comparison.getConflicts();
-
+	
 	CBPMerging merger = new CBPMerging();
 	merger.mergeCBPAllLeftToRight(changeCbpTargetFile, cbpLeftFile, cbpRightFile, cbpOriginalFile, comparison.getLeftEvents(), comparison.getRightEvents(), conflicts);
 	CBPResource cbpResource = (CBPResource) ((new CBPXMLResourceFactory())).createResource(URI.createFileURI(changeCbpTargetFile.getAbsolutePath()));

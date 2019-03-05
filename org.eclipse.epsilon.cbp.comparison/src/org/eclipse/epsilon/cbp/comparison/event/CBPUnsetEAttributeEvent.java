@@ -11,6 +11,7 @@ public class CBPUnsetEAttributeEvent extends CBPSingleValueEAttributeEvent {
 	event.setOldValues(temp);
 	event.setPosition(this.getPosition());
 	event.setTarget(this.getTarget());
+	event.setComposite(getComposite());
 	return event;
     }
 

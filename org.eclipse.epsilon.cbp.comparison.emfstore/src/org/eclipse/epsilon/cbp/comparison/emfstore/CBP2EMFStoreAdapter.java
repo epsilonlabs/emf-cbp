@@ -276,7 +276,11 @@ public class CBP2EMFStoreAdapter {
 							// }
 
 							long x = System.currentTimeMillis();
-							event.replay();
+							try {
+								event.replay();
+							} catch (Exception exe) {
+								System.console();
+							}
 							long y = System.currentTimeMillis();
 							long delta1 = y - x;
 							System.out.println(eventNumber + ": " + delta1 + ": " + event.toString());
@@ -341,6 +345,7 @@ public class CBP2EMFStoreAdapter {
 		if (eObject == null) {
 			eObject = id2EObjectMap.get(uriFragment);
 		}
+		ESModelElementId x = localProject.getModelElementId(eObject);
 		return eObject;
 	}
 

@@ -10,6 +10,7 @@ public class CBPAddToEAttributeEvent extends CBPMultiValueEAttributeEvent {
 	event.setOldValues(this.getOldValue());
 	event.setPosition(this.getPosition());
 	event.setTarget(this.getTarget());
+	event.setComposite(getComposite());
 	return event;
     }
 

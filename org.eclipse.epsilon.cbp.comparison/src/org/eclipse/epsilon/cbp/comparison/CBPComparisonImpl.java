@@ -321,7 +321,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     protected void computeConflicts() {
 	conflicts.clear();
-	conflictDetector.computeConflicts(objects, conflicts);
+	conflictDetector.computeConflicts(objects, conflicts, leftCompositeEvents, rightCompositeEvents);
     }
 
     private boolean isIntersected(List<CBPChangeEvent<?>> leftEvents, List<CBPChangeEvent<?>> rightEvents) {
@@ -1695,6 +1695,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     private void readFiles(File leftFile, File rightFile, long skip) {
 	try {
+	    leftCompositeEvents.clear();
+	    rightCompositeEvents.clear();
+
 	    BufferedReader leftReader = new BufferedReader(new FileReader(leftFile));
 	    BufferedReader rightReader = new BufferedReader(new FileReader(rightFile));
 	    String leftLine;
@@ -1834,7 +1837,6 @@ public class CBPComparisonImpl implements ICBPComparison {
 			    }
 			    event.setLineNumber(lineNumber);
 
-			    
 			    if (e.getAttributeByName(new QName("composite")) != null) {
 				String composite = e.getAttributeByName(new QName("composite")).getValue();
 				event.setComposite(composite);
