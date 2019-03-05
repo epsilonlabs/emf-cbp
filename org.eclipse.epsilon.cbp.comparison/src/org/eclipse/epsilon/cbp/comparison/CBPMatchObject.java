@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +17,7 @@ import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 public class CBPMatchObject implements Comparable<Object> {
 
     public enum CBPSide {
-	LEFT, RIGHT;
+	LEFT, RIGHT, ORIGIN;
     }
 
     private Map<String, CBPMatchObject> objectTree = null; 
@@ -54,12 +56,14 @@ public class CBPMatchObject implements Comparable<Object> {
     private List<CBPDiff> moveDiffsAsValue = new ArrayList<>();
     private List<CBPDiff> changeDiffsAsValue = new ArrayList<>();
     private List<CBPDiff> diffsAsValue = new ArrayList<>();
-    private List<CBPChangeEvent<?>> leftValueEvents = new ArrayList<>();
-    private List<CBPChangeEvent<?>> rightValueEvents = new ArrayList<>();
-    private List<CBPChangeEvent<?>> leftTargetEvents = new ArrayList<>();
-    private List<CBPChangeEvent<?>> rightTargetEvents = new ArrayList<>();
-    private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
-    private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
+    private Set<CBPChangeEvent<?>> leftValueEvents = new LinkedHashSet<>();
+    private Set<CBPChangeEvent<?>> rightValueEvents = new LinkedHashSet<>();
+    private Set<CBPChangeEvent<?>> leftTargetEvents = new LinkedHashSet<>();
+    private Set<CBPChangeEvent<?>> rightTargetEvents = new LinkedHashSet<>();
+    private Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
+    private Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
+    private Set<CBPChangeEvent<?>> leftDeleteEvents = new LinkedHashSet<>();
+    private Set<CBPChangeEvent<?>> rightDeleteEvents = new LinkedHashSet<>();
     private Map<CBPMatchFeature, Integer> leftMergePosition = new HashMap<>();
     private Map<CBPMatchFeature, Integer> rightMergePosition = new HashMap<>();
 
@@ -109,7 +113,7 @@ public class CBPMatchObject implements Comparable<Object> {
 	this.rightMergePosition.put(feature, position);
     }
 
-    public List<CBPChangeEvent<?>> getEvents(CBPSide side) {
+    public Set<CBPChangeEvent<?>> getEvents(CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    return leftEvents;
 	} else {
@@ -117,15 +121,15 @@ public class CBPMatchObject implements Comparable<Object> {
 	}
     }
 
-    public List<CBPChangeEvent<?>> getLeftEvents() {
+    public Set<CBPChangeEvent<?>> getLeftEvents() {
 	return leftEvents;
     }
 
-    public List<CBPChangeEvent<?>> getRightEvents() {
+    public Set<CBPChangeEvent<?>> getRightEvents() {
 	return rightEvents;
     }
 
-    public List<CBPChangeEvent<?>> getValueEvents(CBPSide side) {
+    public Set<CBPChangeEvent<?>> getDeleteEvents(CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    return leftValueEvents;
 	} else {
@@ -133,15 +137,31 @@ public class CBPMatchObject implements Comparable<Object> {
 	}
     }
 
-    public List<CBPChangeEvent<?>> getLeftValueEvents() {
+    public Set<CBPChangeEvent<?>> getLeftDeleteEvents() {
+	return leftDeleteEvents;
+    }
+
+    public Set<CBPChangeEvent<?>> getRightDeleteEvents() {
+	return rightDeleteEvents;
+    }
+    
+    public Set<CBPChangeEvent<?>> getValueEvents(CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return leftValueEvents;
+	} else {
+	    return rightValueEvents;
+	}
+    }
+
+    public Set<CBPChangeEvent<?>> getLeftValueEvents() {
 	return leftValueEvents;
     }
 
-    public List<CBPChangeEvent<?>> getRightValueEvents() {
+    public Set<CBPChangeEvent<?>> getRightValueEvents() {
 	return rightValueEvents;
     }
 
-    public List<CBPChangeEvent<?>> getTargetEvents(CBPSide side) {
+    public Set<CBPChangeEvent<?>> getTargetEvents(CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    return leftTargetEvents;
 	} else {
@@ -149,14 +169,30 @@ public class CBPMatchObject implements Comparable<Object> {
 	}
     }
 
-    public List<CBPChangeEvent<?>> getLeftTargetEvents() {
+    public Set<CBPChangeEvent<?>> getLeftTargetEvents() {
 	return leftTargetEvents;
     }
 
-    public List<CBPChangeEvent<?>> getRightTargetEvents() {
+    public Set<CBPChangeEvent<?>> getRightTargetEvents() {
 	return rightTargetEvents;
     }
 
+    public void addDeleteEvents(CBPChangeEvent<?> event, CBPSide side) {
+  	if (side == CBPSide.LEFT) {
+  	    this.leftDeleteEvents.add(event);
+  	} else {
+  	    this.rightDeleteEvents.add(event);
+  	}
+      }
+
+      public void addLeftDeleteEvents(CBPChangeEvent<?> event) {
+  	this.leftDeleteEvents.add(event);
+      }
+
+      public void addRightDeleteEvents(CBPChangeEvent<?> event) {
+  	this.rightDeleteEvents.add(event);
+      }
+    
     public void addEvents(CBPChangeEvent<?> event, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    this.leftEvents.add(event);

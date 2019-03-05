@@ -2,6 +2,7 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="node" nsURI="node" nsPrefix="">
   <eClassifiers xsi:type="ecore:EClass" name="Node">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="ID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="deep" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
         defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="parent" eType="#//Node"/>
@@ -19,5 +20,7 @@
         eType="#//Node" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="refNodes" upperBound="-1"
         eType="#//Node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="uorderedValNodes" ordered="false"
+        upperBound="-1" eType="#//Node"/>
   </eClassifiers>
 </ecore:EPackage>

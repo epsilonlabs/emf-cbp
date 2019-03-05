@@ -13,4 +13,11 @@
          </run>
       </application>
    </extension>
+   <extension
+         point="org.eclipse.emf.emfstore.client.checksumErrorHandler">
+      <checksumCheck
+            errorHandler="org.eclipse.epsilon.cbp.comparison.emfstore.ESChecksumErrorHandler"
+            isActive="false">
+      </checksumCheck>
+   </extension>
 </plugin>

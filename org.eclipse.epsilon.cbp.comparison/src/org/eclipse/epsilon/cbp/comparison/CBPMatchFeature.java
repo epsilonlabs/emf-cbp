@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.comparison;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
@@ -10,19 +11,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPMoveWithinEReferenceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEReferenceEvent;
-
-enum CBPFeatureType {
-    ATTRIBUTE, REFERENCE
-}
-
-enum CBPPositionEventType {
-    UNDEFINED, ADD, REMOVE, MOVE, MOVEIN, MOVEOUT
-}
 
 public class CBPMatchFeature {
 
@@ -33,6 +28,7 @@ public class CBPMatchFeature {
     private boolean isContainment = false;
     private boolean isMany = false;
     private boolean isUnique = false;
+    private boolean isOrdered = false;
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
     private Map<Integer, Boolean> leftIsSet = new TreeMap<Integer, Boolean>();
     private Map<Integer, Boolean> rightIsSet = new TreeMap<Integer, Boolean>();
@@ -49,34 +45,103 @@ public class CBPMatchFeature {
     private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
     private List<CBPChangeEvent<?>> rightEvents = new ArrayList<>();
     private List<CBPDiff> diffs = new ArrayList<>();
+    private Map<Object, Set<CBPChangeEvent<?>>> leftObjectEvents = new HashMap<Object, Set<CBPChangeEvent<?>>>();
+    private Map<Object, Set<CBPChangeEvent<?>>> rightObjectEvents = new HashMap<Object, Set<CBPChangeEvent<?>>>();
 
-    public CBPMatchFeature(CBPMatchObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany, boolean isUnique) {
+    public CBPMatchFeature(CBPMatchObject owner, String name, CBPFeatureType featureType, boolean isContainer, boolean isMany, boolean isUnique, boolean isOrdered) {
 	this.owner = owner;
 	this.name = name;
 	this.featureType = featureType;
 	this.isContainment = isContainer;
 	this.isMany = isMany;
 	this.isUnique = isUnique;
+	this.isOrdered = isOrdered;
     }
-    
+
     public boolean isUnique() {
-        return isUnique;
+	return isUnique;
     }
 
+    public boolean isOrdered() {
+	return isOrdered;
+    }
 
+    public void setOrdered(boolean isOrdered) {
+	this.isOrdered = isOrdered;
+    }
 
     public void setUnique(boolean isUnique) {
-        this.isUnique = isUnique;
+	this.isUnique = isUnique;
     }
 
-
-
     public List<CBPDiff> getDiffs() {
-        return diffs;
+	return diffs;
     }
 
     public void setDiffs(List<CBPDiff> diffs) {
-        this.diffs = diffs;
+	this.diffs = diffs;
+    }
+
+    public Map<Object, Set<CBPChangeEvent<?>>> getObjectEvents(CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return this.getLeftObjectEvents();
+	} else {
+	    return this.getRightObjectEvents();
+	}
+
+    }
+
+    public Set<CBPChangeEvent<?>> getObjectEvent(CBPMatchObject object, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return this.getLeftObjectEvents(object);
+	} else {
+	    return this.getRightObjectEvents(object);
+	}
+    }
+
+    public Set<CBPChangeEvent<?>> getLeftObjectEvents(Object object) {
+	return leftObjectEvents.get(object);
+    }
+
+    public Set<CBPChangeEvent<?>> getRightObjectEvents(Object object) {
+	return rightObjectEvents.get(object);
+    }
+
+    public Map<Object, Set<CBPChangeEvent<?>>> getLeftObjectEvents() {
+	return leftObjectEvents;
+    }
+
+    public Map<Object, Set<CBPChangeEvent<?>>> getRightObjectEvents() {
+	return rightObjectEvents;
+    }
+
+    public void addObjectEvent(CBPMatchObject object, CBPChangeEvent<?> event, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    this.addLeftObjectEvent(object, event);
+	} else {
+	    this.addRightObjectEvent(object, event);
+	}
+
+    }
+
+    public void addLeftObjectEvent(Object object, CBPChangeEvent<?> event) {
+	if (this.leftObjectEvents.get(object) == null) {
+	    Set<CBPChangeEvent<?>> events = new LinkedHashSet<>();
+	    this.leftObjectEvents.put(object, events);
+	    events.add(event);
+	} else {
+	    this.leftObjectEvents.get(object).add(event);
+	}
+    }
+
+    public void addRightObjectEvent(Object object, CBPChangeEvent<?> event) {
+	if (this.rightObjectEvents.get(object) == null) {
+	    Set<CBPChangeEvent<?>> events = new LinkedHashSet<>();
+	    this.rightObjectEvents.put(object, events);
+	    events.add(event);
+	} else {
+	    this.rightObjectEvents.get(object).add(event);
+	}
     }
 
     public void putValueLineNum(Object value, int lineNum, CBPSide side) {
@@ -238,19 +303,23 @@ public class CBPMatchFeature {
     }
 
     public void setOldValue(Object value, CBPSide side) {
+	this.setOldValue(0, value, side);
+    }
+
+    public void setOldValue(int index, Object value, CBPSide side) {
 	if (side == CBPSide.LEFT) {
-	    if (oldLeftValues.get(0) == null) {
-		oldLeftValues.put(0, value);
-		if (!oldRightValues.containsKey(0)) {
-		    oldRightValues.put(0, value);
+	    if (oldLeftValues.get(index) == null) {
+		oldLeftValues.put(index, value);
+		if (!oldRightValues.containsKey(index)) {
+		    oldRightValues.put(index, value);
 		    // rightValues.put(0, value);
 		}
 	    }
 	} else {
-	    if (oldRightValues.get(0) == null) {
-		oldRightValues.put(0, value);
-		if (!oldLeftValues.containsKey(0)) {
-		    oldLeftValues.put(0, value);
+	    if (oldRightValues.get(index) == null) {
+		oldRightValues.put(index, value);
+		if (!oldLeftValues.containsKey(index)) {
+		    oldLeftValues.put(index, value);
 		    // leftValues.put(0, value);
 		}
 	    }
@@ -765,15 +834,55 @@ public class CBPMatchFeature {
 		if (evt.getPosition() > evt.getFromPosition()) {
 		    if (pos > evt.getFromPosition() && pos <= evt.getPosition()) {
 			valObj.setMergePosition(pos - 1, this, side);
-//			this.putValueLineNum(valObj, event.getLineNumber(), side);
+			// this.putValueLineNum(valObj, event.getLineNumber(),
+			// side);
 		    }
 		} else if (event.getPosition() < evt.getFromPosition()) {
 		    if (pos >= evt.getPosition() && pos < evt.getFromPosition()) {
 			valObj.setMergePosition(pos + 1, this, side);
-//			this.putValueLineNum(valObj, event.getLineNumber(), side);
+			// this.putValueLineNum(valObj, event.getLineNumber(),
+			// side);
 		    }
 		}
 	    }
 	}
+    }
+
+    public Integer getPosition(CBPMatchObject cObject, CBPSide side) {
+	if (side == CBPSide.LEFT) {
+	    return this.getLeftPosition(cObject);
+	} else if (side == CBPSide.RIGHT) {
+	    return this.getRightPosition(cObject);
+	} else {
+	    return this.getOriginalPosition(cObject);
+	}
+    }
+
+    public Integer getOriginalPosition(CBPMatchObject cObject) {
+	Integer pos = -1;
+	Stream<Integer> stream = oldLeftValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey);
+	pos = stream.findFirst().get();
+	return pos;
+    }
+
+    public Integer getLeftPosition(CBPMatchObject cObject) {
+	Integer pos = -1;
+	Stream<Integer> stream = leftValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey);
+	pos = stream.findFirst().get();
+	return pos;
+    }
+
+    public Integer getRightPosition(CBPMatchObject cObject) {
+	Integer pos = -1;
+	Stream<Integer> stream = rightValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey);
+	pos = stream.findFirst().get();
+	return pos;
+    }
+
+    public Set<Object> getAllValues() {
+	Set<Object> values = new LinkedHashSet<>();
+	values.addAll(getLeftValues().values().stream().filter(x -> x != null).collect(Collectors.toSet()));
+	values.addAll(getRightValues().values().stream().filter(x -> x != null).collect(Collectors.toSet()));
+	return values;
     }
 }

@@ -34,5 +34,6 @@ Require-Bundle: org.eclipse.emf.common,
  org.eclipse.modisco.java.discoverer,
  org.eclipse.modisco.infra.discovery.core
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.gmt.modisco.xml.emf,
+Import-Package: org.eclipse.epsilon.cbp.comparison.model.node,
+ org.eclipse.gmt.modisco.xml.emf,
  org.eclipse.uml2.uml

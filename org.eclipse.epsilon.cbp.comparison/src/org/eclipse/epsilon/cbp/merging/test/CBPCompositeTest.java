@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.epsilon.cbp.comparison.model.node.Node;
+import org.eclipse.epsilon.cbp.comparison.model.node.NodeFactory;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
@@ -37,11 +38,37 @@ public class CBPCompositeTest {
 
     public CBPCompositeTest() {
 
-	cbpFile = new File("D:\\TEMP\\CONFLICTS\\temp\\model.cbpxml");
+	cbpFile = new File("D:\\TEMP\\CONFLICTS\\debug\\model.cbpxml");
 	if (cbpFile.exists())
 	    cbpFile.delete();
 	cbpResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpFile.getAbsolutePath()));
 	originalScript = new Script(cbpResource);
+    }
+
+    @Test
+    public void generateCompositeMove() {
+	try {
+	    NodeFactory factory = NodeFactory.eINSTANCE;
+	    Node node0 = factory.createNode();
+	    node0.setName("Node 0");
+	    cbpResource.getContents().add(node0);
+	    Node node1 = factory.createNode();
+	    node1.setName("Node 1");
+	    cbpResource.getContents().add(node1);
+	    node0.setValNode(node1);
+	    cbpResource.getContents().add(node1);
+	    node0.getValNodes().add(node1);
+	    cbpResource.getContents().add(node1);
+	    node0.setValNode(node1);
+	    node0.getValNodes().add(node1);
+	    node0.setValNode(node1);
+
+	    cbpResource.save(null);
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(true, true);
     }
 
     @Test
@@ -79,17 +106,19 @@ public class CBPCompositeTest {
     @After
     public void postTest() throws IOException, XMLStreamException, ParserConfigurationException, TransformerException {
 	// print results
-	List<String> leftLines = Files.readAllLines(cbpFile.toPath());
-	for (String line : leftLines) {
-	    System.out.println(line);
+	if (cbpFile.exists()) {
+	    List<String> leftLines = Files.readAllLines(cbpFile.toPath());
+	    for (String line : leftLines) {
+		System.out.println(line);
+	    }
 	}
 
-//	cbpResource.unload();
-//	cbpResource.load(null);
-//	TreeIterator<EObject> tree = cbpResource.getAllContents();
-//	while (tree.hasNext()) {
-//	    System.out.println(cbpResource.getURIFragment(tree.next()));
-//	}
+	// cbpResource.unload();
+	// cbpResource.load(null);
+	// TreeIterator<EObject> tree = cbpResource.getAllContents();
+	// while (tree.hasNext()) {
+	// System.out.println(cbpResource.getURIFragment(tree.next()));
+	// }
 	cbpResource.unload();
     }
 

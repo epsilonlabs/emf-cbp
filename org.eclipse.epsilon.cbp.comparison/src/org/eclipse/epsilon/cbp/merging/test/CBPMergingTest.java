@@ -103,7 +103,7 @@ public class CBPMergingTest {
 
 	// try to merge
 	CBPMerging merging = new CBPMerging();
-	merging.mergeAllLeftToRight(targetXmiFile, leftXmiFile, rightXmiFile, diffs);
+	merging.mergeXMIAllLeftToRight(targetXmiFile, leftXmiFile, rightXmiFile, diffs);
 
 	// evaluate merging result
 	Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));
@@ -191,7 +191,7 @@ public class CBPMergingTest {
 
 	try {
 	    String dir = "Epsilon";
-	    int startFrom = 4;  
+	    int startFrom = 1;  
 	    //problems:
 	    // null pointer while merging: 57, 58
 	    int caseNum = 68; //max 68
@@ -216,7 +216,7 @@ public class CBPMergingTest {
 
 		// try to merge
 		CBPMerging merging = new CBPMerging();
-		merging.mergeAllLeftToRight(targetXmiFile, leftXmiFile, rightXmiFile, diffs);
+		merging.mergeXMIAllLeftToRight(targetXmiFile, leftXmiFile, rightXmiFile, diffs);
 
 		// evaluate merging result
 		Resource targetXmi = (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath()));

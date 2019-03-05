@@ -325,10 +325,10 @@ public class HybridComparisonTest {
 	public void testCBPComparisonForASE() throws IOException {
 		try {
 			System.out.println("Starting Change-based Comparsion ...");
-			// leftXmiFile = new
+			// leftFile = new
 			// File("D:\\TEMP\\ASE\\comparison\\epsilon.008.with-id.xmi");
 			leftCbpFile = new File("D:\\TEMP\\ASE\\comparison\\epsilon.008.cbpxml");
-			// rightXmiFile = new
+			// rightFile = new
 			// File("D:\\TEMP\\ASE\\comparison\\epsilon.044.with-id.xmi");
 			rightCbpFile = new File("D:\\TEMP\\ASE\\comparison\\epsilon.388.cbpxml");
 

@@ -537,6 +537,26 @@ public class ChangeEventAdapter extends EContentAdapter {
 		}
 	    }
 	}
+
+	// handleCompositeMove
+	if ((event instanceof SetEReferenceEvent || event instanceof AddToEReferenceEvent || event instanceof AddToResourceEvent) && changeEvents.size() > 1) {
+	    ChangeEvent<?> previousEvent = changeEvents.get(changeEvents.size() - 2);
+	    if (previousEvent instanceof UnsetEReferenceEvent || previousEvent instanceof RemoveFromEReferenceEvent || previousEvent instanceof RemoveFromResourceEvent) {
+		if ((event instanceof EReferenceEvent && ((EReferenceEvent) event).getEReference().isContainment()) || event instanceof AddToResourceEvent) {
+		    Boolean localComposite = null;
+		    if (compositeId == null) {
+			localComposite = true;
+			startCompositeOperation();
+		    }
+		    previousEvent.setComposite(compositeId);
+		    event.setComposite(compositeId);
+		    if (localComposite != null && localComposite == true) {
+			endCompositeOperation();
+		    }
+		}
+	    }
+	}
+	// ----
     }
 
     /**
@@ -822,7 +842,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			EObject value = values.get(position);
 
 			removedContainedObjects(value);
-//			removeAllReferencingFeatures(value);
+			// removeAllReferencingFeatures(value);
 			unsetAllEFeatures(value);
 			values.remove(position);
 
@@ -845,7 +865,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 			if (value != null) {
 
 			    removedContainedObjects(value);
-//			    removeAllReferencingFeatures(value);
+			    // removeAllReferencingFeatures(value);
 			    unsetAllEFeatures(value);
 			    targetEObject.eUnset(eRef);
 

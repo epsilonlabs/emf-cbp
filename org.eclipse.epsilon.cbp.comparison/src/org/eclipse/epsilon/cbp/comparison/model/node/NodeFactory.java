@@ -13,30 +13,30 @@ import org.eclipse.emf.ecore.EFactory;
  * @generated
  */
 public interface NodeFactory extends EFactory {
-	/**
-	 * The singleton instance of the factory.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	NodeFactory eINSTANCE = org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeFactoryImpl.init();
+        /**
+         * The singleton instance of the factory.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        NodeFactory eINSTANCE = org.eclipse.epsilon.cbp.comparison.model.node.impl.NodeFactoryImpl.init();
 
-	/**
-	 * Returns a new object of class '<em>Node</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Node</em>'.
-	 * @generated
-	 */
-	Node createNode();
+        /**
+         * Returns a new object of class '<em>Node</em>'.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @return a new object of class '<em>Node</em>'.
+         * @generated
+         */
+        Node createNode();
 
-	/**
-	 * Returns the package supported by this factory.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the package supported by this factory.
-	 * @generated
-	 */
-	NodePackage getNodePackage();
+        /**
+         * Returns the package supported by this factory.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @return the package supported by this factory.
+         * @generated
+         */
+        NodePackage getNodePackage();
 
 } //NodeFactory

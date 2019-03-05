@@ -271,9 +271,9 @@ public class FASE2019Test {
 
 	// LEFT
 	StringBuilder leftScript = new StringBuilder();
-	leftScript.append("var o4 = Operation.allInstances.selectOne(node | node.name == \"Operation D\");");
+	leftScript.append("var o4 = Operation.allInstances.selectOne(org.eclipse.epsilon.cbp.comparison.model.node | org.eclipse.epsilon.cbp.comparison.model.node.name == \"Operation D\");");
 	leftScript.append("o4.name = \"Op D\";");
-	leftScript.append("var c1 = Class.allInstances.selectOne(node | node.name == \"Class 1\");");
+	leftScript.append("var c1 = Class.allInstances.selectOne(org.eclipse.epsilon.cbp.comparison.model.node | org.eclipse.epsilon.cbp.comparison.model.node.name == \"Class 1\");");
 	leftScript.append("c1.name = \"Class 01\";");
 	leftScript.append("c1.ownedOperations.move(4, 2);");
 	leftScript.append("delete o4;");
@@ -283,8 +283,8 @@ public class FASE2019Test {
 
 	// RIGHT
 	StringBuilder rightScript = new StringBuilder();
-	rightScript.append("var c1 = Class.allInstances.selectOne(node | node.name == \"Class 1\");");
-	rightScript.append("var o2 = Operation.allInstances.selectOne(node | node.name == \"Operation B\");");
+	rightScript.append("var c1 = Class.allInstances.selectOne(org.eclipse.epsilon.cbp.comparison.model.node | org.eclipse.epsilon.cbp.comparison.model.node.name == \"Class 1\");");
+	rightScript.append("var o2 = Operation.allInstances.selectOne(org.eclipse.epsilon.cbp.comparison.model.node | org.eclipse.epsilon.cbp.comparison.model.node.name == \"Operation B\");");
 	rightScript.append("o2.name = \"Operation BB\";");
 	rightScript.append("c1.ownedOperations.move(4, 2);");
 	rightScript.append("c1.ownedOperations.move(2, 3);");

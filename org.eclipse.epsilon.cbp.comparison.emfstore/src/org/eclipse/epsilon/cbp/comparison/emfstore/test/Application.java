@@ -28,9 +28,12 @@ import javax.xml.stream.FactoryConfigurationError;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.emfstore.client.ESLocalProject;
 import org.eclipse.emf.emfstore.client.ESRemoteProject;
 import org.eclipse.emf.emfstore.client.ESServer;
@@ -41,7 +44,6 @@ import org.eclipse.emf.emfstore.client.callbacks.ESUpdateCallback;
 import org.eclipse.emf.emfstore.client.exceptions.ESServerNotFoundException;
 import org.eclipse.emf.emfstore.client.exceptions.ESServerStartFailedException;
 import org.eclipse.emf.emfstore.common.ESSystemOutProgressMonitor;
-import org.eclipse.emf.emfstore.common.model.ESModelElementId;
 import org.eclipse.emf.emfstore.common.model.ESModelElementIdToEObjectMapping;
 import org.eclipse.emf.emfstore.internal.common.model.impl.ESModelElementIdImpl;
 import org.eclipse.emf.emfstore.internal.server.model.impl.api.ESOperationImpl;
@@ -65,6 +67,7 @@ import org.eclipse.epsilon.cbp.comparison.emfstore.CBP2EMFStoreAdapter;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.uml2.uml.UMLPackage;
 
 /**
  * An application that runs the demo.<br>
@@ -72,10 +75,13 @@ import org.eclipse.equinox.app.IApplicationContext;
  */
 public class Application implements IApplication {
 
-	final static Map<String, ESModelElementId> id2esIdMap = new HashMap<String, ESModelElementId>();
-	final static Map<ESModelElementId, String> esId2IdMap = new HashMap<ESModelElementId, String>();
+	final static Map<String, String> id2esIdMap = new HashMap<String, String>();
+	final static Map<String, String> esId2IdMap = new HashMap<String, String>();
 	final static Map<String, EObject> id2EObjectMap = new HashMap<String, EObject>();
 	final static Map<EObject, String> eObject2IdMap = new HashMap<EObject, String>();
+	final static File xmiFile = new File("D:\\TEMP\\CONFLICTS\\temp\\emfstore-target.xmi");
+	final static XMIResource xmiResource = (XMIResource) new XMIResourceFactoryImpl()
+		.createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
 
 	/**
 	 * {@inheritDoc}
@@ -109,7 +115,7 @@ public class Application implements IApplication {
 		System.out.println("Client starting...");
 
 		EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
-		// EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
+		EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
 		// EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
 		// EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
 
@@ -179,7 +185,11 @@ public class Application implements IApplication {
 		CBP2EMFStoreAdapter rightAdapater = new CBP2EMFStoreAdapter(rightProject, id2EObjectMap, eObject2IdMap,
 			id2esIdMap, esId2IdMap);
 
-		final File cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\temp\\original.cbpxml");
+		// final File cbpOriginalFile = new File("D:\\TEMP\\FASE\\Debug\\origin.cbpxml");
+		// final File cbpLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.cbpxml");
+		// final File cbpRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.cbpxml");
+
+		final File cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\temp\\origin.cbpxml");
 		final File cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\temp\\left.cbpxml");
 		final File cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\temp\\right.cbpxml");
 
@@ -211,17 +221,17 @@ public class Application implements IApplication {
 			// EObject leftObject = leftProject.getModelElement(originalEsId);
 			// ESModelElementId leftEsId = leftProject.getModelElementId(leftObject);
 
-			EObject x = originalProject.getModelElements().get(0);
-			EStructuralFeature f1 = x.eClass().getEStructuralFeature("name");
-			String v1 = (String) x.eGet(f1);
-
-			EObject y = rightProject.getModelElements().get(0);
-			EStructuralFeature f2 = y.eClass().getEStructuralFeature("name");
-			String v2 = (String) y.eGet(f2);
-
-			EObject z = leftProject.getModelElements().get(0);
-			EStructuralFeature f3 = z.eClass().getEStructuralFeature("name");
-			String v3 = (String) z.eGet(f3);
+			// EObject x = originalProject.getModelElements().get(0);
+			// EStructuralFeature f1 = x.eClass().getEStructuralFeature("name");
+			// String v1 = (String) x.eGet(f1);
+			//
+			// EObject y = rightProject.getModelElements().get(0);
+			// EStructuralFeature f2 = y.eClass().getEStructuralFeature("name");
+			// String v2 = (String) y.eGet(f2);
+			//
+			// EObject z = leftProject.getModelElements().get(0);
+			// EStructuralFeature f3 = z.eClass().getEStructuralFeature("name");
+			// String v3 = (String) z.eGet(f3);
 
 			try {
 				// leftProject.update(new ESSystemOutProgressMonitor());
@@ -243,10 +253,11 @@ public class Application implements IApplication {
 					@SuppressWarnings("restriction")
 					public boolean conflictOccurred(ESConflictSet changeConflictSet, IProgressMonitor monitor) {
 
-						System.out.println("\n\nEMFStore's Conflict size = " + changeConflictSet.getConflicts().size());
+						System.out.println("\n\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
 						System.out.println();
+						int count = 0;
 						for (ESConflict conflict : changeConflictSet.getConflicts()) {
-
+							count++;
 							Iterator<ESOperation> localIterator = conflict.getLocalOperations().iterator();
 							Iterator<ESOperation> remoteIterator = conflict.getRemoteOperations().iterator();
 							while (localIterator.hasNext() || remoteIterator.hasNext()) {
@@ -262,7 +273,7 @@ public class Application implements IApplication {
 								}
 								String localString = operationToString(localOperation);
 								String remoteString = operationToString(remoteOperation);
-								System.out.println(localString + " <-> " + remoteString);
+								System.out.println(count + ": " + localString + " <-> " + remoteString);
 								System.console();
 							}
 
@@ -273,6 +284,11 @@ public class Application implements IApplication {
 
 				}, new ESSystemOutProgressMonitor());
 			}
+
+			leftProject.commit("LEFT", null, new ESSystemOutProgressMonitor());
+			// rightProject.update(new ESSystemOutProgressMonitor());
+
+			exportToXMI(leftProject);
 
 			// System.out.println("\nCommit of merge result of demoProjectCopy");
 			// demoProjectCopy.commit(new ESSystemOutProgressMonitor());
@@ -295,6 +311,30 @@ public class Application implements IApplication {
 		} catch (final IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	/**
+	 * @param project
+	 * @throws IOException
+	 */
+	private static void exportToXMI(ESLocalProject project) throws IOException {
+		Iterator<EObject> iterator2 = project.getAllModelElements().iterator();
+		while (iterator2.hasNext()) {
+			EObject obj2 = iterator2.next();
+			String esId = ((ESModelElementIdImpl) project.getModelElementId(obj2)).getId();
+			String id = esId2IdMap.get(esId);
+			eObject2IdMap.put(obj2, id);
+			System.console();
+		}
+
+		xmiResource.getContents().addAll(project.getModelElements());
+		TreeIterator<EObject> iterator1 = xmiResource.getAllContents();
+		while (iterator1.hasNext()) {
+			EObject obj1 = iterator1.next();
+			String id = eObject2IdMap.get(obj1);
+			xmiResource.setID(obj1, id);
+		}
+		xmiResource.save(null);
 	}
 
 	/**
@@ -322,7 +362,7 @@ public class Application implements IApplication {
 
 		String result = null;
 		String target = esId2IdMap
-			.get((ESModelElementId) operation.getModelElementId().toAPI());
+			.get(operation.getModelElementId().getId());
 		// CompositeOperationImpl, CreateDeleteOperationImpl, AttributeOperationImpl,
 		// MultiAttributeMoveOperationImpl, MultiAttributeOperationImpl,
 		// MultiAttributeSetOperationImpl, MultiReferenceMoveOperationImpl, ReferenceOperationImpl
@@ -333,13 +373,13 @@ public class Application implements IApplication {
 		if (operation instanceof CreateDeleteOperation
 			&& ((CreateDeleteOperation) operation).isDelete()) {
 			String className = ((CreateDeleteOperation) operation).getModelElement().eClass().getName();
-			ESModelElementIdImpl esId = ((CreateDeleteOperation) operation).getModelElementId().toAPI();
+			String esId = ((CreateDeleteOperation) operation).getModelElementId().getId();
 			String value = esId2IdMap.get(esId);
 			result = "DELETE " + value + " TYPE " + className;
 		} else if (operation instanceof CreateDeleteOperation
 			&& !((CreateDeleteOperation) operation).isDelete()) {
 			String className = ((CreateDeleteOperation) operation).getModelElement().eClass().getName();
-			ESModelElementIdImpl esId = ((CreateDeleteOperation) operation).getModelElementId().toAPI();
+			String esId = ((CreateDeleteOperation) operation).getModelElementId().getId();
 			String value = esId2IdMap.get(esId);
 			result = "CREATE " + value + " TYPE " + className;
 		} else if (operation instanceof AttributeOperation
@@ -354,7 +394,11 @@ public class Application implements IApplication {
 			if (newValue instanceof String) {
 				newValue = "\"" + newValue + "\"";
 			}
-			result = "SET " + target + "." + feature + " FROM " + oldValue + " TO " + newValue;
+			if (newValue == null) {
+				result = "UNSET " + target + "." + feature + " FROM " + oldValue + " TO " + newValue;
+			} else {
+				result = "SET " + target + "." + feature + " FROM " + oldValue + " TO " + newValue;
+			}
 		} else if (operation instanceof AttributeOperation
 			&& ((AttributeOperation) operation).getUnset() == UnsetType.IS_UNSET) {
 			String feature = ((AttributeOperation) operation).getFeatureName();
@@ -378,17 +422,17 @@ public class Application implements IApplication {
 			int index = ((MultiAttributeOperation) operation).getIndexes().get(0);
 			result = "REMOVE " + value + " FROM " + target + "." + feature + " AT " + index;
 		} else if (operation instanceof MultiAttributeMoveOperation) {
-			String feature = ((MultiReferenceMoveOperation) operation).getFeatureName();
+			String feature = ((MultiAttributeMoveOperation) operation).getFeatureName();
 			Object value = ((MultiAttributeMoveOperation) operation).getReferencedValue();
-			int oldIndex = ((MultiReferenceMoveOperation) operation).getOldIndex();
-			int newIndex = ((MultiReferenceMoveOperation) operation).getNewIndex();
+			int oldIndex = ((MultiAttributeMoveOperation) operation).getOldIndex();
+			int newIndex = ((MultiAttributeMoveOperation) operation).getNewIndex();
 			result = "MOVE " + value + " IN " + target + "." + feature + " FROM " + oldIndex
 				+ " TO "
 				+ newIndex;
 		} else if (operation instanceof MultiReferenceMoveOperation) {
 			String feature = ((MultiReferenceMoveOperation) operation).getFeatureName();
-			ESModelElementIdImpl esId = ((MultiReferenceMoveOperation) operation)
-				.getReferencedModelElementId().toAPI();
+			String esId = ((MultiReferenceMoveOperation) operation)
+				.getReferencedModelElementId().getId();
 			String value = esId2IdMap.get(esId);
 			int oldIndex = ((MultiReferenceMoveOperation) operation).getOldIndex();
 			int newIndex = ((MultiReferenceMoveOperation) operation).getNewIndex();
@@ -396,22 +440,23 @@ public class Application implements IApplication {
 				+ " TO " + newIndex;
 		} else if (operation instanceof SingleReferenceOperation) {
 			String feature = ((SingleReferenceOperation) operation).getFeatureName();
-			ESModelElementIdImpl esOldId = ((SingleReferenceOperation) operation).getOldValue().toAPI();
+			String esOldId = null;
+			if (((SingleReferenceOperation) operation).getOldValue() != null) {
+				esOldId = ((SingleReferenceOperation) operation).getOldValue().getId();
+			}
 			String oldValue = esId2IdMap.get(esOldId);
-			ESModelElementIdImpl esNewId = ((SingleReferenceOperation) operation).getNewValue().toAPI();
+			String esNewId = ((SingleReferenceOperation) operation).getNewValue().getId();
 			String newValue = esId2IdMap.get(esNewId);
 			result = "SET " + target + "." + feature + " FROM " + oldValue + " TO " + newValue;
 		} else if (operation instanceof MultiReferenceOperation && ((MultiReferenceOperation) operation).isAdd()) {
 			String feature = ((MultiReferenceOperation) operation).getFeatureName();
-			ESModelElementIdImpl esId = ((MultiReferenceOperation) operation).getReferencedModelElements().get(0)
-				.toAPI();
+			String esId = ((MultiReferenceOperation) operation).getReferencedModelElements().get(0).getId();
 			String value = esId2IdMap.get(esId);
 			int index = ((MultiReferenceOperation) operation).getIndex();
 			result = "ADD " + value + " TO " + target + "." + feature + " AT " + index;
 		} else if (operation instanceof MultiReferenceOperation && !((MultiReferenceOperation) operation).isAdd()) {
 			String feature = ((MultiReferenceOperation) operation).getFeatureName();
-			ESModelElementIdImpl esId = ((MultiReferenceOperation) operation).getReferencedModelElements().get(0)
-				.toAPI();
+			String esId = ((MultiReferenceOperation) operation).getReferencedModelElements().get(0).getId();
 			String value = esId2IdMap.get(esId);
 			int index = ((MultiReferenceOperation) operation).getIndex();
 			result = "REMOVE " + value + " FROM " + target + "." + feature + " AT " + index;

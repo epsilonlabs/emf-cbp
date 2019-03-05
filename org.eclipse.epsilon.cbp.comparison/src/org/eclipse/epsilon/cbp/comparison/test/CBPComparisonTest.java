@@ -153,26 +153,26 @@ public class CBPComparisonTest {
 	File leftXmiFile = new File("D:\\TEMP\\FASE\\Debug\\left.xmi");
 	File rightXmiFile = new File("D:\\TEMP\\FASE\\Debug\\right.xmi");
 
-	// File leftXmiFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
-	// File rightXmiFile = new
+	// File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
+	// File rightFile = new
 	// File("D:\\TEMP\\COMPARISON2\\test\\right.xmi");
 
-	// File leftXmiFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.xmi");
-	// File rightXmiFile = new
+	// File leftFile = new File("D:\\TEMP\\COMPARISON\\temp\\left.xmi");
+	// File rightFile = new
 	// File("D:\\TEMP\\COMPARISON\\temp\\right.xmi");
 
-	// File leftXmiFile = new
+	// File leftFile = new
 	// File("D:\\TEMP\\COMPARISON\\temp\\left-noid.xmi");
-	// File rightXmiFile = new
+	// File rightFile = new
 	// File("D:\\TEMP\\COMPARISON\\temp\\right-noid.xmi");
 
-	// File leftXmiFile = new
+	// File leftFile = new
 	// File("D:\\TEMP\\COMPARISON3\\test\\left-noid.xmi");
-	// File rightXmiFile = new
+	// File rightFile = new
 	// File("D:\\TEMP\\COMPARISON3\\test\\right-noid.xmi");
 
-	// File leftXmiFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
-	// File rightXmiFile = new
+	// File leftFile = new File("D:\\TEMP\\COMPARISON3\\test\\left.xmi");
+	// File rightFile = new
 	// File("D:\\TEMP\\COMPARISON3\\test\\right.xmi");
 
 	File outputRightFile = new File(leftXmiFile.getAbsolutePath().replaceAll("left.xmi", "right.txt"));

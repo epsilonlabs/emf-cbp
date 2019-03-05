@@ -1,16 +1,32 @@
 package org.eclipse.epsilon.cbp.merging;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.StringWriter;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.EList;
@@ -33,21 +49,69 @@ import org.eclipse.emf.emfstore.internal.client.model.impl.RemovedElementsCache;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff;
 import org.eclipse.epsilon.cbp.comparison.CBPDiff.CBPDifferenceKind;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.eclipse.epsilon.cbp.comparison.CBPDiffComparator;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchFeature;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
+import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEAttributeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPAddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPAddToResourceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPCreateEObjectEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPDeleteEObjectEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEObject;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEStructuralFeatureEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPMoveWithinEAttributeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPMoveWithinEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPMultiValueEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRegisterEPackageEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPSetEAttributeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPSetEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPStartNewSessionEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEAttributeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.ICBPFromPositionEvent;
+import org.eclipse.epsilon.cbp.conflict.CBPConflict;
+import org.eclipse.epsilon.cbp.conflict.test.CBPChangeEventSortComparator;
+import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.AddToResourceEvent;
+import org.eclipse.epsilon.cbp.event.ChangeEvent;
+import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
+import org.eclipse.epsilon.cbp.event.DeleteEObjectEvent;
+import org.eclipse.epsilon.cbp.event.EAttributeEvent;
+import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
+import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
+import org.eclipse.epsilon.cbp.event.FromPositionEvent;
+import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.MoveWithinEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RegisterEPackageEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.RemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.event.SetEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.SetEReferenceEvent;
+import org.eclipse.epsilon.cbp.event.StartNewSessionEvent;
+import org.eclipse.epsilon.cbp.event.UnsetEAttributeEvent;
+import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
+import org.eclipse.epsilon.cbp.resource.CBPResource;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.uml2.uml.VisibilityKind;
 import org.hamcrest.core.IsInstanceOf;
 
 public class CBPMerging {
 
-    File leftXmiFile = null;
-    File rightXmiFile = null;
-    File targetXmiFile = null;
+    File leftFile = null;
+    File rightFile = null;
+    File targetFile = null;
+    File originalFile = null;
 
     Resource leftResource = null;
     Resource rightResource = null;
@@ -57,38 +121,98 @@ public class CBPMerging {
     Map<String, EObject> idToEObjectMap = new HashMap<>();
     Set<String> deletedObjects = new HashSet<>();
 
-    public void mergeAllLeftToRight(File targetXmiFile, File leftXmiFile, File rightXmiFile, List<CBPDiff> diffs) throws Exception {
+    Map<Object, Object> options = new HashMap<>();
 
-	this.leftXmiFile = leftXmiFile;
-	this.rightXmiFile = rightXmiFile;
-	this.targetXmiFile = targetXmiFile;
+    public CBPMerging() {
+	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
+	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
+    }
+
+    public void mergeXMIAllLeftToRight(File targetXmiFile, File leftXmiFile, File rightXmiFile, List<CBPDiff> diffs) throws Exception {
+
+	this.leftFile = leftXmiFile;
+	this.rightFile = rightXmiFile;
+	this.targetFile = targetXmiFile;
 	if (targetXmiFile.exists())
 	    targetXmiFile.delete();
 
 	FileUtils.copyFile(rightXmiFile, targetXmiFile);
 
-	Map<Object, Object> options = new HashMap<>();
-	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
-	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_RECORD);
-
 	leftResource = ((new XMIResourceFactoryImpl()).createResource(URI.createFileURI(leftXmiFile.getAbsolutePath())));
 	rightResource = ((new XMIResourceFactoryImpl()).createResource(URI.createFileURI(rightXmiFile.getAbsolutePath())));
 	targetResource = ((new XMIResourceFactoryImpl()).createResource(URI.createFileURI(targetXmiFile.getAbsolutePath())));
 
-	CBPDependencyDeterminator dependencyDeterminator = new CBPDependencyDeterminator();
-	dependencyDeterminator.determineDependencies(diffs);
+	// CBPDependencyDeterminator dependencyDeterminator = new
+	// CBPDependencyDeterminator();
+	// dependencyDeterminator.determineDependencies(diffs);
 
 	leftResource.load(options);
-	// rightResource.load(options);
 	targetResource.load(options);
 
-	this.mergeAllLeftToRight(targetResource, leftResource, diffs);
-
+	this.mergeXMIAllLeftToRight(targetResource, leftResource, diffs);
 	targetResource.save(options);
 
     }
 
-    public void mergeAllLeftToRight(Resource targetResource, Resource leftResource, List<CBPDiff> diffs) throws Exception {
+    public void mergeCBPAllLeftToRight(File targetCbpFile, File leftCbpFile, File rightCbpFile, File originalCbpFile, List<CBPChangeEvent<?>> leftEvents, List<CBPChangeEvent<?>> rightEvents,
+	    List<CBPConflict> conflicts) throws Exception {
+
+	this.originalFile = originalCbpFile;
+
+	this.leftFile = leftCbpFile;
+	this.rightFile = rightCbpFile;
+	this.targetFile = targetCbpFile;
+	if (targetCbpFile.exists())
+	    targetCbpFile.delete();
+
+	FileUtils.copyFile(leftCbpFile, targetCbpFile);
+
+	Set<CBPChangeEvent<?>> eventSet = new LinkedHashSet<>();
+	for (CBPConflict conflict : conflicts) {
+	    eventSet.addAll(conflict.getRightEvents());
+	}
+	List<CBPChangeEvent<?>> sortedEvents = new ArrayList<>(eventSet);
+	Collections.sort(sortedEvents, new CBPChangeEventSortComparator());
+	Collections.reverse(sortedEvents);
+	List<CBPChangeEvent<?>> reversedEvents = new ArrayList<>();
+	CBPStartNewSessionEvent sessionResolve = new CBPStartNewSessionEvent("RESOLVE-RIGHT");
+	reversedEvents.add(sessionResolve);
+	for (CBPChangeEvent<?> event : sortedEvents) {
+	    CBPChangeEvent<?> reversedEvent = event.reverse();
+	    reversedEvents.add(reversedEvent);
+	}
+
+	List<CBPChangeEvent<?>> resolvedEvents = new ArrayList<>();
+	resolvedEvents.addAll(rightEvents);
+	resolvedEvents.addAll(reversedEvents);
+	resolvedEvents.addAll(leftEvents);
+
+	StringBuilder sb = new StringBuilder();
+	for (CBPChangeEvent<?> event:  resolvedEvents) {
+	    if (event instanceof CBPMoveWithinEReferenceEvent) {
+		System.console();
+	    }
+	    String line = getEventString(event);
+	    sb.append(line);
+	    sb.append(System.lineSeparator());
+	}
+
+	// truncate target file
+	RandomAccessFile leftRaf = new RandomAccessFile(targetFile, "rw");
+	FileChannel targetFileChannel = leftRaf.getChannel();
+	targetFileChannel.truncate(originalCbpFile.length());
+	targetFileChannel.close();
+	leftRaf.close();
+
+	// append new text to target file
+	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(targetFile, true));
+	bos.write(sb.toString().getBytes());
+	bos.flush();
+	bos.close();
+
+    }
+
+    public void mergeXMIAllLeftToRight(Resource targetResource, Resource leftResource, List<CBPDiff> diffs) throws Exception {
 
 	Collections.sort(diffs, new CBPDiffComparator());
 
@@ -566,4 +690,117 @@ public class CBPMerging {
 	}
     }
 
+    private String getEventString(CBPChangeEvent<?> event) throws ParserConfigurationException, TransformerException {
+	String eventString = null;
+	DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+	TransformerFactory transformerFactory = TransformerFactory.newInstance();
+	Transformer transformer = transformerFactory.newTransformer();
+	transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+	Document document = documentBuilder.newDocument();
+	Element e = null;
+
+	if (event instanceof CBPStartNewSessionEvent) {
+	    e = document.createElement("session");
+	    e.setAttribute("id", ((CBPStartNewSessionEvent) event).getSessionId());
+	    e.setAttribute("time", ((CBPStartNewSessionEvent) event).getTime());
+	} else if (event instanceof CBPRegisterEPackageEvent) {
+	    e = document.createElement("register");
+	    e.setAttribute("epackage", ((CBPRegisterEPackageEvent) event).getEPackage());
+	} else if (event instanceof CBPCreateEObjectEvent) {
+	    e = document.createElement("create");
+	    e.setAttribute("epackage", ((CBPCreateEObjectEvent) event).getEPackage());
+	    e.setAttribute("eclass", ((CBPCreateEObjectEvent) event).getEClass());
+	    e.setAttribute("id", ((CBPCreateEObjectEvent) event).getId());
+	} else if (event instanceof CBPDeleteEObjectEvent) {
+	    e = document.createElement("delete");
+	    e.setAttribute("epackage", ((CBPDeleteEObjectEvent) event).getEPackage());
+	    e.setAttribute("eclass", ((CBPDeleteEObjectEvent) event).geteClass());
+	    e.setAttribute("id", ((CBPDeleteEObjectEvent) event).getId());
+	} else if (event instanceof CBPAddToResourceEvent) {
+	    e = document.createElement("add-to-resource");
+	} else if (event instanceof CBPRemoveFromResourceEvent) {
+	    e = document.createElement("remove-from-resource");
+	} else if (event instanceof CBPAddToEReferenceEvent) {
+	    e = document.createElement("add-to-ereference");
+	} else if (event instanceof CBPRemoveFromEReferenceEvent) {
+	    e = document.createElement("remove-from-ereference");
+	} else if (event instanceof CBPSetEAttributeEvent) {
+	    e = document.createElement("set-eattribute");
+	} else if (event instanceof CBPSetEReferenceEvent) {
+	    e = document.createElement("set-ereference");
+	} else if (event instanceof CBPUnsetEReferenceEvent) {
+	    e = document.createElement("unset-ereference");
+	} else if (event instanceof CBPUnsetEAttributeEvent) {
+	    e = document.createElement("unset-eattribute");
+	} else if (event instanceof CBPAddToEAttributeEvent) {
+	    e = document.createElement("add-to-eattribute");
+	} else if (event instanceof CBPRemoveFromEAttributeEvent) {
+	    e = document.createElement("remove-from-eattribute");
+	} else if (event instanceof CBPMoveWithinEReferenceEvent) {
+	    e = document.createElement("move-in-ereference");
+	} else if (event instanceof CBPMoveWithinEAttributeEvent) {
+	    e = document.createElement("move-in-eattribute");
+	} else {
+	    throw new RuntimeException("Unexpected event:" + event);
+	}
+
+	if (event instanceof CBPEStructuralFeatureEvent<?>) {
+	    e.setAttribute("name", ((CBPEStructuralFeatureEvent) event).getEStructuralFeature());
+	    e.setAttribute("target", ((CBPEStructuralFeatureEvent) event).getTarget());
+	}
+
+	if (event instanceof CBPAddToEReferenceEvent || event instanceof CBPAddToEAttributeEvent || event instanceof CBPAddToResourceEvent) {
+	    e.setAttribute("position", event.getPosition() + "");
+	}
+
+	if (event instanceof CBPRemoveFromEReferenceEvent || event instanceof CBPRemoveFromEAttributeEvent || event instanceof CBPRemoveFromResourceEvent) {
+	    e.setAttribute("position", event.getPosition() + "");
+	}
+
+	if (event instanceof ICBPFromPositionEvent) {
+	    e.setAttribute("from", ((ICBPFromPositionEvent) event).getFromPosition() + "");
+	    e.setAttribute("to", event.getPosition() + "");
+	}
+
+	if (event instanceof CBPEReferenceEvent) {
+	    if (event.getOldValue() != null) {
+		Element o = document.createElement("old-value");
+		o.setAttribute("eobject", event.getOldValue().toString());
+		e.appendChild(o);
+	    }
+	    if (event.getValue() != null) {
+		Element o = document.createElement("value");
+		o.setAttribute("eobject", event.getValue().toString());
+		e.appendChild(o);
+
+	    }
+	} else if (event instanceof CBPEAttributeEvent) {
+	    if (event.getOldValue() != null) {
+		Element o = document.createElement("old-value");
+		o.setAttribute("literal", event.getOldValue().toString() + "");
+		e.appendChild(o);
+
+	    }
+	    if (event.getValue() != null) {
+		Element o = document.createElement("value");
+		o.setAttribute("literal", event.getValue().toString() + "");
+		e.appendChild(o);
+	    }
+
+	}
+	if (event.getComposite() != null && e != null) {
+	    e.setAttribute("composite", event.getComposite());
+	}
+
+	if (e != null)
+	    document.appendChild(e);
+
+	DOMSource source = new DOMSource(document);
+	StringWriter writer = new StringWriter();
+	StreamResult result = new StreamResult(writer);
+	transformer.transform(source, result);
+	eventString = writer.toString();
+
+	return eventString;
+    }
 }

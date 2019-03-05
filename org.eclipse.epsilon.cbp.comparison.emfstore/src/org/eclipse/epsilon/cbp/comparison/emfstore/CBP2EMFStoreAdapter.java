@@ -26,12 +26,16 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.emfstore.client.ESLocalProject;
 import org.eclipse.emf.emfstore.common.model.ESModelElementId;
+import org.eclipse.emf.emfstore.internal.common.model.ModelElementId;
+import org.eclipse.emf.emfstore.internal.common.model.impl.ESModelElementIdImpl;
+import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
 import org.eclipse.epsilon.cbp.event.CancelEvent;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 import org.eclipse.epsilon.cbp.event.EAttributeEvent;
 import org.eclipse.epsilon.cbp.event.EObjectValuesEvent;
+import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 import org.eclipse.epsilon.cbp.event.EStructuralFeatureEvent;
 import org.eclipse.epsilon.cbp.event.FromPositionEvent;
 import org.eclipse.epsilon.cbp.event.MoveWithinEAttributeEvent;
@@ -48,19 +52,20 @@ public class CBP2EMFStoreAdapter {
 
 	protected int persistedEvents = 0;
 	protected ESLocalProject localProject;
-	protected Map<String, ESModelElementId> id2esIdMap;
-	protected Map<ESModelElementId, String> esId2IdMap;
+	protected Map<String, String> id2esIdMap;
+	protected Map<String, String> esId2IdMap;
 	protected Map<String, EObject> id2EObjectMap;
 	protected Map<EObject, String> eObject2IdMap;
 
 	public CBP2EMFStoreAdapter(ESLocalProject localProject, Map<String, EObject> id2EObjectMap,
-		Map<EObject, String> eObject2IdMap, Map<String, ESModelElementId> id2esIdMap,
-		Map<ESModelElementId, String> esId2IdMap) {
+		Map<EObject, String> eObject2IdMap, Map<String, String> id2esIdMap,
+		Map<String, String> esId2IdMap) {
 		this.localProject = localProject;
 		this.id2EObjectMap = id2EObjectMap;
 		this.eObject2IdMap = eObject2IdMap;
 		this.id2esIdMap = id2esIdMap;
 		this.esId2IdMap = esId2IdMap;
+		EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
 	}
 
 	public void load(File cbpFile) throws FactoryConfigurationError, IOException {
@@ -75,9 +80,10 @@ public class CBP2EMFStoreAdapter {
 
 	public String register(EObject eObject, String id) {
 		localProject.getModelElements().add(eObject);
-		final ESModelElementId emfsId = localProject.getModelElementId(eObject);
-		id2esIdMap.put(id, emfsId);
-		esId2IdMap.put(emfsId, id);
+		ESModelElementId emfsId = localProject.getModelElementId(eObject);
+		String esId = ((ESModelElementIdImpl) emfsId).getId();
+		id2esIdMap.put(id, esId);
+		esId2IdMap.put(esId, id);
 		id2EObjectMap.put(id, eObject);
 		eObject2IdMap.put(eObject, id);
 		return id;
@@ -269,24 +275,32 @@ public class CBP2EMFStoreAdapter {
 							// System.console();
 							// }
 
+							long x = System.currentTimeMillis();
 							event.replay();
+							long y = System.currentTimeMillis();
+							long delta1 = y - x;
+							System.out.println(eventNumber + ": " + delta1 + ": " + event.toString());
 
-							if (event.getValue() instanceof EObject && event instanceof AddToEReferenceEvent) {
+							x = System.currentTimeMillis();
+							if (event.getValue() instanceof EObject
+								&& (event instanceof AddToEReferenceEvent || event instanceof SetEReferenceEvent)) {
 								EObject eObject = (EObject) event.getValue();
-								EReference eReference = ((AddToEReferenceEvent) event).getEReference();
+								EReference eReference = ((EReferenceEvent) event).getEReference();
 								if (eReference.isContainment()) {
 									TreeIterator<EObject> iterator = eObject.eAllContents();
 									while (iterator.hasNext()) {
 										EObject eObj = iterator.next();
-										ESModelElementId id = localProject.getModelElementId(eObj);
-										String temp = eObject2IdMap.get(eObj);
-										id2esIdMap.put(temp, id);
-										esId2IdMap.put(id, temp);
+										String esId = ((ESModelElementIdImpl) localProject.getModelElementId(eObj))
+											.getId();
+										String id = eObject2IdMap.get(eObj);
+										id2esIdMap.put(id, esId);
+										esId2IdMap.put(esId, id);
 									}
-									ESModelElementId id = localProject.getModelElementId(eObject);
-									String temp = eObject2IdMap.get(eObject);
-									id2esIdMap.put(temp, id);
-									esId2IdMap.put(id, temp);
+									String esId = ((ESModelElementIdImpl) localProject.getModelElementId(eObject))
+										.getId();
+									String id = eObject2IdMap.get(eObject);
+									id2esIdMap.put(id, esId);
+									esId2IdMap.put(esId, id);
 								}
 							}
 
@@ -315,7 +329,11 @@ public class CBP2EMFStoreAdapter {
 	}
 
 	public EObject getEObject(String uriFragment) {
-		ESModelElementId modelElementId = id2esIdMap.get(uriFragment);
+		String esId = id2esIdMap.get(uriFragment);
+		ModelElementId meId = org.eclipse.emf.emfstore.internal.common.model.ModelFactory.eINSTANCE
+			.createModelElementId();
+		meId.setId(esId);
+		ESModelElementIdImpl modelElementId = meId.createAPI();
 		EObject eObject = null;
 		if (modelElementId != null) {
 			eObject = localProject.getModelElement(modelElementId);
