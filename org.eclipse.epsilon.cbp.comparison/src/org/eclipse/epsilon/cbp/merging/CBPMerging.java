@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.nio.channels.FileChannel;
@@ -77,6 +78,7 @@ import org.eclipse.epsilon.cbp.comparison.event.CBPSetEReferenceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPStartNewSessionEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.ICBPEObjectValuesEvent;
 import org.eclipse.epsilon.cbp.comparison.event.ICBPFromPositionEvent;
 import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 import org.eclipse.epsilon.cbp.conflict.test.CBPChangeEventSortComparator;
@@ -205,7 +207,8 @@ public class CBPMerging {
 	leftRaf.close();
 
 	// append new text to target file
-	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(targetFile, true));
+	FileOutputStream fos = new FileOutputStream(targetFile, true);
+	BufferedOutputStream bos = new BufferedOutputStream(fos);
 	bos.write(sb.toString().getBytes());
 	bos.flush();
 	bos.close();
@@ -762,7 +765,7 @@ public class CBPMerging {
 	    e.setAttribute("to", event.getPosition() + "");
 	}
 
-	if (event instanceof CBPEReferenceEvent) {
+	if (event instanceof ICBPEObjectValuesEvent) {
 	    if (event.getOldValue() != null) {
 		Element o = document.createElement("old-value");
 		o.setAttribute("eobject", event.getOldValue().toString());

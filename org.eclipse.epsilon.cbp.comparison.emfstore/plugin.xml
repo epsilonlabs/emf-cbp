@@ -20,4 +20,10 @@
             isActive="false">
       </checksumCheck>
    </extension>
+   <extension
+         point="org.eclipse.emf.emfstore.client.changeRecordingOptions">
+      <RecordingOptions
+            useInMemoryChangePackage="true">
+      </RecordingOptions>
+   </extension>
 </plugin>

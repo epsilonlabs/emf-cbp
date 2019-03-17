@@ -32,7 +32,6 @@ public class AddToEReferenceEvent extends MultiValueEReferenceEvent implements E
 	event.setValues(this.getValues());
 	event.setOldValues(this.getOldValue());
 	event.setPosition(this.getPosition());
-	;
 	event.setTarget(this.getTarget());
 	event.setComposite(this.getComposite());
 	return event;

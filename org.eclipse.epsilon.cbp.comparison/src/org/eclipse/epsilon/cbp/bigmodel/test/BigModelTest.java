@@ -92,6 +92,7 @@ import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.gmt.modisco.java.emf.JavaPackage;
+import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.modisco.infra.discovery.core.exception.DiscoveryException;
 import org.eclipse.uml2.uml.ParameterDirectionKind;
 import org.eclipse.uml2.uml.UMLFactory;
@@ -112,6 +113,8 @@ public class BigModelTest {
     public BigModelTest() {
 	JavaPackage.eINSTANCE.eClass();
 	UMLPackage.eINSTANCE.eClass();
+	MoDiscoXMLPackage.eINSTANCE.eClass();
+	
 	options.put(XMIResource.OPTION_DEFER_IDREF_RESOLUTION, Boolean.TRUE);
 	options.put(XMIResource.OPTION_PROCESS_DANGLING_HREF, XMIResource.OPTION_PROCESS_DANGLING_HREF_DISCARD);
     }
@@ -119,8 +122,8 @@ public class BigModelTest {
     @Test
     public void generateBigModel() throws DiscoveryException, CoreException, IOException {
 
-	String sourcePath = "D:\\TEMP\\org.eclipse.uml2";
-	// String sourcePath = "D:\\TEMP\\org.eclipse.epsilon";
+//	String sourcePath = "D:\\TEMP\\org.eclipse.uml2";
+	 String sourcePath = "D:\\TEMP\\org.eclipse.epsilon\\plugins\\org.eclipse.epsilon.flexmi";
 	String targetPath = "D:\\TEMP\\FASE\\bigmodel";
 	BigModelGenerator generator = new BigModelGenerator(sourcePath, targetPath);
 	generator.generate();
@@ -133,7 +136,8 @@ public class BigModelTest {
 
 	Logger.getRootLogger().setLevel(Level.OFF);
 
-	File outputFile = new File("D:\\TEMP\\FASE\\performance\\output.csv");
+//	File outputFile = new File("D:\\TEMP\\FASE\\performance\\output.csv");
+	File outputFile = new File("D:\\TEMP\\FASE\\debug\\output.csv");
 	if (outputFile.exists())
 	    outputFile.delete();
 	PrintWriter writer = new PrintWriter(outputFile);
@@ -141,16 +145,23 @@ public class BigModelTest {
 	// print header
 	writer.println("num,levc,revc,aoc,clt,clm,cdc,ctt,ctm,cdt,cdm,cct,ccm,lelc,relc,slt,slm,sdc,smt,smm,sdt,sdm,sct,scm");
 	writer.flush();
-
-	String originXmiPath = "D:\\TEMP\\FASE\\performance\\origin.xmi";
-	String leftXmiPath = "D:\\TEMP\\FASE\\performance\\left.xmi";
-	String rightXmiPath = "D:\\TEMP\\FASE\\performance\\right.xmi";
-	String originCbpPath = "D:\\TEMP\\FASE\\performance\\origin.cbpxml";
-	String leftCbpPath = "D:\\TEMP\\FASE\\performance\\left.cbpxml";
-	String rightCbpPath = "D:\\TEMP\\FASE\\performance\\right.cbpxml";
+	
+	String originXmiPath = "D:\\TEMP\\CONFLICTS\\debug\\origin.xmi";
+	String leftXmiPath = "D:\\TEMP\\CONFLICTS\\debug\\left.xmi";
+	String rightXmiPath = "D:\\TEMP\\CONFLICTS\\debug\\right.xmi";
+	String originCbpPath = "D:\\TEMP\\CONFLICTS\\debug\\origin.cbpxml";
+	String leftCbpPath = "D:\\TEMP\\CONFLICTS\\debug\\left.cbpxml";
+	String rightCbpPath = "D:\\TEMP\\CONFLICTS\\debug\\right.cbpxml";
+//	String originXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.xmi";
+//	String leftXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\left.xmi";
+//	String rightXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\right.xmi";
+//	String originCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.cbpxml";
+//	String leftCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\left.cbpxml";
+//	String rightCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\right.cbpxml";
 
 	File leftXmiFile = new File(leftXmiPath);
 	File rightXmiFile = new File(rightXmiPath);
+	File originXmiFile = new File(originXmiPath);
 	File originCbpFile = new File(originCbpPath);
 	File leftCbpFile = new File(leftCbpPath);
 	File rightCbpFile = new File(rightCbpPath);
@@ -172,6 +183,7 @@ public class BigModelTest {
 	originCbp.startNewSession("ORIGIN");
 	originCbp.getContents().addAll(originXmi.getContents());
 	originCbp.save(null);
+	saveXmiWithID(originCbp, originXmiFile);
 	originCbp.unload();
 	originXmi.unload();
 
@@ -188,10 +200,10 @@ public class BigModelTest {
 
 	// Start modifying the models
 	List<ChangeType> seeds = new ArrayList<>();
-	setProbability(seeds, 0, ChangeType.CHANGE);
-	setProbability(seeds, 0, ChangeType.ADD);
+	setProbability(seeds, 30, ChangeType.CHANGE);
+	setProbability(seeds, 1, ChangeType.ADD);
 	setProbability(seeds, 1, ChangeType.DELETE);
-	setProbability(seeds, 0, ChangeType.MOVE);
+	setProbability(seeds, 10, ChangeType.MOVE);
 
 	System.out.println("Loading " + leftCbpFile.getName() + "...");
 	leftCbp.load(null);
@@ -204,7 +216,7 @@ public class BigModelTest {
 	List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
 
 	List<BigModelResult> results = new ArrayList<>();
-	int modificationCount = 1100000;
+	int modificationCount = 3000;
 	int number = 0;
 	for (int i = 1; i <= modificationCount; i++) {
 	    System.out.print("Change " + i + ":");
@@ -215,7 +227,8 @@ public class BigModelTest {
 	    System.out.println();
 
 	    // do comparison
-	    if (i % 50000 == 0) {
+//	    if (i % 50000 == 0) {
+	    if (i % modificationCount == 0) {
 		number++;
 
 		BigModelResult result = new BigModelResult();

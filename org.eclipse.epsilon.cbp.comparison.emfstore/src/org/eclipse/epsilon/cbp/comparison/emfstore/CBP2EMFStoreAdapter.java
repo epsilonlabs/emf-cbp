@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -28,6 +29,7 @@ import org.eclipse.emf.emfstore.client.ESLocalProject;
 import org.eclipse.emf.emfstore.common.model.ESModelElementId;
 import org.eclipse.emf.emfstore.internal.common.model.ModelElementId;
 import org.eclipse.emf.emfstore.internal.common.model.impl.ESModelElementIdImpl;
+import org.eclipse.epsilon.cbp.comparison.emfstore.test.Application;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
 import org.eclipse.epsilon.cbp.event.AddToEReferenceEvent;
@@ -57,15 +59,38 @@ public class CBP2EMFStoreAdapter {
 	protected Map<String, EObject> id2EObjectMap;
 	protected Map<EObject, String> eObject2IdMap;
 
-	public CBP2EMFStoreAdapter(ESLocalProject localProject, Map<String, EObject> id2EObjectMap,
-		Map<EObject, String> eObject2IdMap, Map<String, String> id2esIdMap,
-		Map<String, String> esId2IdMap) {
+	public CBP2EMFStoreAdapter(ESLocalProject localProject) {
+
+		// static File xmiFile = new File("D:\\TEMP\\CONFLICTS\\temp\\emfstore-target.xmi");
+		// static XMIResource xmiResource = (XMIResource) new XMIResourceFactoryImpl()
+		// .createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
+
 		this.localProject = localProject;
-		this.id2EObjectMap = id2EObjectMap;
-		this.eObject2IdMap = eObject2IdMap;
-		this.id2esIdMap = id2esIdMap;
-		this.esId2IdMap = esId2IdMap;
+		id2EObjectMap = new HashMap<String, EObject>();
+		eObject2IdMap = new HashMap<EObject, String>();
+		id2esIdMap = new HashMap<String, String>();
+		esId2IdMap = new HashMap<String, String>();
 		EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
+	}
+
+	public ESLocalProject getLocalProject() {
+		return localProject;
+	}
+
+	public Map<String, String> getId2esIdMap() {
+		return id2esIdMap;
+	}
+
+	public Map<String, String> getEsId2IdMap() {
+		return esId2IdMap;
+	}
+
+	public Map<String, EObject> getId2EObjectMap() {
+		return id2EObjectMap;
+	}
+
+	public Map<EObject, String> geteObject2IdMap() {
+		return eObject2IdMap;
 	}
 
 	public void load(File cbpFile) throws FactoryConfigurationError, IOException {
@@ -79,6 +104,7 @@ public class CBP2EMFStoreAdapter {
 	}
 
 	public String register(EObject eObject, String id) {
+		// long start = System.currentTimeMillis();
 		localProject.getModelElements().add(eObject);
 		ESModelElementId emfsId = localProject.getModelElementId(eObject);
 		String esId = ((ESModelElementIdImpl) emfsId).getId();
@@ -86,9 +112,12 @@ public class CBP2EMFStoreAdapter {
 		esId2IdMap.put(esId, id);
 		id2EObjectMap.put(id, eObject);
 		eObject2IdMap.put(eObject, id);
+		// long end = System.currentTimeMillis();
+		// System.out.println("Register Time: " + (end - start));
 		return id;
 	}
 
+	@SuppressWarnings("restriction")
 	private void replayEvents(InputStream inputStream) throws FactoryConfigurationError, IOException {
 		String errorMessage = null;
 
@@ -267,44 +296,187 @@ public class CBP2EMFStoreAdapter {
 					if (event != null && !name.equals("old-value") && !name.equals("value") && !name.equals("m")) {
 						if (ignore == false) {
 
-							// Object value = event.getValue();
-							// ESModelElementId id = null;
-							// if (value instanceof EObject && event instanceof AddToEReferenceEvent) {
-							// final EObject eObject = (EObject) value;
-							// id = localProject.getModelElementId(eObject);
-							// System.console();
-							// }
-
-							long x = System.currentTimeMillis();
-							try {
-								event.replay();
-							} catch (Exception exe) {
+							if (eventNumber == 58) {
 								System.console();
 							}
-							long y = System.currentTimeMillis();
-							long delta1 = y - x;
-							System.out.println(eventNumber + ": " + delta1 + ": " + event.toString());
 
-							x = System.currentTimeMillis();
+							if (event instanceof RemoveFromEReferenceEvent && event.getValue() != null) {
+								Object val = event.getValue();
+								if (val instanceof EObject) {
+
+									String esId = Application.getOriginalAdapater().getId2esIdMap()
+										.get("O-50949");
+									if (esId != null) {
+										ModelElementId meId = org.eclipse.emf.emfstore.internal.common.model.ModelFactory.eINSTANCE
+											.createModelElementId();
+										meId.setId(esId);
+										EObject x = localProject.getModelElement(meId.createAPI());
+										if (x == null) {
+											System.console();
+										} else {
+											System.console();
+										}
+
+									}
+								}
+							}
+
 							if (event.getValue() instanceof EObject
-								&& (event instanceof AddToEReferenceEvent || event instanceof SetEReferenceEvent)) {
-								EObject eObject = (EObject) event.getValue();
+								&& (event instanceof UnsetEReferenceEvent
+									|| event instanceof RemoveFromEReferenceEvent)) {
+								EObject eObject = null;
+								if (event instanceof RemoveFromEReferenceEvent) {
+									eObject = (EObject) event.getValue();
+								} else if (event instanceof UnsetEReferenceEvent) {
+									eObject = (EObject) event.getOldValue();
+								}
 								EReference eReference = ((EReferenceEvent) event).getEReference();
 								if (eReference.isContainment()) {
 									TreeIterator<EObject> iterator = eObject.eAllContents();
 									while (iterator.hasNext()) {
 										EObject eObj = iterator.next();
-										String esId = ((ESModelElementIdImpl) localProject.getModelElementId(eObj))
-											.getId();
+										ESModelElementIdImpl x = (ESModelElementIdImpl) localProject
+											.getModelElementId(eObj);
 										String id = eObject2IdMap.get(eObj);
+										if (id == null && x != null) {
+											id = esId2IdMap.get(x.getId());
+										}
+										if (id == null) {
+											id = Application.getOriginalAdapater().getEsId2IdMap().get(x.getId());
+										}
+										if (id != null) {
+											id2EObjectMap.put(id, eObj);
+											eObject2IdMap.put(eObj, id);
+											String esId = null;
+											if (x == null) {
+												esId = id2esIdMap.get(id);
+											} else {
+												esId = x.getId();
+											}
+											id2esIdMap.put(id, esId);
+											esId2IdMap.put(esId, id);
+										}
+
+									}
+									ESModelElementIdImpl x = (ESModelElementIdImpl) localProject
+										.getModelElementId(eObject);
+									String id = eObject2IdMap.get(eObject);
+									if (id == null && x != null) {
+										id = esId2IdMap.get(x.getId());
+									}
+									if (id != null) {
+										id2EObjectMap.put(id, eObject);
+										String esId = null;
+										if (x == null) {
+											esId = id2esIdMap.get(id);
+										} else {
+											esId = x.getId();
+										}
 										id2esIdMap.put(id, esId);
 										esId2IdMap.put(esId, id);
 									}
-									String esId = ((ESModelElementIdImpl) localProject.getModelElementId(eObject))
-										.getId();
+
+								}
+							}
+
+							// long x = System.currentTimeMillis();
+							try {
+								// String esId = id2esIdMap.get("O-5352");
+								// if (esId == null) {
+								// System.console();
+								// }
+								// ---------------------------------------
+								System.out.println(eventNumber + ": " + event.toString());
+								event.replay();
+								// ----------------------------------------
+							} catch (Exception exe) {
+								System.console();
+							}
+							// long y = System.currentTimeMillis();
+							// long delta1 = y - x;
+							// System.out.println(eventNumber + ": " + delta1 + ": " + event.toString());
+
+							// x = System.currentTimeMillis();
+
+							if (event.getValue() != null) {
+								Object val = event.getValue();
+								if (val instanceof EObject) {
+
+									String esId = Application.getOriginalAdapater().getId2esIdMap()
+										.get("O-50949");
+									if (esId != null) {
+										ModelElementId meId = org.eclipse.emf.emfstore.internal.common.model.ModelFactory.eINSTANCE
+											.createModelElementId();
+										meId.setId(esId);
+										EObject x = localProject.getModelElement(meId.createAPI());
+										if (x == null) {
+											System.console();
+										} else {
+											System.console();
+										}
+
+									}
+								}
+							}
+
+							if (event.getValue() instanceof EObject
+								&& (event instanceof AddToEReferenceEvent || event instanceof SetEReferenceEvent
+									|| event instanceof UnsetEReferenceEvent
+									|| event instanceof RemoveFromEReferenceEvent)) {
+
+								EObject eObject = null;
+								if (event instanceof AddToEReferenceEvent || event instanceof SetEReferenceEvent
+									|| event instanceof RemoveFromEReferenceEvent) {
+									eObject = (EObject) event.getValue();
+								} else if (event instanceof UnsetEReferenceEvent) {
+									eObject = (EObject) event.getOldValue();
+								}
+								EReference eReference = ((EReferenceEvent) event).getEReference();
+								if (eReference.isContainment()) {
+									TreeIterator<EObject> iterator = eObject.eAllContents();
+									while (iterator.hasNext()) {
+										EObject eObj = iterator.next();
+										ESModelElementIdImpl x = (ESModelElementIdImpl) localProject
+											.getModelElementId(eObj);
+										String id = eObject2IdMap.get(eObj);
+										if (id == null && x != null) {
+											id = esId2IdMap.get(x.getId());
+										}
+										if (id == null) {
+											id = Application.getOriginalAdapater().getEsId2IdMap().get(x.getId());
+										}
+										if (id != null) {
+											id2EObjectMap.put(id, eObj);
+											eObject2IdMap.put(eObj, id);
+											String esId = null;
+											if (x == null) {
+												esId = id2esIdMap.get(id);
+											} else {
+												esId = x.getId();
+											}
+											int b = 1;
+											id2esIdMap.put(id, esId);
+											esId2IdMap.put(esId, id);
+										}
+
+									}
+									ESModelElementIdImpl x = (ESModelElementIdImpl) localProject
+										.getModelElementId(eObject);
 									String id = eObject2IdMap.get(eObject);
-									id2esIdMap.put(id, esId);
-									esId2IdMap.put(esId, id);
+									if (id == null && x != null) {
+										id = esId2IdMap.get(x.getId());
+									}
+									if (id != null) {
+										id2EObjectMap.put(id, eObject);
+										String esId = null;
+										if (x == null) {
+											esId = id2esIdMap.get(id);
+										} else {
+											esId = x.getId();
+										}
+										id2esIdMap.put(id, esId);
+										esId2IdMap.put(esId, id);
+									}
 								}
 							}
 
@@ -320,7 +492,6 @@ public class CBP2EMFStoreAdapter {
 			end.close();
 			inputStream.close();
 			stream.close();
-			xmlReader.close();
 
 			persistedEvents = eventNumber;
 
@@ -332,8 +503,19 @@ public class CBP2EMFStoreAdapter {
 		}
 	}
 
+	@SuppressWarnings("restriction")
 	public EObject getEObject(String uriFragment) {
+		// long start = System.currentTimeMillis();
 		String esId = id2esIdMap.get(uriFragment);
+		if (uriFragment.equals("O-48461")) {
+			System.console();
+			if (esId == null) {
+				System.console();
+			}
+		}
+		if (esId == null) {
+			esId = Application.getOriginalAdapater().getId2esIdMap().get(uriFragment);
+		}
 		ModelElementId meId = org.eclipse.emf.emfstore.internal.common.model.ModelFactory.eINSTANCE
 			.createModelElementId();
 		meId.setId(esId);
@@ -341,11 +523,17 @@ public class CBP2EMFStoreAdapter {
 		EObject eObject = null;
 		if (modelElementId != null) {
 			eObject = localProject.getModelElement(modelElementId);
+			if (eObject != null) {
+				eObject2IdMap.put(eObject, uriFragment);
+			}
 		}
 		if (eObject == null) {
 			eObject = id2EObjectMap.get(uriFragment);
+			eObject2IdMap.put(eObject, uriFragment);
 		}
 		ESModelElementId x = localProject.getModelElementId(eObject);
+		// long end = System.currentTimeMillis();
+		// System.out.println("Get EObject Time: " + (end - start));
 		return eObject;
 	}
 

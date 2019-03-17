@@ -87,6 +87,7 @@ import org.eclipse.epsilon.cbp.hybrid.HybridResource.IdType;
 import org.eclipse.epsilon.cbp.hybrid.xmi.HybridXMIResourceImpl;
 import org.eclipse.epsilon.eol.parse.OldAstViewer;
 import org.eclipse.epsilon.eol.parse.Eol_EolParserRules.featureCall_return;
+import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 
 public class CBPComparisonImpl implements ICBPComparison {
 
@@ -315,7 +316,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    }
 	}
 
-	EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsUri);
+	EPackage ePackage = (EPackage) EPackage.Registry.INSTANCE.get(nsUri);
 	return ePackage;
     }
 
@@ -959,6 +960,11 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    targetObject.getTargetEvents(side).add(event);
 	    targetObject.getEvents(side).add(event);
 
+
+	    if (targetId.equals("O-44487")) {
+		System.console();
+	    }
+	    
 	    // get value object
 	    CBPMatchObject valueObject = null;
 	    String valueId = null;
