@@ -113,7 +113,7 @@ public class CBPConflictDetector {
 			}
 		    } else if (cTarget.getLeftPosition() != cTarget.getRightPosition() && cTarget.getLeftPosition() != cTarget.getOldLeftPosition()
 			    && cTarget.getRightPosition() != cTarget.getOldLeftPosition()) {
-			
+
 			Set<CBPChangeEvent<?>> leftEvents = leftContainingFeature.getLeftObjectEvents().get(cTarget);
 			Set<CBPChangeEvent<?>> rightEvents = rightContainingFeature.getRightObjectEvents().get(cTarget);
 			if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
@@ -155,8 +155,12 @@ public class CBPConflictDetector {
 			    continue;
 			}
 			if (cFeature.getLeftEvents().size() > 0 && cFeature.getRightEvents().size() > 0) {
-			    CBPConflict conflict = new CBPConflict(cFeature.getLeftObjectEvents(leftValue), cFeature.getRightObjectEvents(rightValue));
-			    conflicts.add(conflict);
+			    Set<CBPChangeEvent<?>> leftEvents = cFeature.getLeftObjectEvents(leftValue);
+			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(rightValue);
+			    if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
+				CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
+				conflicts.add(conflict);
+			    }
 			}
 		    }
 		} else if (cFeature.getFeatureType() == CBPFeatureType.REFERENCE && !cFeature.isContainment()) {

@@ -13,6 +13,7 @@ Export-Package: org.eclipse.epsilon.cbp.comparison,
  org.eclipse.epsilon.cbp.comparison.model.node.impl,
  org.eclipse.epsilon.cbp.comparison.model.node.util,
  org.eclipse.epsilon.cbp.comparison.test,
+ org.eclipse.epsilon.cbp.comparison.util,
  org.eclipse.epsilon.cbp.conflict.test
 Require-Bundle: org.eclipse.emf.common,
  org.eclipse.emf.compare,

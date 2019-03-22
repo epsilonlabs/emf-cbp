@@ -19,12 +19,14 @@ public class EObjectComparator implements Comparator<EObject> {
 	// (leftName.equals("R-0") && rightName.equals("L-0"))) {
 	// System.console();
 	// }
-	if (leftName.compareTo(rightName) < 0) {
-	    return -1;
-	} else if (leftName.compareTo(rightName) > 0) {
-	    return 1;
-	} else {
-	    return 0;
-	}
+//	if (leftName.compareTo(rightName) < 0) {
+//	    return -1;
+//	} else if (leftName.compareTo(rightName) > 0) {
+//	    return 1;
+//	} else {
+//	    return 0;
+//	}
+	
+	return leftName.compareTo(rightName);
     }
 }

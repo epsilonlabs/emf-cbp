@@ -1,9 +1,5 @@
 package org.eclipse.epsilon.cbp.event;
 
-import java.util.Collection;
-
-import org.eclipse.emf.ecore.EObject;
-
 public class SetEReferenceEvent extends EReferenceEvent implements EObjectValuesEvent {
 
     @Override

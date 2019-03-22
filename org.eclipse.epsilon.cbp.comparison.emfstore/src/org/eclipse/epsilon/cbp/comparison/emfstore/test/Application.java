@@ -20,7 +20,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -68,6 +67,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
@@ -82,7 +82,6 @@ import org.eclipse.emf.emfstore.client.exceptions.ESServerNotFoundException;
 import org.eclipse.emf.emfstore.client.exceptions.ESServerStartFailedException;
 import org.eclipse.emf.emfstore.common.ESSystemOutProgressMonitor;
 import org.eclipse.emf.emfstore.common.model.ESModelElementIdToEObjectMapping;
-import org.eclipse.emf.emfstore.internal.client.model.Configuration;
 import org.eclipse.emf.emfstore.internal.common.model.impl.ESModelElementIdImpl;
 import org.eclipse.emf.emfstore.internal.server.model.impl.api.ESOperationImpl;
 import org.eclipse.emf.emfstore.internal.server.model.versioning.operations.AbstractOperation;
@@ -105,6 +104,7 @@ import org.eclipse.epsilon.cbp.comparison.emfstore.CBP2EMFStoreAdapter;
 import org.eclipse.epsilon.cbp.comparison.model.node.Node;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodeFactory;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
+import org.eclipse.epsilon.cbp.comparison.util.CBPComparisonUtil;
 import org.eclipse.epsilon.cbp.conflict.test.EObjectComparator;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -256,10 +256,10 @@ public class Application implements IApplication {
 		// final File cbpLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.cbpxml");
 		// final File cbpRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.cbpxml");
 
-		final File cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\temp\\origin.cbpxml");
-		final File cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\temp\\left.cbpxml");
-		final File cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\temp\\right.cbpxml");
-		final File xmiFile = new File("D:\\TEMP\\CONFLICTS\\temp\\emfstore-target.xmi");
+		final File cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.cbpxml");
+		final File cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\debug\\left.cbpxml");
+		final File cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\debug\\right.cbpxml");
+		final File xmiFile = new File("D:\\TEMP\\CONFLICTS\\debug\\emfstore-target.xmi");
 
 		XMIResource xmiResource = (XMIResource) new XMIResourceFactoryImpl()
 			.createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
@@ -444,14 +444,6 @@ public class Application implements IApplication {
 
 		// Now we are all set: we have a client workspace with one server configured and exactly one project shared to a
 		// server with only this one project.
-
-		// String x1 = Configuration.getFileInfo().getWorkspaceDirectory();
-		// String x2 = Configuration.getFileInfo().getPluginDataBaseDirectory();
-		// String x3 = Configuration.getFileInfo().getLocationProvider().getWorkspaceDirectory();
-		// String x4 = Configuration.getFileInfo().getErrorLogDirectory();
-		boolean y1 = Configuration.getClientBehavior().useInMemoryChangePackage();
-		// List<ServerInfo> y2 = Configuration.getClientBehavior().getDefaultServerInfos();
-		// VersioningInfo z = Configuration.getVersioningInfo();
 
 		System.out.println("LOADING ORIGINAL MODEL");
 		NodeFactory factory = NodeFactory.eINSTANCE;
@@ -659,6 +651,10 @@ public class Application implements IApplication {
 								}
 								String localString = operationToString(leftAdapater, localOperation);
 								String remoteString = operationToString(leftAdapater, remoteOperation);
+								// if (localString == remoteString || localString.equals(remoteString)) {
+								// count = count - 1;
+								// continue;
+								// }
 								System.out.println(count + ": " + localString + " <-> " + remoteString);
 								System.console();
 							}
@@ -689,9 +685,9 @@ public class Application implements IApplication {
 			// sortResourceElements(changeXmiResource);
 			// changeXmiResource.save(options);
 			System.out.println("SORTING EMFS XMI ...");
-			sortResourceElements(emfstoreXmiResource);
+			CBPComparisonUtil.sort(emfstoreXmiResource);
+			// sortResourceElements(emfstoreXmiResource);
 			emfstoreXmiResource.save(options);
-
 			compareCBPvsXMITargets(changeXmiResource, emfstoreXmiResource);
 
 			System.out.println("SUCCESS!!");
@@ -711,11 +707,13 @@ public class Application implements IApplication {
 		ESLocalProject project = adapater.getLocalProject();
 		Iterator<EObject> iterator2 = project.getAllModelElements().iterator();
 		int x = 0;
+		Set<EObject> withoutIdItems = new HashSet<EObject>();
 		while (iterator2.hasNext()) {
 
 			EObject obj2 = iterator2.next();
 			String esId = ((ESModelElementIdImpl) project.getModelElementId(obj2)).getId();
 			String id = adapater.getEsId2IdMap().get(esId);
+
 			if (id == null || id.equals("") || id.contains("/")) {
 				id = Application.getOriginalAdapater().getEsId2IdMap().get(esId);
 			}
@@ -725,20 +723,30 @@ public class Application implements IApplication {
 			if (id == null) {
 				id = Application.getOriginalAdapater().geteObject2IdMap().get(obj2);
 			}
-			if (id == null) {
-				id = "X-" + x;
+
+			if (id == null || id.equals("") || id.contains("/")) {
+				id = Application.getRightAdapater().getEsId2IdMap().get(esId);
 			}
+			if (id == null) {
+				id = Application.getRightAdapater().geteObject2IdMap().get(obj2);
+			}
+
 			if (id == null || id.trim().equals("") || id.contains("/")) {
 				id = "X-" + x;
+				withoutIdItems.add(obj2);
 			}
 			adapater.geteObject2IdMap().put(obj2, id);
 			System.console();
 			x++;
 		}
+		for (EObject obj : withoutIdItems) {
+			EcoreUtil.delete(obj);
+		}
+		withoutIdItems.clear();
 
-		// Collection<EObject> modelElements = project.getModelElements();
-		Collection<EObject> modelElements = project.getModelElements().get(0).eResource().getContents();
-		xmiResource.getContents().addAll(modelElements);
+		EObject modelElements = project.getModelElements().get(0);
+		// Collection<EObject> modelElements = project.getModelElements().get(0).eResource().getContents();
+		xmiResource.getContents().add(modelElements);
 		TreeIterator<EObject> iterator1 = xmiResource.getAllContents();
 		int z = 0;
 		while (iterator1.hasNext()) {
