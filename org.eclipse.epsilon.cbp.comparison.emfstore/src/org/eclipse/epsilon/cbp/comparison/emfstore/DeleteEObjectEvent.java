@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.cbp.comparison.emfstore;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 public class DeleteEObjectEvent extends org.eclipse.epsilon.cbp.event.DeleteEObjectEvent {
 
@@ -18,7 +19,7 @@ public class DeleteEObjectEvent extends org.eclipse.epsilon.cbp.event.DeleteEObj
 		eObject = resource.getEObject(id);
 		if (eObject != null) {
 			setValue(eObject);
-			// EcoreUtil.delete(eObject);
+			EcoreUtil.delete(eObject);
 			// resource.unregister(eObject);
 		}
 	}

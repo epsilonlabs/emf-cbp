@@ -93,6 +93,7 @@ import org.eclipse.emf.emfstore.internal.server.model.versioning.operations.Mult
 import org.eclipse.emf.emfstore.internal.server.model.versioning.operations.MultiReferenceOperation;
 import org.eclipse.emf.emfstore.internal.server.model.versioning.operations.SingleReferenceOperation;
 import org.eclipse.emf.emfstore.internal.server.model.versioning.operations.UnsetType;
+import org.eclipse.emf.emfstore.internal.server.model.versioning.operations.impl.CompositeOperationImpl;
 import org.eclipse.emf.emfstore.server.ESConflict;
 import org.eclipse.emf.emfstore.server.ESConflictSet;
 import org.eclipse.emf.emfstore.server.exceptions.ESException;
@@ -633,11 +634,12 @@ public class Application implements IApplication {
 
 						System.out.println("\n\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
 						System.out.println();
-						int count = 0;
+						int count = 1;
 						for (ESConflict conflict : changeConflictSet.getConflicts()) {
-							count++;
+							// count++;
 							Iterator<ESOperation> localIterator = conflict.getLocalOperations().iterator();
 							Iterator<ESOperation> remoteIterator = conflict.getRemoteOperations().iterator();
+							boolean printed = false;
 							while (localIterator.hasNext() || remoteIterator.hasNext()) {
 								AbstractOperation localOperation = null;
 								AbstractOperation remoteOperation = null;
@@ -651,14 +653,18 @@ public class Application implements IApplication {
 								}
 								String localString = operationToString(leftAdapater, localOperation);
 								String remoteString = operationToString(leftAdapater, remoteOperation);
-								// if (localString == remoteString || localString.equals(remoteString)) {
-								// count = count - 1;
-								// continue;
-								// }
+								if (localString == remoteString || localString.equals(remoteString)) {
+									// count = count - 1;
+									continue;
+								}
+								printed = true;
 								System.out.println(count + ": " + localString + " <-> " + remoteString);
 								System.console();
 							}
-
+							if (printed) {
+								count++;
+								printed = false;
+							}
 							conflict.resolveConflict(conflict.getLocalOperations(), conflict.getRemoteOperations());
 						}
 						return true;
@@ -789,26 +795,35 @@ public class Application implements IApplication {
 		}
 
 		String result = null;
+		String targetEsId = operation.getModelElementId().getId();
 		String target = adapter.getEsId2IdMap()
-			.get(operation.getModelElementId().getId());
+			.get(targetEsId);
+		target = getId(targetEsId);
 		// CompositeOperationImpl, CreateDeleteOperationImpl, AttributeOperationImpl,
 		// MultiAttributeMoveOperationImpl, MultiAttributeOperationImpl,
 		// MultiAttributeSetOperationImpl, MultiReferenceMoveOperationImpl, ReferenceOperationImpl
-		//
-		// CompositeOperationImpl
-		// MultiAttributeOperationImpl,
-		// MultiAttributeSetOperationImpl
-		if (operation instanceof CreateDeleteOperation
+		if (operation instanceof CompositeOperationImpl) {
+			int count = 0;
+			result = "";
+			for (AbstractOperation op : operation.getLeafOperations()) {
+				count++;
+				if (count > 1) {
+					result += System.lineSeparator() + operationToString(adapter, op);
+				} else {
+					result += operationToString(adapter, op);
+				}
+			}
+		} else if (operation instanceof CreateDeleteOperation
 			&& ((CreateDeleteOperation) operation).isDelete()) {
 			String className = ((CreateDeleteOperation) operation).getModelElement().eClass().getName();
 			String esId = ((CreateDeleteOperation) operation).getModelElementId().getId();
-			String value = adapter.getEsId2IdMap().get(esId);
+			String value = getId(esId);
 			result = "DELETE " + value + " TYPE " + className;
 		} else if (operation instanceof CreateDeleteOperation
 			&& !((CreateDeleteOperation) operation).isDelete()) {
 			String className = ((CreateDeleteOperation) operation).getModelElement().eClass().getName();
 			String esId = ((CreateDeleteOperation) operation).getModelElementId().getId();
-			String value = adapter.getEsId2IdMap().get(esId);
+			String value = getId(esId);
 			result = "CREATE " + value + " TYPE " + className;
 		} else if (operation instanceof AttributeOperation
 			&& (((AttributeOperation) operation).getUnset() == UnsetType.NONE
@@ -861,7 +876,7 @@ public class Application implements IApplication {
 			String feature = ((MultiReferenceMoveOperation) operation).getFeatureName();
 			String esId = ((MultiReferenceMoveOperation) operation)
 				.getReferencedModelElementId().getId();
-			String value = adapter.getEsId2IdMap().get(esId);
+			String value = getId(esId);
 			int oldIndex = ((MultiReferenceMoveOperation) operation).getOldIndex();
 			int newIndex = ((MultiReferenceMoveOperation) operation).getNewIndex();
 			result = "MOVE " + value + " IN " + target + "." + feature + " FROM " + oldIndex
@@ -872,12 +887,12 @@ public class Application implements IApplication {
 			if (((SingleReferenceOperation) operation).getOldValue() != null) {
 				esOldId = ((SingleReferenceOperation) operation).getOldValue().getId();
 			}
-			String oldValue = adapter.getEsId2IdMap().get(esOldId);
+			String oldValue = getId(esOldId);
 			String esNewId = null;
 			if (((SingleReferenceOperation) operation).getNewValue() != null) {
 				esNewId = ((SingleReferenceOperation) operation).getNewValue().getId();
 			}
-			String newValue = adapter.getEsId2IdMap().get(esNewId);
+			String newValue = getId(esNewId);
 			if (newValue != null) {
 				result = "SET " + target + "." + feature + " FROM " + oldValue + " TO " + newValue;
 			} else {
@@ -886,13 +901,13 @@ public class Application implements IApplication {
 		} else if (operation instanceof MultiReferenceOperation && ((MultiReferenceOperation) operation).isAdd()) {
 			String feature = ((MultiReferenceOperation) operation).getFeatureName();
 			String esId = ((MultiReferenceOperation) operation).getReferencedModelElements().get(0).getId();
-			String value = adapter.getEsId2IdMap().get(esId);
+			String value = getId(esId);
 			int index = ((MultiReferenceOperation) operation).getIndex();
 			result = "ADD " + value + " TO " + target + "." + feature + " AT " + index;
 		} else if (operation instanceof MultiReferenceOperation && !((MultiReferenceOperation) operation).isAdd()) {
 			String feature = ((MultiReferenceOperation) operation).getFeatureName();
 			String esId = ((MultiReferenceOperation) operation).getReferencedModelElements().get(0).getId();
-			String value = adapter.getEsId2IdMap().get(esId);
+			String value = getId(esId);
 			int index = ((MultiReferenceOperation) operation).getIndex();
 			result = "REMOVE " + value + " FROM " + target + "." + feature + " AT " + index;
 		} else {
@@ -900,6 +915,23 @@ public class Application implements IApplication {
 		}
 
 		return result;
+	}
+
+	/**
+	 * @param targetId
+	 * @param target
+	 * @return
+	 */
+	private static String getId(String targetId) {
+		String target = originalAdapater.getEsId2IdMap().get(targetId);
+		if (target == null) {
+			target = leftAdapater.getEsId2IdMap().get(targetId);
+			if (target == null) {
+				target = rightAdapater.getEsId2IdMap().get(targetId);
+			}
+
+		}
+		return target;
 	}
 
 	@SuppressWarnings("unused")

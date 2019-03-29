@@ -14,6 +14,8 @@ public abstract class CBPChangeEvent<T> {
     protected int position = -1;
     protected String composite = null;
 
+    
+
     public int getLineNumber() {
 	return lineNumber;
     }

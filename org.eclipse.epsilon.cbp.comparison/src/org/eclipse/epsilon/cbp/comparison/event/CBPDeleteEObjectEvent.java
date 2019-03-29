@@ -48,13 +48,7 @@ public class CBPDeleteEObjectEvent extends CBPEObjectEvent {
 	return id;
     }
 
-    public String geteClass() {
-	return eClass;
-    }
-
-    public void seteClass(String eClass) {
-	this.eClass = eClass;
-    }
+ 
 
     public String getResource() {
 	return resource;

@@ -318,35 +318,48 @@ public class CBP2EMFStoreAdapter {
 								System.console();
 							}
 
-							reassignModelIDsBeforeReplay(event);
+							// reassignModelIDsBeforeReplay(event);
 							handleCompositeEvents(event);
 
 							// REPLAY
 							try {
 								System.out.println(eventNumber + ": " + event.toString());
-								event.replay();
-								{
-									EObject eObj = getId2EObjectMap().get("O-1911");
-									if (eObj != null) {
-										EStructuralFeature eFeature = eObj.eClass().getEStructuralFeature("method");
-										EObject x = (EObject) eObj.eGet(eFeature);
-										if (x == null) {
-											System.console();
-										} else {
-											System.console();
-										}
+
+								if (event.getComposite() != null) {
+									if (event.getComposite().equals("_j-x7UFH4EemepcvH96FyWw")
+										&& event instanceof DeleteEObjectEvent) {
+										System.console();
 									}
 								}
+
+								if (event.getComposite() != null && (event instanceof RemoveFromEReferenceEvent ||
+									event instanceof RemoveFromResourceEvent
+									|| event instanceof UnsetEReferenceEvent)) {
+								} else {
+									event.replay();
+								}
+								// {
+								// EObject eObj = getId2EObjectMap().get("O-1911");
+								// if (eObj != null) {
+								// EStructuralFeature eFeature = eObj.eClass().getEStructuralFeature("method");
+								// EObject x = (EObject) eObj.eGet(eFeature);
+								// if (x == null) {
+								// System.console();
+								// } else {
+								// System.console();
+								// }
+								// }
+								// }
 							} catch (Exception exe) {
 								exe.printStackTrace();
 								System.console();
 							}
 							// ----
 
-							if (eventNumber == 56) {
-								System.console();
-							}
-							reassignModelIDsPostReplay(event);
+							// if (eventNumber == 56) {
+							// System.console();
+							// }
+							// reassignModelIDsPostReplay(event);
 
 							errorMessage = "";
 						} else {

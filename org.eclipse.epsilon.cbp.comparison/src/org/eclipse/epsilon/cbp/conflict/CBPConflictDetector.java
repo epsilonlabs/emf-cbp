@@ -26,7 +26,7 @@ public class CBPConflictDetector {
 	    Entry<String, CBPMatchObject> objectEntry = iterator.next();
 	    CBPMatchObject cTarget = objectEntry.getValue();
 
-	    if (cTarget.getId().equals("O-304")) {
+	    if (cTarget.getId().equals("O-2704")) {
 		// CBPMatchFeature x = cTarget.getFeatures().get("specific");
 		System.console();
 	    }
@@ -155,11 +155,29 @@ public class CBPConflictDetector {
 			    continue;
 			}
 			if (cFeature.getLeftEvents().size() > 0 && cFeature.getRightEvents().size() > 0) {
-			    Set<CBPChangeEvent<?>> leftEvents = cFeature.getLeftObjectEvents(leftValue);
-			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(rightValue);
-			    if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
-				CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
-				conflicts.add(conflict);
+			    Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<CBPChangeEvent<?>>(cFeature.getLeftEvents());
+			    Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<CBPChangeEvent<?>>(cFeature.getRightEvents());
+
+			    if (leftEvents != null && rightEvents != null) {
+				Set<String> leftComposites = leftEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
+				if (leftCompositeEvents.size() > 0) {
+				    for (String composite : leftComposites) {
+					Set<CBPChangeEvent<?>> events = leftCompositeEvents.get(composite);
+					leftEvents.addAll(events);
+				    }
+				}
+
+				Set<String> rightComposites = rightEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
+				if (rightCompositeEvents.size() > 0) {
+				    for (String composite : rightComposites) {
+					Set<CBPChangeEvent<?>> events = rightCompositeEvents.get(composite);
+					rightEvents.addAll(events);
+				    }
+				}
+				if (leftEvents.size() > 0 && rightEvents.size() > 0) {
+				    CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
+				    conflicts.add(conflict);
+				}
 			    }
 			}
 		    }

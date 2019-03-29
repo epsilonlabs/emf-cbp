@@ -717,7 +717,7 @@ public class CBPMerging {
 	} else if (event instanceof CBPDeleteEObjectEvent) {
 	    e = document.createElement("delete");
 	    e.setAttribute("epackage", ((CBPDeleteEObjectEvent) event).getEPackage());
-	    e.setAttribute("eclass", ((CBPDeleteEObjectEvent) event).geteClass());
+	    e.setAttribute("eclass", ((CBPDeleteEObjectEvent) event).getEClass());
 	    e.setAttribute("id", ((CBPDeleteEObjectEvent) event).getId());
 	} else if (event instanceof CBPAddToResourceEvent) {
 	    e = document.createElement("add-to-resource");
@@ -725,24 +725,34 @@ public class CBPMerging {
 	    e = document.createElement("remove-from-resource");
 	} else if (event instanceof CBPAddToEReferenceEvent) {
 	    e = document.createElement("add-to-ereference");
+	    e.setAttribute("eclass", ((CBPAddToEReferenceEvent) event).getEClass());
 	} else if (event instanceof CBPRemoveFromEReferenceEvent) {
 	    e = document.createElement("remove-from-ereference");
+	    e.setAttribute("eclass", ((CBPRemoveFromEReferenceEvent) event).getEClass());
 	} else if (event instanceof CBPSetEAttributeEvent) {
 	    e = document.createElement("set-eattribute");
+	    e.setAttribute("eclass", ((CBPSetEAttributeEvent) event).getEClass());
 	} else if (event instanceof CBPSetEReferenceEvent) {
 	    e = document.createElement("set-ereference");
+	    e.setAttribute("eclass", ((CBPSetEReferenceEvent) event).getEClass());
 	} else if (event instanceof CBPUnsetEReferenceEvent) {
 	    e = document.createElement("unset-ereference");
+	    e.setAttribute("eclass", ((CBPUnsetEReferenceEvent) event).getEClass());
 	} else if (event instanceof CBPUnsetEAttributeEvent) {
 	    e = document.createElement("unset-eattribute");
+	    e.setAttribute("eclass", ((CBPUnsetEAttributeEvent) event).getEClass());
 	} else if (event instanceof CBPAddToEAttributeEvent) {
 	    e = document.createElement("add-to-eattribute");
+	    e.setAttribute("eclass", ((CBPAddToEAttributeEvent) event).getEClass());
 	} else if (event instanceof CBPRemoveFromEAttributeEvent) {
 	    e = document.createElement("remove-from-eattribute");
+	    e.setAttribute("eclass", ((CBPRemoveFromEAttributeEvent) event).getEClass());
 	} else if (event instanceof CBPMoveWithinEReferenceEvent) {
 	    e = document.createElement("move-in-ereference");
+	    e.setAttribute("eclass", ((CBPMoveWithinEReferenceEvent) event).getEClass());
 	} else if (event instanceof CBPMoveWithinEAttributeEvent) {
 	    e = document.createElement("move-in-eattribute");
+	    e.setAttribute("eclass", ((CBPMoveWithinEAttributeEvent) event).getEClass());
 	} else {
 	    throw new RuntimeException("Unexpected event:" + event);
 	}
@@ -769,11 +779,13 @@ public class CBPMerging {
 	    if (event.getOldValue() != null) {
 		Element o = document.createElement("old-value");
 		o.setAttribute("eobject", event.getOldValue().toString());
+		 o.setAttribute("eclass", ((CBPEObject) event.getOldValue()).getClassName());
 		e.appendChild(o);
 	    }
 	    if (event.getValue() != null) {
 		Element o = document.createElement("value");
-		o.setAttribute("eobject", event.getValue().toString());
+		o.setAttribute("eobject",  event.getValue().toString());
+		o.setAttribute("eclass", ((CBPEObject) event.getValue()).getClassName());
 		e.appendChild(o);
 
 	    }
