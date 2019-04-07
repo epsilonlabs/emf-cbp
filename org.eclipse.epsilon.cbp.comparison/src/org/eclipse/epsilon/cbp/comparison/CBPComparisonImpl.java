@@ -960,11 +960,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    targetObject.getTargetEvents(side).add(event);
 	    targetObject.getEvents(side).add(event);
 
-
 	    if (targetId.equals("O-44487")) {
 		System.console();
 	    }
-	    
+
 	    // get value object
 	    CBPMatchObject valueObject = null;
 	    String valueId = null;
@@ -1191,8 +1190,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 			}
 		    }
 		}
-
-		feature.setOldValue(position, valueObject, side);
+		if (!valueObject.isCreated(side)) {
+		    feature.setOldValue(position, valueObject, side);
+		}
 		feature.putValueLineNum(valueObject, event.getLineNumber(), side);
 		feature.removeValue(valueObject, position, side);
 		feature.setIsSet(position, side);
@@ -1244,7 +1244,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // ------------
 	    if (event instanceof CBPSetEReferenceEvent) {
 
-		if (valueId.equals("O-27474")) {
+		if (valueId.equals("L-15")) {
 		    System.console();
 		}
 
@@ -1276,7 +1276,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 			oldValue = new CBPMatchObject(oldClassName, oldId, this.objects);
 			objects.put(oldId, oldValue);
 		    }
-		    feature.setOldValue(oldValue, side);
+		    if (!oldValue.isCreated(side)) {
+			feature.setOldValue(oldValue, side);
+		    }
 		    oldValue.addEvents(event, side);
 		    oldValue.addValueEvents(event, side);
 
@@ -1317,17 +1319,20 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    oldId = ((CBPEObject) event.getOldValue()).getId();
 		    oldClassName = ((CBPEObject) event.getOldValue()).getClassName();
 		}
+
 		CBPMatchObject oldValue = objects.get(oldId);
 		if (oldValue == null) {
 		    oldValue = new CBPMatchObject(oldClassName, oldId, this.objects);
 		    objects.put(oldId, oldValue);
 		}
-		if (oldId != null && oldId.equals("O-8375")) {
+		if (oldId != null && oldId.equals("L-15")) {
 		    System.console();
 		}
 
 		feature.putValueLineNum(oldValue, event.getLineNumber(), side);
-		feature.setOldValue(oldValue, side);
+		if (!oldValue.isCreated(side)) {
+		    feature.setOldValue(oldValue, side);
+		}
 		oldValue.addEvents(event, side);
 		oldValue.addValueEvents(event, side);
 		feature.unsetValue(valueObject, side);

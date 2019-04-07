@@ -15,9 +15,14 @@ import org.eclipse.epsilon.cbp.comparison.CBPMatchFeature;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEAttributeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPEStructuralFeatureEvent;
+import org.eclipse.epsilon.cbp.event.EReferenceEvent;
 
 public class CBPConflictDetector {
 
+    @SuppressWarnings("rawtypes")
     public void computeConflicts(Map<String, CBPMatchObject> objects, List<CBPConflict> conflicts, Map<String, Set<CBPChangeEvent<?>>> leftCompositeEvents,
 	    Map<String, Set<CBPChangeEvent<?>>> rightCompositeEvents) {
 
@@ -26,7 +31,7 @@ public class CBPConflictDetector {
 	    Entry<String, CBPMatchObject> objectEntry = iterator.next();
 	    CBPMatchObject cTarget = objectEntry.getValue();
 
-	    if (cTarget.getId().equals("O-2704")) {
+	    if (cTarget.getId().equals("O-3")) {
 		// CBPMatchFeature x = cTarget.getFeatures().get("specific");
 		System.console();
 	    }
@@ -42,21 +47,8 @@ public class CBPConflictDetector {
 		getAllEvents(rightEvents, cTarget, CBPSide.RIGHT);
 
 		// also add composite events
-		Set<String> leftComposites = leftEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
-		if (leftCompositeEvents.size() > 0) {
-		    for (String composite : leftComposites) {
-			Set<CBPChangeEvent<?>> events = leftCompositeEvents.get(composite);
-			leftEvents.addAll(events);
-		    }
-		}
-
-		Set<String> rightComposites = rightEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
-		if (rightCompositeEvents.size() > 0) {
-		    for (String composite : rightComposites) {
-			Set<CBPChangeEvent<?>> events = rightCompositeEvents.get(composite);
-			rightEvents.addAll(events);
-		    }
-		}
+		addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+		addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
 
 		if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 		    CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
@@ -69,21 +61,8 @@ public class CBPConflictDetector {
 		getAllEvents(rightEvents, cTarget, CBPSide.RIGHT);
 
 		// also add composite events
-		Set<String> leftComposites = leftEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
-		if (leftCompositeEvents.size() > 0) {
-		    for (String composite : leftComposites) {
-			Set<CBPChangeEvent<?>> events = leftCompositeEvents.get(composite);
-			leftEvents.addAll(events);
-		    }
-		}
-
-		Set<String> rightComposites = rightEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
-		if (rightCompositeEvents.size() > 0) {
-		    for (String composite : rightComposites) {
-			Set<CBPChangeEvent<?>> events = rightCompositeEvents.get(composite);
-			rightEvents.addAll(events);
-		    }
-		}
+		addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+		addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
 
 		if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 		    CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
@@ -107,19 +86,24 @@ public class CBPConflictDetector {
 
 			Set<CBPChangeEvent<?>> leftEvents = leftContainingFeature.getLeftObjectEvents().get(cTarget);
 			Set<CBPChangeEvent<?>> rightEvents = rightContainingFeature.getRightObjectEvents().get(cTarget);
+			addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+			addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
+			addDependentEvents(objects, leftEvents, leftCompositeEvents, CBPSide.LEFT);
+			addDependentEvents(objects, rightEvents, rightCompositeEvents, CBPSide.RIGHT);
 			if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
-			    CBPConflict conflict = new CBPConflict(cTarget.getLeftValueEvents(), cTarget.getRightValueEvents());
+//			    CBPConflict conflict = new CBPConflict(cTarget.getLeftValueEvents(), cTarget.getRightValueEvents());
+			    CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
 			    conflicts.add(conflict);
 			}
 		    } else if (cTarget.getLeftPosition() != cTarget.getRightPosition() && cTarget.getLeftPosition() != cTarget.getOldLeftPosition()
 			    && cTarget.getRightPosition() != cTarget.getOldLeftPosition()) {
 
-			Set<CBPChangeEvent<?>> leftEvents = leftContainingFeature.getLeftObjectEvents().get(cTarget);
-			Set<CBPChangeEvent<?>> rightEvents = rightContainingFeature.getRightObjectEvents().get(cTarget);
-			if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
-			    CBPConflict conflict = new CBPConflict(cTarget.getLeftValueEvents(), cTarget.getRightValueEvents());
-			    conflicts.add(conflict);
-			}
+//			Set<CBPChangeEvent<?>> leftEvents = leftContainingFeature.getLeftObjectEvents().get(cTarget);
+//			Set<CBPChangeEvent<?>> rightEvents = rightContainingFeature.getRightObjectEvents().get(cTarget);
+//			if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
+//			    CBPConflict conflict = new CBPConflict(cTarget.getLeftValueEvents(), cTarget.getRightValueEvents());
+//			    conflicts.add(conflict);
+//			}
 		    }
 		}
 	    }
@@ -159,21 +143,11 @@ public class CBPConflictDetector {
 			    Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<CBPChangeEvent<?>>(cFeature.getRightEvents());
 
 			    if (leftEvents != null && rightEvents != null) {
-				Set<String> leftComposites = leftEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
-				if (leftCompositeEvents.size() > 0) {
-				    for (String composite : leftComposites) {
-					Set<CBPChangeEvent<?>> events = leftCompositeEvents.get(composite);
-					leftEvents.addAll(events);
-				    }
-				}
+				addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+				addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
+				addDependentEvents(objects, leftEvents, leftCompositeEvents, CBPSide.LEFT);
+				addDependentEvents(objects, rightEvents, rightCompositeEvents, CBPSide.RIGHT);
 
-				Set<String> rightComposites = rightEvents.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
-				if (rightCompositeEvents.size() > 0) {
-				    for (String composite : rightComposites) {
-					Set<CBPChangeEvent<?>> events = rightCompositeEvents.get(composite);
-					rightEvents.addAll(events);
-				    }
-				}
 				if (leftEvents.size() > 0 && rightEvents.size() > 0) {
 				    CBPConflict conflict = new CBPConflict(leftEvents, rightEvents);
 				    conflicts.add(conflict);
@@ -242,6 +216,57 @@ public class CBPConflictDetector {
 
 	    }
 
+	}
+    }
+
+    /**
+     * @param objects
+     * @param events
+     * @param compositeEventMap
+     */
+    private void addDependentEvents(Map<String, CBPMatchObject> objects, Set<CBPChangeEvent<?>> events, Map<String, Set<CBPChangeEvent<?>>> compositeEventMap, CBPSide side) {
+	Set<CBPChangeEvent<?>> temp = new LinkedHashSet<>();
+	if (events != null) {
+	    for (CBPChangeEvent<?> evt : events) {
+		if (evt instanceof CBPEStructuralFeatureEvent) {
+		    CBPMatchObject obj = objects.get(((CBPEStructuralFeatureEvent) evt).getTarget());
+		    CBPMatchFeature fea = obj.getFeatures().get(((CBPEStructuralFeatureEvent) evt).getEStructuralFeature());
+
+		    if (fea.isMany()) {
+			Object val = objects.get(((CBPEStructuralFeatureEvent) evt).getValue().toString());
+			if (val != null) {
+			    Set<CBPChangeEvent<?>> es = fea.getObjectEvents(side).get(val);
+			    if (es != null && es.size() > 0) {
+				addRelatedCompositeEvents(compositeEventMap, es);
+				temp.addAll(es);
+			    }
+			}
+		    } else {
+			Set<CBPChangeEvent<?>> es = new LinkedHashSet<>(fea.getEvents(side));
+			if (es != null && es.size() > 0) {
+			    addRelatedCompositeEvents(compositeEventMap, es);
+			    temp.addAll(es);
+			}
+		    }
+		}
+	    }
+	    events.addAll(temp);
+	}
+    }
+
+    /**
+     * @param compositeEventMap
+     * @param events
+     */
+    private void addRelatedCompositeEvents(Map<String, Set<CBPChangeEvent<?>>> compositeEventMap, Set<CBPChangeEvent<?>> events) {
+	if (events != null) {
+	    Set<String> leftComposites = events.stream().map(x -> x.getComposite()).filter(x -> x != null).collect(Collectors.toSet());
+	    if (compositeEventMap.size() > 0) {
+		for (String composite : leftComposites) {
+		    Set<CBPChangeEvent<?>> evts = compositeEventMap.get(composite);
+		    events.addAll(evts);
+		}
+	    }
 	}
     }
 

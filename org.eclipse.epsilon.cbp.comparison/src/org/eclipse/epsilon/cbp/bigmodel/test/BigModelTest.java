@@ -216,7 +216,7 @@ public class BigModelTest {
 	List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
 
 	List<BigModelResult> results = new ArrayList<>();
-	int modificationCount = 2000;
+	int modificationCount = 2600;
 	int number = 0;
 	for (int i = 1; i <= modificationCount; i++) {
 	    System.out.print("Change " + i + ":");
