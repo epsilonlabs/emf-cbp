@@ -161,7 +161,7 @@ public class ModifiedEMFCompare extends EMFCompare {
 		endInterval = System.nanoTime();
 		endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		this.setDiffTime(endInterval - startInterval);
-		this.setDiffMemory(endMemory- startMemory);
+		this.setDiffMemory(endMemory - startMemory);
 
 		this.comparisonTime = this.matchTime + this.diffTime;
 		this.comparisonMemory = this.matchMemory + this.diffMemory;
@@ -209,12 +209,12 @@ public class ModifiedEMFCompare extends EMFCompare {
 		// postEquivalences(comparison, postProcessors, subMonitor);
 		// monitor.worked(1);
 		//
-		// if (LOGGER.isInfoEnabled()) {
-		// LOGGER.info("compare() - starting step: CONFLICT");
-		// //$NON-NLS-1$
-		// }
-		// detectConflicts(comparison, postProcessors, subMonitor);
-		// monitor.worked(1);
+		if (LOGGER.isInfoEnabled()) {
+		    LOGGER.info("compare() - starting step: CONFLICT");
+		    // $NON-NLS-1$
+		}
+		detectConflicts(comparison, postProcessors, subMonitor);
+		monitor.worked(1);
 		//
 		// if (LOGGER.isInfoEnabled()) {
 		// LOGGER.info("compare() - starting step: POST-COMPARISON with

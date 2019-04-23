@@ -150,8 +150,12 @@ public class CBPComparisonTest {
 	UMLPackage.eINSTANCE.eClass();
 	NodePackage.eINSTANCE.eClass();
 
-	File leftXmiFile = new File("D:\\TEMP\\FASE\\Debug\\left.xmi");
-	File rightXmiFile = new File("D:\\TEMP\\FASE\\Debug\\right.xmi");
+	
+	File leftXmiFile = new File("D:\\TEMP\\CONFLICTS\\debug\\right.xmi");
+	File rightXmiFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.xmi");
+	
+//	File leftXmiFile = new File("D:\\TEMP\\FASE\\Debug\\left.xmi");
+//	File rightXmiFile = new File("D:\\TEMP\\FASE\\Debug\\right.xmi");
 
 	// File leftFile = new File("D:\\TEMP\\COMPARISON2\\test\\left.xmi");
 	// File rightFile = new
@@ -322,6 +326,7 @@ public class CBPComparisonTest {
 	    }
 
 	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+	    System.out.println(x);
 	    set.add(x.trim());
 	}
 	// System.out.println("Before Merge Diffs: " + diffs.size());

@@ -239,61 +239,65 @@ public class CBPConflictTest {
 	    originalScript.add("var troll = new Node;");
 	    originalScript.add("troll.name = \"Troll\";");
 
-	    originalScript.add("var dinosaur = new Node;");
-	    originalScript.add("dinosaur.name = \"Dinosaur\";");
-	    
+	    originalScript.add("var giant = new Node;");
+	    originalScript.add("giant.name = \"Giant\";");
+	    originalScript.add("var cast = new Node;");
+	    originalScript.add("cast.name = \"cast\";");
+	    originalScript.add("giant.valNodes.add(cast);");
 
-	    originalScript.add("var berzeker = new Node;");
-	    originalScript.add("berzeker.name = \"Berzeker\";");
-	    originalScript.add("var fly = new Node;");
-	    originalScript.add("fly.name = \"fly\";");
-	    originalScript.add("berzeker.valNodes.add(fly);");
+	    originalScript.add("var knight = new Node;");
+	    originalScript.add("knight.name = \"Knight\";");
+	    originalScript.add("var smash = new Node;");
+	    originalScript.add("smash.name = \"smash\";");
+	    originalScript.add("knight.valNodes.add(smash);");
 
 	    originalScript.add("var mage = new Node;");
 	    originalScript.add("mage.name = \"Mage\";");
-	    
+
 	    originalScript.add("root.valNodes.add(character);");
 	    originalScript.add("root.valNodes.add(troll);");
-	    originalScript.add("root.valNodes.add(dinosaur);");
-	    originalScript.add("root.valNodes.add(berzeker);");
+	    originalScript.add("root.valNodes.add(giant);");
+	    originalScript.add("root.valNodes.add(knight);");
 	    originalScript.add("root.valNodes.add(mage);");
 
-	    //left script
+	    // left script
 	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
 	    leftScript.add("var character = Node.allInstances.selectOne(node | node.name == \"Character\");");
 	    leftScript.add("var troll = Node.allInstances.selectOne(node | node.name == \"Troll\");");
-	    leftScript.add("var mage = Node.allInstances.selectOne(node | node.name == \"Mage\");");
+	    leftScript.add("var knight = Node.allInstances.selectOne(node | node.name == \"Knight\");");
 	    leftScript.add("var attack = Node.allInstances.selectOne(node | node.name == \"attack\");");
-	    leftScript.add("var dinosaur = Node.allInstances.selectOne(node | node.name == \"Dinosaur\");");	    
+	    leftScript.add("var giant = Node.allInstances.selectOne(node | node.name == \"Giant\");");
 	    leftScript.add("var leftGeneral = new Node;");
 	    leftScript.add("leftGeneral.name = \"Left Generalisation\";");
 	    leftScript.add("troll.valNode = leftGeneral;");
 	    leftScript.add("leftGeneral.refNode = character;");
 	    leftScript.add("character.name = \"Hero\";");
-	    leftScript.add("mage.valNode = leftGeneral;");
+	    leftScript.add("knight.valNode = leftGeneral;");
 	    leftScript.add("attack.valNodes.move(2,1);");
-	    leftScript.add("delete dinosaur;");
-	   
-	    //right script
+	    leftScript.add("delete giant;");
+	    leftScript.add("troll.name = \"Ogre\";");
+
+	    // right script
 	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
 	    rightScript.add("var character = Node.allInstances.selectOne(node | node.name == \"Character\");");
 	    rightScript.add("var troll = Node.allInstances.selectOne(node | node.name == \"Troll\");");
 	    rightScript.add("var mage = Node.allInstances.selectOne(node | node.name == \"Mage\");");
 	    rightScript.add("var attack = Node.allInstances.selectOne(node | node.name == \"attack\");");
-	    rightScript.add("var fly = Node.allInstances.selectOne(node | node.name == \"fly\");");
-	    rightScript.add("var dinosaur = Node.allInstances.selectOne(node | node.name == \"Dinosaur\");");
-	    rightScript.add("var berzeker = Node.allInstances.selectOne(node | node.name == \"Berzeker\");");
+	    rightScript.add("var smash = Node.allInstances.selectOne(node | node.name == \"smash\");");
+	    rightScript.add("var giant = Node.allInstances.selectOne(node | node.name == \"Giant\");");
+	    rightScript.add("var knight = Node.allInstances.selectOne(node | node.name == \"Knight\");");
+	    rightScript.add("var cast = Node.allInstances.selectOne(node | node.name == \"cast\");");
+	    rightScript.add("attack.valNodes.move(0,1);");
+	    rightScript.add("giant.valNodes.add(smash);");
+	    rightScript.add("mage.valNodes.add(cast);");
 	    rightScript.add("var rightGeneral = new Node;");
 	    rightScript.add("rightGeneral.name = \"Right Generalisation\";");
 	    rightScript.add("troll.valNode = rightGeneral;");
 	    rightScript.add("rightGeneral.refNode = character;");
 	    rightScript.add("character.name = \"Hero\";");
-	    rightScript.add("berzeker.valNode = rightGeneral;");
-	    rightScript.add("attack.valNodes.move(0,1);");
-	    rightScript.add("dinosaur.valNodes.add(fly);");
+	    rightScript.add("mage.valNode = rightGeneral;");
+	    rightScript.add("troll.name = \"Orc\";");
 	    
-	    
-
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
 
@@ -718,11 +722,7 @@ public class CBPConflictTest {
 	System.out.println("\nEMF COMPARE CONFLICTS:");
 	int conflictCount = 0;
 	for (Conflict conflict : conflicts) {
-	    if (conflict
-		    .getKind() == ConflictKind.REAL /*
-						     * || conflict.getKind() ==
-						     * ConflictKind.PSEUDO
-						     */) {
+	    if (conflict.getKind() == ConflictKind.REAL || conflict.getKind() == ConflictKind.PSEUDO) {
 
 		conflictCount++;
 

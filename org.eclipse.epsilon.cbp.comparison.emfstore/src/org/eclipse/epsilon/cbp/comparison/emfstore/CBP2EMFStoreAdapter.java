@@ -671,9 +671,11 @@ public class CBP2EMFStoreAdapter {
 				if (modelElementId == null) {
 					System.console();
 				}
-				compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
-				compositeHandle = null;
-				System.out.println("End Composite " + composite);
+				if (compositeHandle.isValid()) {
+					compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
+					compositeHandle = null;
+					System.out.println("End Composite " + composite);
+				}
 			}
 			compositeHandle = localProject.beginCompositeOperation();
 			composite = event.getComposite();
@@ -702,9 +704,11 @@ public class CBP2EMFStoreAdapter {
 						.getModelElementId(localProject.getModelElements().get(0));
 					System.console();
 				}
-				compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
-				compositeHandle = null;
-				System.out.println("End Composite " + composite);
+				if (compositeHandle.isValid()) {
+					compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
+					compositeHandle = null;
+					System.out.println("End Composite " + composite);
+				}
 			}
 			composite = null;
 		}

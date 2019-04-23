@@ -15,21 +15,34 @@ package org.eclipse.epsilon.cbp.comparison.emfstore.test;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -63,6 +76,9 @@ import org.eclipse.emf.compare.uml2.internal.DirectedRelationshipChange;
 import org.eclipse.emf.compare.uml2.internal.MultiplicityElementChange;
 import org.eclipse.emf.compare.uml2.internal.postprocessor.UMLPostProcessor;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -101,17 +117,25 @@ import org.eclipse.emf.emfstore.server.exceptions.ESUpdateRequiredException;
 import org.eclipse.emf.emfstore.server.model.ESChangePackage;
 import org.eclipse.emf.emfstore.server.model.ESOperation;
 import org.eclipse.emf.emfstore.server.model.versionspec.ESVersionSpec;
+import org.eclipse.epsilon.cbp.bigmodel.ModifiedEMFCompare;
+import org.eclipse.epsilon.cbp.bigmodel.ModifiedEMFCompare.ModifiedBuilder;
+import org.eclipse.epsilon.cbp.comparison.CBPComparisonImpl;
+import org.eclipse.epsilon.cbp.comparison.ICBPComparison;
+import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
 import org.eclipse.epsilon.cbp.comparison.emfstore.CBP2EMFStoreAdapter;
-import org.eclipse.epsilon.cbp.comparison.model.node.Node;
-import org.eclipse.epsilon.cbp.comparison.model.node.NodeFactory;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.comparison.util.CBPComparisonUtil;
 import org.eclipse.epsilon.cbp.conflict.test.EObjectComparator;
+import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
+import org.eclipse.epsilon.cbp.resource.CBPXMLResourceImpl;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.gmt.modisco.java.emf.JavaPackage;
 import org.eclipse.gmt.modisco.xml.emf.MoDiscoXMLPackage;
 import org.eclipse.uml2.uml.UMLPackage;
+
+import com.google.common.io.Files;
 
 /**
  * An application that runs the demo.<br>
@@ -119,11 +143,21 @@ import org.eclipse.uml2.uml.UMLPackage;
  */
 public class Application implements IApplication {
 
+	static boolean isConflict = false;
+	static DecimalFormat df = new DecimalFormat("###.###");
+	static private XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+	static private Random random = new Random();
+	static EPackage ePackage = null;
+
 	static CBP2EMFStoreAdapter originalAdapater = null;
 	static CBP2EMFStoreAdapter leftAdapater = null;
 	static CBP2EMFStoreAdapter rightAdapater = null;
 
 	static Map<Object, Object> options = new HashMap();
+
+	static enum ChangeType {
+		CHANGE, ADD, MOVE, DELETE;
+	}
 
 	// static Map<String, String> id2esIdMap = new HashMap<String, String>();
 	// static Map<String, String> esId2IdMap = new HashMap<String, String>();
@@ -150,8 +184,8 @@ public class Application implements IApplication {
 			final ESServer localServer = ESServer.FACTORY.createAndStartLocalServer();
 			// Run a client on the local server that shows the basic features of the EMFstore
 			// runClient(localServer);
-			runBatchClient(localServer);
-			// runPerformanceTest(localServer);
+			// runBatchClient(localServer);
+			runPerformanceTest(localServer);
 		} catch (final ESServerStartFailedException e) {
 			System.out.println("Server start failed!");
 			e.printStackTrace();
@@ -385,13 +419,14 @@ public class Application implements IApplication {
 		}
 	}
 
-	public static void runPerformanceTest(ESServer server) throws ESException {
+	public static void runPerformanceTest(ESServer server)
+		throws ESException, IOException, FactoryConfigurationError, XMLStreamException {
 		System.out.println("Client starting...");
 
 		EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
 		EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
 		// EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
-		// EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
+		EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
 
 		// The workspace is the core controller to access local and remote projects.
 		// A project is a container for models and their elements (EObjects).
@@ -443,24 +478,387 @@ public class Application implements IApplication {
 		final ESRemoteProject remoteDemoProject = originalProject.shareProject(usersession,
 			new ESSystemOutProgressMonitor());
 
-		// Now we are all set: we have a client workspace with one server configured and exactly one project shared to a
-		// server with only this one project.
+		ESLocalProject leftProject = originalProject.getRemoteProject().checkout("LeftProject",
+			usersession, new ESSystemOutProgressMonitor());
+		ESLocalProject rightProject = originalProject.getRemoteProject().checkout("RightProject",
+			usersession, new ESSystemOutProgressMonitor());
+
+		originalAdapater = new CBP2EMFStoreAdapter(originalProject);
+		leftAdapater = new CBP2EMFStoreAdapter(leftProject);
+		rightAdapater = new CBP2EMFStoreAdapter(rightProject);
 
 		System.out.println("LOADING ORIGINAL MODEL");
-		NodeFactory factory = NodeFactory.eINSTANCE;
-		Node root = factory.createNode();
-		root.setName("Node 0");
-		originalProject.getModelElements().add(root);
-		for (int i = 1; i <= 2010; i++) {
-			Node node = factory.createNode();
-			node.setName("Node " + i);
-			long start = System.currentTimeMillis();
-			root.getChildren().add(node);
-			long end = System.currentTimeMillis();
-			System.out.println(i + ": " + (end - start) + " ms");
+
+		System.out.println("START: " + new Date().toString());
+
+		// File outputFile = new File("D:\\TEMP\\FASE\\performance\\output.csv");
+		File outputFile = new File("D:\\TEMP\\CONFLICTS\\performance\\output.csv");
+		if (outputFile.exists()) {
+			outputFile.delete();
+		}
+		PrintWriter writer = new PrintWriter(outputFile);
+
+		// print header
+		writer.println(
+			"num,levc,revc,aoc,clt,clm,cdc,ctt,ctm,cdt,cdm,cct,ccm,lelc,relc,slt,slm,sdc,smt,smm,sdt,sdm,sct,scm");
+		writer.flush();
+
+		String originXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.xmi";
+		String leftXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\left.xmi";
+		String rightXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\right.xmi";
+		String originCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.cbpxml";
+		String leftCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\left.cbpxml";
+		String rightCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\right.cbpxml";
+		// String originXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.xmi";
+		// String leftXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\left.xmi";
+		// String rightXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\right.xmi";
+		// String originCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.cbpxml";
+		// String leftCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\left.cbpxml";
+		// String rightCbpPath = "D:\\TEMP\\CONFLICTS\\performance\\right.cbpxml";
+
+		File leftXmiFile = new File(leftXmiPath);
+		File rightXmiFile = new File(rightXmiPath);
+		File originXmiFile = new File(originXmiPath);
+		File originCbpFile = new File(originCbpPath);
+		File leftCbpFile = new File(leftCbpPath);
+		File rightCbpFile = new File(rightCbpPath);
+
+		if (originCbpFile.exists()) {
+			originCbpFile.delete();
+		}
+		if (leftCbpFile.exists()) {
+			leftCbpFile.delete();
+		}
+		if (rightCbpFile.exists()) {
+			rightCbpFile.delete();
 		}
 
+		XMIResource originXmi = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(originXmiPath));
+		originXmi.load(options);
+
+		CBPXMLResourceFactory cbpFactory = new CBPXMLResourceFactory();
+		CBPXMLResourceImpl originCbp = (CBPXMLResourceImpl) cbpFactory.createResource(URI.createFileURI(originCbpPath));
+		originCbp.setIdType(IdType.NUMERIC, "O-");
+		System.out.println("Creating origin cbp");
+		originCbp.startNewSession("ORIGIN");
+		originCbp.getContents().addAll(originXmi.getContents());
+		originCbp.save(null);
+		saveXmiWithID(originCbp, originXmiFile);
+		originCbp.unload();
+		originXmi.unload();
+
+		System.out.println("Copying origin cbp to left and right cbps");
+		Files.copy(originCbpFile, leftCbpFile);
+		Files.copy(originCbpFile, rightCbpFile);
+
+		ePackage = getEPackageFromFiles(leftCbpFile, rightCbpFile);
+
+		CBPXMLResourceImpl leftCbp = (CBPXMLResourceImpl) cbpFactory
+			.createResource(URI.createFileURI(leftCbpFile.getAbsolutePath()));
+		CBPXMLResourceImpl rightCbp = (CBPXMLResourceImpl) cbpFactory
+			.createResource(URI.createFileURI(rightCbpFile.getAbsolutePath()));
+		leftCbp.setIdType(IdType.NUMERIC, "L-");
+		rightCbp.setIdType(IdType.NUMERIC, "R-");
+
+		// Start modifying the models
+		List<ChangeType> seeds = new ArrayList<ChangeType>();
+		setProbability(seeds, 30, ChangeType.CHANGE);
+		setProbability(seeds, 1, ChangeType.ADD);
+		setProbability(seeds, 1, ChangeType.DELETE);
+		setProbability(seeds, 10, ChangeType.MOVE);
+
+		System.out.println("Loading " + leftCbpFile.getName() + "...");
+		leftCbp.load(null);
+		leftCbp.startNewSession("LEFT");
+		System.out.println("Loading " + rightCbpFile.getName() + "...");
+		rightCbp.load(null);
+		rightCbp.startNewSession("RIGHT");
+
+		List<EObject> leftEObjectList = identifyAllEObjects(leftCbp);
+		List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
+
+		// ----------------EMF STORE
+		originalAdapater.load(originCbpFile);
 		originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
+		leftProject.update(new ESSystemOutProgressMonitor());
+
+		long prevLeftCbpSize = leftCbpFile.length();
+		long prevRightCbpSize = rightCbpFile.length();
+		// -----
+
+		List<BigModelResult> results = new ArrayList<BigModelResult>();
+		int modificationCount = 1000;
+		int number = 0;
+		for (int i = 1; i <= modificationCount; i++) {
+			System.out.print("Change " + i + ":");
+
+			startModification(leftCbp, leftEObjectList, seeds);
+			leftCbp.save(null);
+			startModification(rightCbp, rightEObjectList, seeds);
+			rightCbp.save(null);
+			System.out.println();
+
+			// do comparison
+			if (i % 100 == 0) {
+				// if (i % modificationCount == 0) {
+				number++;
+
+				BigModelResult result = new BigModelResult();
+
+				System.out.println("Reload from the Cbps ...");
+				CBPXMLResourceImpl leftCbp2 = (CBPXMLResourceImpl) cbpFactory
+					.createResource(URI.createFileURI(leftCbpFile.getAbsolutePath()));
+				CBPXMLResourceImpl rightCbp2 = (CBPXMLResourceImpl) cbpFactory
+					.createResource(URI.createFileURI(rightCbpFile.getAbsolutePath()));
+				leftCbp2.load(null);
+				rightCbp2.load(null);
+				System.out.println("Saving changes to Xmis ...");
+				XMIResource leftXmi = saveXmiWithID(leftCbp2, leftXmiFile);
+				XMIResource rightXmi = saveXmiWithID(rightCbp2, rightXmiFile);
+				leftCbp2.unload();
+				rightCbp2.unload();
+
+				// ------------CBP
+				System.out.println("\nCBP:");
+				ICBPComparison changeComparison = new CBPComparisonImpl();
+				changeComparison.setDiffEMFCompareFile(
+					new File(originCbpFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
+				changeComparison.setObjectTreeFile(
+					new File(originCbpFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
+				changeComparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
+				changeComparison.compare(leftCbpFile, rightCbpFile, originCbpFile);
+
+				// ---------------
+
+				result.setNumber(number);
+				writer.print(result.getNumber());
+				writer.print(",");
+				result.setLeftEventCount(changeComparison.getLeftEvents().size());
+				writer.print(result.getLeftEventCount());
+				writer.print(",");
+				result.setRightEventCount(changeComparison.getRightEvents().size());
+				writer.print(result.getRightEventCount());
+				writer.print(",");
+				result.setAffectedObjectCount(changeComparison.getObjectTree().size());
+				writer.print(result.getAffectedObjectCount());
+				writer.print(",");
+				result.setChangeLoadTime(changeComparison.getLoadTime());
+				writer.print(result.getChangeLoadTime());
+				writer.print(",");
+				result.setChangeLoadMemory(changeComparison.getLoadMemory());
+				writer.print(result.getChangeLoadMemory());
+				writer.print(",");
+				result.setChangeDiffCount(changeComparison.getDiffCount());
+				writer.print(result.getChangeDiffCount());
+				writer.print(",");
+				result.setChangeTreeTime(changeComparison.getObjectTreeConstructionTime());
+				writer.print(result.getChangeTreeTime());
+				writer.print(",");
+				result.setChangeTreeMemory(changeComparison.getObjectTreeConstructionMemory());
+				writer.print(result.getChangeTreeMemory());
+				writer.print(",");
+				result.setChangeDiffTime(changeComparison.getDiffTime());
+				writer.print(result.getChangeDiffTime());
+				writer.print(",");
+				result.setChangeDiffMemory(changeComparison.getDiffMemory());
+				writer.print(result.getChangeDiffMemory());
+				writer.print(",");
+				result.setChangeComparisonTime(changeComparison.getComparisonTime());
+				writer.print(result.getChangeComparisonTime());
+				writer.print(",");
+				result.setChangeComparisonMemory(changeComparison.getComparisonMemory());
+				writer.print(result.getChangeComparisonMemory());
+				writer.print(",");
+
+				// --------------EMF COMPARE
+				System.out.println("\nEMF COMPARE:");
+
+				leftXmi.unload();
+				rightXmi.unload();
+
+				long startTime = 0;
+				long endTime = 0;
+				long startMemory = 0;
+				long endMemory = 0;
+
+				System.out.println("Loading xmis ...");
+				System.gc();
+				startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+				startTime = System.nanoTime();
+				leftXmi.load(options);
+				rightXmi.load(options);
+				endTime = System.nanoTime();
+				System.gc();
+				endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+				ModifiedEMFCompare stateComparison = doEMFComparison(leftXmi, rightXmi, originXmi);
+
+				// ----------------EMF STORE
+				// leftProject.update(new ESSystemOutProgressMonitor());
+
+				System.out.println("\nEMF STORE:");
+
+				// process right file first
+				System.out.println("laoding right model");
+				String rightText = readFiles(rightCbpFile, prevRightCbpSize);
+				InputStream rightStream = new ByteArrayInputStream(rightText.getBytes());
+				originalAdapater.load(rightStream);
+				rightStream.close();
+				originalProject.commit("RIGHT", null, new ESSystemOutProgressMonitor());
+
+				// process left
+				System.out.println("loading left model");
+				String leftText = readFiles(leftCbpFile, prevLeftCbpSize);
+				InputStream leftStream = new ByteArrayInputStream(leftText.getBytes());
+				leftAdapater.load(leftStream);
+				leftStream.close();
+
+				try {
+					// leftProject.update(new ESSystemOutProgressMonitor());
+					leftProject.commit("LEFT", null, new ESSystemOutProgressMonitor());
+				} catch (final ESUpdateRequiredException e) {
+					isConflict = false;
+
+					System.gc();
+					final long emfsStartMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					final long emfsStartTime = System.nanoTime();
+
+					try {
+						leftProject.update(ESVersionSpec.FACTORY.createHEAD(), new ESUpdateCallback() {
+							public void noChangesOnServer() {
+								// do nothing if there are no changes on the server (in this example we know
+								// there are changes anyway)
+							}
+
+							public boolean inspectChanges(ESLocalProject project, List<ESChangePackage> changes,
+								ESModelElementIdToEObjectMapping idToEObjectMapping) {
+								// allow update to proceed, here we could also add some UI
+								return true;
+							}
+
+							@SuppressWarnings("restriction")
+							public boolean conflictOccurred(ESConflictSet changeConflictSet, IProgressMonitor monitor) {
+
+								isConflict = true;
+
+								long emfsEndTime = System.nanoTime();
+								// System.gc();
+								long emfsEndMemory = Runtime.getRuntime().totalMemory()
+									- Runtime.getRuntime().freeMemory();
+								System.out
+									.println(
+										"\nEMFS comparison time = "
+											+ df.format((emfsEndTime - emfsStartTime) / 1000000.0)
+											+ " ms ");
+								System.out.println(
+									"EMFS comparison memory = "
+										+ df.format((emfsEndMemory - emfsStartMemory) / 1000000.0)
+										+ " MBs");
+
+								System.out
+									.println("\n\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
+								// System.out.println();
+								// int count = 0;
+								for (ESConflict conflict : changeConflictSet.getConflicts()) {
+									// count++;
+									// Iterator<ESOperation> localIterator = conflict.getLocalOperations().iterator();
+									// Iterator<ESOperation> remoteIterator = conflict.getRemoteOperations().iterator();
+									// while (localIterator.hasNext() || remoteIterator.hasNext()) {
+									// AbstractOperation localOperation = null;
+									// AbstractOperation remoteOperation = null;
+									// if (localIterator.hasNext()) {
+									// localOperation = ((ESOperationImpl) localIterator.next())
+									// .toInternalAPI();
+									// }
+									// if (remoteIterator.hasNext()) {
+									// remoteOperation = ((ESOperationImpl) remoteIterator.next())
+									// .toInternalAPI();
+									// }
+									// String localString = operationToString(leftAdapater, localOperation);
+									// String remoteString = operationToString(leftAdapater, remoteOperation);
+									// System.out.println(count + ": " + localString + " <-> " + remoteString);
+									// System.console();
+									// }
+									//
+									conflict.resolveConflict(conflict.getLocalOperations(),
+										conflict.getRemoteOperations());
+								}
+								return false;
+							}
+						}, new ESSystemOutProgressMonitor());
+					} catch (Exception exe) {
+					}
+
+					if (isConflict == false) {
+						long emfsEndTime = System.nanoTime();
+						System.gc();
+						long emfsEndMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+						System.out
+							.println(
+								"\nEMFS comparison time = " + df.format((emfsEndTime - emfsStartTime) / 1000000.0)
+									+ " ms ");
+						System.out.println(
+							"EFMS comparison memory = " + df.format((emfsEndMemory - emfsStartMemory) / 1000000.0)
+								+ " MBs");
+					}
+				}
+
+				// -------------------
+				result.setLeftElementCount(leftXmi.getEObjectToIDMap().size());
+				writer.print(result.getLeftElementCount());
+				writer.print(",");
+				result.setRightElementCount(rightXmi.getEObjectToIDMap().size());
+				writer.print(result.getRightElementCount());
+				writer.print(",");
+				result.setStateLoadTime(endTime - startTime);
+				writer.print(result.getStateLoadTime());
+				writer.print(",");
+				result.setStateLoadMemory(endMemory - startMemory);
+				writer.print(result.getStateLoadMemory());
+				writer.print(",");
+				result.setStateDiffCount(stateComparison.getDiffs().size());
+				writer.print(result.getStateDiffCount());
+				writer.print(",");
+				result.setStateMatchTime(stateComparison.getMatchTime());
+				writer.print(result.getStateMatchTime());
+				writer.print(",");
+				result.setStateMatchMemory(stateComparison.getMatchMemory());
+				writer.print(result.getStateMatchMemory());
+				writer.print(",");
+				result.setStateDiffTime(stateComparison.getDiffTime());
+				writer.print(result.getStateDiffTime());
+				writer.print(",");
+				result.setStateDiffMemory(stateComparison.getDiffMemory());
+				writer.print(result.getStateDiffMemory());
+				writer.print(",");
+				result.setStateComparisonTime(stateComparison.getComparisonTime());
+				writer.print(result.getStateComparisonTime());
+				writer.print(",");
+				result.setStateComparisonMemory(stateComparison.getComparisonMemory());
+				writer.print(result.getStateComparisonMemory());
+				writer.println();
+				writer.flush();
+
+				results.add(result);
+
+				leftXmi.unload();
+				rightXmi.unload();
+
+				System.out.println();
+
+				prevLeftCbpSize = leftCbpFile.length();
+				prevRightCbpSize = rightCbpFile.length();
+			}
+
+		}
+		writer.close();
+
+		System.out.println("FINISHED! " + new Date().toString());
+
+		// originalProject.getModelElements().add(root);
+
+		// originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
 
 		System.out.println();
 		System.out.println();
@@ -655,7 +1053,7 @@ public class Application implements IApplication {
 								String remoteString = operationToString(leftAdapater, remoteOperation);
 								if (localString == remoteString || localString.equals(remoteString)) {
 									// count = count - 1;
-									continue;
+									// continue;
 								}
 								printed = true;
 								System.out.println(count + ": " + localString + " <-> " + remoteString);
@@ -778,9 +1176,12 @@ public class Application implements IApplication {
 	}
 
 	protected static String readFiles(File file, long skip) throws IOException {
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 
-		bufferedReader.skip(skip);
+		FileInputStream fis = new FileInputStream(file);
+		fis.skip(skip);
+		InputStreamReader isr = new InputStreamReader(fis);
+		BufferedReader bufferedReader = new BufferedReader(isr);
+		// bufferedReader.skip(skip);
 		bufferedReader.mark(0);
 		bufferedReader.reset();
 		String text = bufferedReader.lines().collect(Collectors.joining());
@@ -1082,6 +1483,620 @@ public class Application implements IApplication {
 			EObject eObject = iterator.next();
 			String id = eObject2IdMap.get(eObject);
 			((XMIResource) resource).setID(eObject, id);
+		}
+	}
+
+	private static XMIResource saveXmiWithID(CBPXMLResourceImpl cbp, File xmiFile) throws IOException {
+		XMIResource xmi = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
+		xmi.getContents().addAll(EcoreUtil.copyAll(cbp.getContents()));
+		TreeIterator<EObject> cbpIterator = cbp.getAllContents();
+		TreeIterator<EObject> xmiIterator = xmi.getAllContents();
+
+		while (cbpIterator.hasNext() && xmiIterator.hasNext()) {
+			EObject cbpEObject = cbpIterator.next();
+			String id = cbp.getURIFragment(cbpEObject);
+			EObject xmiEObject = xmiIterator.next();
+			xmi.setID(xmiEObject, id);
+		}
+		xmi.save(options);
+		// xmi.unload();
+		return xmi;
+	}
+
+	private static EPackage getEPackageFromFiles(File leftFile, File rightFile)
+		throws IOException, FactoryConfigurationError, XMLStreamException {
+		BufferedReader reader = new BufferedReader(new FileReader(leftFile));
+		String line = null;
+		String eventString = null;
+		// try to read ePackage from left file
+		while ((line = reader.readLine()) != null) {
+			if (line.contains("epackage=")) {
+				eventString = line;
+				reader.close();
+				break;
+			}
+		}
+
+		// if line is still null then try from right file
+		if (eventString == null) {
+			reader = new BufferedReader(new FileReader(rightFile));
+			while ((line = reader.readLine()) != null) {
+				if (line.contains("epackage=")) {
+					eventString = line;
+					reader.close();
+					break;
+				}
+			}
+		}
+		String nsUri = null;
+		XMLEventReader xmlReader = xmlInputFactory
+			.createXMLEventReader(new ByteArrayInputStream(eventString.getBytes()));
+		while (xmlReader.hasNext()) {
+			XMLEvent xmlEvent = xmlReader.nextEvent();
+			if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
+				StartElement e = xmlEvent.asStartElement();
+				String name = e.getName().getLocalPart();
+				if (name.equals("register") || name.equals("create")) {
+					nsUri = e.getAttributeByName(new QName("epackage")).getValue();
+					xmlReader.close();
+					break;
+				}
+			}
+		}
+
+		EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage(nsUri);
+		return ePackage;
+	}
+
+	private static ModifiedEMFCompare doEMFComparison(Resource left, Resource right, Resource origin)
+		throws FileNotFoundException, IOException {
+		IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
+		IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+		IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+		matchEngineFactory.setRanking(100);
+		IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+		matchEngineRegistry.add(matchEngineFactory);
+
+		IPostProcessor.Descriptor.Registry<String> postProcessorRegistry = new PostProcessorDescriptorRegistryImpl<String>();
+		BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(),
+			Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
+		postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
+
+		ModifiedBuilder builder = ModifiedEMFCompare.modifiedBuilder();
+		builder.setPostProcessorRegistry(postProcessorRegistry);
+		builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
+		ModifiedEMFCompare comparator = (ModifiedEMFCompare) builder.build();
+
+		// System.out.println("Compare " + cbp.getURI().lastSegment() + " and "
+		// + xmi.getURI().lastSegment());
+		IComparisonScope2 scope = new DefaultComparisonScope(left, right, origin);
+		System.out.println("Start comparison ...");
+		Comparison comparison = comparator.compare(scope);
+		EList<Diff> diffs = comparison.getDifferences();
+
+		System.out.println("Matching Time = " + comparator.getMatchTime() / 1000000.0 + " ms");
+		System.out.println("Diffing Time = " + comparator.getDiffTime() / 1000000.0 + " ms");
+		System.out.println("Comparison Time = " + comparator.getComparisonTime() / 1000000.0 + " ms");
+		System.out.println("State-based Diffs Size = " + diffs.size());
+
+		return comparator;
+	}
+
+	private static List<EObject> identifyAllEObjects(CBPXMLResourceImpl cbp) {
+		List<EObject> eObjectList = new ArrayList<EObject>();
+		// int objectCount = originXmi.getEObjectToIDMap().size();
+		TreeIterator<EObject> iterator = cbp.getAllContents();
+		while (iterator.hasNext()) {
+			EObject eObject = iterator.next();
+			// String id = originXmi.getURIFragment(eObject);
+			EClass eClass = eObject.eClass();
+			eObjectList.add(eObject);
+		}
+		return eObjectList;
+	}
+
+	private static void startModification(CBPXMLResourceImpl cbp, List<EObject> eObjectList, List<ChangeType> seeds) {
+		ChangeType changeType = seeds.get(random.nextInt(seeds.size()));
+		if (changeType == ChangeType.CHANGE) {
+			System.out.print(" " + changeType);
+			changeModification(eObjectList, cbp);
+		} else if (changeType == ChangeType.ADD) {
+			System.out.print(" " + changeType);
+			addModification(eObjectList, cbp);
+		} else if (changeType == ChangeType.DELETE) {
+			System.out.print(" " + changeType);
+			deleteModification(eObjectList, cbp);
+		} else if (changeType == ChangeType.MOVE) {
+			System.out.print(" " + changeType);
+			moveModification(eObjectList, cbp);
+		}
+		System.out.print(" " + eObjectList.size());
+
+	}
+
+	private static void addModification(List<EObject> eObjectList, CBPXMLResourceImpl leftCbp) {
+		// 0 for Attributes
+		boolean found = false;
+		while (!found) {
+			if (random.nextInt(2) == 0) {
+				int index1 = random.nextInt(eObjectList.size());
+				EObject eObject1 = eObjectList.get(index1);
+				if (eObject1 != null) {
+					if (eObject1.eResource() == null) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+					String id = leftCbp.getURIFragment(eObject1);
+					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+				}
+				EList<EAttribute> attributes1 = eObject1.eClass().getEAllAttributes();
+				List<EAttribute> filteredEAttributes = new ArrayList<EAttribute>();
+				for (EAttribute eAttribute : attributes1) {
+					if (eAttribute.isMany() && eAttribute.isChangeable()) {
+						filteredEAttributes.add(eAttribute);
+					}
+				}
+				if (filteredEAttributes.size() > 0) {
+					EAttribute eAttribute = filteredEAttributes.get(random.nextInt(filteredEAttributes.size()));
+					EList<Object> values = (EList<Object>) eObject1.eGet(eAttribute);
+					Object value = null;
+					if (eAttribute.getEAttributeType().getName().equals("String")) {
+						value = "Z" + EcoreUtil.generateUUID();
+					} else if (eAttribute.getEAttributeType().getName().equals("Integer")) {
+						value = 0;
+					} else if (eAttribute.getEAttributeType().getName().equals("Boolean")) {
+						value = true;
+					} else if (eAttribute.getEAttributeType().getName().equals("UnlimitedNatural")) {
+						value = 0;
+					} else if (eAttribute.getEAttributeType().getName().equals("EBoolean")) {
+						value = random.nextBoolean();
+					} else if (eAttribute.getEAttributeType().getName().equals("EString")) {
+						value = "Z" + EcoreUtil.generateUUID();
+					} else if (eAttribute.getEAttributeType().getName().equals("EInt")) {
+						value = random.nextInt(10);
+					}
+
+					if (value != null) {
+						if (values.size() > 0) {
+							int pos = random.nextInt(values.size() - 1);
+							values.add(pos, value);
+							found = true;
+						} else {
+							values.add(value);
+							found = true;
+						}
+					}
+
+				}
+			}
+			// 1 for References
+			else {
+
+				int index1 = random.nextInt(eObjectList.size());
+				EObject eObject1 = eObjectList.get(index1);
+				if (eObject1 != null) {
+					if (eObject1.eResource() == null) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+					String id = leftCbp.getURIFragment(eObject1);
+					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+				}
+				EList<EReference> references1 = eObject1.eClass().getEAllContainments();
+				List<EReference> filteredEReferences = new ArrayList<EReference>();
+				for (EReference eReference : references1) {
+					if (eReference.isChangeable()) {
+						filteredEReferences.add(eReference);
+					}
+				}
+				if (filteredEReferences.size() > 0) {
+					EReference eReference = filteredEReferences.get(random.nextInt(filteredEReferences.size()));
+					EFactory factory = ePackage.getEFactoryInstance();
+					if (!eReference.getEReferenceType().isAbstract()) {
+						EObject eObject2 = factory.create(eReference.getEReferenceType());
+						// eObject2.eSet(eObject2.eClass().getEStructuralFeature("name"),
+						// "Z" + EcoreUtil.generateUUID());
+						if (eReference.isMany()) {
+							EList<EObject> values = (EList<EObject>) eObject1.eGet(eReference);
+							if (values.size() > 0) {
+								values.add(random.nextInt(values.size()), eObject2);
+								found = true;
+							} else {
+								try {
+									values.add(eObject2);
+									eObjectList.add(eObject2);
+									found = true;
+								} catch (Exception e) {
+									// e.printStackTrace();
+								}
+							}
+						} else {
+							try {
+								if (eObject1.eGet(eReference) != null) {
+									continue;
+								}
+								eObject1.eSet(eReference, eObject2);
+								eObjectList.add(eObject2);
+								found = true;
+							} catch (Exception e) {
+								// e.printStackTrace();
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+	}
+
+	private static void moveModification(List<EObject> eObjectList, CBPXMLResourceImpl leftCbp) {
+		// 0 for Attributes
+		boolean found = false;
+		while (!found) {
+			if (random.nextInt(2) == 0) {
+				int index1 = random.nextInt(eObjectList.size());
+				EObject eObject1 = eObjectList.get(index1);
+				if (eObject1.eResource() == null) {
+					eObjectList.remove(eObject1);
+					continue;
+				}
+				if (eObject1 != null) {
+					String id = leftCbp.getURIFragment(eObject1);
+					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+				}
+				EList<EAttribute> attributes1 = eObject1.eClass().getEAllAttributes();
+				List<EAttribute> filteredEAttributes = new ArrayList<EAttribute>();
+				for (EAttribute eAttribute : attributes1) {
+					if (eAttribute.isMany() && eAttribute.isChangeable()) {
+						filteredEAttributes.add(eAttribute);
+					}
+				}
+				if (filteredEAttributes.size() > 0) {
+					EAttribute eAttribute = filteredEAttributes.get(random.nextInt(filteredEAttributes.size()));
+					EList<Object> values = (EList<Object>) eObject1.eGet(eAttribute);
+					if (values.size() > 1) {
+						int from = random.nextInt(values.size() - 1);
+						int to = random.nextInt(values.size() - 1);
+						if (from == to && from != 0) {
+							from--;
+						}
+						values.move(from, to);
+						found = true;
+					}
+
+				}
+			}
+			// 1 for References
+			else {
+				// 0 move-within
+				if (random.nextInt(2) == 0) {
+					int index1 = random.nextInt(eObjectList.size());
+					EObject eObject1 = eObjectList.get(index1);
+					if (eObject1 != null) {
+						if (eObject1.eResource() == null) {
+							eObjectList.remove(eObject1);
+							continue;
+						}
+						String id = leftCbp.getURIFragment(eObject1);
+						if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+							eObjectList.remove(eObject1);
+							continue;
+						}
+					}
+					EList<EReference> references1 = eObject1.eClass().getEAllContainments();
+					List<EReference> filteredEReferences = new ArrayList<EReference>();
+					for (EReference eReference : references1) {
+						if (eReference.isMany() && eReference.isChangeable()) {
+							filteredEReferences.add(eReference);
+						}
+					}
+					if (filteredEReferences.size() > 0) {
+						EReference eReference = filteredEReferences.get(random.nextInt(filteredEReferences.size()));
+						EList<EObject> values = (EList<EObject>) eObject1.eGet(eReference);
+						if (values.size() > 1) {
+							int from = random.nextInt(values.size() - 1);
+							int to = random.nextInt(values.size() - 1);
+							if (from == to && from != 0) {
+								from--;
+							}
+							values.move(from, to);
+							found = true;
+						}
+					}
+				}
+				// 1 move-between
+				else {
+					int index1 = random.nextInt(eObjectList.size());
+					EObject eObject1 = eObjectList.get(index1);
+
+					if (eObject1 != null) {
+						if (eObject1.eResource() == null) {
+							eObjectList.remove(eObject1);
+							continue;
+						}
+						String id = leftCbp.getURIFragment(eObject1);
+						if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+							eObjectList.remove(eObject1);
+							continue;
+						}
+					}
+					int index2 = random.nextInt(eObjectList.size());
+					EObject eObject2 = eObjectList.get(index2);
+
+					if (eObject2 != null) {
+						if (eObject2.eResource() == null) {
+							eObjectList.remove(eObject2);
+							continue;
+						}
+						String id = leftCbp.getURIFragment(eObject2);
+						if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+							eObjectList.remove(eObject2);
+							continue;
+						}
+					}
+					EList<EReference> references1 = eObject1.eClass().getEAllContainments();
+					List<EReference> filteredEReferences = new ArrayList<EReference>();
+					for (EReference eReference : references1) {
+						if (eReference.isChangeable() && eReference.getEOpposite() == null) {
+							EClass referenceType = eReference.getEReferenceType();
+							EClass eObjectType = eObject2.eClass();
+							if (eObjectType.equals(referenceType)) {
+								filteredEReferences.add(eReference);
+							}
+						}
+					}
+					if (filteredEReferences.size() > 0) {
+						EReference eReference = filteredEReferences.get(random.nextInt(filteredEReferences.size()));
+						if (eReference.isMany()) {
+							EList<EObject> values = (EList<EObject>) eObject1.eGet(eReference);
+							if (values.size() > 0 && !values.contains(eObject2)) {
+								try {
+									int pos = random.nextInt(values.size());
+									values.add(pos, eObject2);
+									found = true;
+								} catch (Exception e) {
+								}
+							} else {
+								try {
+									values.add(eObject2);
+									found = true;
+								} catch (Exception e) {
+								}
+							}
+						} else {
+							try {
+								if (eObject1.eGet(eReference) != null) {
+									continue;
+								}
+								eObject1.eSet(eReference, eObject2);
+								found = true;
+							} catch (Exception e) {
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	private static void changeModification(List<EObject> eObjectList, CBPXMLResourceImpl leftCbp) {
+		// 0 for Attributes
+		boolean found = false;
+		while (!found) {
+			if (random.nextInt(2) == 0) {
+				int index1 = random.nextInt(eObjectList.size());
+				EObject eObject1 = eObjectList.get(index1);
+				if (eObject1 != null) {
+					String id = leftCbp.getURIFragment(eObject1);
+					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+					if (eObject1.eResource() == null) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+
+				}
+				EList<EAttribute> attributes1 = eObject1.eClass().getEAllAttributes();
+				List<EAttribute> filteredEAttributes = new ArrayList<EAttribute>();
+				for (EAttribute eAttribute : attributes1) {
+					if (!eAttribute.isMany() && eAttribute.isChangeable()) {
+						filteredEAttributes.add(eAttribute);
+					}
+				}
+				if (filteredEAttributes.size() > 0) {
+					EAttribute eAttribute = filteredEAttributes.get(random.nextInt(filteredEAttributes.size()));
+					if (eAttribute.getEAttributeType().getName().equals("String")) {
+						eObject1.eSet(eAttribute, "Z" + EcoreUtil.generateUUID());
+						found = true;
+					} else if (eAttribute.getEAttributeType().getName().equals("Integer")) {
+						eObject1.eSet(eAttribute, 0);
+						found = true;
+					} else if (eAttribute.getEAttributeType().getName().equals("Boolean")) {
+						eObject1.eSet(eAttribute, true);
+						found = true;
+					} else if (eAttribute.getEAttributeType().getName().equals("UnlimitedNatural")) {
+						eObject1.eSet(eAttribute, 0);
+						found = true;
+					} else if (eAttribute.getEAttributeType().getName().equals("EBoolean")) {
+						eObject1.eSet(eAttribute, !(Boolean) eObject1.eGet(eAttribute));
+						found = true;
+					} else if (eAttribute.getEAttributeType().getName().equals("EString")) {
+						eObject1.eSet(eAttribute, "Z" + EcoreUtil.generateUUID());
+						found = true;
+					} else if (eAttribute.getEAttributeType().getName().equals("EInt")) {
+						eObject1.eSet(eAttribute, 1 + (Integer) eObject1.eGet(eAttribute));
+						found = true;
+					} else {
+						continue;
+						// System.out.println(eAttribute.getEAttributeType().getName());
+					}
+				}
+			}
+			// 1 for References
+			else {
+				int index1 = random.nextInt(eObjectList.size());
+				EObject eObject1 = eObjectList.get(index1);
+				if (eObject1 != null) {
+
+					String id = leftCbp.getURIFragment(eObject1);
+					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+					if (eObject1.eResource() == null) {
+						eObjectList.remove(eObject1);
+						continue;
+					}
+				}
+				int index2 = random.nextInt(eObjectList.size());
+				EObject eObject2 = eObjectList.get(index2);
+				if (eObject2 != null) {
+
+					String id = leftCbp.getURIFragment(eObject2);
+					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+						eObjectList.remove(eObject2);
+						continue;
+					}
+					if (eObject2.eResource() == null) {
+						eObjectList.remove(eObject2);
+						continue;
+					}
+				}
+				EList<EReference> references1 = eObject1.eClass().getEAllReferences();
+				List<EReference> filteredEReferences = new ArrayList<EReference>();
+				for (EReference eReference : references1) {
+					if (!eReference.isMany() && !eReference.isContainment() && eReference.isChangeable()
+						&& eReference.getEOpposite() == null) {
+						EClass referenceType = eReference.getEReferenceType();
+						EClass eObjectType = eObject2.eClass();
+						if (eObjectType.equals(referenceType)) {
+							filteredEReferences.add(eReference);
+						}
+					}
+				}
+				if (filteredEReferences.size() > 0) {
+					try {
+						EReference eReference = filteredEReferences.get(random.nextInt(filteredEReferences.size()));
+						EObject oldEObject = (EObject) eObject1.eGet(eReference);
+						eObject1.eSet(eReference, eObject2);
+
+						if (oldEObject != null && oldEObject.eResource() == null) {
+							eObjectList.remove(oldEObject);
+						}
+
+						// System.out.println( leftCbp.getURIFragment(eObject1)
+						// + "." + eReference.getName() + "." +
+						// leftCbp.getURIFragment(eObject2) + ".SET");
+						// if (eReference.getName().equals("association")) {
+						// System.out.println();
+						// }
+						found = true;
+					} catch (Exception e) {
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param eObjectList
+	 * @param leftCbp
+	 */
+	private static void deleteModification(List<EObject> eObjectList, CBPXMLResourceImpl leftCbp) {
+		boolean found = false;
+
+		while (!found) {
+			// 0 for Attributes
+			if (random.nextInt(2) == 0) {
+				int index = random.nextInt(eObjectList.size());
+				EObject eObject = eObjectList.get(index);
+				EList<EAttribute> eAttributes = eObject.eClass().getEAllAttributes();
+				if (eAttributes.size() > 0) {
+					EAttribute eAttribute = eAttributes.get(random.nextInt(eAttributes.size()));
+					if (eAttribute.isMany()) {
+						EList<Object> values = (EList<Object>) eObject.eGet(eAttribute);
+						if (values.size() > 0) {
+							values.remove(random.nextInt(values.size()));
+							found = true;
+						}
+					}
+				}
+
+			}
+			// 1 for References
+			else {
+				int index = random.nextInt(eObjectList.size());
+				EObject eObject = eObjectList.get(index);
+				if (eObject != null) {
+					String id = leftCbp.getURIFragment(eObject);
+					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
+						eObjectList.remove(eObject);
+						continue;
+					}
+				}
+				if (eObject.eResource() == null) {
+					eObjectList.remove(eObject);
+					continue;
+				}
+
+				if (!eObject.eContents().isEmpty()) {
+					continue;
+				}
+
+				if (((EReference) eObject.eContainingFeature()).isContainment()) {
+					removeObjectFromEObjectList(eObject, eObjectList);
+					EcoreUtil.remove(eObject);
+					eObjectList.remove(eObject);
+					found = true;
+				} else {
+					EcoreUtil.remove(eObject);
+					if (eObject.eContainer() == null) {
+						eObjectList.remove(eObject);
+					}
+					found = true;
+				}
+			}
+		}
+	}
+
+	private static void removeObjectFromEObjectList(EObject eObject, List<EObject> eObjectList) {
+		for (EReference eReference : eObject.eClass().getEAllContainments()) {
+			if (eReference.isChangeable()) {
+				if (eReference.isMany()) {
+					EList<EObject> values = (EList<EObject>) eObject.eGet(eReference);
+					for (EObject value : values) {
+						removeObjectFromEObjectList(value, eObjectList);
+						eObjectList.remove(value);
+					}
+				} else {
+					EObject value = (EObject) eObject.eGet(eReference);
+					if (value != null) {
+						removeObjectFromEObjectList(value, eObjectList);
+						eObjectList.remove(value);
+					}
+				}
+			}
+		}
+
+	}
+
+	private static void setProbability(List<ChangeType> seeds, int probability, ChangeType type) {
+		for (int i = 0; i < probability; i++) {
+			seeds.add(type);
 		}
 	}
 

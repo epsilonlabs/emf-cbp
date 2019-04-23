@@ -7,7 +7,8 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.eclipse.epsilon.cbp.comparison,
+Export-Package: org.eclipse.epsilon.cbp.bigmodel,
+ org.eclipse.epsilon.cbp.comparison,
  org.eclipse.epsilon.cbp.comparison.event,
  org.eclipse.epsilon.cbp.comparison.model.node,
  org.eclipse.epsilon.cbp.comparison.model.node.impl,

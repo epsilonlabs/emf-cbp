@@ -3,10 +3,12 @@ package org.eclipse.epsilon.cbp.comparison;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -267,7 +269,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	// System.out.println("\nEXPORT FOR COMPARISON WITH EMF COMPARE:");
 	// this.exportForComparisonWithEMFCompare();
 	this.exportDiffsToFile(true);
-	System.out.println();
+//	System.out.println();
 	this.exportConflictsToFile();
 	//
 
@@ -1708,12 +1710,14 @@ public class CBPComparisonImpl implements ICBPComparison {
 	try {
 	    leftCompositeEvents.clear();
 	    rightCompositeEvents.clear();
-
-	    BufferedReader leftReader = new BufferedReader(new FileReader(leftFile));
-	    BufferedReader rightReader = new BufferedReader(new FileReader(rightFile));
+	    
+	    BufferedReader leftReader = null;
+	    BufferedReader rightReader = null;
 	    String leftLine;
 	    String rightLine;
 	    if (skip <= 0) {
+		leftReader = new BufferedReader(new FileReader(leftFile));
+		rightReader = new BufferedReader(new FileReader(rightFile));
 		leftReader.mark(0);
 		rightReader.mark(0);
 		while ((leftLine = leftReader.readLine()) != null && (rightLine = rightReader.readLine()) != null) {
@@ -1723,9 +1727,18 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    leftReader.mark(0);
 		    rightReader.mark(0);
 		}
-	    } else {
-		leftReader.skip(skip);
-		rightReader.skip(skip);
+	    } else {		
+		FileInputStream leftFileInputStream = new FileInputStream(leftFile);
+		FileInputStream rightFileInputStream = new FileInputStream(rightFile);
+		leftFileInputStream.skip(skip);
+		rightFileInputStream.skip(skip);
+		InputStreamReader leftInputStreamReader = new InputStreamReader(leftFileInputStream);
+		InputStreamReader rightInputStreamReader = new InputStreamReader(rightFileInputStream);
+		leftReader = new BufferedReader(leftInputStreamReader);
+		rightReader = new BufferedReader(rightInputStreamReader);
+		
+//		leftReader.skip(skip); 
+//		rightReader.skip(skip);
 		leftReader.mark(0);
 		rightReader.mark(0);
 	    }
@@ -1968,7 +1981,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	Set<String> set = new HashSet<>();
 	String str = null;
 	int num = 0;
-	System.out.println("CHANGE-BASED CONFLICTS:");
+//	System.out.println("CHANGE-BASED CONFLICTS:");
 	for (CBPConflict conflict : conflicts) {
 	    num++;
 	    Set<CBPChangeEvent<?>> leftEvents = conflict.getLeftEvents();
