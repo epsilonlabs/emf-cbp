@@ -276,6 +276,7 @@ public class CBPConflictTest {
 	    leftScript.add("attack.valNodes.move(2,1);");
 	    leftScript.add("delete giant;");
 	    leftScript.add("troll.name = \"Ogre\";");
+	    leftScript.add("delete knight;");
 
 	    // right script
 	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
@@ -296,7 +297,10 @@ public class CBPConflictTest {
 	    rightScript.add("rightGeneral.refNode = character;");
 	    rightScript.add("character.name = \"Hero\";");
 	    rightScript.add("mage.valNode = rightGeneral;");
+	    rightScript.add("troll.name = \"Foo\";");
+	    rightScript.add("troll.name = \"Bar\";");
 	    rightScript.add("troll.name = \"Orc\";");
+	    rightScript.add("delete knight;");
 	    
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);

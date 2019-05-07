@@ -322,7 +322,6 @@ public class Application implements IApplication {
 			System.out.println("LOADING LEFT MODEL");
 			String leftText = readFiles(cbpLeftFile, skip);
 			InputStream leftStream = new ByteArrayInputStream(leftText.getBytes());
-			leftAdapater.load(leftStream);
 			leftStream.close();
 			// EObject leftObject = leftProject.getModelElement(originalEsId);
 			// ESModelElementId leftEsId = leftProject.getModelElementId(leftObject);
@@ -500,7 +499,7 @@ public class Application implements IApplication {
 
 		// print header
 		writer.println(
-			"num,levc,revc,aoc,clt,clm,cdc,ctt,ctm,cdt,cdm,cct,ccm,lelc,relc,slt,slm,sdc,smt,smm,sdt,sdm,sct,scm");
+			"num,levc,revc,aoc,clt,clm,cdc,ctt,ctm,cdt,cdm,cxc,cxt,cxm,cct,ccm,lelc,relc,slt,slm,sdc,smt,smm,sdt,sdm,sxc,sxt,sxm,sct,scm,exc,ept,epm,ext,exm,ect,ecm,srx");
 		writer.flush();
 
 		String originXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.xmi";
@@ -522,6 +521,14 @@ public class Application implements IApplication {
 		File originCbpFile = new File(originCbpPath);
 		File leftCbpFile = new File(leftCbpPath);
 		File rightCbpFile = new File(rightCbpPath);
+
+		File emfsXmiRightFile = new File("D:\\TEMP\\CONFLICTS\\performance\\emfstore-right.xmi");
+		File emfsXmiLeftFile = new File("D:\\TEMP\\CONFLICTS\\performance\\emfstore-left.xmi");
+
+		XMIResource emfsXmiRightResource = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(emfsXmiRightFile.getAbsolutePath()));
+		XMIResource emfsXmiLeftResource = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(emfsXmiLeftFile.getAbsolutePath()));
 
 		if (originCbpFile.exists()) {
 			originCbpFile.delete();
@@ -563,10 +570,10 @@ public class Application implements IApplication {
 
 		// Start modifying the models
 		List<ChangeType> seeds = new ArrayList<ChangeType>();
-		setProbability(seeds, 30, ChangeType.CHANGE);
-		setProbability(seeds, 1, ChangeType.ADD);
-		setProbability(seeds, 1, ChangeType.DELETE);
-		setProbability(seeds, 10, ChangeType.MOVE);
+		setProbability(seeds, 0, ChangeType.CHANGE);
+		setProbability(seeds, 0, ChangeType.ADD);
+		setProbability(seeds, 0, ChangeType.DELETE);
+		setProbability(seeds, 1, ChangeType.MOVE);
 
 		System.out.println("Loading " + leftCbpFile.getName() + "...");
 		leftCbp.load(null);
@@ -579,7 +586,7 @@ public class Application implements IApplication {
 		List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
 
 		// ----------------EMF STORE
-		originalAdapater.load(originCbpFile);
+		originalAdapater.load(originCbpFile, true);
 		originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
 		leftProject.update(new ESSystemOutProgressMonitor());
 
@@ -588,7 +595,7 @@ public class Application implements IApplication {
 		// -----
 
 		List<BigModelResult> results = new ArrayList<BigModelResult>();
-		int modificationCount = 1000;
+		int modificationCount = 2200;
 		int number = 0;
 		for (int i = 1; i <= modificationCount; i++) {
 			System.out.print("Change " + i + ":");
@@ -664,6 +671,17 @@ public class Application implements IApplication {
 				result.setChangeDiffMemory(changeComparison.getDiffMemory());
 				writer.print(result.getChangeDiffMemory());
 				writer.print(",");
+
+				result.setChangeConflictCount(changeComparison.getConflictCount());
+				writer.print(result.getChangeConflictCount());
+				writer.print(",");
+				result.setChangeConflictTime(changeComparison.getConflictTime());
+				writer.print(result.getChangeConflictTime());
+				writer.print(",");
+				result.setChangeConflictMemory(changeComparison.getConflictMemory());
+				writer.print(result.getChangeConflictMemory());
+				writer.print(",");
+
 				result.setChangeComparisonTime(changeComparison.getComparisonTime());
 				writer.print(result.getChangeComparisonTime());
 				writer.print(",");
@@ -694,116 +712,6 @@ public class Application implements IApplication {
 
 				ModifiedEMFCompare stateComparison = doEMFComparison(leftXmi, rightXmi, originXmi);
 
-				// ----------------EMF STORE
-				// leftProject.update(new ESSystemOutProgressMonitor());
-
-				System.out.println("\nEMF STORE:");
-
-				// process right file first
-				System.out.println("laoding right model");
-				String rightText = readFiles(rightCbpFile, prevRightCbpSize);
-				InputStream rightStream = new ByteArrayInputStream(rightText.getBytes());
-				originalAdapater.load(rightStream);
-				rightStream.close();
-				originalProject.commit("RIGHT", null, new ESSystemOutProgressMonitor());
-
-				// process left
-				System.out.println("loading left model");
-				String leftText = readFiles(leftCbpFile, prevLeftCbpSize);
-				InputStream leftStream = new ByteArrayInputStream(leftText.getBytes());
-				leftAdapater.load(leftStream);
-				leftStream.close();
-
-				try {
-					// leftProject.update(new ESSystemOutProgressMonitor());
-					leftProject.commit("LEFT", null, new ESSystemOutProgressMonitor());
-				} catch (final ESUpdateRequiredException e) {
-					isConflict = false;
-
-					System.gc();
-					final long emfsStartMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-					final long emfsStartTime = System.nanoTime();
-
-					try {
-						leftProject.update(ESVersionSpec.FACTORY.createHEAD(), new ESUpdateCallback() {
-							public void noChangesOnServer() {
-								// do nothing if there are no changes on the server (in this example we know
-								// there are changes anyway)
-							}
-
-							public boolean inspectChanges(ESLocalProject project, List<ESChangePackage> changes,
-								ESModelElementIdToEObjectMapping idToEObjectMapping) {
-								// allow update to proceed, here we could also add some UI
-								return true;
-							}
-
-							@SuppressWarnings("restriction")
-							public boolean conflictOccurred(ESConflictSet changeConflictSet, IProgressMonitor monitor) {
-
-								isConflict = true;
-
-								long emfsEndTime = System.nanoTime();
-								// System.gc();
-								long emfsEndMemory = Runtime.getRuntime().totalMemory()
-									- Runtime.getRuntime().freeMemory();
-								System.out
-									.println(
-										"\nEMFS comparison time = "
-											+ df.format((emfsEndTime - emfsStartTime) / 1000000.0)
-											+ " ms ");
-								System.out.println(
-									"EMFS comparison memory = "
-										+ df.format((emfsEndMemory - emfsStartMemory) / 1000000.0)
-										+ " MBs");
-
-								System.out
-									.println("\n\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
-								// System.out.println();
-								// int count = 0;
-								for (ESConflict conflict : changeConflictSet.getConflicts()) {
-									// count++;
-									// Iterator<ESOperation> localIterator = conflict.getLocalOperations().iterator();
-									// Iterator<ESOperation> remoteIterator = conflict.getRemoteOperations().iterator();
-									// while (localIterator.hasNext() || remoteIterator.hasNext()) {
-									// AbstractOperation localOperation = null;
-									// AbstractOperation remoteOperation = null;
-									// if (localIterator.hasNext()) {
-									// localOperation = ((ESOperationImpl) localIterator.next())
-									// .toInternalAPI();
-									// }
-									// if (remoteIterator.hasNext()) {
-									// remoteOperation = ((ESOperationImpl) remoteIterator.next())
-									// .toInternalAPI();
-									// }
-									// String localString = operationToString(leftAdapater, localOperation);
-									// String remoteString = operationToString(leftAdapater, remoteOperation);
-									// System.out.println(count + ": " + localString + " <-> " + remoteString);
-									// System.console();
-									// }
-									//
-									conflict.resolveConflict(conflict.getLocalOperations(),
-										conflict.getRemoteOperations());
-								}
-								return false;
-							}
-						}, new ESSystemOutProgressMonitor());
-					} catch (Exception exe) {
-					}
-
-					if (isConflict == false) {
-						long emfsEndTime = System.nanoTime();
-						System.gc();
-						long emfsEndMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-						System.out
-							.println(
-								"\nEMFS comparison time = " + df.format((emfsEndTime - emfsStartTime) / 1000000.0)
-									+ " ms ");
-						System.out.println(
-							"EFMS comparison memory = " + df.format((emfsEndMemory - emfsStartMemory) / 1000000.0)
-								+ " MBs");
-					}
-				}
-
 				// -------------------
 				result.setLeftElementCount(leftXmi.getEObjectToIDMap().size());
 				writer.print(result.getLeftElementCount());
@@ -832,14 +740,66 @@ public class Application implements IApplication {
 				result.setStateDiffMemory(stateComparison.getDiffMemory());
 				writer.print(result.getStateDiffMemory());
 				writer.print(",");
+
+				result.setStateConflictCount(stateComparison.getConflicts().size());
+				writer.print(result.getStateConflictCount());
+				writer.print(",");
+				result.setStateConflictTime(stateComparison.getConflictTime());
+				writer.print(result.getStateConflictTime());
+				writer.print(",");
+				result.setStateConflictMemory(stateComparison.getConflictMemory());
+				writer.print(result.getStateConflictMemory());
+				writer.print(",");
+
 				result.setStateComparisonTime(stateComparison.getComparisonTime());
 				writer.print(result.getStateComparisonTime());
 				writer.print(",");
 				result.setStateComparisonMemory(stateComparison.getComparisonMemory());
 				writer.print(result.getStateComparisonMemory());
+				writer.print(",");
+
+				// ----------------EMF STORE
+				// leftProject.update(new ESSystemOutProgressMonitor());
+
+				System.out.println("\nEMF STORE:");
+
+				usersession.refresh();
+
+				EMFStoreResult emfResult = doEMFStoreConflictDetection(originalProject, leftProject, leftCbpFile,
+					rightCbpFile, prevLeftCbpSize,
+					prevRightCbpSize);
+
+				// ------------
+				result.setEmfsConflictCount(emfResult.getEmfsConflictCount());
+				writer.print(result.getEmfsConflictCount());
+				writer.print(",");
+				result.setEmfsPreparationTime(emfResult.getEmfsPreparationTime());
+				writer.print(result.getEmfsPreparationTime());
+				writer.print(",");
+				result.setEmfsPreparationMemory(emfResult.getEmfsPreparationMemory());
+				writer.print(result.getEmfsPreparationMemory());
+				writer.print(",");
+				result.setEmfsConflictTime(emfResult.getEmfsConflictTime());
+				writer.print(result.getEmfsConflictTime());
+				writer.print(",");
+				result.setEmfsConflictMemory(emfResult.getEmfsConflictMemory());
+				writer.print(result.getEmfsConflictMemory());
+				writer.print(",");
+
+				result.setEmfsComparisonTime(emfResult.getEmfsComparisonTime());
+				writer.print(result.getEmfsComparisonTime());
+				writer.print(",");
+				result.setEmfsComparisonMemory(emfResult.getEmfsComparisonMemory());
+				writer.print(result.getEmfsComparisonMemory());
+				writer.print(",");
+
+				result.setStateRealConflictCount(stateComparison.getRealConflicts().size());
+				writer.print(result.getStateRealConflictCount());
 				writer.println();
+
 				writer.flush();
 
+				// ------------
 				results.add(result);
 
 				leftXmi.unload();
@@ -849,6 +809,14 @@ public class Application implements IApplication {
 
 				prevLeftCbpSize = leftCbpFile.length();
 				prevRightCbpSize = rightCbpFile.length();
+
+				exportToXMI(leftAdapater, emfsXmiRightResource);
+				exportToXMI(originalAdapater, emfsXmiLeftResource);
+
+				if (result.getChangeConflictCount() > result.getEmfsConflictCount()) {
+					System.out.println(result.getChangeConflictCount() + " vs " + result.getEmfsConflictCount());
+					System.console();
+				}
 			}
 
 		}
@@ -864,6 +832,157 @@ public class Application implements IApplication {
 		System.out.println();
 		System.out.println("SUCCESS!!");
 
+	}
+
+	/**
+	 * @param originalProject
+	 * @param leftProject
+	 * @param leftCbpFile
+	 * @param rightCbpFile
+	 * @param prevLeftCbpSize
+	 * @param prevRightCbpSize
+	 * @throws IOException
+	 * @throws FactoryConfigurationError
+	 * @throws ESUpdateRequiredException
+	 * @throws ESException
+	 */
+	private static EMFStoreResult doEMFStoreConflictDetection(ESLocalProject originalProject,
+		ESLocalProject leftProject,
+		File leftCbpFile, File rightCbpFile, long prevLeftCbpSize, long prevRightCbpSize)
+		throws IOException, FactoryConfigurationError, ESUpdateRequiredException, ESException {
+
+		final EMFStoreResult result = new EMFStoreResult();
+
+		// process right file first
+		System.out.println("loading right model");
+		String rightText = readFiles(rightCbpFile, prevRightCbpSize);
+		InputStream rightStream = new ByteArrayInputStream(rightText.getBytes());
+		originalAdapater.load(rightStream);
+		rightStream.close();
+		originalProject.commit("RIGHT", null, new ESSystemOutProgressMonitor());
+
+		// process left
+		System.out.println("loading left model");
+		String leftText = readFiles(leftCbpFile, prevLeftCbpSize);
+		InputStream leftStream = new ByteArrayInputStream(leftText.getBytes());
+		leftAdapater.load(leftStream);
+		leftStream.close();
+
+		try {
+			// leftProject.update(new ESSystemOutProgressMonitor());
+			leftProject.commit("LEFT", null, new ESSystemOutProgressMonitor());
+		} catch (final ESUpdateRequiredException e) {
+			isConflict = false;
+
+			try {
+
+				System.gc();
+
+				leftProject.update(ESVersionSpec.FACTORY.createHEAD(), new ESUpdateCallback() {
+
+					long emfsPrepStartMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+					long emfsPrepStartTime = System.nanoTime();
+
+					long emfsConflictStartMemory = 0;
+					long emfsConflictStartTime = 0;
+
+					public void noChangesOnServer() {
+						// do nothing if there are no changes on the server (in this example we know
+						// there are changes anyway)
+					}
+
+					public boolean inspectChanges(ESLocalProject project, List<ESChangePackage> changes,
+						ESModelElementIdToEObjectMapping idToEObjectMapping) {
+
+						long emfsPrepEndTime = System.nanoTime();
+						// System.gc();
+						long emfsPrepEndMemory = Runtime.getRuntime().totalMemory()
+							- Runtime.getRuntime().freeMemory();
+						System.out
+							.println(
+								"\nEMFS preparation time = "
+									+ df.format((emfsPrepEndTime - emfsPrepStartTime) / 1000000.0)
+									+ " ms ");
+						System.out.println(
+							"EMFS preparation memory = "
+								+ df.format((emfsPrepEndMemory - emfsPrepStartMemory) / 1000000.0)
+								+ " MBs");
+						result.setEmfsPreparationTime(emfsPrepEndTime - emfsPrepStartTime);
+						result.setEmfsPreparationMemory(emfsPrepEndMemory - emfsPrepStartMemory);
+
+						System.gc();
+						emfsConflictStartMemory = Runtime.getRuntime().totalMemory()
+							- Runtime.getRuntime().freeMemory();
+						emfsConflictStartTime = System.nanoTime();
+
+						return true;
+					}
+
+					@SuppressWarnings("restriction")
+					public boolean conflictOccurred(ESConflictSet changeConflictSet, IProgressMonitor monitor) {
+
+						long emfsConflictEndTime = System.nanoTime();
+						// System.gc();
+						long emfsConflictEndMemory = Runtime.getRuntime().totalMemory()
+							- Runtime.getRuntime().freeMemory();
+						System.out
+							.println(
+								"EMFS conflict time = "
+									+ df.format((emfsConflictEndTime - emfsConflictStartTime) / 1000000.0)
+									+ " ms ");
+						System.out.println(
+							"EMFS conflict memory = "
+								+ df.format((emfsConflictEndMemory - emfsConflictStartMemory) / 1000000.0)
+								+ " MBs");
+
+						result.setEmfsConflictTime(emfsConflictEndTime - emfsConflictStartTime);
+						result.setEmfsConflictMemory(emfsConflictEndMemory - emfsConflictStartMemory);
+						result.setEmfsComparisonTime(result.getEmfsPreparationTime() + result.getEmfsConflictTime());
+						result.setEmfsComparisonMemory(
+							result.getEmfsPreparationMemory() + result.getEmfsConflictMemory());
+
+						System.out
+							.println(
+								"EMFS conflict time = "
+									+ df.format(result.getEmfsComparisonTime() / 1000000.0)
+									+ " ms ");
+						System.out.println(
+							"EMFS conflict memory = "
+								+ df.format(result.getEmfsComparisonMemory() / 1000000.0)
+								+ " MBs");
+
+						printEMFStoreConflicts(changeConflictSet);
+
+						System.out
+							.println("\n\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
+						result.setEmfsConflictCount(changeConflictSet.getConflicts().size());
+
+						// for (ESConflict conflict : changeConflictSet.getConflicts()) {
+						// conflict.resolveConflict(conflict.getLocalOperations(),
+						// conflict.getRemoteOperations());
+						// }
+						return false;
+					}
+				}, new ESSystemOutProgressMonitor());
+			} catch (Exception exe) {
+			}
+
+			// if (isConflict == false) {
+			// long emfsEndTime = System.nanoTime();
+			// System.gc();
+			// long emfsEndMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			// System.out
+			// .println(
+			// "\nEMFS comparison time = " + df.format((emfsEndTime - emfsStartTime) / 1000000.0)
+			// + " ms ");
+			// System.out.println(
+			// "EFMS comparison memory = " + df.format((emfsEndMemory - emfsStartMemory) / 1000000.0)
+			// + " MBs");
+			// result.setEmfsConflictCount(0);
+			// }
+		}
+
+		return result;
 	}
 
 	public static void runBatchClient(ESServer server) throws Exception {
@@ -1032,41 +1151,16 @@ public class Application implements IApplication {
 
 						System.out.println("\n\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
 						System.out.println();
-						int count = 1;
+						printEMFStoreConflicts(changeConflictSet);
 						for (ESConflict conflict : changeConflictSet.getConflicts()) {
-							// count++;
-							Iterator<ESOperation> localIterator = conflict.getLocalOperations().iterator();
-							Iterator<ESOperation> remoteIterator = conflict.getRemoteOperations().iterator();
-							boolean printed = false;
-							while (localIterator.hasNext() || remoteIterator.hasNext()) {
-								AbstractOperation localOperation = null;
-								AbstractOperation remoteOperation = null;
-								if (localIterator.hasNext()) {
-									localOperation = ((ESOperationImpl) localIterator.next())
-										.toInternalAPI();
-								}
-								if (remoteIterator.hasNext()) {
-									remoteOperation = ((ESOperationImpl) remoteIterator.next())
-										.toInternalAPI();
-								}
-								String localString = operationToString(leftAdapater, localOperation);
-								String remoteString = operationToString(leftAdapater, remoteOperation);
-								if (localString == remoteString || localString.equals(remoteString)) {
-									// count = count - 1;
-									// continue;
-								}
-								printed = true;
-								System.out.println(count + ": " + localString + " <-> " + remoteString);
-								System.console();
-							}
-							if (printed) {
-								count++;
-								printed = false;
-							}
 							conflict.resolveConflict(conflict.getLocalOperations(), conflict.getRemoteOperations());
 						}
 						return true;
 					}
+
+					/**
+					 * @param changeConflictSet
+					 */
 
 				}, new ESSystemOutProgressMonitor());
 			}
@@ -1099,6 +1193,41 @@ public class Application implements IApplication {
 			ex.printStackTrace();
 		} catch (final IOException ex) {
 			ex.printStackTrace();
+		}
+	}
+
+	public static void printEMFStoreConflicts(ESConflictSet changeConflictSet) {
+		int count = 1;
+		for (ESConflict conflict : changeConflictSet.getConflicts()) {
+			// count++;
+			Iterator<ESOperation> localIterator = conflict.getLocalOperations().iterator();
+			Iterator<ESOperation> remoteIterator = conflict.getRemoteOperations().iterator();
+			boolean printed = false;
+			while (localIterator.hasNext() || remoteIterator.hasNext()) {
+				AbstractOperation localOperation = null;
+				AbstractOperation remoteOperation = null;
+				if (localIterator.hasNext()) {
+					localOperation = ((ESOperationImpl) localIterator.next())
+						.toInternalAPI();
+				}
+				if (remoteIterator.hasNext()) {
+					remoteOperation = ((ESOperationImpl) remoteIterator.next())
+						.toInternalAPI();
+				}
+				String localString = operationToString(leftAdapater, localOperation);
+				String remoteString = operationToString(leftAdapater, remoteOperation);
+				if (localString == remoteString || localString.equals(remoteString)) {
+					// count = count - 1;
+					// continue;
+				}
+				printed = true;
+				System.out.println(count + ": " + localString + " <-> " + remoteString);
+				System.console();
+			}
+			if (printed) {
+				count++;
+				printed = false;
+			}
 		}
 	}
 
@@ -1577,8 +1706,10 @@ public class Application implements IApplication {
 
 		System.out.println("Matching Time = " + comparator.getMatchTime() / 1000000.0 + " ms");
 		System.out.println("Diffing Time = " + comparator.getDiffTime() / 1000000.0 + " ms");
+		System.out.println("Conflict Time = " + comparator.getConflictTime() / 1000000.0 + " ms");
 		System.out.println("Comparison Time = " + comparator.getComparisonTime() / 1000000.0 + " ms");
-		System.out.println("State-based Diffs Size = " + diffs.size());
+		System.out.println("State-based Diff Size = " + diffs.size());
+		System.out.println("State-based Conflict Size = " + comparison.getConflicts().size());
 
 		return comparator;
 	}

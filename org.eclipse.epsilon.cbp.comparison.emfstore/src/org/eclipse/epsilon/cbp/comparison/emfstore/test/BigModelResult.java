@@ -20,11 +20,15 @@ public class BigModelResult {
 	private long stateMatchMemory = 0;
 	private long stateDiffTime = 0;
 	private long stateDiffMemory = 0;
+	private long stateConflictTime = 0;
+	private long stateConflictMemory = 0;
 	private long stateComparisonTime = 0;
 	private long stateComparisonMemory = 0;
 	private int leftElementCount = 0;
 	private int rightElementCount = 0;
 	private int stateDiffCount = 0;
+	private int stateConflictCount = 0;
+	private int stateRealConflictCount = 0;
 
 	private long changeLoadTime = 0;
 	private long changeLoadMemory = 0;
@@ -32,12 +36,23 @@ public class BigModelResult {
 	private long changeTreeMemory = 0;
 	private long changeDiffTime = 0;
 	private long changeDiffMemory = 0;
+	private long changeConflictTime = 0;
+	private long changeConflictMemory = 0;
 	private long changeComparisonTime = 0;
 	private long changeComparisonMemory = 0;
+	private long changeConflictCount = 0;
 	private int leftEventCount = 0;
 	private int rightEventCount = 0;
 	private int changeDiffCount = 0;
 	private int affectedObjectCount = 0;
+
+	private long emfsPreparationTime = 0;
+	private long emfsPreparationMemory = 0;
+	private long emfsConflictTime = 0;
+	private long emfsConflictMemory = 0;
+	private int emfsConflictCount = 0;
+	private long emfsComparisonTime = 0;
+	private long emfsComparisonMemory = 0;
 
 	public int getAffectedObjectCount() {
 		return affectedObjectCount;
@@ -229,6 +244,118 @@ public class BigModelResult {
 
 	public void setChangeComparisonMemory(long changeComparisonMemory) {
 		this.changeComparisonMemory = changeComparisonMemory;
+	}
+
+	public long getStateConflictTime() {
+		return stateConflictTime;
+	}
+
+	public long getStateConflictMemory() {
+		return stateConflictMemory;
+	}
+
+	public long getChangeConflictTime() {
+		return changeConflictTime;
+	}
+
+	public long getChangeConflictMemory() {
+		return changeConflictMemory;
+	}
+
+	public void setStateConflictTime(long stateConflictTime) {
+		this.stateConflictTime = stateConflictTime;
+	}
+
+	public void setStateConflictMemory(long stateConflictMemory) {
+		this.stateConflictMemory = stateConflictMemory;
+	}
+
+	public void setChangeConflictTime(long changeConflictTime) {
+		this.changeConflictTime = changeConflictTime;
+	}
+
+	public void setChangeConflictMemory(long changeConflictMemory) {
+		this.changeConflictMemory = changeConflictMemory;
+	}
+
+	public int getStateConflictCount() {
+		return stateConflictCount;
+	}
+
+	public long getChangeConflictCount() {
+		return changeConflictCount;
+	}
+
+	public long getEmfsConflictTime() {
+		return emfsConflictTime;
+	}
+
+	public long getEmfsConflictMemory() {
+		return emfsConflictMemory;
+	}
+
+	public int getEmfsConflictCount() {
+		return emfsConflictCount;
+	}
+
+	public void setStateConflictCount(int stateConflictCount) {
+		this.stateConflictCount = stateConflictCount;
+	}
+
+	public void setChangeConflictCount(long changeConflictCount) {
+		this.changeConflictCount = changeConflictCount;
+	}
+
+	public void setEmfsConflictTime(long emfsConflictTime) {
+		this.emfsConflictTime = emfsConflictTime;
+	}
+
+	public void setEmfsConflictMemory(long emfsConflictMemory) {
+		this.emfsConflictMemory = emfsConflictMemory;
+	}
+
+	public void setEmfsConflictCount(int emfsConflictCount) {
+		this.emfsConflictCount = emfsConflictCount;
+	}
+
+	public long getEmfsComparisonTime() {
+		return emfsComparisonTime;
+	}
+
+	public long getEmfsComparisonMemory() {
+		return emfsComparisonMemory;
+	}
+
+	public void setEmfsComparisonTime(long emfsComparisonTime) {
+		this.emfsComparisonTime = emfsComparisonTime;
+	}
+
+	public void setEmfsComparisonMemory(long emfsComparisonMemory) {
+		this.emfsComparisonMemory = emfsComparisonMemory;
+	}
+
+	public long getEmfsPreparationTime() {
+		return emfsPreparationTime;
+	}
+
+	public long getEmfsPreparationMemory() {
+		return emfsPreparationMemory;
+	}
+
+	public void setEmfsPreparationTime(long emfsPreparationTime) {
+		this.emfsPreparationTime = emfsPreparationTime;
+	}
+
+	public void setEmfsPreparationMemory(long emfsPreparationMemory) {
+		this.emfsPreparationMemory = emfsPreparationMemory;
+	}
+
+	public int getStateRealConflictCount() {
+		return stateRealConflictCount;
+	}
+
+	public void setStateRealConflictCount(int stateRealConflictCount) {
+		this.stateRealConflictCount = stateRealConflictCount;
 	}
 
 }

@@ -2,6 +2,7 @@ package org.eclipse.epsilon.cbp.bigmodel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,6 +16,8 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.Monitor;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.ComparisonCanceledException;
+import org.eclipse.emf.compare.Conflict;
+import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.EMFCompareMessages;
@@ -81,9 +84,11 @@ public class ModifiedEMFCompare extends EMFCompare {
 
     private long matchTime = 0;
     private long diffTime = 0;
+    private long conflictTime = 0;
     private long comparisonTime = 0;
     private long matchMemory = 0;
     private long diffMemory = 0;
+    private long conflictMemory = 0;
     private long comparisonMemory = 0;
     private Comparison comparison = null;
 
@@ -213,8 +218,21 @@ public class ModifiedEMFCompare extends EMFCompare {
 		    LOGGER.info("compare() - starting step: CONFLICT");
 		    // $NON-NLS-1$
 		}
+		System.gc();
+		startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		startInterval = System.nanoTime();
 		detectConflicts(comparison, postProcessors, subMonitor);
-		monitor.worked(1);
+		endInterval = System.nanoTime();
+		endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		this.setConflictTime(endInterval - startInterval);
+		System.gc();
+		this.setConflictMemory(endMemory - startMemory);
+
+		this.comparisonTime = this.matchTime + this.diffTime + this.conflictTime;
+		this.comparisonMemory = this.matchMemory + this.diffMemory + this.conflictMemory;
+		
+		
+//		monitor.worked(1);
 		//
 		// if (LOGGER.isInfoEnabled()) {
 		// LOGGER.info("compare() - starting step: POST-COMPARISON with
@@ -591,5 +609,44 @@ public class ModifiedEMFCompare extends EMFCompare {
     public EList<Diff> getDiffs() {
 	return comparison.getDifferences();
     }
+    
+    public EList<Conflict> getConflicts() {
+//	Iterator<Conflict> iterator = comparison.getConflicts().iterator();
+//	while(iterator.hasNext()) {
+//	    if (iterator.next().getKind() ==  ConflictKind.PSEUDO) {
+//		iterator.remove();
+//	    }
+//	}
+	return comparison.getConflicts();
+    }
+    
+    public List<Conflict> getRealConflicts() {
+	List<Conflict> conflicts = new ArrayList(comparison.getConflicts());
+	Iterator<Conflict> iterator = conflicts.iterator();
+	while(iterator.hasNext()) {
+	    if (iterator.next().getKind() ==  ConflictKind.PSEUDO) {
+		iterator.remove();
+	    }
+	}
+	return conflicts;
+    }
 
+
+    public long getConflictTime() {
+        return conflictTime;
+    }
+
+    public long getConflictMemory() {
+        return conflictMemory;
+    }
+
+    public void setConflictTime(long conflictTime) {
+        this.conflictTime = conflictTime;
+    }
+
+    public void setConflictMemory(long conflictMemory) {
+        this.conflictMemory = conflictMemory;
+    }
+
+    
 }

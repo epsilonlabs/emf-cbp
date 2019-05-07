@@ -96,6 +96,34 @@ public class CBPComparisonImpl implements ICBPComparison {
     private XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
     private EPackage ePackage = null;
 
+    public long getConflictMemory() {
+        return conflictMemory;
+    }
+
+    public long getConflictTime() {
+        return conflictTime;
+    }
+
+    public int getConflictCount() {
+        return conflictCount;
+    }
+
+    public void setConflicts(List<CBPConflict> conflicts) {
+        this.conflicts = conflicts;
+    }
+
+    public void setConflictMemory(long conflictMemory) {
+        this.conflictMemory = conflictMemory;
+    }
+
+    public void setConflictTime(long conflictTime) {
+        this.conflictTime = conflictTime;
+    }
+
+    public void setConflictCount(int conflictCount) {
+        this.conflictCount = conflictCount;
+    }
+
     private List<CBPDiff> diffs = null;
     private List<CBPConflict> conflicts = null;
     private List<CBPChangeEvent<?>> leftEvents = new ArrayList<>();
@@ -2010,6 +2038,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		set.add(result);
 	    }
 	}
+	conflictCount = conflicts.size();
 	System.out.println("Change-based Conflicts size = " + conflicts.size());
     }
 

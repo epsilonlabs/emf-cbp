@@ -6,6 +6,7 @@ import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.BasicEList.UnmodifiableEList;
@@ -632,7 +633,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    }
 	    event.setComposite(compositeId);
 
-	    removedContainedObjects(removedObject);
+	    Set<EObject> visitedObjects = new HashSet<>();
+	    removedContainedObjects(removedObject, visitedObjects);
+	    visitedObjects.clear();
 	    unsetAllEFeatures(removedObject);
 	    // unsetOppositeEReference(event, removedObject);
 
@@ -831,7 +834,8 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
     }
 
-    private void removedContainedObjects(EObject targetEObject) {
+    private void removedContainedObjects(EObject targetEObject, Set<EObject> visitedObjects) {
+	visitedObjects.add(targetEObject);
 	for (EReference eRef : targetEObject.eClass().getEAllContainments()) {
 	    if (targetEObject.eIsSet(eRef) && eRef.isChangeable() && !eRef.isDerived()) {
 		if (eRef.isMany()) {
@@ -841,7 +845,10 @@ public class ChangeEventAdapter extends EContentAdapter {
 			int position = values.size() - 1;
 			EObject value = values.get(position);
 
-			removedContainedObjects(value);
+			if (visitedObjects.contains(value)) {
+			    continue;
+			}
+			removedContainedObjects(value, visitedObjects);
 			// removeAllReferencingFeatures(value);
 			unsetAllEFeatures(value);
 			values.remove(position);
@@ -864,7 +871,10 @@ public class ChangeEventAdapter extends EContentAdapter {
 			EObject value = (EObject) targetEObject.eGet(eRef);
 			if (value != null) {
 
-			    removedContainedObjects(value);
+			    if (visitedObjects.contains(value)) {
+				continue;
+			    }
+			    removedContainedObjects(value, visitedObjects);
 			    // removeAllReferencingFeatures(value);
 			    unsetAllEFeatures(value);
 			    targetEObject.eUnset(eRef);

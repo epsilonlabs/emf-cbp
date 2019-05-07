@@ -49,8 +49,14 @@ public interface ICBPComparison {
     public long getComparisonMemory();
 
     public long getLoadMemory();
-    
+
     public Map<String, CBPMatchObject> getObjectTree();
-    
+
     public List<CBPConflict> getConflicts();
+
+    public long getConflictMemory();
+
+    public long getConflictTime();
+
+    public int getConflictCount();
 }

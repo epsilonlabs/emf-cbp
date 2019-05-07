@@ -32,9 +32,12 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.emfstore.client.ESCompositeOperationHandle;
 import org.eclipse.emf.emfstore.client.ESLocalProject;
 import org.eclipse.emf.emfstore.client.exceptions.ESInvalidCompositeOperationException;
+import org.eclipse.emf.emfstore.common.ESSystemOutProgressMonitor;
 import org.eclipse.emf.emfstore.common.model.ESModelElementId;
 import org.eclipse.emf.emfstore.internal.common.model.ModelElementId;
 import org.eclipse.emf.emfstore.internal.common.model.impl.ESModelElementIdImpl;
+import org.eclipse.emf.emfstore.server.exceptions.ESException;
+import org.eclipse.emf.emfstore.server.exceptions.ESUpdateRequiredException;
 import org.eclipse.epsilon.cbp.comparison.emfstore.test.Application;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.event.AddToEAttributeEvent;
@@ -102,14 +105,23 @@ public class CBP2EMFStoreAdapter {
 		return eObject2IdMap;
 	}
 
-	public void load(File cbpFile) throws FactoryConfigurationError, IOException {
+	public void load(File cbpFile)
+		throws FactoryConfigurationError, IOException, ESUpdateRequiredException, ESException {
+		load(cbpFile, false);
+	}
+
+	public void load(File cbpFile, boolean isAutocommit)
+		throws FactoryConfigurationError, IOException, ESUpdateRequiredException, ESException {
 		final InputStream inputStream = new FileInputStream(cbpFile);
-		replayEvents(inputStream);
+		replayEvents(inputStream, isAutocommit);
 		inputStream.close();
+		if (isAutocommit) {
+			localProject.commit("AUTOCOMMIT", null, new ESSystemOutProgressMonitor());
+		}
 	}
 
 	public void load(InputStream inputStream) throws FactoryConfigurationError, IOException {
-		replayEvents(inputStream);
+		replayEvents(inputStream, false);
 	}
 
 	public String register(EObject eObject, String id) {
@@ -127,7 +139,8 @@ public class CBP2EMFStoreAdapter {
 	}
 
 	@SuppressWarnings("restriction")
-	private void replayEvents(InputStream inputStream) throws FactoryConfigurationError, IOException {
+	private void replayEvents(InputStream inputStream, boolean isAutocommit)
+		throws FactoryConfigurationError, IOException {
 		String errorMessage = null;
 
 		int eventNumber = persistedEvents;
@@ -148,6 +161,8 @@ public class CBP2EMFStoreAdapter {
 
 			ChangeEvent<?> event = null;
 			boolean ignore = false;
+
+			int count = 0;
 
 			while (xmlReader.hasNext()) {
 				final XMLEvent xmlEvent = xmlReader.nextEvent();
@@ -337,6 +352,10 @@ public class CBP2EMFStoreAdapter {
 									|| event instanceof UnsetEReferenceEvent)) {
 								} else {
 									event.replay();
+									count++;
+									if (isAutocommit && count % 200000 == 0) {
+										localProject.commit("AUTOCOMMIT", null, new ESSystemOutProgressMonitor());
+									}
 								}
 								// {
 								// EObject eObj = getId2EObjectMap().get("O-1911");

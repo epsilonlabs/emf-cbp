@@ -10,7 +10,8 @@ public class CBPConflict {
 
     private Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
     private Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
-
+    private boolean isPseudo = false;
+    
     public CBPConflict(
 	    Set<CBPChangeEvent<?>> leftEvents,  Set<CBPChangeEvent<?>> rightEvents) {
 	this.leftEvents.addAll(leftEvents);
@@ -28,5 +29,12 @@ public class CBPConflict {
     public Set<CBPChangeEvent<?>> getRightEvents() {
 	return this.rightEvents;
     }
+    public boolean isPseudo() {
+        return isPseudo;
+    }
+    public void setPseudo(boolean isPseudo) {
+        this.isPseudo = isPseudo;
+    }
+    
 
 }
