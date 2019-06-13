@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.BasicEList.UnmodifiableEList;
 import org.eclipse.emf.common.util.EList;
@@ -20,6 +21,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EContentsEList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.util.FeatureMapUtil;
 import org.eclipse.emf.ecore.xmi.DanglingHREFException;
 import org.eclipse.epsilon.cbp.history.ModelHistory;
 import org.eclipse.epsilon.cbp.resource.CBPResource;
@@ -54,6 +56,8 @@ public class ChangeEventAdapter extends EContentAdapter {
     protected EObject monitoredObject;
 
     protected String compositeId = null;
+
+    Set<EObject> tempDeletedObjects = new HashSet<>();
 
     public boolean isEnabled() {
 	return enabled;
@@ -155,15 +159,28 @@ public class ChangeEventAdapter extends EContentAdapter {
     @Override
     public void notifyChanged(Notification n) {
 
-	// this.debugEvents(n);
 	super.notifyChanged(n);
+//	if (n.getEventType() == Notification.REMOVING_ADAPTER) {
+//	    if (n.getNotifier() instanceof EObject) {
+//		if (!((EObject) n.getNotifier()).eAdapters().contains(this)) {
+//		    ((EObject) n.getNotifier()).eAdapters().add(this);
+//		}
+//	    }
+//	}
 
 	if (n.isTouch() || !enabled) {
 	    return;
 	}
+//	this.debugEvents(n);
 
 	if (n.getFeature() != null) {
 	    EStructuralFeature feature = (EStructuralFeature) n.getFeature();
+
+	    // if (feature.getName().equals("typeArguments")) {
+	    // boolean isContainment = ((EReference)feature).isContainment();
+	    // System.console();
+	    // }
+
 	    if (!feature.isChangeable() || feature.isDerived())
 		return;
 	}
@@ -179,6 +196,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	ChangeEvent<?> event = null;
 
 	switch (n.getEventType()) {
+
 	case Notification.ADD: {
 	    if (n.getNotifier() instanceof Resource) {
 		if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
@@ -400,78 +418,6 @@ public class ChangeEventAdapter extends EContentAdapter {
 	previousNotification = n;
     }
 
-    /**
-     * @param n
-     */
-    private void debugEvents(Notification n) {
-	switch (n.getEventType()) {
-	case Notification.SET: {
-	    System.out.print("SET");
-	}
-	    break;
-	case Notification.UNSET: {
-	    System.out.print("UNSET");
-	}
-	    break;
-	case Notification.ADD: {
-	    System.out.print("ADD");
-	}
-	    break;
-	case Notification.REMOVE: {
-	    System.out.print("REMOVE");
-	}
-	    break;
-	case Notification.ADD_MANY: {
-	    System.out.print("ADD_MANY");
-	}
-	    break;
-	case Notification.REMOVE_MANY: {
-	    System.out.print("REMOVE_MANY");
-	}
-	    break;
-	case Notification.MOVE: {
-	    System.out.print("MOVE");
-	}
-	    break;
-	case Notification.REMOVING_ADAPTER: {
-	    System.out.print("REMOVING_ADAPTER");
-	}
-	    break;
-	case Notification.RESOLVE: {
-	    System.out.print("RESOLVE");
-	}
-	    break;
-	case Notification.EVENT_TYPE_COUNT: {
-	    System.out.print("EVENT_TYPE_COUNT");
-	}
-	    break;
-	case Notification.CREATE: {
-	    System.out.print("CREATE");
-	}
-	    break;
-
-	case Notification.NO_FEATURE_ID: {
-	    System.out.print("NO_FEATURE_ID");
-	}
-	    break;
-	default: {
-	    System.out.print("OTHER");
-	}
-	    break;
-	}
-	System.out.print(": " + n.getNotifier());
-	System.out.print(" : " + n.getOldValue());
-
-	if (n.getOldValue() != null && n.getOldValue() instanceof EObject) {
-	    System.out.print(" XX: " + ((EObject) n.getOldValue()).eResource());
-	}
-	if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
-	    System.out.print(" YY: " + ((EObject) n.getNewValue()).eResource());
-	}
-
-	System.out.println(" : " + n.getNewValue());
-    }
-
     protected void addEventToList(ChangeEvent<?> event, Notification n) {
 	this.addEventToList(event, n, -1);
     }
@@ -483,7 +429,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 	    if (!((EObject) n.getNotifier()).eIsSet(feature))
 		return;
-	}
+	} 
 
 	if (event instanceof EObjectValuesEvent) {
 	    if (((EObjectValuesEvent) event).getValues().isEmpty()) {
@@ -515,6 +461,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 
 	    if (event instanceof SetEReferenceEvent) {
 		if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
+
 		    if (n.getOldValue() instanceof EObject) {
 			handleDeletedEObject(event, (EObject) n.getOldValue());
 		    } else if (n.getOldValue() instanceof EList) {
@@ -529,13 +476,27 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    // this.addToModelHistory(event, position);
 	}
 
+	if (event instanceof SetEReferenceEvent || event instanceof AddToEReferenceEvent || event instanceof AddToResourceEvent) {
+	    if (tempDeletedObjects.contains((EObject) n.getNewValue())) {
+		tempDeletedObjects.remove((EObject) n.getNewValue());
+	    }
+	}
+	
 	if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
 	    if (event instanceof UnsetEReferenceEvent || event instanceof RemoveFromResourceEvent || event instanceof RemoveFromEReferenceEvent) {
 		if (n.getOldValue() instanceof EObject) {
-		    handleDeletedEObject(event, (EObject) n.getOldValue());
+		    if (!tempDeletedObjects.contains((EObject) n.getOldValue())) {
+			tempDeletedObjects.add((EObject) n.getOldValue());
+			handleDeletedEObject(event, (EObject) n.getOldValue());
+		    }else if (event instanceof RemoveFromEReferenceEvent) {
+			
+		    }
 		} else if (n.getOldValue() instanceof EList) {
-		    handleDeletedEObject(event, (EObject) event.getValue());
-		}
+		    if (!tempDeletedObjects.contains((EObject) n.getOldValue())) {
+			tempDeletedObjects.add((EObject) n.getOldValue());
+			handleDeletedEObject(event, (EObject) event.getValue());
+		    }
+		} 
 	    }
 	}
 
@@ -654,7 +615,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
     }
 
-    private void unsetOppositeEReference(ChangeEvent<?> event, EObject removedObject) {
+    protected void unsetOppositeEReference(ChangeEvent<?> event, EObject removedObject) {
 	EObject eTarget = null;
 	EReference eReference = ((EReferenceEvent) event).getEReference();
 	EReference eOpposite = eReference.getEOpposite();
@@ -834,7 +795,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
     }
 
-    private void removedContainedObjects(EObject targetEObject, Set<EObject> visitedObjects) {
+    protected void removedContainedObjects(EObject targetEObject, Set<EObject> visitedObjects) {
 	visitedObjects.add(targetEObject);
 	for (EReference eRef : targetEObject.eClass().getEAllContainments()) {
 	    if (targetEObject.eIsSet(eRef) && eRef.isChangeable() && !eRef.isDerived()) {
@@ -938,7 +899,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 
     }
 
-    private void unsetAllEFeatures(EObject targetEObject) {
+    protected void unsetAllEFeatures(EObject targetEObject) {
 	for (EAttribute eAtt : targetEObject.eClass().getEAllAttributes()) {
 	    if (targetEObject.eIsSet(eAtt) && eAtt.isChangeable() && !eAtt.isDerived()) {
 		if (eAtt.isMany()) {
@@ -1045,4 +1006,129 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    }
 	}
     }
+
+    /**
+     * @param n
+     */
+    private void debugEvents(Notification n) {
+	System.out.print(" TYPE: ");
+	switch (n.getEventType()) {
+	case Notification.SET: {
+	    System.out.print("SET");
+	}
+	    break;
+	case Notification.UNSET: {
+	    System.out.print("UNSET");
+	}
+	    break;
+	case Notification.ADD: {
+	    System.out.print("ADD");
+	}
+	    break;
+	case Notification.REMOVE: {
+	    System.out.print("REMOVE");
+	}
+	    break;
+	case Notification.ADD_MANY: {
+	    System.out.print("ADD_MANY");
+	}
+	    break;
+	case Notification.REMOVE_MANY: {
+	    System.out.print("REMOVE_MANY");
+	}
+	    break;
+	case Notification.MOVE: {
+	    System.out.print("MOVE");
+	}
+	    break;
+	case Notification.REMOVING_ADAPTER: {
+	    System.out.print("REMOVING_ADAPTER");
+	}
+	    break;
+	case Notification.RESOLVE: {
+	    System.out.print("RESOLVE");
+	}
+	    break;
+	case Notification.EVENT_TYPE_COUNT: {
+	    System.out.print("EVENT_TYPE_COUNT");
+	}
+	    break;
+	case Notification.CREATE: {
+	    System.out.print("CREATE");
+	}
+	    break;
+
+	case Notification.NO_FEATURE_ID: {
+	    System.out.print("NO_FEATURE_ID");
+	}
+	    break;
+	default: {
+	    System.out.print("OTHER");
+	}
+	    break;
+	}
+	if (n.getNotifier() == null) {
+	    return;
+	}
+
+	try {
+	    Object x = n.getNotifier();
+	    if (x instanceof EObject) {
+		x = ((EObject) x).eResource().getURIFragment(((EObject) x));
+	    }
+	    System.out.print(", NOTIFIER: " + x);
+	} catch (Exception e) {
+	    System.out.print(", NOTIFIER: ");
+	}
+
+	if (n.getFeature() != null) {
+	    String name = ((EStructuralFeature) n.getFeature()).getName();
+	    System.out.print(", FEATURE: " + name);
+	    if (n.getEventType() == Notification.REMOVE && name.equals("thrownExceptions")) {
+		System.console();
+	    }
+	}
+
+	try {
+	    Object x = n.getOldValue();
+	    boolean exists = false;
+	    if (x instanceof EObject) {
+		if (((EObject) x).eAdapters() != null) {
+		    exists = ((EObject) x).eAdapters().contains(this);
+		}
+		x = ((EObject) x).eResource().getURIFragment(((EObject) x));
+	    }
+	    System.out.print(", OLD_VALUE: " + x);
+	    System.out.print(" (" + exists + ") ");
+	} catch (Exception e) {
+	    System.out.print(", OLD_VALUE: ");
+	}
+
+	if (n.getOldValue() != null && n.getOldValue() instanceof EObject) {
+	    System.out.print(", OLD_RES: " + ((EObject) n.getOldValue()).eResource());
+	}
+	if (n.getNewValue() != null && n.getNewValue() instanceof EObject) {
+	    System.out.print(", NEW_RES: " + ((EObject) n.getNewValue()).eResource());
+	}
+
+	Object x = n.getNewValue();
+	boolean exists = false;
+	if (x instanceof EObject) {
+	    if (((EObject) x).eAdapters() != null) {
+		exists = ((EObject) x).eAdapters().contains(this);
+		if (exists == false) {
+		    System.console();
+		}
+		EList<Adapter> b = ((EObject) n.getNewValue()).eAdapters();
+		if (!((EObject) n.getNewValue()).eAdapters().contains(this)) {
+		    System.console();
+		}
+	    }
+	    x = ((EObject) x).eResource().getURIFragment(((EObject) x));
+	}
+
+	System.out.print(", NEW_VALUE: " + x);
+	System.out.println(" (" + exists + ") ");
+    }
+
 }

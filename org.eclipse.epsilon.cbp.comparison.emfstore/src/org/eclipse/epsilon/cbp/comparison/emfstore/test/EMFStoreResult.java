@@ -11,6 +11,11 @@
  ******************************************************************************/
 package org.eclipse.epsilon.cbp.comparison.emfstore.test;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.eclipse.emf.emfstore.server.ESConflictSet;
+
 public class EMFStoreResult {
 
 	private long emfsPreparationTime = 0;
@@ -20,6 +25,25 @@ public class EMFStoreResult {
 	private long emfsComparisonTime = 0;
 	private long emfsComparisonMemory = 0;
 	private int emfsConflictCount = 0;
+	private Set<String> leftEventStrings = new LinkedHashSet<String>();
+	private Set<String> rightEventStrings = new LinkedHashSet<String>();
+	private ESConflictSet changeConflictSet;
+
+	public Set<String> getLeftEventStrings() {
+		return leftEventStrings;
+	}
+
+	public Set<String> getRightEventStrings() {
+		return rightEventStrings;
+	}
+
+	public void setLeftEventStrings(Set<String> leftEventStrings) {
+		this.leftEventStrings = leftEventStrings;
+	}
+
+	public void setRightEventStrings(Set<String> rightEventStrings) {
+		this.rightEventStrings = rightEventStrings;
+	}
 
 	public long getEmfsPreparationTime() {
 		return emfsPreparationTime;
@@ -75,6 +99,18 @@ public class EMFStoreResult {
 
 	public void setEmfsComparisonMemory(long emfsComparisonMemory) {
 		this.emfsComparisonMemory = emfsComparisonMemory;
+	}
+
+	/**
+	 * @param changeConflictSet
+	 */
+	public void setChangeConflictSet(ESConflictSet changeConflictSet) {
+		this.changeConflictSet = changeConflictSet;
+
+	}
+
+	public ESConflictSet getChangeConflictSet() {
+		return changeConflictSet;
 	}
 
 }

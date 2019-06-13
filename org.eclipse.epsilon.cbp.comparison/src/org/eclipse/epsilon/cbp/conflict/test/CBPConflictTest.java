@@ -114,7 +114,6 @@ public class CBPConflictTest {
     private Script rightScript;
     private EolModule module;
     private EPackage ePackage = NodePackage.eINSTANCE;
-
     Map<Object, Object> options = new HashMap<>();
 
     public CBPConflictTest() {
@@ -147,7 +146,7 @@ public class CBPConflictTest {
     }
 
     @Test
-    public void testConflicts() {
+    public void testSoSymConflicts() {
 	try {
 	    // EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(),
 	    // NodePackage.eINSTANCE);
@@ -276,7 +275,6 @@ public class CBPConflictTest {
 	    leftScript.add("attack.valNodes.move(2,1);");
 	    leftScript.add("delete giant;");
 	    leftScript.add("troll.name = \"Ogre\";");
-	    leftScript.add("delete knight;");
 
 	    // right script
 	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
@@ -297,11 +295,8 @@ public class CBPConflictTest {
 	    rightScript.add("rightGeneral.refNode = character;");
 	    rightScript.add("character.name = \"Hero\";");
 	    rightScript.add("mage.valNode = rightGeneral;");
-	    rightScript.add("troll.name = \"Foo\";");
-	    rightScript.add("troll.name = \"Bar\";");
 	    rightScript.add("troll.name = \"Orc\";");
-	    rightScript.add("delete knight;");
-	    
+
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
 
@@ -337,6 +332,216 @@ public class CBPConflictTest {
 	    System.out.println();
 	    System.out.println("DIFFS:");
 	    // doThreeWayComparison(xmiLeftResource, xmiRightResource, null);
+
+	    ICBPComparison comparison = doCbpComparison(changeCbpTargetFile, cbpRightFile, cbpOriginalFile);
+
+	    doCbpMerging(comparison);
+
+	    stateXmiTargetResource.load(options);
+	    doThreeWayComparison(xmiLeftResource, stateXmiTargetResource, xmiOriginalResource);
+	    // sortResourceElements(stateXmiTargetResource);
+	    stateXmiTargetResource.save(options);
+
+	    System.out.println();
+	    System.out.println("Sort target model of change-based comparison");
+	    changeXmiTargetResource.load(options);
+//	    sortResourceElements(changeXmiTargetResource);
+	    changeXmiTargetResource.save(options);
+
+	    System.out.println("Sort target model of state-based comparison");
+	    stateXmiTargetResource.load(options);
+//	    sortResourceElements(stateXmiTargetResource);
+	    stateXmiTargetResource.save(options);
+
+	    compareCBPvsXMITargets(changeXmiTargetResource, stateXmiTargetResource);
+
+	    cbpOriginalResource.unload();
+	    cbpLeftResource.unload();
+	    cbpRightResource.unload();
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(true, true);
+    }
+
+    @Test
+    public void testConflicts() {
+	try {
+	    // EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(),
+	    // NodePackage.eINSTANCE);
+	    // ePackage = (EPackage)
+	    // EPackage.Registry.INSTANCE.get(NodePackage.eINSTANCE.getNsURI());
+	    EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
+	    ePackage = (EPackage) EPackage.Registry.INSTANCE.get(JavaPackage.eINSTANCE.getNsURI());
+
+	    cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.cbpxml");
+	    cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\debug\\left.cbpxml");
+	    cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\debug\\right.cbpxml");
+	    xmiOriginalFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.xmi");
+	    xmiLeftFile = new File("D:\\TEMP\\CONFLICTS\\debug\\left.xmi");
+	    xmiRightFile = new File("D:\\TEMP\\CONFLICTS\\debug\\right.xmi");
+	    stateXmiTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\state-target.xmi");
+	    changeCbpTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\change-target.cbpxml");
+	    changeXmiTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\change-target.xmi");
+	    // cbpOriginalFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\origin.cbpxml");
+	    // cbpLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.cbpxml");
+	    // cbpRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.cbpxml");
+	    // xmiOriginalFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\original.xmi");
+	    // xmiLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.xmi");
+	    // xmiRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.xmi");
+	    // stateXmiTargetFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\state-target.xmi");
+	    // changeCbpTargetFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\change-target.cbpxml");
+	    // changeXmiTargetFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\change-target.xmi");
+
+	    cbpOriginalResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpOriginalFile.getAbsolutePath()));
+	    cbpOriginalResource.setIdType(IdType.NUMERIC, "O-");
+	    cbpLeftResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpLeftFile.getAbsolutePath()));
+	    cbpLeftResource.setIdType(IdType.NUMERIC, "L-");
+	    cbpRightResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpRightFile.getAbsolutePath()));
+	    cbpRightResource.setIdType(IdType.NUMERIC, "R-");
+	    xmiOriginalResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiOriginalFile.getAbsolutePath()));
+	    xmiLeftResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiLeftFile.getAbsolutePath()));
+	    xmiRightResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiRightFile.getAbsolutePath()));
+
+	    changeCbpTargetResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(changeCbpTargetFile.getAbsolutePath()));
+	    changeCbpTargetResource.setIdType(IdType.NUMERIC, "L-");
+	    stateXmiTargetResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(stateXmiTargetFile.getAbsolutePath()));
+	    changeXmiTargetResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(changeXmiTargetFile.getAbsolutePath()));
+
+	    originalScript = new Script(cbpOriginalResource, xmiOriginalResource);
+	    leftScript = new Script(cbpLeftResource, xmiLeftResource);
+	    rightScript = new Script(cbpRightResource, xmiRightResource);
+
+	    if (cbpOriginalFile.exists())
+		cbpOriginalFile.delete();
+	    if (cbpLeftFile.exists())
+		cbpLeftFile.delete();
+	    if (cbpRightFile.exists())
+		cbpRightFile.delete();
+	    if (xmiOriginalFile.exists())
+		xmiOriginalFile.delete();
+	    if (xmiLeftFile.exists())
+		xmiLeftFile.delete();
+	    if (xmiRightFile.exists())
+		xmiRightFile.delete();
+
+	    if (changeCbpTargetFile.exists())
+		changeCbpTargetFile.delete();
+	    if (changeXmiTargetFile.exists())
+		changeXmiTargetFile.delete();
+	    if (stateXmiTargetFile.exists())
+		stateXmiTargetFile.delete();
+
+	    originalScript.add("var root = new Node;");
+	    originalScript.add("root.name = \"ROOT\";");
+	    originalScript.add("var character = new Node;");
+	    originalScript.add("character.name = \"Character\";");
+	    originalScript.add("var attack = new Node;");
+	    originalScript.add("attack.name = \"attack\";");
+	    originalScript.add("var gem = new Node;");
+	    originalScript.add("gem.name = \"gem\";");
+	    originalScript.add("var target = new Node;");
+	    originalScript.add("target.name = \"target\";");
+	    originalScript.add("var weapon = new Node;");
+	    originalScript.add("weapon.name = \"weapon\";");
+	    originalScript.add("character.valNodes.add(attack);");
+	    originalScript.add("attack.valNodes.add(gem);");
+	    originalScript.add("attack.valNodes.add(target);");
+	    originalScript.add("attack.valNodes.add(weapon);");
+
+	    originalScript.add("var troll = new Node;");
+	    originalScript.add("troll.name = \"Troll\";");
+
+	    originalScript.add("var giant = new Node;");
+	    originalScript.add("giant.name = \"Giant\";");
+	    originalScript.add("var cast = new Node;");
+	    originalScript.add("cast.name = \"cast\";");
+	    originalScript.add("giant.valNodes.add(cast);");
+
+	    originalScript.add("var knight = new Node;");
+	    originalScript.add("knight.name = \"Knight\";");
+	    originalScript.add("var smash = new Node;");
+	    originalScript.add("smash.name = \"smash\";");
+	    originalScript.add("knight.valNodes.add(smash);");
+
+	    originalScript.add("var mage = new Node;");
+	    originalScript.add("mage.name = \"Mage\";");
+
+	    originalScript.add("root.valNodes.add(character);");
+	    originalScript.add("root.valNodes.add(troll);");
+	    originalScript.add("root.valNodes.add(giant);");
+	    originalScript.add("root.valNodes.add(knight);");
+	    originalScript.add("root.valNodes.add(mage);");
+
+	    // left script
+	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    leftScript.add("var character = Node.allInstances.selectOne(node | node.name == \"Character\");");
+	    leftScript.add("var troll = Node.allInstances.selectOne(node | node.name == \"Troll\");");
+	    leftScript.add("var knight = Node.allInstances.selectOne(node | node.name == \"Knight\");");
+	    leftScript.add("var attack = Node.allInstances.selectOne(node | node.name == \"attack\");");
+	    leftScript.add("var giant = Node.allInstances.selectOne(node | node.name == \"Giant\");");
+//	    leftScript.add("delete giant;");
+//	    leftScript.add("delete attack;");
+	    leftScript.add("delete troll;");
+//	    leftScript.add("delete knight;");
+
+	    // right script
+	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    rightScript.add("var character = Node.allInstances.selectOne(node | node.name == \"Character\");");
+	    rightScript.add("var troll = Node.allInstances.selectOne(node | node.name == \"Troll\");");
+	    rightScript.add("var mage = Node.allInstances.selectOne(node | node.name == \"Mage\");");
+	    rightScript.add("var attack = Node.allInstances.selectOne(node | node.name == \"attack\");");
+	    rightScript.add("var smash = Node.allInstances.selectOne(node | node.name == \"smash\");");
+	    rightScript.add("var giant = Node.allInstances.selectOne(node | node.name == \"Giant\");");
+	    rightScript.add("var knight = Node.allInstances.selectOne(node | node.name == \"Knight\");");
+//	    rightScript.add("delete giant;");
+//	    rightScript.add("delete mage;");
+//	    rightScript.add("delete attack;");
+	    rightScript.add("delete troll;");
+//	    rightScript.add("delete knight;");
+	    
+
+	    originalScript.run("ORIGIN");
+	    originalScript.save(null);
+
+	    Files.copy(cbpOriginalFile.toPath(), cbpLeftFile.toPath());
+	    Files.copy(cbpOriginalFile.toPath(), cbpRightFile.toPath());
+	    cbpLeftResource.load(null);
+	    cbpRightResource.load(null);
+
+	    leftScript.run("LEFT");
+	    leftScript.save(null);
+	    rightScript.run("RIGHT");
+	    rightScript.save(null);
+
+	    Files.copy(cbpLeftFile.toPath(), changeCbpTargetFile.toPath());
+	    Files.copy(xmiLeftFile.toPath(), changeXmiTargetFile.toPath());
+	    Files.copy(xmiRightFile.toPath(), stateXmiTargetFile.toPath());
+
+	    // -------------------------
+	    System.out.println("ORIGIN:");
+	    for (String line : Files.readAllLines(cbpOriginalFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("RIGHT:");
+	    for (String line : Files.readAllLines(cbpRightFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("LEFT:");
+	    for (String line : Files.readAllLines(cbpLeftFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("DIFFS:");
+	    doThreeWayComparison(xmiLeftResource, xmiRightResource, null);
 
 	    ICBPComparison comparison = doCbpComparison(changeCbpTargetFile, cbpRightFile, cbpOriginalFile);
 

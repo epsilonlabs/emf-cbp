@@ -3,6 +3,7 @@ package org.eclipse.epsilon.cbp.comparison.event;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
 
 public abstract class CBPChangeEvent<T> {
@@ -14,7 +15,16 @@ public abstract class CBPChangeEvent<T> {
     protected int position = -1;
     protected String composite = null;
 
+    protected CBPConflict conflict = null;
+
     
+    public CBPConflict getConflict() {
+        return conflict;
+    }
+
+    public void setConflict(CBPConflict conflict) {
+        this.conflict = conflict;
+    }
 
     public int getLineNumber() {
 	return lineNumber;

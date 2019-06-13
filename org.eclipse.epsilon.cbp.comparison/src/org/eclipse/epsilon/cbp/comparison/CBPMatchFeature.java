@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -867,15 +868,19 @@ public class CBPMatchFeature {
 
     public Integer getLeftPosition(CBPMatchObject cObject) {
 	Integer pos = -1;
-	Stream<Integer> stream = leftValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey);
-	pos = stream.findFirst().get();
+	Integer first = leftValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey).findFirst().orElse(null);
+	if (first != null) {
+	    pos = first;
+	}
 	return pos;
     }
 
     public Integer getRightPosition(CBPMatchObject cObject) {
 	Integer pos = -1;
-	Stream<Integer> stream = rightValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey);
-	pos = stream.findFirst().get();
+	Integer first = rightValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey).findFirst().orElse(null);
+	if (first != null) {
+	    pos = first;
+	}
 	return pos;
     }
 
@@ -884,5 +889,26 @@ public class CBPMatchFeature {
 	values.addAll(getLeftValues().values().stream().filter(x -> x != null).collect(Collectors.toSet()));
 	values.addAll(getRightValues().values().stream().filter(x -> x != null).collect(Collectors.toSet()));
 	return values;
+    }
+
+    public Integer getOriginalPosition(Object object) {
+	Integer pos = -1;
+	Stream<Integer> stream = oldLeftValues.entrySet().stream().filter(entry -> object.equals(entry.getValue())).map(Map.Entry::getKey);
+	pos = stream.findFirst().get();
+	return pos;
+    }
+
+    public Integer getLeftPosition(Object object) {
+	Integer pos = -1;
+	Stream<Integer> stream = leftValues.entrySet().stream().filter(entry -> object.equals(entry.getValue())).map(Map.Entry::getKey);
+	pos = stream.findFirst().get();
+	return pos;
+    }
+
+    public Integer getRightPosition(Object object) {
+	Integer pos = -1;
+	Stream<Integer> stream = rightValues.entrySet().stream().filter(entry -> object.equals(entry.getValue())).map(Map.Entry::getKey);
+	pos = stream.findFirst().get();
+	return pos;
     }
 }

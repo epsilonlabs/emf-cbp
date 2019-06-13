@@ -97,31 +97,31 @@ public class CBPComparisonImpl implements ICBPComparison {
     private EPackage ePackage = null;
 
     public long getConflictMemory() {
-        return conflictMemory;
+	return conflictMemory;
     }
 
     public long getConflictTime() {
-        return conflictTime;
+	return conflictTime;
     }
 
     public int getConflictCount() {
-        return conflictCount;
+	return conflictCount;
     }
 
     public void setConflicts(List<CBPConflict> conflicts) {
-        this.conflicts = conflicts;
+	this.conflicts = conflicts;
     }
 
     public void setConflictMemory(long conflictMemory) {
-        this.conflictMemory = conflictMemory;
+	this.conflictMemory = conflictMemory;
     }
 
     public void setConflictTime(long conflictTime) {
-        this.conflictTime = conflictTime;
+	this.conflictTime = conflictTime;
     }
 
     public void setConflictCount(int conflictCount) {
-        this.conflictCount = conflictCount;
+	this.conflictCount = conflictCount;
     }
 
     private List<CBPDiff> diffs = null;
@@ -137,6 +137,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     private List<ICBPObjectTreePostProcessor> objectTreePostProcessors = new ArrayList<>();
 
+    private Set<String> leftEventStrings = new LinkedHashSet<String>();
+    private Set<String> rightEventStrings = new LinkedHashSet<String>();
+
     private long objectTreeConstructionTime = 0;
     private long diffTime = 0;
     private long comparisonTime = 0;
@@ -151,6 +154,22 @@ public class CBPComparisonImpl implements ICBPComparison {
     private long loadTime = 0;
     private long loadMemory = 0;
     private CBPConflictDetector conflictDetector = new CBPConflictDetector();
+
+    public Set<String> getLeftEventStrings() {
+	return leftEventStrings;
+    }
+
+    public Set<String> getRightEventStrings() {
+	return rightEventStrings;
+    }
+
+    public void setLeftEventStrings(Set<String> leftEventStrings) {
+	this.leftEventStrings = leftEventStrings;
+    }
+
+    public void setRightEventStrings(Set<String> rightEventStrings) {
+	this.rightEventStrings = rightEventStrings;
+    }
 
     public CBPConflictDetector getConflictDetector() {
 	return conflictDetector;
@@ -297,7 +316,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	// System.out.println("\nEXPORT FOR COMPARISON WITH EMF COMPARE:");
 	// this.exportForComparisonWithEMFCompare();
 	this.exportDiffsToFile(true);
-//	System.out.println();
+	// System.out.println();
 	this.exportConflictsToFile();
 	//
 
@@ -1220,6 +1239,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 			}
 		    }
 		}
+		feature.addObjectEvent(targetObject, event, side);
+		targetObject.addValueEvents(event, side);
+		valueObject.addValueEvents(event, side);
+
 		if (!valueObject.isCreated(side)) {
 		    feature.setOldValue(position, valueObject, side);
 		}
@@ -1738,7 +1761,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	try {
 	    leftCompositeEvents.clear();
 	    rightCompositeEvents.clear();
-	    
+
 	    BufferedReader leftReader = null;
 	    BufferedReader rightReader = null;
 	    String leftLine;
@@ -1755,7 +1778,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		    leftReader.mark(0);
 		    rightReader.mark(0);
 		}
-	    } else {		
+	    } else {
 		FileInputStream leftFileInputStream = new FileInputStream(leftFile);
 		FileInputStream rightFileInputStream = new FileInputStream(rightFile);
 		leftFileInputStream.skip(skip);
@@ -1764,9 +1787,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 		InputStreamReader rightInputStreamReader = new InputStreamReader(rightFileInputStream);
 		leftReader = new BufferedReader(leftInputStreamReader);
 		rightReader = new BufferedReader(rightInputStreamReader);
-		
-//		leftReader.skip(skip); 
-//		rightReader.skip(skip);
+
+		// leftReader.skip(skip);
+		// rightReader.skip(skip);
 		leftReader.mark(0);
 		rightReader.mark(0);
 	    }
@@ -2009,7 +2032,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	Set<String> set = new HashSet<>();
 	String str = null;
 	int num = 0;
-//	System.out.println("CHANGE-BASED CONFLICTS:");
+	// System.out.println("CHANGE-BASED CONFLICTS:");
 	for (CBPConflict conflict : conflicts) {
 	    num++;
 	    Set<CBPChangeEvent<?>> leftEvents = conflict.getLeftEvents();
@@ -2036,6 +2059,9 @@ public class CBPComparisonImpl implements ICBPComparison {
 		String result = num + ": " + leftString + " <-> " + rightString;
 		System.out.println(result);
 		set.add(result);
+
+		leftEventStrings.add(leftString.trim());
+		rightEventStrings.add(rightString.trim());
 	    }
 	}
 	conflictCount = conflicts.size();
