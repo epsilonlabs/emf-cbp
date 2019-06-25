@@ -63,6 +63,8 @@ public class CBP2EMFStoreAdapter {
 
 	protected int persistedEvents = 0;
 	protected ESLocalProject localProject;
+	protected ESLocalProject originalProject;
+	protected ESLocalProject otherProject;
 	protected Map<String, String> id2esIdMap;
 	protected Map<String, String> esId2IdMap;
 	protected Map<String, EObject> id2EObjectMap;
@@ -71,13 +73,16 @@ public class CBP2EMFStoreAdapter {
 	protected ESCompositeOperationHandle compositeHandle = null;
 	protected EObject previousRemovedEObject = null;
 
-	public CBP2EMFStoreAdapter(ESLocalProject localProject) {
+	public CBP2EMFStoreAdapter(ESLocalProject localProject, ESLocalProject originalProject,
+		ESLocalProject otherProject) {
 
 		// static File xmiFile = new File("D:\\TEMP\\CONFLICTS\\temp\\emfstore-target.xmi");
 		// static XMIResource xmiResource = (XMIResource) new XMIResourceFactoryImpl()
 		// .createResource(URI.createFileURI(xmiFile.getAbsolutePath()));
 
 		this.localProject = localProject;
+		this.originalProject = originalProject;
+		this.otherProject = otherProject;
 		id2EObjectMap = new HashMap<String, EObject>();
 		eObject2IdMap = new HashMap<EObject, String>();
 		id2esIdMap = new HashMap<String, String>();
@@ -411,30 +416,68 @@ public class CBP2EMFStoreAdapter {
 	 */
 	private void handleCompositeEventsAtEndCBP(ChangeEvent<?> event) throws ESInvalidCompositeOperationException {
 		if (composite != null && compositeHandle != null) {
+			ESModelElementId modelElementId = null;
 			if (event.getValue() instanceof EObject) {
-				ESModelElementId modelElementId = null;
-				if (event.getValue() instanceof EObject) {
-					modelElementId = localProject.getModelElementId((EObject) event.getValue());
-				}
-				if (modelElementId == null && event.getOldValue() instanceof EObject) {
-					modelElementId = localProject
-						.getModelElementId((EObject) event.getOldValue());
-				}
-				if (modelElementId == null && event instanceof EReferenceEvent) {
-					EObject eTarget = ((EReferenceEvent) event).getTarget();
-					modelElementId = localProject.getModelElementId(eTarget);
-				}
-				if (modelElementId == null && event instanceof EAttributeEvent) {
-					EObject eTarget = ((EAttributeEvent) event).getTarget();
-					modelElementId = localProject.getModelElementId(eTarget);
-
-				}
-				if (modelElementId == null) {
-					modelElementId = localProject.getModelElementId(localProject.getModelElements().get(0));
-				}
+				modelElementId = localProject.getModelElementId((EObject) event.getValue());
+			}
+			if (modelElementId == null) {
+				modelElementId = originalProject.getModelElementId((EObject) event.getValue());
+			}
+			if (modelElementId == null) {
+				modelElementId = otherProject.getModelElementId((EObject) event.getValue());
+			}
+			// --
+			if (modelElementId == null && event.getOldValue() instanceof EObject) {
+				modelElementId = localProject
+					.getModelElementId((EObject) event.getOldValue());
+			}
+			if (modelElementId == null && event.getOldValue() instanceof EObject) {
+				modelElementId = originalProject
+					.getModelElementId((EObject) event.getOldValue());
+			}
+			if (modelElementId == null && event.getOldValue() instanceof EObject) {
+				modelElementId = otherProject
+					.getModelElementId((EObject) event.getOldValue());
+			}
+			// --
+			if (modelElementId == null && event instanceof EReferenceEvent) {
+				EObject eTarget = ((EReferenceEvent) event).getTarget();
+				modelElementId = localProject.getModelElementId(eTarget);
+			}
+			if (modelElementId == null && event instanceof EReferenceEvent) {
+				EObject eTarget = ((EReferenceEvent) event).getTarget();
+				modelElementId = originalProject.getModelElementId(eTarget);
+			}
+			if (modelElementId == null && event instanceof EReferenceEvent) {
+				EObject eTarget = ((EReferenceEvent) event).getTarget();
+				modelElementId = otherProject.getModelElementId(eTarget);
+			}
+			// --
+			if (modelElementId == null && event instanceof EAttributeEvent) {
+				EObject eTarget = ((EAttributeEvent) event).getTarget();
+				modelElementId = localProject.getModelElementId(eTarget);
+			}
+			if (modelElementId == null && event instanceof EAttributeEvent) {
+				EObject eTarget = ((EAttributeEvent) event).getTarget();
+				modelElementId = originalProject.getModelElementId(eTarget);
+			}
+			if (modelElementId == null && event instanceof EAttributeEvent) {
+				EObject eTarget = ((EAttributeEvent) event).getTarget();
+				modelElementId = otherProject.getModelElementId(eTarget);
+			}
+			// --
+			if (modelElementId == null) {
+				modelElementId = localProject.getModelElementId(localProject.getModelElements().get(0));
+				System.console();
+			}
+			if (compositeHandle.isValid()) {
 				compositeHandle.end(composite, composite, modelElementId);
+				compositeHandle = null;
 				System.out.println("End Composite " + composite);
 			}
+			compositeHandle = null;
+			System.out.println("End Composite " + composite);
+
 		}
 	}
 
@@ -674,19 +717,54 @@ public class CBP2EMFStoreAdapter {
 				if (event.getValue() instanceof EObject) {
 					modelElementId = localProject.getModelElementId((EObject) event.getValue());
 				}
+				if (modelElementId == null) {
+					modelElementId = originalProject.getModelElementId((EObject) event.getValue());
+				}
+				if (modelElementId == null) {
+					modelElementId = otherProject.getModelElementId((EObject) event.getValue());
+				}
+				// --
 				if (modelElementId == null && event.getOldValue() instanceof EObject) {
 					modelElementId = localProject
 						.getModelElementId((EObject) event.getOldValue());
 				}
+				if (modelElementId == null && event.getOldValue() instanceof EObject) {
+					modelElementId = originalProject
+						.getModelElementId((EObject) event.getOldValue());
+				}
+				if (modelElementId == null && event.getOldValue() instanceof EObject) {
+					modelElementId = otherProject
+						.getModelElementId((EObject) event.getOldValue());
+				}
+				// --
 				if (modelElementId == null && event instanceof EReferenceEvent) {
 					EObject eTarget = ((EReferenceEvent) event).getTarget();
 					modelElementId = localProject.getModelElementId(eTarget);
 				}
+				if (modelElementId == null && event instanceof EReferenceEvent) {
+					EObject eTarget = ((EReferenceEvent) event).getTarget();
+					modelElementId = originalProject.getModelElementId(eTarget);
+				}
+				if (modelElementId == null && event instanceof EReferenceEvent) {
+					EObject eTarget = ((EReferenceEvent) event).getTarget();
+					modelElementId = otherProject.getModelElementId(eTarget);
+				}
+				// --
 				if (modelElementId == null && event instanceof EAttributeEvent) {
 					EObject eTarget = ((EAttributeEvent) event).getTarget();
 					modelElementId = localProject.getModelElementId(eTarget);
 				}
+				if (modelElementId == null && event instanceof EAttributeEvent) {
+					EObject eTarget = ((EAttributeEvent) event).getTarget();
+					modelElementId = originalProject.getModelElementId(eTarget);
+				}
+				if (modelElementId == null && event instanceof EAttributeEvent) {
+					EObject eTarget = ((EAttributeEvent) event).getTarget();
+					modelElementId = otherProject.getModelElementId(eTarget);
+				}
+				// --
 				if (modelElementId == null) {
+					modelElementId = localProject.getModelElementId(localProject.getModelElements().get(0));
 					System.console();
 				}
 				if (compositeHandle.isValid()) {
@@ -697,9 +775,15 @@ public class CBP2EMFStoreAdapter {
 					}
 					compositeHandle = null;
 					System.out.println("End Composite " + composite);
+				} else {
+					compositeHandle = null;
 				}
 			}
-			compositeHandle = localProject.beginCompositeOperation();
+			try {
+				compositeHandle = localProject.beginCompositeOperation();
+			} catch (Exception e) {
+				System.console();
+			}
 			composite = event.getComposite();
 			System.out.println("Start Composite " + composite);
 		} else if (event.getComposite() == null && composite != null) {
@@ -708,19 +792,52 @@ public class CBP2EMFStoreAdapter {
 				if (event.getValue() instanceof EObject) {
 					modelElementId = localProject.getModelElementId((EObject) event.getValue());
 				}
+				if (modelElementId == null) {
+					modelElementId = originalProject.getModelElementId((EObject) event.getValue());
+				}
+				if (modelElementId == null) {
+					modelElementId = otherProject.getModelElementId((EObject) event.getValue());
+				}
+				// --
 				if (modelElementId == null && event.getOldValue() instanceof EObject) {
 					modelElementId = localProject
 						.getModelElementId((EObject) event.getOldValue());
 				}
+				if (modelElementId == null && event.getOldValue() instanceof EObject) {
+					modelElementId = originalProject
+						.getModelElementId((EObject) event.getOldValue());
+				}
+				if (modelElementId == null && event.getOldValue() instanceof EObject) {
+					modelElementId = otherProject
+						.getModelElementId((EObject) event.getOldValue());
+				}
+				// --
 				if (modelElementId == null && event instanceof EReferenceEvent) {
 					EObject eTarget = ((EReferenceEvent) event).getTarget();
 					modelElementId = localProject.getModelElementId(eTarget);
 				}
+				if (modelElementId == null && event instanceof EReferenceEvent) {
+					EObject eTarget = ((EReferenceEvent) event).getTarget();
+					modelElementId = originalProject.getModelElementId(eTarget);
+				}
+				if (modelElementId == null && event instanceof EReferenceEvent) {
+					EObject eTarget = ((EReferenceEvent) event).getTarget();
+					modelElementId = otherProject.getModelElementId(eTarget);
+				}
+				// --
 				if (modelElementId == null && event instanceof EAttributeEvent) {
 					EObject eTarget = ((EAttributeEvent) event).getTarget();
 					modelElementId = localProject.getModelElementId(eTarget);
-
 				}
+				if (modelElementId == null && event instanceof EAttributeEvent) {
+					EObject eTarget = ((EAttributeEvent) event).getTarget();
+					modelElementId = originalProject.getModelElementId(eTarget);
+				}
+				if (modelElementId == null && event instanceof EAttributeEvent) {
+					EObject eTarget = ((EAttributeEvent) event).getTarget();
+					modelElementId = otherProject.getModelElementId(eTarget);
+				}
+				// --
 				if (modelElementId == null) {
 					modelElementId = localProject
 						.getModelElementId(localProject.getModelElements().get(0));

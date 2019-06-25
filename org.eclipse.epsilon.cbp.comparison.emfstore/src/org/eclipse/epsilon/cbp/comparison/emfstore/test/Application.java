@@ -290,9 +290,9 @@ public class Application implements IApplication {
 		ESLocalProject rightProject = originalProject.getRemoteProject().checkout("RightProject",
 			usersession, new ESSystemOutProgressMonitor());
 
-		originalAdapater = new CBP2EMFStoreAdapter(originalProject);
-		leftAdapater = new CBP2EMFStoreAdapter(leftProject);
-		rightAdapater = new CBP2EMFStoreAdapter(rightProject);
+		originalAdapater = new CBP2EMFStoreAdapter(originalProject, originalProject, originalProject);
+		leftAdapater = new CBP2EMFStoreAdapter(leftProject, originalProject, rightProject);
+		rightAdapater = new CBP2EMFStoreAdapter(rightProject, originalProject, leftProject);
 
 		// final File cbpOriginalFile = new File("D:\\TEMP\\FASE\\Debug\\origin.cbpxml");
 		// final File cbpLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.cbpxml");
@@ -478,10 +478,9 @@ public class Application implements IApplication {
 		ESLocalProject rightProject = originalProject.getRemoteProject().checkout("RightProject",
 			usersession, new ESSystemOutProgressMonitor());
 
-		originalAdapater = new CBP2EMFStoreAdapter(originalProject);
-		leftAdapater = new CBP2EMFStoreAdapter(leftProject);
-		rightAdapater = new CBP2EMFStoreAdapter(rightProject);
-
+		originalAdapater = new CBP2EMFStoreAdapter(originalProject, originalProject, originalProject);
+		leftAdapater = new CBP2EMFStoreAdapter(leftProject, originalProject, rightProject);
+		rightAdapater = new CBP2EMFStoreAdapter(rightProject, originalProject, leftProject);
 		// final File cbpOriginalFile = new File("D:\\TEMP\\FASE\\Debug\\origin.cbpxml");
 		// final File cbpLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.cbpxml");
 		// final File cbpRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.cbpxml");
@@ -633,9 +632,9 @@ public class Application implements IApplication {
 		ESLocalProject rightProject = originalProject.getRemoteProject().checkout("RightProject",
 			usersession, new ESSystemOutProgressMonitor());
 
-		originalAdapater = new CBP2EMFStoreAdapter(originalProject);
-		leftAdapater = new CBP2EMFStoreAdapter(leftProject);
-		rightAdapater = new CBP2EMFStoreAdapter(rightProject);
+		originalAdapater = new CBP2EMFStoreAdapter(originalProject, originalProject, originalProject);
+		leftAdapater = new CBP2EMFStoreAdapter(leftProject, originalProject, rightProject);
+		rightAdapater = new CBP2EMFStoreAdapter(rightProject, originalProject, leftProject);
 
 		final File xmiOriginalFile = new File("D:\\TEMP\\CONFLICTS\\performance\\origin.xmi");
 		final File xmiLeftFile = new File("D:\\TEMP\\CONFLICTS\\performance\\left.xmi");
@@ -741,7 +740,7 @@ public class Application implements IApplication {
 				System.out.println();
 
 				// if (i % 10 == 0) {
-				if (i % 4400 == 0) {
+				if (i % 20 == 0) {
 
 					number++;
 
@@ -787,8 +786,6 @@ public class Application implements IApplication {
 					// usersession, new ESSystemOutProgressMonitor());
 					// leftProject.update(new ESSystemOutProgressMonitor());
 					// leftAdapater = new CBP2EMFStoreAdapter(leftProject);
-
-					usersession.refresh();
 
 					// process right file first
 					System.out.println("LOADING RIGHT MODEL");
@@ -904,8 +901,6 @@ public class Application implements IApplication {
 
 					leftCbp.startNewSession("LEFT-" + number);
 					rightCbp.startNewSession("RIGHT-" + number);
-
-					usersession.logout();
 				}
 			}
 
@@ -1162,9 +1157,9 @@ public class Application implements IApplication {
 		ESLocalProject rightProject = originalProject.getRemoteProject().checkout("RightProject",
 			usersession, new ESSystemOutProgressMonitor());
 
-		originalAdapater = new CBP2EMFStoreAdapter(originalProject);
-		leftAdapater = new CBP2EMFStoreAdapter(leftProject);
-		rightAdapater = new CBP2EMFStoreAdapter(rightProject);
+		originalAdapater = new CBP2EMFStoreAdapter(originalProject, originalProject, originalProject);
+		leftAdapater = new CBP2EMFStoreAdapter(leftProject, originalProject, rightProject);
+		rightAdapater = new CBP2EMFStoreAdapter(rightProject, originalProject, leftProject);
 
 		System.out.println("LOADING ORIGINAL MODEL");
 
