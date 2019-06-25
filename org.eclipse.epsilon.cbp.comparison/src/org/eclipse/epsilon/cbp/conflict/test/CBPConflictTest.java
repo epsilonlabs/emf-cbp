@@ -440,73 +440,29 @@ public class CBPConflictTest {
 
 	    originalScript.add("var root = new Node;");
 	    originalScript.add("root.name = \"ROOT\";");
-	    originalScript.add("var character = new Node;");
-	    originalScript.add("character.name = \"Character\";");
-	    originalScript.add("var attack = new Node;");
-	    originalScript.add("attack.name = \"attack\";");
-	    originalScript.add("var gem = new Node;");
-	    originalScript.add("gem.name = \"gem\";");
-	    originalScript.add("var target = new Node;");
-	    originalScript.add("target.name = \"target\";");
-	    originalScript.add("var weapon = new Node;");
-	    originalScript.add("weapon.name = \"weapon\";");
-	    originalScript.add("character.valNodes.add(attack);");
-	    originalScript.add("attack.valNodes.add(gem);");
-	    originalScript.add("attack.valNodes.add(target);");
-	    originalScript.add("attack.valNodes.add(weapon);");
-
-	    originalScript.add("var troll = new Node;");
-	    originalScript.add("troll.name = \"Troll\";");
-
-	    originalScript.add("var giant = new Node;");
-	    originalScript.add("giant.name = \"Giant\";");
-	    originalScript.add("var cast = new Node;");
-	    originalScript.add("cast.name = \"cast\";");
-	    originalScript.add("giant.valNodes.add(cast);");
-
-	    originalScript.add("var knight = new Node;");
-	    originalScript.add("knight.name = \"Knight\";");
-	    originalScript.add("var smash = new Node;");
-	    originalScript.add("smash.name = \"smash\";");
-	    originalScript.add("knight.valNodes.add(smash);");
-
-	    originalScript.add("var mage = new Node;");
-	    originalScript.add("mage.name = \"Mage\";");
-
-	    originalScript.add("root.valNodes.add(character);");
-	    originalScript.add("root.valNodes.add(troll);");
-	    originalScript.add("root.valNodes.add(giant);");
-	    originalScript.add("root.valNodes.add(knight);");
-	    originalScript.add("root.valNodes.add(mage);");
+	    originalScript.add("var nodeA = new Node;");
+	    originalScript.add("nodeA.name = \"A\";");
+	    originalScript.add("var nodeB = new Node;");
+	    originalScript.add("nodeB.name = \"B\";");
+	    originalScript.add("var nodeC = new Node;");
+	    originalScript.add("nodeC.name = \"C\";");
+	    originalScript.add("var nodeD = new Node;");
+	    originalScript.add("nodeD.name = \"D\";");
+	    originalScript.add("root.valNodes.add(nodeA);");
+	    originalScript.add("root.valNodes.add(nodeB);");
+	    originalScript.add("root.valNodes.add(nodeC);");
+	    originalScript.add("root.valNodes.add(nodeD);");
 
 	    // left script
 	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
-	    leftScript.add("var character = Node.allInstances.selectOne(node | node.name == \"Character\");");
-	    leftScript.add("var troll = Node.allInstances.selectOne(node | node.name == \"Troll\");");
-	    leftScript.add("var knight = Node.allInstances.selectOne(node | node.name == \"Knight\");");
-	    leftScript.add("var attack = Node.allInstances.selectOne(node | node.name == \"attack\");");
-	    leftScript.add("var giant = Node.allInstances.selectOne(node | node.name == \"Giant\");");
-//	    leftScript.add("delete giant;");
-//	    leftScript.add("delete attack;");
-	    leftScript.add("delete troll;");
-//	    leftScript.add("delete knight;");
-
+	    leftScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
+	    leftScript.add("root.valNodes.move(3, 1);");
+	    leftScript.add("root.valNodes.move(0, 1);");
+	    
 	    // right script
 	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
-	    rightScript.add("var character = Node.allInstances.selectOne(node | node.name == \"Character\");");
-	    rightScript.add("var troll = Node.allInstances.selectOne(node | node.name == \"Troll\");");
-	    rightScript.add("var mage = Node.allInstances.selectOne(node | node.name == \"Mage\");");
-	    rightScript.add("var attack = Node.allInstances.selectOne(node | node.name == \"attack\");");
-	    rightScript.add("var smash = Node.allInstances.selectOne(node | node.name == \"smash\");");
-	    rightScript.add("var giant = Node.allInstances.selectOne(node | node.name == \"Giant\");");
-	    rightScript.add("var knight = Node.allInstances.selectOne(node | node.name == \"Knight\");");
-//	    rightScript.add("delete giant;");
-//	    rightScript.add("delete mage;");
-//	    rightScript.add("delete attack;");
-	    rightScript.add("delete troll;");
-//	    rightScript.add("delete knight;");
+	    rightScript.add("root.valNodes.move(3, 2);");
 	    
-
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
 

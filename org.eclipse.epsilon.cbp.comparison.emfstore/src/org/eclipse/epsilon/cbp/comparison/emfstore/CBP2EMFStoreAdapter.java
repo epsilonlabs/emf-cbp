@@ -685,13 +685,16 @@ public class CBP2EMFStoreAdapter {
 				if (modelElementId == null && event instanceof EAttributeEvent) {
 					EObject eTarget = ((EAttributeEvent) event).getTarget();
 					modelElementId = localProject.getModelElementId(eTarget);
-
 				}
 				if (modelElementId == null) {
 					System.console();
 				}
 				if (compositeHandle.isValid()) {
-					compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
+					try {
+						compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
+					} catch (Exception e) {
+						System.console();
+					}
 					compositeHandle = null;
 					System.out.println("End Composite " + composite);
 				}

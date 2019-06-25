@@ -116,7 +116,7 @@ public class CBPMatchFeature {
 	return rightObjectEvents;
     }
 
-    public void addObjectEvent(CBPMatchObject object, CBPChangeEvent<?> event, CBPSide side) {
+    public void addObjectEvent(Object object, CBPChangeEvent<?> event, CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    this.addLeftObjectEvent(object, event);
 	} else {

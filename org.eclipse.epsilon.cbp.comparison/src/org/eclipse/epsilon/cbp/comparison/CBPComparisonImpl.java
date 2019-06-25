@@ -83,6 +83,7 @@ import org.eclipse.epsilon.cbp.comparison.event.ICBPEObjectValuesEvent;
 import org.eclipse.epsilon.cbp.comparison.event.ICBPFromPositionEvent;
 import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 import org.eclipse.epsilon.cbp.conflict.CBPConflictDetector;
+import org.eclipse.epsilon.cbp.conflict.test.CBPChangeEventSortComparator;
 import org.eclipse.epsilon.cbp.event.CreateEObjectEvent;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource;
 import org.eclipse.epsilon.cbp.hybrid.HybridResource.IdType;
@@ -137,8 +138,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 
     private List<ICBPObjectTreePostProcessor> objectTreePostProcessors = new ArrayList<>();
 
-    private Set<String> leftEventStrings = new LinkedHashSet<String>();
-    private Set<String> rightEventStrings = new LinkedHashSet<String>();
+    private Map<Integer, Set<String>> leftEventStrings = new LinkedHashMap<>();
+    private Map<Integer, Set<String>> rightEventStrings = new LinkedHashMap<>();
 
     private long objectTreeConstructionTime = 0;
     private long diffTime = 0;
@@ -155,19 +156,19 @@ public class CBPComparisonImpl implements ICBPComparison {
     private long loadMemory = 0;
     private CBPConflictDetector conflictDetector = new CBPConflictDetector();
 
-    public Set<String> getLeftEventStrings() {
+    public Map<Integer, Set<String>> getLeftEventStrings() {
 	return leftEventStrings;
     }
 
-    public Set<String> getRightEventStrings() {
+    public Map<Integer, Set<String>> getRightEventStrings() {
 	return rightEventStrings;
     }
 
-    public void setLeftEventStrings(Set<String> leftEventStrings) {
+    public void setLeftEventStrings(Map<Integer, Set<String>> leftEventStrings) {
 	this.leftEventStrings = leftEventStrings;
     }
 
-    public void setRightEventStrings(Set<String> rightEventStrings) {
+    public void setRightEventStrings(Map<Integer, Set<String>> rightEventStrings) {
 	this.rightEventStrings = rightEventStrings;
     }
 
@@ -458,15 +459,15 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    Entry<String, CBPMatchObject> objectEntry = iterator.next();
 	    CBPMatchObject object = objectEntry.getValue();
 
-	    CBPMatchObject obj = objects.get("O-43742");
-	    if (obj != null) {
-		if (diffs.size() > 0) {
-		    CBPDiff ddd = diffs.get(diffs.size() - 1);
-		    if (obj.getRightPosition() > 35) {
-			System.console();
-		    }
-		}
-	    }
+//	    CBPMatchObject obj = objects.get("O-43742");
+//	    if (obj != null) {
+//		if (diffs.size() > 0) {
+//		    CBPDiff ddd = diffs.get(diffs.size() - 1);
+//		    if (obj.getRightPosition() > 35) {
+//			System.console();
+//		    }
+//		}
+//	    }
 
 	    if (object.getLeftIsCreated() && object.getLeftIsDeleted()) {
 		continue;
@@ -953,27 +954,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	for (CBPChangeEvent<?> event : events) {
 
-	    // System.out.println(event.toString());
-	    // {
-	    // CBPMatchObject obj = objects.get("O-43742");
-	    // if (obj != null) {
-	    // if (obj.getRightPosition() >= 35) {
-	    // System.console();
-	    // }
-	    // }
-	    // }
-
-	    // CBPMatchObject obj = objects.get("O-43655");
-	    // if (obj != null) {
-	    // CBPMatchFeature fea = obj.getFeatures().get("packagedElement");
-	    // if (fea != null) {
-	    // Object val = fea.getRightValues().get(14);
-	    // if (val != null && ((CBPMatchObject)
-	    // val).getId().equals("O-43691")) {
-	    // System.out.println(((CBPMatchObject) val).getId());
-	    // }
-	    // }
-	    // }
+//	    System.out.println(event.toString());
 
 	    // get target id
 	    String targetId = null;
@@ -1009,7 +990,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    targetObject.getTargetEvents(side).add(event);
 	    targetObject.getEvents(side).add(event);
 
-	    if (targetId.equals("O-44487")) {
+	    if (targetId.equals("O-5944")) {
 		System.console();
 	    }
 
@@ -1024,7 +1005,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		}
 		if (valueId != null) {
 
-		    if (valueId.equals("O-40914")) {
+		    if (valueId.equals("O-2")) {
 			System.console();
 		    }
 		    // get or create new object
@@ -1071,6 +1052,11 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // System.currentTimeMillis();
 	    // }
 
+//	    if (targetId.equals("O-5944") && feature.getName().equals("typeArguments")) {
+//		System.console();
+//	    }
+
+	    
 	    // start processing events
 	    if (event instanceof CBPCreateEObjectEvent) {
 		targetObject.setCreated(true, side);
@@ -1244,7 +1230,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 		valueObject.addValueEvents(event, side);
 
 		if (!valueObject.isCreated(side)) {
-		    feature.setOldValue(position, valueObject, side);
+		    feature.setOldValue(valueObject.getOldPosition(side), valueObject, side);
 		}
 		feature.putValueLineNum(valueObject, event.getLineNumber(), side);
 		feature.removeValue(valueObject, position, side);
@@ -1254,7 +1240,6 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    if (event instanceof CBPMoveWithinEReferenceEvent) {
 
 		int fromPosition = ((CBPMoveWithinEReferenceEvent) event).getFromPosition();
-		valueObject.setMoved(true, side);
 		valueObject.setContainer(targetObject, side);
 		valueObject.setContainingFeature(feature, side);
 		if (valueObject.getOldPosition(side) == -1)
@@ -1269,7 +1254,10 @@ public class CBPComparisonImpl implements ICBPComparison {
 		} else if (valueObject.getRightIsDeleted() == false && valueObject.getRightContainer() == null && side == CBPSide.LEFT) {
 		    createValueObjectOnTheOppositeSide(valueObject, CBPSide.LEFT);
 		}
-
+		if (!valueObject.isCreated(side) && valueObject.isMoved(side) == false) {
+		    feature.setOldValue(valueObject.getOldPosition(side), valueObject, side);
+		}
+		valueObject.setMoved(true, side);
 		feature.putValueLineNum(valueObject, event.getLineNumber(), side);
 		feature.moveValue(valueObject, fromPosition, position, side);
 		feature.setIsSet(position, side);
@@ -2032,11 +2020,14 @@ public class CBPComparisonImpl implements ICBPComparison {
 	Set<String> set = new HashSet<>();
 	String str = null;
 	int num = 0;
+	CBPChangeEventSortComparator comparator = new CBPChangeEventSortComparator();
 	// System.out.println("CHANGE-BASED CONFLICTS:");
 	for (CBPConflict conflict : conflicts) {
 	    num++;
-	    Set<CBPChangeEvent<?>> leftEvents = conflict.getLeftEvents();
-	    Set<CBPChangeEvent<?>> rightEvents = conflict.getRightEvents();
+	    List<CBPChangeEvent<?>> leftEvents = new ArrayList<>(conflict.getLeftEvents());
+	    List<CBPChangeEvent<?>> rightEvents = new ArrayList<>(conflict.getRightEvents());
+	    Collections.sort(leftEvents, comparator);
+	    Collections.sort(rightEvents, comparator);
 	    Iterator<CBPChangeEvent<?>> leftIterator = leftEvents.iterator();
 	    Iterator<CBPChangeEvent<?>> rightIterator = rightEvents.iterator();
 	    while (leftIterator.hasNext() || rightIterator.hasNext()) {
@@ -2060,8 +2051,23 @@ public class CBPComparisonImpl implements ICBPComparison {
 		System.out.println(result);
 		set.add(result);
 
-		leftEventStrings.add(leftString.trim());
-		rightEventStrings.add(rightString.trim());
+		Set<String> levents = leftEventStrings.get(num);
+		if (levents == null) {
+		    levents = new LinkedHashSet<>();
+		    levents.add(leftString.trim());
+		    leftEventStrings.put(num, levents);
+		} else {
+		    levents.add(leftString.trim());
+		}
+
+		Set<String> revents = rightEventStrings.get(num);
+		if (revents == null) {
+		    revents = new LinkedHashSet<>();
+		    revents.add(rightString.trim());
+		    rightEventStrings.put(num, revents);
+		} else {
+		    revents.add(rightString.trim());
+		}
 	    }
 	}
 	conflictCount = conflicts.size();

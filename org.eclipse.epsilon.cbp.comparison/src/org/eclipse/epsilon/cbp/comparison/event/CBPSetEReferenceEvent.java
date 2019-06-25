@@ -21,10 +21,11 @@ public class CBPSetEReferenceEvent extends CBPEReferenceEvent implements ICBPEOb
 
     @Override
     public String toString() {
-	if (this.getOldValue() != null) {
-	    return String.format("SET %s.%s TO %s", this.getTarget(), this.getEStructuralFeature(), this.getValue());
-	} else {
-	    return String.format("SET %s.%s FROM %s TO %s", this.getTarget(), this.getEStructuralFeature(), this.getOldValue(), this.getValue());
-	}
+	// if (this.getOldValue() != null) {
+	return String.format("SET %s.%s FROM %s TO %s", this.getTarget(), this.getEStructuralFeature(), this.getOldValue(), this.getValue());
+	// } else {
+	// return String.format("SET %s.%s TO %s", this.getTarget(),
+	// this.getEStructuralFeature(), this.getValue());
+	// }
     }
 }

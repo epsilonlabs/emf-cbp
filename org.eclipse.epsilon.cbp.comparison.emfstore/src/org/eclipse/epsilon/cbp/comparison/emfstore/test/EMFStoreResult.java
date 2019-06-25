@@ -11,9 +11,13 @@
  ******************************************************************************/
 package org.eclipse.epsilon.cbp.comparison.emfstore.test;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.emf.emfstore.internal.server.model.versioning.operations.AbstractOperation;
 import org.eclipse.emf.emfstore.server.ESConflictSet;
 
 public class EMFStoreResult {
@@ -25,23 +29,41 @@ public class EMFStoreResult {
 	private long emfsComparisonTime = 0;
 	private long emfsComparisonMemory = 0;
 	private int emfsConflictCount = 0;
-	private Set<String> leftEventStrings = new LinkedHashSet<String>();
-	private Set<String> rightEventStrings = new LinkedHashSet<String>();
+	private Map<Integer, Set<String>> leftEventStrings = new LinkedHashMap<Integer, Set<String>>();
+	private Map<Integer, Set<String>> rightEventStrings = new LinkedHashMap<Integer, Set<String>>();
 	private ESConflictSet changeConflictSet;
+	private List<AbstractOperation> leftOperations = new ArrayList<AbstractOperation>();
+	private List<AbstractOperation> rightOperations = new ArrayList<AbstractOperation>();
 
-	public Set<String> getLeftEventStrings() {
+	public List<AbstractOperation> getLeftOperations() {
+		return leftOperations;
+	}
+
+	public List<AbstractOperation> getRightOperations() {
+		return rightOperations;
+	}
+
+	public void setLeftOperations(List<AbstractOperation> leftOperations) {
+		this.leftOperations = leftOperations;
+	}
+
+	public void setRightOperations(List<AbstractOperation> rightOperations) {
+		this.rightOperations = rightOperations;
+	}
+
+	public Map<Integer, Set<String>> getLeftEventStrings() {
 		return leftEventStrings;
 	}
 
-	public Set<String> getRightEventStrings() {
+	public Map<Integer, Set<String>> getRightEventStrings() {
 		return rightEventStrings;
 	}
 
-	public void setLeftEventStrings(Set<String> leftEventStrings) {
+	public void setLeftEventStrings(Map<Integer, Set<String>> leftEventStrings) {
 		this.leftEventStrings = leftEventStrings;
 	}
 
-	public void setRightEventStrings(Set<String> rightEventStrings) {
+	public void setRightEventStrings(Map<Integer, Set<String>> rightEventStrings) {
 		this.rightEventStrings = rightEventStrings;
 	}
 

@@ -16,11 +16,24 @@ public class DeleteEObjectEvent extends org.eclipse.epsilon.cbp.event.DeleteEObj
 
 	@Override
 	public void replay() {
-		eObject = resource.getEObject(id);
-		if (eObject != null) {
-			setValue(eObject);
-			EcoreUtil.delete(eObject);
-			// resource.unregister(eObject);
+		try {
+			eObject = resource.getEObject(id);
+			if (eObject != null) {
+				setValue(eObject);
+				try {
+					EcoreUtil.delete(eObject);
+				} catch (Exception e) {
+					System.console();
+					try {
+						EcoreUtil.remove(eObject);
+					} catch (Exception e2) {
+						System.console();
+					}
+				}
+				// resource.unregister(eObject);
+			}
+		} catch (Exception e) {
+			System.console();
 		}
 	}
 

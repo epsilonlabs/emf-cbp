@@ -17,10 +17,10 @@ public class CBPUnsetEReferenceEvent extends CBPSingleValueEReferenceEvent imple
 
     @Override
     public String toString() {
-	if (this.getOldValue() != null) {
+//	if (this.getOldValue() != null) {
 	    return String.format("UNSET %s.%s FROM %s TO %s", this.getTarget(), this.getEStructuralFeature(), this.getOldValue(), this.getValue());
-	} else {
-	    return String.format("UNSET %s.%s TO %s", this.getTarget(), this.getEStructuralFeature(), this.getValue());
-	}
+//	} else {
+//	    return String.format("UNSET %s.%s TO %s", this.getTarget(), this.getEStructuralFeature(), this.getValue());
+//	}
     }
 }
