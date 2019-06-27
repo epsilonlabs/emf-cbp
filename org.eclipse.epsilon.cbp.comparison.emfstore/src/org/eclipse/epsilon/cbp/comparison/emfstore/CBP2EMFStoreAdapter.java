@@ -356,8 +356,36 @@ public class CBP2EMFStoreAdapter {
 									event instanceof RemoveFromResourceEvent
 									|| event instanceof UnsetEReferenceEvent)) {
 								} else {
+
+									// if (event instanceof UnsetEReferenceEvent) {
+									// EObject target = ((UnsetEReferenceEvent) event).getTarget();
+									// String id = geteObject2IdMap().get(target);
+									// String name1 = ((UnsetEReferenceEvent) event).getEStructuralFeature().getName();
+									// if (id.equals("O-1328") && name1.equals("methodDeclaration")) {
+									// System.console();
+									// }
+									// }
+
 									event.replay();
 									count++;
+
+									// EObject obj = getEObject("O-1328");
+									// if (obj != null) {
+									// EStructuralFeature eFeature = obj.eClass()
+									// .getEStructuralFeature("usageInVariableAccess");
+									// EList<EObject> list = (EList<EObject>) obj.eGet(eFeature);
+									// if (list != null) {
+									// EObject obj2 = getEObject("O-1323");
+									// if (obj2 != null) {
+									// if (list.contains(obj2)) {
+									// System.console();
+									// } else {
+									// System.console();
+									// }
+									// }
+									// }
+									// }
+
 									if (isAutocommit && count % 200000 == 0) {
 										localProject.commit("AUTOCOMMIT", null, new ESSystemOutProgressMonitor());
 									}
@@ -717,10 +745,10 @@ public class CBP2EMFStoreAdapter {
 				if (event.getValue() instanceof EObject) {
 					modelElementId = localProject.getModelElementId((EObject) event.getValue());
 				}
-				if (modelElementId == null) {
+				if (modelElementId == null && event.getValue() instanceof EObject) {
 					modelElementId = originalProject.getModelElementId((EObject) event.getValue());
 				}
-				if (modelElementId == null) {
+				if (modelElementId == null && event.getValue() instanceof EObject) {
 					modelElementId = otherProject.getModelElementId((EObject) event.getValue());
 				}
 				// --
@@ -857,6 +885,7 @@ public class CBP2EMFStoreAdapter {
 	public EObject getEObject(String uriFragment) {
 
 		String esId = id2esIdMap.get(uriFragment);
+
 		// if (uriFragment.equals("O-4013") || uriFragment.equals("O-4014")) {
 		// String x = Application.getOriginalAdapater().getId2esIdMap().get("O-4014");
 		// if (x != null) {
@@ -870,7 +899,11 @@ public class CBP2EMFStoreAdapter {
 		// }
 		if (esId == null) {
 			esId = Application.getOriginalAdapater().getId2esIdMap().get(uriFragment);
+			if (esId == null) {
+				return null;
+			}
 		}
+
 		ModelElementId meId = org.eclipse.emf.emfstore.internal.common.model.ModelFactory.eINSTANCE
 			.createModelElementId();
 		meId.setId(esId);

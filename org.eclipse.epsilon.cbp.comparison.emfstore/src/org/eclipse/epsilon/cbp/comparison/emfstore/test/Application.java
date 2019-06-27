@@ -740,7 +740,7 @@ public class Application implements IApplication {
 				System.out.println();
 
 				// if (i % 10 == 0) {
-				if (i % 20 == 0) {
+				if (i % 4400 == 0) {
 
 					number++;
 

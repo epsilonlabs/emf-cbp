@@ -160,18 +160,18 @@ public class ChangeEventAdapter extends EContentAdapter {
     public void notifyChanged(Notification n) {
 
 	super.notifyChanged(n);
-//	if (n.getEventType() == Notification.REMOVING_ADAPTER) {
-//	    if (n.getNotifier() instanceof EObject) {
-//		if (!((EObject) n.getNotifier()).eAdapters().contains(this)) {
-//		    ((EObject) n.getNotifier()).eAdapters().add(this);
-//		}
-//	    }
-//	}
+	// if (n.getEventType() == Notification.REMOVING_ADAPTER) {
+	// if (n.getNotifier() instanceof EObject) {
+	// if (!((EObject) n.getNotifier()).eAdapters().contains(this)) {
+	// ((EObject) n.getNotifier()).eAdapters().add(this);
+	// }
+	// }
+	// }
 
 	if (n.isTouch() || !enabled) {
 	    return;
 	}
-//	this.debugEvents(n);
+	// this.debugEvents(n);
 
 	if (n.getFeature() != null) {
 	    EStructuralFeature feature = (EStructuralFeature) n.getFeature();
@@ -429,7 +429,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    EStructuralFeature feature = (EStructuralFeature) n.getFeature();
 	    if (!((EObject) n.getNotifier()).eIsSet(feature))
 		return;
-	} 
+	}
 
 	if (event instanceof EObjectValuesEvent) {
 	    if (((EObjectValuesEvent) event).getValues().isEmpty()) {
@@ -481,22 +481,42 @@ public class ChangeEventAdapter extends EContentAdapter {
 		tempDeletedObjects.remove((EObject) n.getNewValue());
 	    }
 	}
-	
+
 	if (n.getOldValue() instanceof EObject || n.getOldValue() instanceof EList) {
 	    if (event instanceof UnsetEReferenceEvent || event instanceof RemoveFromResourceEvent || event instanceof RemoveFromEReferenceEvent) {
 		if (n.getOldValue() instanceof EObject) {
 		    if (!tempDeletedObjects.contains((EObject) n.getOldValue())) {
 			tempDeletedObjects.add((EObject) n.getOldValue());
-			handleDeletedEObject(event, (EObject) n.getOldValue());
-		    }else if (event instanceof RemoveFromEReferenceEvent) {
-			
+
+			if (event instanceof UnsetEReferenceEvent) {
+			    if (((UnsetEReferenceEvent) event).getEReference().getName().equals("methodDeclaration")) {
+				System.console();
+			    }
+			    EObject target = ((UnsetEReferenceEvent) event).getTarget();
+			    EObject oldValue = (EObject) n.getOldValue();
+			    if (target.eResource() == null && oldValue.eResource() != null) {
+				handleDeletedEObject(event, target);
+			    } else if (target.eResource() == null && oldValue.eResource() == null) {
+				handleDeletedEObject(event, target);
+			    } else if (target.eResource() != null && oldValue.eResource() == null) {
+				handleDeletedEObject(event, oldValue);
+			    } else {
+				handleDeletedEObject(event, oldValue);
+			    }
+			} else {
+			    handleDeletedEObject(event, (EObject) n.getOldValue());
+			}
+
+		    } else if (event instanceof RemoveFromEReferenceEvent) {
+
 		    }
 		} else if (n.getOldValue() instanceof EList) {
 		    if (!tempDeletedObjects.contains((EObject) n.getOldValue())) {
 			tempDeletedObjects.add((EObject) n.getOldValue());
 			handleDeletedEObject(event, (EObject) event.getValue());
 		    }
-		} 
+		}
+
 	    }
 	}
 
@@ -595,9 +615,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 	    event.setComposite(compositeId);
 
 	    Set<EObject> visitedObjects = new HashSet<>();
-	    removedContainedObjects(removedObject, visitedObjects);
+	    removedContainedObjects(removedObject, visitedObjects, true);
 	    visitedObjects.clear();
-	    unsetAllEFeatures(removedObject);
+	    unsetAllEFeatures(removedObject, visitedObjects, true);
 	    // unsetOppositeEReference(event, removedObject);
 
 	    changeEvents.add(event);
@@ -646,6 +666,10 @@ public class ChangeEventAdapter extends EContentAdapter {
 		e.setOldValue(eTarget);
 		e.setTarget(removedObject);
 		changeEvents.add(e);
+
+		// if (eTarget.eResource() == null) {
+		// removedContainedObjects(eTarget, visitedObjects, true);
+		// }
 	    }
 	}
     }
@@ -760,33 +784,33 @@ public class ChangeEventAdapter extends EContentAdapter {
     }
 
     // ----------
-    public void deleteElement(EObject targetEObject) {
-	recursiveDeleteEvent(targetEObject);
+    public void deleteElement(EObject targetEObject, Set<EObject> visitedObjects) {
+	recursiveDeleteEvent(targetEObject, visitedObjects);
 	removeFromExternalRefferences(targetEObject);
-	unsetAllEFeatures(targetEObject);
+	unsetAllEFeatures(targetEObject, visitedObjects, false);
 	unsetAllAttributes(targetEObject);
 	// EcoreUtil.remove(targetEObject);
     }
 
-    private void recursiveDeleteEvent(EObject targetEObject) {
+    private void recursiveDeleteEvent(EObject targetEObject, Set<EObject> visitedObjects) {
 	for (EReference eRef : targetEObject.eClass().getEAllReferences()) {
 	    if (eRef.isChangeable() && targetEObject.eIsSet(eRef) && !eRef.isDerived() && eRef.isContainment()) {
 		if (eRef.isMany()) {
 		    List<EObject> values = (List<EObject>) targetEObject.eGet(eRef);
 		    while (values.size() > 0) {
 			EObject value = values.get(values.size() - 1);
-			recursiveDeleteEvent(value);
+			recursiveDeleteEvent(value, visitedObjects);
 			removeFromExternalRefferences(value);
-			unsetAllEFeatures(value);
+			unsetAllEFeatures(value, visitedObjects, false);
 			unsetAllAttributes(value);
 			values.remove(value);
 		    }
 		} else {
 		    EObject value = (EObject) targetEObject.eGet(eRef);
 		    if (value != null) {
-			recursiveDeleteEvent(value);
+			recursiveDeleteEvent(value, visitedObjects);
 			removeFromExternalRefferences(value);
-			unsetAllEFeatures(value);
+			unsetAllEFeatures(value, visitedObjects, false);
 			unsetAllAttributes(value);
 			targetEObject.eUnset(eRef);
 		    }
@@ -795,8 +819,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
     }
 
-    protected void removedContainedObjects(EObject targetEObject, Set<EObject> visitedObjects) {
+    protected void removedContainedObjects(EObject targetEObject, Set<EObject> visitedObjects, boolean isRoot) {
 	visitedObjects.add(targetEObject);
+
 	for (EReference eRef : targetEObject.eClass().getEAllContainments()) {
 	    if (targetEObject.eIsSet(eRef) && eRef.isChangeable() && !eRef.isDerived()) {
 		if (eRef.isMany()) {
@@ -809,9 +834,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 			if (visitedObjects.contains(value)) {
 			    continue;
 			}
-			removedContainedObjects(value, visitedObjects);
+			removedContainedObjects(value, visitedObjects, false);
 			// removeAllReferencingFeatures(value);
-			unsetAllEFeatures(value);
+			unsetAllEFeatures(value, visitedObjects, false);
 			values.remove(position);
 
 			RemoveFromEReferenceEvent e = new RemoveFromEReferenceEvent();
@@ -835,9 +860,9 @@ public class ChangeEventAdapter extends EContentAdapter {
 			    if (visitedObjects.contains(value)) {
 				continue;
 			    }
-			    removedContainedObjects(value, visitedObjects);
+			    removedContainedObjects(value, visitedObjects, false);
 			    // removeAllReferencingFeatures(value);
-			    unsetAllEFeatures(value);
+			    unsetAllEFeatures(value, visitedObjects, false);
 			    targetEObject.eUnset(eRef);
 
 			    UnsetEReferenceEvent e = new UnsetEReferenceEvent();
@@ -854,6 +879,15 @@ public class ChangeEventAdapter extends EContentAdapter {
 			}
 		    }
 		}
+	    }
+	}
+
+	if (!isRoot) {
+	    if (targetEObject.eResource() == null) {
+		String id = resource.getURIFragment(targetEObject);
+		ChangeEvent<?> deletedEvent = new DeleteEObjectEvent(targetEObject, id);
+		deletedEvent.setComposite(compositeId);
+		changeEvents.add(deletedEvent);
 	    }
 	}
     }
@@ -899,14 +933,16 @@ public class ChangeEventAdapter extends EContentAdapter {
 
     }
 
-    protected void unsetAllEFeatures(EObject targetEObject) {
+    protected void unsetAllEFeatures(EObject targetEObject, Set<EObject> visitedObjects, boolean isRoot) {
 	for (EAttribute eAtt : targetEObject.eClass().getEAllAttributes()) {
 	    if (targetEObject.eIsSet(eAtt) && eAtt.isChangeable() && !eAtt.isDerived()) {
 		if (eAtt.isMany()) {
 		    EList<Object> values = (EList<Object>) targetEObject.eGet(eAtt);
 		    while (values.size() > 0) {
+			
 			int position = values.size() - 1;
-			Object value = values.remove(position);
+			Object value = values.get(position);
+//			Object value = values.remove(position);
 
 			RemoveFromEAttributeEvent e = new RemoveFromEAttributeEvent();
 			e.setComposite(compositeId);
@@ -920,7 +956,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		    if (!eAtt.isUnsettable()) {
 			Object value = targetEObject.eGet(eAtt);
 			if (value != null) {
-			    targetEObject.eUnset(eAtt);
+//			    targetEObject.eUnset(eAtt);
 
 			    UnsetEAttributeEvent e = new UnsetEAttributeEvent();
 			    e.setComposite(compositeId);
@@ -949,6 +985,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 			e.setTarget(targetEObject);
 			e.setPosition(position);
 			changeEvents.add(e);
+
+			if (value.eResource() == null) {
+
+			    removedContainedObjects(value, visitedObjects, false);
+
+			    // String id = resource.getURIFragment(value);
+			    // ChangeEvent<?> deletedEvent = new
+			    // DeleteEObjectEvent(value, id);
+			    // deletedEvent.setComposite(compositeId);
+			    // changeEvents.add(deletedEvent);
+			}
 		    }
 		} else {
 		    if (!eRef.isUnsettable()) {
@@ -962,6 +1009,17 @@ public class ChangeEventAdapter extends EContentAdapter {
 			    e.setOldValue(value);
 			    e.setTarget(targetEObject);
 			    changeEvents.add(e);
+
+			    if (value.eResource() == null) {
+
+				removedContainedObjects(value, visitedObjects, false);
+
+				// String id = resource.getURIFragment(value);
+				// ChangeEvent<?> deletedEvent = new
+				// DeleteEObjectEvent(value, id);
+				// deletedEvent.setComposite(compositeId);
+				// changeEvents.add(deletedEvent);
+			    }
 			}
 		    }
 		}
