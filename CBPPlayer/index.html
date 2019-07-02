@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <title>CBP Player</title>
+    <link rel="stylesheet" href="css/app.css">
+    <script src="js/mxClient.js"></script>
+    <script src="js/cbpplayer.js"></script>
+    <script src="js/ecore.js"></script>
+    <script src="js/bpmn2.js"></script>
+    <script src="js/app.js"></script>
+</head>
+<body>
+<body onload="main()">
+<div id="mainContainer">
+    <div id="graphContainer">
+        <div id="graphContainer1">
+        </div>
+        <div id="graphContainer2">
+        </div>
+    </div>
+    <div id="controllerContainer">
+        <button id="buttonPlay" onclick="play()">Play</button>
+        <button id="buttonStop" onclick="stop()" disabled>Stop</button>
+        <label>Change Event: </label>
+        <input id="changeEventNum" value="0" readonly/>
+        <label>/</label>
+        <input id="changeEventTotal" value="0" readonly/>
+        <button id="btnExpEcore" onclick="exportEcore()">Ex. Ecore</button>
+        <button id="btnExpBpmn2" onclick="exportBpmn2()">Ex. BPMN2</button>
+
+    </div>
+</div>
+<script type="application/javascript`">
+
+</script>
+</body>
+</body>
+
+
+

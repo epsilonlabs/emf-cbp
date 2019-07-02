@@ -1,0 +1,67 @@
+#controller {
+    position: absolute;
+    overflow: hidden;
+    background-color: gainsboro;
+    top: 50%;
+    left: 50%;
+    cursor: default;
+}
+
+#mainContainer {
+    position: absolute;
+    overflow: hidden;
+    width: 99%;
+    height: 99%;
+    /*margin: -240px 0 0 -320px;*/
+    /*top: 50%;*/
+    /*left: 50%;*/
+    cursor: default;
+}
+
+#graphContainer {
+    width: 100%;
+    height: 90%;
+}
+
+#graphContainer1 {
+    height: 100%;
+    width: 50%;
+    float: left;
+    background-color: white;
+    overflow: auto;
+    box-sizing: border-box;
+    border-color: black;
+    border-width: thin;
+    border-style: solid;
+}
+
+#graphContainer2 {
+    height: 100%;
+    width:  50%;
+    background-color: white;
+    overflow: auto;
+    box-sizing: border-box;
+    border-right: black thin solid;
+    border-top: black thin solid;
+    border-bottom: black thin solid;
+
+}
+
+#controllerContainer {
+    position: relative;
+    align-items: center;
+    vertical-align: center;
+    height: 10%;
+    width: 100%;
+    background-color: white;
+    text-align: center;
+    margin-top: 10px;
+}
+
+button {
+    width: 90px;
+    height: 30px;
+}
+input {
+    width: 50px;
+}
