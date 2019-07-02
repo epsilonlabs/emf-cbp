@@ -22,8 +22,11 @@ import org.eclipse.epsilon.cbp.comparison.event.CBPEAttributeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEObject;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEReferenceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEStructuralFeatureEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEReferenceEvent;
 import org.eclipse.epsilon.cbp.conflict.test.CBPChangeEventSortComparator;
 import org.eclipse.epsilon.cbp.event.EReferenceEvent;
+import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
 
 public class CBPConflictDetector {
 
@@ -39,28 +42,38 @@ public class CBPConflictDetector {
 
 	    // System.out.println(cTarget.getId());
 
-	    if (cTarget.getId().equals("O-2635")) {
+	    if (cTarget.getId().equals("O-2")) {
 		// CBPMatchFeature x = cTarget.getFeatures().get("specific");
 		System.console();
 	    }
 
-//	    if (cTarget.getLeftIsDeleted() && cTarget.getRightIsDeleted()) {
-//		continue;
-//	    } else //
+	    // if (cTarget.getLeftIsDeleted() && cTarget.getRightIsDeleted()) {
+	    // continue;
+	    // } else //
 	    if (cTarget.getLeftIsDeleted() || cTarget.getRightIsDeleted()) {
 
 		Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
 		getAllEvents(leftEvents, cTarget, CBPSide.LEFT, new HashSet<CBPMatchFeature>(), new HashSet<CBPMatchObject>());
+//		if (!cTarget.getLeftIsDeleted()) {
+//		    leftEvents = leftEvents.stream().filter(event -> !(event instanceof CBPUnsetEReferenceEvent) && !(event instanceof CBPRemoveFromEReferenceEvent)
+//			    && !(event instanceof CBPRemoveFromEReferenceEvent) && event.getValue() != null && event.getValue().equals(cTarget)).collect(Collectors.toSet());
+//		}
 
 		Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
 		getAllEvents(rightEvents, cTarget, CBPSide.RIGHT, new HashSet<CBPMatchFeature>(), new HashSet<CBPMatchObject>());
+//		if (!cTarget.getRightIsDeleted()) {
+//		    rightEvents = rightEvents.stream().filter(event -> !(event instanceof CBPUnsetEReferenceEvent) && !(event instanceof CBPRemoveFromEReferenceEvent)
+//			    && !(event instanceof CBPRemoveFromEReferenceEvent) && event.getValue() != null && event.getValue().equals(cTarget)).collect(Collectors.toSet());
+//		}
 
 		// also add composite events
 		addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
 		addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
 
-		addDependentEvents(objects, leftEvents, leftCompositeEvents, CBPSide.LEFT);
-		addDependentEvents(objects, rightEvents, rightCompositeEvents, CBPSide.RIGHT);
+		// addDependentEvents(objects, leftEvents, leftCompositeEvents,
+		// CBPSide.LEFT);
+		// addDependentEvents(objects, rightEvents,
+		// rightCompositeEvents, CBPSide.RIGHT);
 
 		if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 		    final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
@@ -72,6 +85,7 @@ public class CBPConflictDetector {
 		    } else {
 			CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 			if (cTarget.getLeftIsDeleted() || cTarget.getRightIsDeleted()) {
+			    if (leftEvents.size() == 1 && rightEvents.size() == 1)
 			    conflict2.setPseudo(true);
 			}
 			conflicts.add(conflict2);
@@ -107,8 +121,10 @@ public class CBPConflictDetector {
 			    rightEvents.addAll(cTarget.getValueEvents(CBPSide.RIGHT));
 			addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
 			addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
-			addDependentEvents(objects, leftEvents, leftCompositeEvents, CBPSide.LEFT);
-			addDependentEvents(objects, rightEvents, rightCompositeEvents, CBPSide.RIGHT);
+			// addDependentEvents(objects, leftEvents,
+			// leftCompositeEvents, CBPSide.LEFT);
+			// addDependentEvents(objects, rightEvents,
+			// rightCompositeEvents, CBPSide.RIGHT);
 			if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 			    final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
 			    if (conflict != null) {
@@ -119,6 +135,7 @@ public class CBPConflictDetector {
 			    } else {
 				CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 				if ((leftContainer.equals(rightContainer) && !leftContainingFeature.equals(rightContainingFeature))) {
+				    if (leftEvents.size() == 1 && rightEvents.size() == 1)
 				    conflict2.setPseudo(true);
 				}
 				conflicts.add(conflict2);
@@ -172,8 +189,10 @@ public class CBPConflictDetector {
 			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(cValue);
 			    addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
 			    addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
-			    addDependentEvents(objects, leftEvents, leftCompositeEvents, CBPSide.LEFT);
-			    addDependentEvents(objects, rightEvents, rightCompositeEvents, CBPSide.RIGHT);
+			    // addDependentEvents(objects, leftEvents,
+			    // leftCompositeEvents, CBPSide.LEFT);
+			    // addDependentEvents(objects, rightEvents,
+			    // rightCompositeEvents, CBPSide.RIGHT);
 
 			    if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 				final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
@@ -185,6 +204,7 @@ public class CBPConflictDetector {
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 				    if (cValue.getLeftPosition() == cValue.getRightPosition()) {
+					if (leftEvents.size() == 1 && rightEvents.size() == 1)
 					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
@@ -203,11 +223,14 @@ public class CBPConflictDetector {
 				Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<CBPChangeEvent<?>>(cFeature.getRightEvents());
 				addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
 				addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
-//				if (evensArePartOfDeletion(leftEvents, rightEvents)) {
-//				    continue;
-//				}
-				addDependentEvents(objects, leftEvents, leftCompositeEvents, CBPSide.LEFT);
-				addDependentEvents(objects, rightEvents, rightCompositeEvents, CBPSide.RIGHT);
+				// if (evensArePartOfDeletion(leftEvents,
+				// rightEvents)) {
+				// continue;
+				// }
+				// addDependentEvents(objects, leftEvents,
+				// leftCompositeEvents, CBPSide.LEFT);
+				// addDependentEvents(objects, rightEvents,
+				// rightCompositeEvents, CBPSide.RIGHT);
 
 				if (leftEvents.size() > 0 && rightEvents.size() > 0) {
 				    final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
@@ -219,6 +242,7 @@ public class CBPConflictDetector {
 				    } else {
 					CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 					if ((leftValue != null && leftValue.equals(rightValue)) || (rightValue != null && rightValue.equals(leftValue)) || leftValue == rightValue) {
+					    if (leftEvents.size() == 1 && rightEvents.size() == 1)
 					    conflict2.setPseudo(true);
 					}
 					conflicts.add(conflict2);
@@ -234,6 +258,10 @@ public class CBPConflictDetector {
 			    CBPMatchObject cValue = (CBPMatchObject) value;
 			    Set<CBPChangeEvent<?>> leftEvents = cFeature.getLeftObjectEvents(cValue);
 			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(cValue);
+			    
+			    addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+			    addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
+			    
 			    if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 				final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
 				if (conflict != null) {
@@ -244,6 +272,7 @@ public class CBPConflictDetector {
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 				    if (cFeature.getLeftPosition(cValue) == cFeature.getRightPosition(cValue)) {
+					if (leftEvents.size() == 1 && rightEvents.size() == 1)
 					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
@@ -265,6 +294,9 @@ public class CBPConflictDetector {
 			    Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>(cFeature.getLeftEvents());
 			    Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>(cFeature.getRightEvents());
 
+			    addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+			    addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
+
 			    if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 				final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
 				if (conflict != null) {
@@ -275,6 +307,7 @@ public class CBPConflictDetector {
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 				    if ((leftValue != null && leftValue.equals(rightValue)) || (rightValue != null && rightValue.equals(leftValue)) || leftValue == rightValue) {
+					if (leftEvents.size() == 1 && rightEvents.size() == 1)
 					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
@@ -288,6 +321,10 @@ public class CBPConflictDetector {
 			for (Object value : values) {
 			    Set<CBPChangeEvent<?>> leftEvents = cFeature.getLeftObjectEvents(value);
 			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(value);
+			    
+			    addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+			    addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
+			    
 			    if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 				final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
 				if (conflict != null) {
@@ -298,6 +335,7 @@ public class CBPConflictDetector {
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 				    if (cFeature.getLeftPosition(value) == cFeature.getRightPosition(value)) {
+					if (leftEvents.size() == 1 && rightEvents.size() == 1)
 					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
@@ -315,6 +353,9 @@ public class CBPConflictDetector {
 			    Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>(cFeature.getLeftEvents());
 			    Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>(cFeature.getRightEvents());
 
+			    addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+			    addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
+			    
 			    if (leftEvents.size() > 0 && rightEvents.size() > 0) {
 				final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
 				if (conflict != null) {
@@ -325,6 +366,7 @@ public class CBPConflictDetector {
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
 				    if ((leftValue != null && leftValue.equals(rightValue)) || (rightValue != null && rightValue.equals(leftValue)) || leftValue == rightValue) {
+					if (leftEvents.size() == 1 && rightEvents.size() == 1)
 					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);

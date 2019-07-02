@@ -346,7 +346,7 @@ public class CBP2EMFStoreAdapter {
 								System.out.println(eventNumber + ": " + event.toString());
 
 								if (event.getComposite() != null) {
-									if (event.getComposite().equals("_j-x7UFH4EemepcvH96FyWw")
+									if (event.getComposite().equals("_M0nrIZvhEem7iJ0oBqA_Mw")
 										&& event instanceof DeleteEObjectEvent) {
 										System.console();
 									}
@@ -357,14 +357,10 @@ public class CBP2EMFStoreAdapter {
 									|| event instanceof UnsetEReferenceEvent)) {
 								} else {
 
-									// if (event instanceof UnsetEReferenceEvent) {
-									// EObject target = ((UnsetEReferenceEvent) event).getTarget();
-									// String id = geteObject2IdMap().get(target);
-									// String name1 = ((UnsetEReferenceEvent) event).getEStructuralFeature().getName();
-									// if (id.equals("O-1328") && name1.equals("methodDeclaration")) {
-									// System.console();
-									// }
-									// }
+									if (event instanceof DeleteEObjectEvent
+										&& event.getComposite().equals("_M0nrIZvhEem7iJ0oBqA_Mw")) {
+										System.console();
+									}
 
 									event.replay();
 									count++;
@@ -499,13 +495,16 @@ public class CBP2EMFStoreAdapter {
 				System.console();
 			}
 			if (compositeHandle.isValid()) {
-				compositeHandle.end(composite, composite, modelElementId);
-				compositeHandle = null;
-				System.out.println("End Composite " + composite);
+				try {
+					compositeHandle.end(composite, composite, modelElementId);
+					compositeHandle = null;
+					System.out.println("End Composite " + composite);
+				} catch (Exception e) {
+					System.console();
+					return;
+				}
+				composite = null;
 			}
-			compositeHandle = null;
-			System.out.println("End Composite " + composite);
-
 		}
 	}
 
@@ -798,19 +797,20 @@ public class CBP2EMFStoreAdapter {
 				if (compositeHandle.isValid()) {
 					try {
 						compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
+						compositeHandle = null;
 					} catch (Exception e) {
 						System.console();
+						return;
 					}
-					compositeHandle = null;
 					System.out.println("End Composite " + composite);
-				} else {
-					compositeHandle = null;
+					composite = null;
 				}
 			}
 			try {
 				compositeHandle = localProject.beginCompositeOperation();
 			} catch (Exception e) {
 				System.console();
+				return;
 			}
 			composite = event.getComposite();
 			System.out.println("Start Composite " + composite);
@@ -871,13 +871,20 @@ public class CBP2EMFStoreAdapter {
 						.getModelElementId(localProject.getModelElements().get(0));
 					System.console();
 				}
+				// try {
 				if (compositeHandle.isValid()) {
-					compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
-					compositeHandle = null;
-					System.out.println("End Composite " + composite);
+					try {
+						compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
+						compositeHandle = null;
+						System.out.println("End Composite " + composite);
+					} catch (Exception e) {
+						System.console();
+						return;
+					}
+					composite = null;
 				}
 			}
-			composite = null;
+			// composite = null;
 		}
 	}
 

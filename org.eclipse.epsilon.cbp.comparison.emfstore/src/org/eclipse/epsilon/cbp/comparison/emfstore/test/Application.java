@@ -191,8 +191,8 @@ public class Application implements IApplication {
 			// Run a client on the local server that shows the basic features of the EMFstore
 			// manualChanges(localServer);
 			// runClient(localServer);
-			runClient2(localServer);
-			// runPerformanceTest(localServer);
+			// runClient2(localServer);
+			runPerformanceTest(localServer);
 		} catch (final ESServerStartFailedException e) {
 			System.out.println("Server start failed!");
 			e.printStackTrace();
@@ -524,7 +524,15 @@ public class Application implements IApplication {
 			rootNode.getValNodes().add(nodeB);
 			rootNode.getValNodes().add(nodeC);
 			rootNode.getValNodes().add(nodeD);
+
 			ESModelElementId rootId = originalProject.getModelElementId(rootNode);
+			ESModelElementId aId = originalProject.getModelElementId(nodeA);
+			ESModelElementId bId = originalProject.getModelElementId(nodeB);
+			ESModelElementId cId = originalProject.getModelElementId(nodeC);
+			ESModelElementId dId = originalProject.getModelElementId(nodeD);
+			nodeB.setRefNode(nodeA);
+			nodeC.setRefNode(nodeA);
+			nodeD.setRefNode(nodeA);
 
 			originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
 
@@ -534,16 +542,21 @@ public class Application implements IApplication {
 
 			// process right file first
 			System.out.println("LOADING RIGHT MODEL");
-			Node rightRoot = (Node) rightProject.getModelElement(rootId);
-			rightRoot.getValNodes().move(3, 2);
+			nodeD = (Node) rightProject.getModelElement(dId);
+			// nodeD.setRefNode(null);
+			EcoreUtil.delete(nodeD);
 			rightProject.commit("RIGHT", null, new ESSystemOutProgressMonitor());
 			// exportToXMI(rightAdapater, emfsRightResource);
 
 			// process left
 			System.out.println("LOADING LEFT MODEL");
-			Node leftRoot = (Node) leftProject.getModelElement(rootId);
-			leftRoot.getValNodes().move(2, 1);
-			leftRoot.getValNodes().move(2, 1);
+			nodeA = (Node) leftProject.getModelElement(aId);
+			// nodeB = (Node) leftProject.getModelElement(bId);
+			// nodeC = (Node) leftProject.getModelElement(cId);
+			EcoreUtil.delete(nodeA);
+			// EcoreUtil.delete(nodeB);
+			// EcoreUtil.delete(nodeC);
+
 			// exportToXMI(leftAdapater, emfsLeftResource);
 
 			try {
@@ -740,7 +753,7 @@ public class Application implements IApplication {
 				System.out.println();
 
 				// if (i % 10 == 0) {
-				if (i % 4400 == 0) {
+				if (i % 1650 == 0) {
 
 					number++;
 
@@ -880,7 +893,8 @@ public class Application implements IApplication {
 						.println(changeComparison.getConflicts().size() + " VS " + emfsResult.getEmfsConflictCount());
 					// if (changeComparison.getConflicts().size() != emfsResult.getEmfsConflictCount() &&
 					// changeComparison.getConflicts().size() >= 1 && emfsResult.getEmfsConflictCount() >= 1) {
-					getSplittedDetectedConflicts(changeComparison, emfsResult);
+					getSplittedDetectedCBPConflicts(changeComparison, emfsResult);
+					getSplittedDetectedEMFSConflicts(changeComparison, emfsResult);
 					getUndetectedCBPConflicts(changeComparison, emfsResult);
 					getUndetectedEMFStoreConflicts(changeComparison, emfsResult);
 
@@ -915,10 +929,10 @@ public class Application implements IApplication {
 	 * @param changeComparison
 	 * @param emfsResult
 	 */
-	private static void getSplittedDetectedConflicts(CBPComparisonImpl changeComparison,
+	private static void getSplittedDetectedEMFSConflicts(CBPComparisonImpl changeComparison,
 		final EMFStoreResult emfsResult) {
 
-		System.out.println("\nSplitted Detected Conflicts:");
+		System.out.println("\nSplitted Detected EMFS Conflicts:");
 		System.out.println("right:");
 		for (Entry<Integer, Set<String>> esEntry : emfsResult.getRightEventStrings().entrySet()) {
 			int esConfId = esEntry.getKey();
@@ -1027,7 +1041,7 @@ public class Application implements IApplication {
 							continue;
 						}
 						// System.out.println("+--+--+-- " + esEvent);
-						if (cbEvent.equals(esEvent)) {
+						if (cbEvent.trim().equals(esEvent.trim())) {
 							counter.add(esConfId);
 						}
 					}
@@ -1043,6 +1057,92 @@ public class Application implements IApplication {
 			System.out.print(x + " ");
 		}
 		System.out.println();
+	}
+
+	/**
+	 * @param changeComparison
+	 * @param emfsResult
+	 */
+	private static void getSplittedDetectedCBPConflicts(CBPComparisonImpl changeComparison,
+		final EMFStoreResult emfsResult) {
+
+		System.out.println("\nSplitted Detected CBP Conflicts:");
+		System.out.println("right:");
+		for (Entry<Integer, Set<String>> esEntry : changeComparison.getRightEventStrings().entrySet()) {
+			int esConfId = esEntry.getKey();
+			Set<String> esEvents = esEntry.getValue();
+			Set<Integer> counter = new HashSet<Integer>();
+
+			// System.out.println(esConfId);
+			for (String esString : esEvents) {
+
+				if (esString.equals("")) {
+					continue;
+				}
+				// System.out.println("+---ES: " + esString);
+
+				for (Entry<Integer, Set<String>> cbEntry : emfsResult.getRightEventStrings()
+					.entrySet()) {
+					int cbConfId = cbEntry.getKey();
+					Set<String> cbEvents = cbEntry.getValue();
+					// System.out.println("+---+--- " + cbConfId);
+					for (String cbString : cbEvents) {
+						// System.out.println("+---+---+--- " + cbString);
+						if (esString.trim().equals(cbString.trim())) {
+							counter.add(cbConfId);
+							// System.out.println(esString + ": " + esConfId + " => " + cbConfId);
+						}
+					}
+				}
+			}
+
+			if (counter.size() > 1) {
+				System.out.print(esConfId + " : ");
+				for (int c : counter) {
+					System.out.print(c + " ");
+				}
+				System.out.println();
+				// System.out.println(": " + esString + "");
+			}
+		}
+		System.out.println("left:");
+		for (Entry<Integer, Set<String>> esEntry : changeComparison.getLeftEventStrings().entrySet()) {
+			int esConfId = esEntry.getKey();
+			Set<String> esEvents = esEntry.getValue();
+			Set<Integer> counter = new HashSet<Integer>();
+
+			// System.out.println(esConfId);
+			for (String esString : esEvents) {
+
+				if (esString.equals("")) {
+					continue;
+				}
+				// System.out.println("+---ES: " + esString);
+
+				for (Entry<Integer, Set<String>> cbEntry : emfsResult.getLeftEventStrings()
+					.entrySet()) {
+					int cbConfId = cbEntry.getKey();
+					Set<String> cbEvents = cbEntry.getValue();
+					// System.out.println("+---+--- " + cbConfId);
+					for (String cbString : cbEvents) {
+						// System.out.println("+---+---+--- " + cbString);
+						if (esString.trim().equals(cbString.trim())) {
+							counter.add(cbConfId);
+							// System.out.println(esString + ": " + esConfId + " => " + cbConfId);
+						}
+					}
+				}
+			}
+
+			if (counter.size() > 1) {
+				System.out.print(esConfId + " : ");
+				for (int c : counter) {
+					System.out.print(c + " ");
+				}
+				System.out.println();
+				// System.out.println(": " + esString + "");
+			}
+		}
 	}
 
 	/**
@@ -1075,7 +1175,7 @@ public class Application implements IApplication {
 							continue;
 						}
 						// System.out.println("+--+--+-- " + esEvent);
-						if (event1.equals(event2)) {
+						if (event1.trim().equals(event2.trim())) {
 							counter.add(confId2);
 						}
 					}
@@ -1246,8 +1346,8 @@ public class Application implements IApplication {
 		List<ChangeType> seeds = new ArrayList<ChangeType>();
 		setProbability(seeds, 0, ChangeType.CHANGE);
 		setProbability(seeds, 0, ChangeType.ADD);
-		setProbability(seeds, 1, ChangeType.DELETE);
-		setProbability(seeds, 0, ChangeType.MOVE);
+		setProbability(seeds, 0, ChangeType.DELETE);
+		setProbability(seeds, 1, ChangeType.MOVE);
 
 		System.out.println("Loading " + leftCbpFile.getName() + "...");
 		leftCbp.load(null);
@@ -1284,8 +1384,8 @@ public class Application implements IApplication {
 			System.out.println();
 
 			// do comparison
-			// if (i % 200 == 0) {
-			if (i % 20 == 0) {
+			if (i % 200 == 0) {
+				// if (i % 20 == 0) {
 
 				number++;
 
@@ -2667,9 +2767,9 @@ public class Application implements IApplication {
 
 	/**
 	 * @param eObjectList
-	 * @param leftCbp
+	 * @param cbpResource
 	 */
-	private static void deleteModification(List<EObject> eObjectList, CBPXMLResourceImpl leftCbp) {
+	private static void deleteModification(List<EObject> eObjectList, CBPXMLResourceImpl cbpResource) {
 		boolean found = false;
 
 		while (!found) {
@@ -2695,14 +2795,28 @@ public class Application implements IApplication {
 				int index = random.nextInt(eObjectList.size());
 				EObject eObject = eObjectList.get(index);
 				if (eObject != null) {
-					String id = leftCbp.getURIFragment(eObject);
+					String id = cbpResource.getURIFragment(eObject);
 					if (id != null && !(id.startsWith("O") || id.startsWith("L") || id.startsWith("R"))) {
-						eObjectList.remove(eObject);
+						try {
+							cbpResource.startCompositeEvent();
+							EcoreUtil.delete(eObject);
+						} catch (Exception e) {
+						} finally {
+							cbpResource.endCompositeEvent();
+						}
+						// eObjectList.remove(eObject);
 						continue;
 					}
 				}
 				if (eObject.eResource() == null) {
-					eObjectList.remove(eObject);
+					try {
+						cbpResource.startCompositeEvent();
+						EcoreUtil.delete(eObject);
+					} catch (Exception e) {
+					} finally {
+						cbpResource.endCompositeEvent();
+					}
+					// eObjectList.remove(eObject);
 					continue;
 				}
 
@@ -2712,13 +2826,32 @@ public class Application implements IApplication {
 
 				if (((EReference) eObject.eContainingFeature()).isContainment()) {
 					removeObjectFromEObjectList(eObject, eObjectList);
-					EcoreUtil.remove(eObject);
-					eObjectList.remove(eObject);
+					try {
+						cbpResource.startCompositeEvent();
+						EcoreUtil.delete(eObject);
+					} catch (Exception e) {
+					} finally {
+						cbpResource.endCompositeEvent();
+					}
+					// eObjectList.remove(eObject);
 					found = true;
 				} else {
-					EcoreUtil.remove(eObject);
+					try {
+						cbpResource.startCompositeEvent();
+						EcoreUtil.delete(eObject);
+					} catch (Exception e) {
+					} finally {
+						cbpResource.endCompositeEvent();
+					}
 					if (eObject.eContainer() == null) {
-						eObjectList.remove(eObject);
+						try {
+							cbpResource.startCompositeEvent();
+							EcoreUtil.delete(eObject);
+						} catch (Exception e) {
+						} finally {
+							cbpResource.endCompositeEvent();
+						}
+						// eObjectList.remove(eObject);
 					}
 					found = true;
 				}

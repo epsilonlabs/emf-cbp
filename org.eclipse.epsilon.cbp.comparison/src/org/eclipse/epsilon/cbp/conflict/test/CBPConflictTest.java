@@ -70,9 +70,13 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.emf.emfstore.common.ESSystemOutProgressMonitor;
+import org.eclipse.emf.emfstore.common.model.ESModelElementId;
 import org.eclipse.epsilon.cbp.comparison.CBPComparisonImpl;
 import org.eclipse.epsilon.cbp.comparison.ICBPComparison;
 import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
+import org.eclipse.epsilon.cbp.comparison.model.node.Node;
+import org.eclipse.epsilon.cbp.comparison.model.node.NodeFactory;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
 import org.eclipse.epsilon.cbp.comparison.util.CBPComparisonUtil;
 import org.eclipse.epsilon.cbp.conflict.CBPConflict;
@@ -345,12 +349,12 @@ public class CBPConflictTest {
 	    System.out.println();
 	    System.out.println("Sort target model of change-based comparison");
 	    changeXmiTargetResource.load(options);
-//	    sortResourceElements(changeXmiTargetResource);
+	    // sortResourceElements(changeXmiTargetResource);
 	    changeXmiTargetResource.save(options);
 
 	    System.out.println("Sort target model of state-based comparison");
 	    stateXmiTargetResource.load(options);
-//	    sortResourceElements(stateXmiTargetResource);
+	    // sortResourceElements(stateXmiTargetResource);
 	    stateXmiTargetResource.save(options);
 
 	    compareCBPvsXMITargets(changeXmiTargetResource, stateXmiTargetResource);
@@ -452,17 +456,22 @@ public class CBPConflictTest {
 	    originalScript.add("root.valNodes.add(nodeB);");
 	    originalScript.add("root.valNodes.add(nodeC);");
 	    originalScript.add("root.valNodes.add(nodeD);");
+	    originalScript.add("nodeB.refNode = nodeA;");
+	    originalScript.add("nodeC.refNode = nodeA;");
+	    originalScript.add("nodeD.refNode = nodeA;");
 
 	    // left script
-	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
-	    leftScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
-	    leftScript.add("root.valNodes.move(3, 1);");
-	    leftScript.add("root.valNodes.move(0, 1);");
-	    
+	    // leftScript.add("var root = Node.allInstances.selectOne(node |
+	    // node.name == \"ROOT\");");
+	    leftScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
+	    leftScript.add("delete nodeA;");
+
 	    // right script
-	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
-	    rightScript.add("root.valNodes.move(3, 2);");
-	    
+	    // rightScript.add("var root = Node.allInstances.selectOne(node |
+	    // node.name == \"ROOT\");");
+	    rightScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
+	    rightScript.add("delete nodeD;");
+
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
 
@@ -499,6 +508,196 @@ public class CBPConflictTest {
 	    System.out.println("DIFFS:");
 	    doThreeWayComparison(xmiLeftResource, xmiRightResource, null);
 
+	    System.out.println("\n\nCBP:");
+	    ICBPComparison comparison = doCbpComparison(changeCbpTargetFile, cbpRightFile, cbpOriginalFile);
+
+	    doCbpMerging(comparison);
+
+	    stateXmiTargetResource.load(options);
+	    doThreeWayComparison(xmiLeftResource, stateXmiTargetResource, xmiOriginalResource);
+	    // sortResourceElements(stateXmiTargetResource);
+	    stateXmiTargetResource.save(options);
+
+	    System.out.println();
+	    System.out.println("Sort target model of change-based comparison");
+	    changeXmiTargetResource.load(options);
+	    sortResourceElements(changeXmiTargetResource);
+	    changeXmiTargetResource.save(options);
+
+	    System.out.println("Sort target model of state-based comparison");
+	    stateXmiTargetResource.load(options);
+	    sortResourceElements(stateXmiTargetResource);
+	    stateXmiTargetResource.save(options);
+
+	    compareCBPvsXMITargets(changeXmiTargetResource, stateXmiTargetResource);
+
+	    cbpOriginalResource.unload();
+	    cbpLeftResource.unload();
+	    cbpRightResource.unload();
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	assertEquals(true, true);
+    }
+
+    @Test
+    public void testManualConflicts() {
+	try {
+	    // EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(),
+	    // NodePackage.eINSTANCE);
+	    // ePackage = (EPackage)
+	    // EPackage.Registry.INSTANCE.get(NodePackage.eINSTANCE.getNsURI());
+	    EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
+	    ePackage = (EPackage) EPackage.Registry.INSTANCE.get(JavaPackage.eINSTANCE.getNsURI());
+
+	    cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.cbpxml");
+	    cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\debug\\left.cbpxml");
+	    cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\debug\\right.cbpxml");
+	    xmiOriginalFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.xmi");
+	    xmiLeftFile = new File("D:\\TEMP\\CONFLICTS\\debug\\left.xmi");
+	    xmiRightFile = new File("D:\\TEMP\\CONFLICTS\\debug\\right.xmi");
+	    stateXmiTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\state-target.xmi");
+	    changeCbpTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\change-target.cbpxml");
+	    changeXmiTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\change-target.xmi");
+	    // cbpOriginalFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\origin.cbpxml");
+	    // cbpLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.cbpxml");
+	    // cbpRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.cbpxml");
+	    // xmiOriginalFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\original.xmi");
+	    // xmiLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.xmi");
+	    // xmiRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.xmi");
+	    // stateXmiTargetFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\state-target.xmi");
+	    // changeCbpTargetFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\change-target.cbpxml");
+	    // changeXmiTargetFile = new
+	    // File("D:\\TEMP\\FASE\\Debug\\change-target.xmi");
+
+	    cbpOriginalResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpOriginalFile.getAbsolutePath()));
+	    cbpOriginalResource.setIdType(IdType.NUMERIC, "O-");
+	    cbpLeftResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpLeftFile.getAbsolutePath()));
+	    cbpLeftResource.setIdType(IdType.NUMERIC, "L-");
+	    cbpRightResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(cbpRightFile.getAbsolutePath()));
+	    cbpRightResource.setIdType(IdType.NUMERIC, "R-");
+	    xmiOriginalResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiOriginalFile.getAbsolutePath()));
+	    xmiLeftResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiLeftFile.getAbsolutePath()));
+	    xmiRightResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiRightFile.getAbsolutePath()));
+
+	    changeCbpTargetResource = (CBPResource) (new CBPXMLResourceFactory()).createResource(URI.createFileURI(changeCbpTargetFile.getAbsolutePath()));
+	    changeCbpTargetResource.setIdType(IdType.NUMERIC, "L-");
+	    stateXmiTargetResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(stateXmiTargetFile.getAbsolutePath()));
+	    changeXmiTargetResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(changeXmiTargetFile.getAbsolutePath()));
+
+	    originalScript = new Script(cbpOriginalResource, xmiOriginalResource);
+	    leftScript = new Script(cbpLeftResource, xmiLeftResource);
+	    rightScript = new Script(cbpRightResource, xmiRightResource);
+
+	    if (cbpOriginalFile.exists())
+		cbpOriginalFile.delete();
+	    if (cbpLeftFile.exists())
+		cbpLeftFile.delete();
+	    if (cbpRightFile.exists())
+		cbpRightFile.delete();
+	    if (xmiOriginalFile.exists())
+		xmiOriginalFile.delete();
+	    if (xmiLeftFile.exists())
+		xmiLeftFile.delete();
+	    if (xmiRightFile.exists())
+		xmiRightFile.delete();
+
+	    if (changeCbpTargetFile.exists())
+		changeCbpTargetFile.delete();
+	    if (changeXmiTargetFile.exists())
+		changeXmiTargetFile.delete();
+	    if (stateXmiTargetFile.exists())
+		stateXmiTargetFile.delete();
+
+	    NodeFactory factory = NodeFactory.eINSTANCE;
+	    Node rootNode1 = factory.createNode();
+	    rootNode1.setName("ROOT1");
+	    Node rootNode2 = factory.createNode();
+	    rootNode1.setName("ROOT2");
+	    cbpOriginalResource.getContents().add(rootNode1);
+	    cbpOriginalResource.getContents().add(rootNode2);
+
+	    Node nodeA = factory.createNode();
+	    nodeA.setName("A");
+	    Node nodeB = factory.createNode();
+	    nodeB.setName("B");
+	    Node nodeC = factory.createNode();
+	    nodeC.setName("C");
+	    Node nodeD = factory.createNode();
+	    nodeD.setName("D");
+	    rootNode1.getValNodes().add(nodeA);
+	    rootNode2.getValNodes().add(nodeB);
+	    rootNode2.getValNodes().add(nodeC);
+	    nodeA.setValNode(nodeD);
+	    nodeD.setRefNode(nodeA);
+	    
+	    String aId = cbpOriginalResource.getEObjectId(nodeA);
+	    String bId = cbpOriginalResource.getEObjectId(nodeB);
+	    String cId = cbpOriginalResource.getEObjectId(nodeC);
+	    String dId = cbpOriginalResource.getEObjectId(nodeD);
+	    String root2Id = cbpOriginalResource.getEObjectId(rootNode2);
+
+	    cbpOriginalResource.save(options);
+	    exportToXmi(cbpOriginalResource, xmiOriginalResource);
+	    Files.copy(cbpOriginalFile.toPath(), cbpLeftFile.toPath());
+	    Files.copy(cbpOriginalFile.toPath(), cbpRightFile.toPath());
+	    cbpLeftResource.load(null);
+	    cbpRightResource.load(null);
+
+	    // process right file first
+	    System.out.println("LOADING RIGHT MODEL");
+	    cbpRightResource.startNewSession("RIGHT");
+	    nodeA = (Node) cbpRightResource.getEObject(aId);
+	    nodeD = (Node) cbpRightResource.getEObject(dId);
+	    cbpRightResource.startCompositeEvent();
+	    EcoreUtil.delete(nodeD);
+	    cbpRightResource.endCompositeEvent();
+	    cbpRightResource.startCompositeEvent();
+	    EcoreUtil.delete(nodeA);
+	    cbpLeftResource.endCompositeEvent();
+	    cbpRightResource.save(options);
+	    exportToXmi(cbpRightResource, xmiRightResource);
+
+	    // process left
+	    System.out.println("LOADING LEFT MODEL");
+	    cbpLeftResource.startNewSession("LEFT");
+	    nodeA = (Node) cbpLeftResource.getEObject(aId);
+	    nodeD = (Node) cbpLeftResource.getEObject(dId);
+	    cbpLeftResource.startCompositeEvent();
+	    EcoreUtil.delete(nodeD);
+	    cbpLeftResource.endCompositeEvent();
+	    cbpLeftResource.save(options);
+	    exportToXmi(cbpLeftResource, xmiLeftResource);
+
+	    Files.copy(cbpLeftFile.toPath(), changeCbpTargetFile.toPath());
+	    Files.copy(xmiLeftFile.toPath(), changeXmiTargetFile.toPath());
+	    Files.copy(xmiRightFile.toPath(), stateXmiTargetFile.toPath());
+
+	    // -------------------------
+	    System.out.println("ORIGIN:");
+	    for (String line : Files.readAllLines(cbpOriginalFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("RIGHT:");
+	    for (String line : Files.readAllLines(cbpRightFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("LEFT:");
+	    for (String line : Files.readAllLines(cbpLeftFile.toPath())) {
+		System.out.println(line);
+	    }
+	    System.out.println();
+	    System.out.println("DIFFS:");
+	    doThreeWayComparison(xmiLeftResource, xmiRightResource, null);
+
+	    System.out.println("\nCBP:");
 	    ICBPComparison comparison = doCbpComparison(changeCbpTargetFile, cbpRightFile, cbpOriginalFile);
 
 	    doCbpMerging(comparison);
@@ -941,11 +1140,17 @@ public class CBPConflictTest {
 	if (diff.getSource() == DifferenceSource.LEFT) {
 	    eLeftTarget = diff.getMatch().getLeft();
 	    eRightTarget = diff.getMatch().getOrigin();
+	    if (eLeftTarget == null) {
+		eLeftTarget = diff.getMatch().getRight();
+	    }
 	} else {
 	    eLeftTarget = diff.getMatch().getRight();
 	    eRightTarget = diff.getMatch().getOrigin();
+	    if (eLeftTarget == null) {
+		eLeftTarget = diff.getMatch().getLeft();
+	    }
 	}
-
+	
 	if (eLeftTarget != null) {
 	    leftTarget = leftModel.getURIFragment(eLeftTarget);
 	}
@@ -1209,6 +1414,22 @@ public class CBPConflictTest {
 	}
 	System.out.println("Diffs Size: " + list.size());
 	return list;
+    }
+
+    public void exportToXmi(CBPResource cbpResource, XMIResource xmiResource) {
+	xmiResource.getContents().addAll(EcoreUtil.copyAll(cbpResource.getContents()));
+	TreeIterator<EObject> cbpIterator = cbpResource.getAllContents();
+	TreeIterator<EObject> xmiIterator = xmiResource.getAllContents();
+	while (cbpIterator.hasNext() && xmiIterator.hasNext()) {
+	    String id = cbpResource.getURIFragment(cbpIterator.next());
+	    xmiResource.setID(xmiIterator.next(), id);
+	}
+	try {
+	    xmiResource.save(options);
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
     }
 
 }

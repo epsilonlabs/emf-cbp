@@ -82,7 +82,7 @@ public class DeleteEObjectEvent extends EObjectEvent {
 	this.eObject = resource.getEObject(this.id);
 	if (eObject != null) {
 	    this.setValue(eObject);
-//	    EcoreUtil.delete(eObject);
+	    EcoreUtil.delete(eObject);
 //	    resource.unregister(eObject);
 	}
     }
