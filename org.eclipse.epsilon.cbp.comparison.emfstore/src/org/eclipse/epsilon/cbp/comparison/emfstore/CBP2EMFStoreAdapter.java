@@ -345,42 +345,13 @@ public class CBP2EMFStoreAdapter {
 							try {
 								System.out.println(eventNumber + ": " + event.toString());
 
-								if (event.getComposite() != null) {
-									if (event.getComposite().equals("_M0nrIZvhEem7iJ0oBqA_Mw")
-										&& event instanceof DeleteEObjectEvent) {
-										System.console();
-									}
-								}
-
 								if (event.getComposite() != null && (event instanceof RemoveFromEReferenceEvent ||
 									event instanceof RemoveFromResourceEvent
 									|| event instanceof UnsetEReferenceEvent)) {
 								} else {
 
-									if (event instanceof DeleteEObjectEvent
-										&& event.getComposite().equals("_M0nrIZvhEem7iJ0oBqA_Mw")) {
-										System.console();
-									}
-
 									event.replay();
 									count++;
-
-									// EObject obj = getEObject("O-1328");
-									// if (obj != null) {
-									// EStructuralFeature eFeature = obj.eClass()
-									// .getEStructuralFeature("usageInVariableAccess");
-									// EList<EObject> list = (EList<EObject>) obj.eGet(eFeature);
-									// if (list != null) {
-									// EObject obj2 = getEObject("O-1323");
-									// if (obj2 != null) {
-									// if (list.contains(obj2)) {
-									// System.console();
-									// } else {
-									// System.console();
-									// }
-									// }
-									// }
-									// }
 
 									if (isAutocommit && count % 200000 == 0) {
 										localProject.commit("AUTOCOMMIT", null, new ESSystemOutProgressMonitor());

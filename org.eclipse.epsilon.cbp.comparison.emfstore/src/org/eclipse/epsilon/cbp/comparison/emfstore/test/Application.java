@@ -530,9 +530,8 @@ public class Application implements IApplication {
 			ESModelElementId bId = originalProject.getModelElementId(nodeB);
 			ESModelElementId cId = originalProject.getModelElementId(nodeC);
 			ESModelElementId dId = originalProject.getModelElementId(nodeD);
+			nodeD.setParent(nodeA);
 			nodeB.setRefNode(nodeA);
-			nodeC.setRefNode(nodeA);
-			nodeD.setRefNode(nodeA);
 
 			originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
 
@@ -543,16 +542,19 @@ public class Application implements IApplication {
 			// process right file first
 			System.out.println("LOADING RIGHT MODEL");
 			nodeD = (Node) rightProject.getModelElement(dId);
+			nodeA = (Node) rightProject.getModelElement(aId);
 			// nodeD.setRefNode(null);
 			EcoreUtil.delete(nodeD);
+			EcoreUtil.delete(nodeB);
 			rightProject.commit("RIGHT", null, new ESSystemOutProgressMonitor());
 			// exportToXMI(rightAdapater, emfsRightResource);
 
 			// process left
 			System.out.println("LOADING LEFT MODEL");
+			nodeD = (Node) leftProject.getModelElement(dId);
 			nodeA = (Node) leftProject.getModelElement(aId);
-			// nodeB = (Node) leftProject.getModelElement(bId);
 			// nodeC = (Node) leftProject.getModelElement(cId);
+			EcoreUtil.delete(nodeD);
 			EcoreUtil.delete(nodeA);
 			// EcoreUtil.delete(nodeB);
 			// EcoreUtil.delete(nodeC);
@@ -1344,10 +1346,10 @@ public class Application implements IApplication {
 
 		// Start modifying the models
 		List<ChangeType> seeds = new ArrayList<ChangeType>();
-		setProbability(seeds, 0, ChangeType.CHANGE);
+		setProbability(seeds, 1, ChangeType.CHANGE);
 		setProbability(seeds, 0, ChangeType.ADD);
 		setProbability(seeds, 0, ChangeType.DELETE);
-		setProbability(seeds, 1, ChangeType.MOVE);
+		setProbability(seeds, 0, ChangeType.MOVE);
 
 		System.out.println("Loading " + leftCbpFile.getName() + "...");
 		leftCbp.load(null);
@@ -1537,6 +1539,10 @@ public class Application implements IApplication {
 				writer.print(result.getStateComparisonMemory());
 				writer.print(",");
 
+				if (stateComparison.getConflicts().size() != changeComparison.getConflictCount()) {
+					System.console();
+				}
+
 				// ----------------EMF STORE
 				// leftProject.update(new ESSystemOutProgressMonitor());
 
@@ -1589,9 +1595,16 @@ public class Application implements IApplication {
 
 				// prevLeftCbpSize = leftCbpFile.length();
 				// prevRightCbpSize = rightCbpFile.length();
-
-				exportToXMI(leftAdapater, emfsXmiLeftResource);
-				exportToXMI(rightAdapater, emfsXmiRightResource);
+				try {
+					exportToXMI(leftAdapater, emfsXmiLeftResource);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				try {
+					exportToXMI(rightAdapater, emfsXmiRightResource);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
 				System.out.println(result.getChangeConflictCount() + " vs " + result.getEmfsConflictCount());
 				if (result.getChangeConflictCount() - result.getEmfsConflictCount() >= 2) {
@@ -2616,7 +2629,12 @@ public class Application implements IApplication {
 							if (values.size() > 0 && !values.contains(eObject2)) {
 								try {
 									int pos = random.nextInt(values.size());
-									values.add(pos, eObject2);
+									try {
+										values.add(pos, eObject2);
+									} catch (Exception e) {
+									} finally {
+										leftCbp.endCompositeEvent();
+									}
 									found = true;
 								} catch (Exception e) {
 								}
@@ -2632,7 +2650,12 @@ public class Application implements IApplication {
 								if (eObject1.eGet(eReference) != null) {
 									continue;
 								}
-								eObject1.eSet(eReference, eObject2);
+								try {
+									eObject1.eSet(eReference, eObject2);
+								} catch (Exception e) {
+								} finally {
+									leftCbp.endCompositeEvent();
+								}
 								found = true;
 							} catch (Exception e) {
 							}

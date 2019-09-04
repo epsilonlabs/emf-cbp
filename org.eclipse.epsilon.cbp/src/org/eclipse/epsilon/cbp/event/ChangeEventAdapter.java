@@ -477,7 +477,15 @@ public class ChangeEventAdapter extends EContentAdapter {
 	}
 
 	if (event instanceof SetEReferenceEvent || event instanceof AddToEReferenceEvent || event instanceof AddToResourceEvent) {
-	    if (tempDeletedObjects.contains((EObject) n.getNewValue())) {
+	    if (n.getNewValue() instanceof ArrayList<?>) {
+		ArrayList<EObject> list = (ArrayList<EObject>) n.getNewValue();
+		for (EObject val : list) {
+		    if (tempDeletedObjects.contains(val)) {
+			tempDeletedObjects.remove(val);
+		    }
+		}
+
+	    } else if (n.getNewValue() instanceof EObject && tempDeletedObjects.contains((EObject) n.getNewValue())) {
 		tempDeletedObjects.remove((EObject) n.getNewValue());
 	    }
 	}
@@ -518,7 +526,7 @@ public class ChangeEventAdapter extends EContentAdapter {
 		    }
 		} else if (n.getOldValue() instanceof EList) {
 		    if (!tempDeletedObjects.contains((EObject) event.getValue())) {
-//			 tempDeletedObjects.add((EObject) n.getOldValue());
+			// tempDeletedObjects.add((EObject) n.getOldValue());
 			handleDeletedEObject(event, (EObject) event.getValue());
 		    }
 		}

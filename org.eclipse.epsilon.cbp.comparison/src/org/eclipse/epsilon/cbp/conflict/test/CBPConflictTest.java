@@ -633,8 +633,8 @@ public class CBPConflictTest {
 	    rootNode1.getValNodes().add(nodeA);
 	    rootNode2.getValNodes().add(nodeB);
 	    rootNode2.getValNodes().add(nodeC);
-	    nodeA.setValNode(nodeD);
-	    nodeD.setRefNode(nodeA);
+	    nodeD.setParent(nodeA);
+	    nodeB.setRefNode(nodeA);
 	    
 	    String aId = cbpOriginalResource.getEObjectId(nodeA);
 	    String bId = cbpOriginalResource.getEObjectId(nodeB);
@@ -656,6 +656,7 @@ public class CBPConflictTest {
 	    nodeD = (Node) cbpRightResource.getEObject(dId);
 	    cbpRightResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeD);
+//	    nodeD.setParent(null);
 	    cbpRightResource.endCompositeEvent();
 	    cbpRightResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeA);
@@ -666,10 +667,14 @@ public class CBPConflictTest {
 	    // process left
 	    System.out.println("LOADING LEFT MODEL");
 	    cbpLeftResource.startNewSession("LEFT");
-	    nodeA = (Node) cbpLeftResource.getEObject(aId);
+	    nodeB = (Node) cbpLeftResource.getEObject(bId);
 	    nodeD = (Node) cbpLeftResource.getEObject(dId);
 	    cbpLeftResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeD);
+//	    nodeD.setParent(null);
+	    cbpLeftResource.endCompositeEvent();
+	    cbpLeftResource.startCompositeEvent();
+	    EcoreUtil.delete(nodeB);
 	    cbpLeftResource.endCompositeEvent();
 	    cbpLeftResource.save(options);
 	    exportToXmi(cbpLeftResource, xmiLeftResource);

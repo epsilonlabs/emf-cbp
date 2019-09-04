@@ -21,8 +21,11 @@ public class DeleteEObjectEvent extends org.eclipse.epsilon.cbp.event.DeleteEObj
 			if (eObject != null) {
 				setValue(eObject);
 				try {
-					EcoreUtil.delete(eObject);
-				} catch (Exception e) {
+					// ESModelElementId elementId = resource.getLocalProject().getModelElementId(eObject);
+//					if (eObject.eContainer() != null) {
+						EcoreUtil.delete(eObject);
+//					}
+				} catch (Exception e1) {
 					System.console();
 					try {
 						EcoreUtil.remove(eObject);
