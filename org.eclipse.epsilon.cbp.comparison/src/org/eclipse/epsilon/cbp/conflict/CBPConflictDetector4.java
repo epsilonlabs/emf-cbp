@@ -1,5 +1,9 @@
 package org.eclipse.epsilon.cbp.conflict;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -18,7 +22,7 @@ import org.eclipse.epsilon.cbp.comparison.event.CBPDeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEObject;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEStructuralFeatureEvent;
 
-public class CBPConflictDetector {
+public class CBPConflictDetector4 {
 
     @SuppressWarnings("rawtypes")
     public void computeConflicts(Map<String, CBPMatchObject> objects, List<CBPConflict> conflicts, Map<String, Set<CBPChangeEvent<?>>> leftCompositeEvents,
@@ -32,14 +36,14 @@ public class CBPConflictDetector {
 
 	    // System.out.println(cTarget.getId());
 
-	    if (cTarget.getId().equals("O-6") || cTarget.getId().equals("O-7")) {
+	    if (cTarget.getId().equals("O-2")) {
 		// CBPMatchFeature x = cTarget.getFeatures().get("specific");
 		System.console();
 	    }
 
-	    if (cTarget.getLeftIsDeleted() && cTarget.getRightIsDeleted()) {
-		// continue
-	    } else //
+	    // if (cTarget.getLeftIsDeleted() && cTarget.getRightIsDeleted()) {
+	    // continue;
+	    // } else //
 	    if (cTarget.getLeftIsDeleted() || cTarget.getRightIsDeleted()) {
 
 		Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
@@ -91,103 +95,85 @@ public class CBPConflictDetector {
 		}
 	    }
 
-	    // // movement conflict
-	    // else if (!cTarget.getLeftIsCreated() &&
-	    // !cTarget.getLeftIsDeleted() && !cTarget.getLeftIsCreated() &&
-	    // !cTarget.getRightIsDeleted()) {
-	    //
-	    // if (cTarget.getLeftContainer() != null &&
-	    // cTarget.getRightContainer() != null) {
-	    // CBPMatchObject leftContainer = cTarget.getLeftContainer();
-	    // CBPMatchFeature leftContainingFeature =
-	    // cTarget.getLeftContainingFeature();
-	    // CBPMatchObject rightContainer = cTarget.getRightContainer();
-	    // CBPMatchFeature rightContainingFeature =
-	    // cTarget.getRightContainingFeature();
-	    // CBPMatchObject oldContainer = cTarget.getOldLeftContainer();
-	    // CBPMatchFeature oldContainingFeature =
-	    // cTarget.getOldLeftContainingFeature();
-	    //
-	    // if ((!leftContainer.equals(oldContainer) ||
-	    // !leftContainingFeature.equals(oldContainingFeature))
-	    // || (!rightContainer.equals(oldContainer) ||
-	    // !rightContainingFeature.equals(oldContainingFeature))) {
-	    //
-	    // Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
-	    // Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
-	    //
-	    // // long a = 0;
-	    // // long b = 0;
-	    // // long c = 0;
-	    // // long start = 0;
-	    // // long end = 0;
-	    //
-	    // if (leftContainingFeature.getLeftObjectEvents().get(cTarget) !=
-	    // null) {
-	    // leftEvents.addAll(leftContainingFeature.getLeftObjectEvents().get(cTarget));
-	    // }
-	    // if (rightContainingFeature.getRightObjectEvents().get(cTarget) !=
-	    // null) {
-	    // rightEvents.addAll(rightContainingFeature.getRightObjectEvents().get(cTarget));
-	    // }
-	    //
-	    // if (cTarget.getValueEvents(CBPSide.LEFT) != null)
-	    // leftEvents.addAll(cTarget.getValueEvents(CBPSide.LEFT));
-	    // if (cTarget.getValueEvents(CBPSide.RIGHT) != null)
-	    // rightEvents.addAll(cTarget.getValueEvents(CBPSide.RIGHT));
-	    //
-	    // addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
-	    // addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
-	    //
-	    // // addDependentEvents(objects, leftEvents,
-	    // // leftCompositeEvents, CBPSide.LEFT);
-	    // // addDependentEvents(objects, rightEvents,
-	    // // rightCompositeEvents, CBPSide.RIGHT);
-	    //
-	    // if (leftEvents != null && rightEvents != null &&
-	    // leftEvents.size() > 0 && rightEvents.size() > 0) {
-	    // // start = System.nanoTime();
-	    // final CBPConflict conflict = getExistingConflict(conflicts,
-	    // leftEvents, rightEvents);
-	    // // end = System.nanoTime();
-	    // // a = end - start;
-	    // if (conflict != null) {
-	    // leftEvents.stream().forEach(e -> e.setConflict(conflict));
-	    // rightEvents.stream().forEach(e -> e.setConflict(conflict));
-	    // conflict.getLeftEvents().addAll(leftEvents);
-	    // conflict.getRightEvents().addAll(rightEvents);
-	    //
-	    // } else {
-	    // CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-	    // if ((leftContainer.equals(rightContainer) &&
-	    // !leftContainingFeature.equals(rightContainingFeature))) {
-	    // if (leftEvents.size() == 1 && rightEvents.size() == 1)
-	    // conflict2.setPseudo(true);
-	    // }
-	    // conflicts.add(conflict2);
-	    // }
-	    // }
-	    //
-	    // // try {
-	    // // if (a > 0) {
-	    // // String x = String.valueOf(a) +
-	    // // System.lineSeparator();
-	    // //
-	    // Files.write(Paths.get("D:\\TEMP\\CONFLICTS\\performance\\move.csv"),
-	    // // x.getBytes(), StandardOpenOption.APPEND);
-	    // // }
-	    // // } catch (IOException e) {
-	    // // e.printStackTrace();
-	    // // }
-	    //
-	    // } else if (cTarget.getLeftPosition() !=
-	    // cTarget.getRightPosition() && cTarget.getLeftPosition() !=
-	    // cTarget.getOldLeftPosition()
-	    // && cTarget.getRightPosition() != cTarget.getOldLeftPosition()) {
-	    // // do nothing
-	    // }
-	    // }
-	    // }
+	    // movement conflict
+	    else if (!cTarget.getLeftIsCreated() && !cTarget.getLeftIsDeleted() && !cTarget.getLeftIsCreated() && !cTarget.getRightIsDeleted()) {
+
+		if (cTarget.getLeftContainer() != null && cTarget.getRightContainer() != null) {
+		    CBPMatchObject leftContainer = cTarget.getLeftContainer();
+		    CBPMatchFeature leftContainingFeature = cTarget.getLeftContainingFeature();
+		    CBPMatchObject rightContainer = cTarget.getRightContainer();
+		    CBPMatchFeature rightContainingFeature = cTarget.getRightContainingFeature();
+		    CBPMatchObject oldContainer = cTarget.getOldLeftContainer();
+		    CBPMatchFeature oldContainingFeature = cTarget.getOldLeftContainingFeature();
+
+		    if ((!leftContainer.equals(oldContainer) || !leftContainingFeature.equals(oldContainingFeature))
+			    || (!rightContainer.equals(oldContainer) || !rightContainingFeature.equals(oldContainingFeature))) {
+
+			Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
+			Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
+
+			long a = 0;
+			long b = 0;
+			long c = 0;
+			long start = 0;
+			long end = 0;
+
+			if (leftContainingFeature.getLeftObjectEvents().get(cTarget) != null) {
+			    leftEvents.addAll(leftContainingFeature.getLeftObjectEvents().get(cTarget));
+			}
+			if (rightContainingFeature.getRightObjectEvents().get(cTarget) != null) {
+			    rightEvents.addAll(rightContainingFeature.getRightObjectEvents().get(cTarget));
+			}
+
+			if (cTarget.getValueEvents(CBPSide.LEFT) != null)
+			    leftEvents.addAll(cTarget.getValueEvents(CBPSide.LEFT));
+			if (cTarget.getValueEvents(CBPSide.RIGHT) != null)
+			    rightEvents.addAll(cTarget.getValueEvents(CBPSide.RIGHT));
+
+			addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
+			addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
+
+			// addDependentEvents(objects, leftEvents,
+			// leftCompositeEvents, CBPSide.LEFT);
+			// addDependentEvents(objects, rightEvents,
+			// rightCompositeEvents, CBPSide.RIGHT);
+
+			if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
+			    start = System.nanoTime();
+			    final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
+			    end = System.nanoTime();
+			    a = end - start;
+			    if (conflict != null) {
+				leftEvents.stream().forEach(e -> e.setConflict(conflict));
+				rightEvents.stream().forEach(e -> e.setConflict(conflict));
+				conflict.getLeftEvents().addAll(leftEvents);
+				conflict.getRightEvents().addAll(rightEvents);
+
+			    } else {
+				CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
+				if ((leftContainer.equals(rightContainer) && !leftContainingFeature.equals(rightContainingFeature))) {
+				    if (leftEvents.size() == 1 && rightEvents.size() == 1)
+					conflict2.setPseudo(true);
+				}
+				conflicts.add(conflict2);
+			    }
+			}
+
+			try {
+			    if (a > 0) {
+				String x = String.valueOf(a) + System.lineSeparator();
+				Files.write(Paths.get("D:\\TEMP\\CONFLICTS\\performance\\move.csv"), x.getBytes(), StandardOpenOption.APPEND);
+			    }
+			} catch (IOException e) {
+			    e.printStackTrace();
+			}
+
+		    } else if (cTarget.getLeftPosition() != cTarget.getRightPosition() && cTarget.getLeftPosition() != cTarget.getOldLeftPosition()
+			    && cTarget.getRightPosition() != cTarget.getOldLeftPosition()) {
+			// do nothing
+		    }
+		}
+	    }
 
 	    for (Entry<String, CBPMatchFeature> featureEntry : cTarget.getFeatures().entrySet()) {
 		CBPMatchFeature cFeature = featureEntry.getValue();
@@ -223,26 +209,9 @@ public class CBPConflictDetector {
 			Set<Object> values = getAllUnequalValues(cFeature);
 			for (Object value : values) {
 			    CBPMatchObject cValue = (CBPMatchObject) value;
-
-			    CBPMatchObject leftContainer = cTarget.getLeftContainer();
-			    CBPMatchFeature leftContainingFeature = cTarget.getLeftContainingFeature();
-			    CBPMatchObject rightContainer = cTarget.getRightContainer();
-			    CBPMatchFeature rightContainingFeature = cTarget.getRightContainingFeature();
-			    CBPMatchObject oldContainer = cTarget.getOldLeftContainer();
-			    CBPMatchFeature oldContainingFeature = cTarget.getOldLeftContainingFeature();
-
 			    if (cValue != null && cValue.getLeftIsDeleted() && cValue.getRightIsDeleted()) {
 				continue;
-			    } else if (
-				    leftContainer != null && rightContainer != null &&
-				    leftContainingFeature != null && rightContainingFeature != null &&
-				    leftContainer.equals(oldContainer) && leftContainingFeature.equals(oldContainingFeature) && rightContainer.equals(oldContainer)
-				    && rightContainingFeature.equals(oldContainingFeature) && 
-				    cValue.getLeftPosition() == cValue.getOldLeftPosition()
-				    && cValue.getRightPosition() == cValue.getOldRightPosition()) {
-				continue;
 			    }
-
 			    Set<CBPChangeEvent<?>> leftEvents = cFeature.getLeftObjectEvents(cValue);
 			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(cValue);
 			    addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
@@ -273,16 +242,6 @@ public class CBPConflictDetector {
 			CBPMatchObject originalValue = (CBPMatchObject) cFeature.getOldLeftValues().get(0);
 			CBPMatchObject leftValue = (CBPMatchObject) cFeature.getLeftValues().get(0);
 			CBPMatchObject rightValue = (CBPMatchObject) cFeature.getRightValues().get(0);
-
-			if (leftValue == null && originalValue == null && rightValue == null) {
-			    // continue
-			} else //
-			if (leftValue != null && leftValue.equals(originalValue) && leftValue.equals(rightValue)) {
-			    // continue
-			} else //
-			if (rightValue != null && rightValue.equals(originalValue) && rightValue.equals(leftValue)) {
-			    // continue
-			} else //
 			if ((leftValue != null && !leftValue.equals(originalValue) || (originalValue != null && !originalValue.equals(leftValue)))
 				|| (rightValue != null && !rightValue.equals(originalValue) || (originalValue != null && !originalValue.equals(rightValue)))) {
 			    if (cFeature.getLeftEvents().size() > 0 && cFeature.getRightEvents().size() > 0) {
@@ -324,13 +283,6 @@ public class CBPConflictDetector {
 			Set<Object> values = getAllUnequalValues(cFeature);
 			for (Object value : values) {
 			    CBPMatchObject cValue = (CBPMatchObject) value;
-
-			    if (cValue != null && cValue.getLeftIsDeleted() && cValue.getRightIsDeleted()) {
-				continue;
-			    } else if (cValue.getLeftPosition() == cValue.getOldLeftPosition() && cValue.getRightPosition() == cValue.getOldRightPosition()) {
-				continue;
-			    }
-
 			    Set<CBPChangeEvent<?>> leftEvents = cFeature.getLeftObjectEvents(cValue);
 			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(cValue);
 
@@ -359,15 +311,6 @@ public class CBPConflictDetector {
 			CBPMatchObject leftValue = (CBPMatchObject) cFeature.getLeftValues().get(0);
 			CBPMatchObject rightValue = (CBPMatchObject) cFeature.getRightValues().get(0);
 
-			if (leftValue == null && originalValue == null && rightValue == null) {
-			    // continue
-			} else //
-			if (leftValue != null && leftValue.equals(originalValue) && leftValue.equals(rightValue)) {
-			    // continue
-			} else //
-			if (rightValue != null && rightValue.equals(originalValue) && rightValue.equals(leftValue)) {
-			    // continue
-			} else //
 			if ((leftValue != null && !leftValue.equals(originalValue) || (originalValue != null && !originalValue.equals(leftValue)))
 				|| (rightValue != null && !rightValue.equals(originalValue) || (originalValue != null && !originalValue.equals(rightValue)))) {
 
@@ -403,11 +346,6 @@ public class CBPConflictDetector {
 		    if (cFeature.isMany()) {
 			Set<Object> values = getAllUnequalValues(cFeature);
 			for (Object value : values) {
-
-			    if (cFeature.getLeftPosition(value) == cFeature.getOriginalPosition(value) && cFeature.getRightPosition(value) == cFeature.getOriginalPosition(value)) {
-				continue;
-			    }
-
 			    Set<CBPChangeEvent<?>> leftEvents = cFeature.getLeftObjectEvents(value);
 			    Set<CBPChangeEvent<?>> rightEvents = cFeature.getRightObjectEvents(value);
 
@@ -436,15 +374,6 @@ public class CBPConflictDetector {
 			Object leftValue = cFeature.getLeftValues().get(0);
 			Object rightValue = cFeature.getRightValues().get(0);
 
-			if (leftValue == null && originalValue == null && rightValue == null) {
-			    // continue
-			} else //
-			if (leftValue != null && leftValue.equals(originalValue) && leftValue.equals(rightValue)) {
-			    // continue
-			} else //
-			if (rightValue != null && rightValue.equals(originalValue) && rightValue.equals(leftValue)) {
-			    // continue
-			} else //
 			if ((leftValue != null && !leftValue.equals(originalValue) || (originalValue != null && !originalValue.equals(leftValue)))
 				|| (rightValue != null && !rightValue.equals(originalValue) || (originalValue != null && !originalValue.equals(rightValue)))) {
 
@@ -477,7 +406,6 @@ public class CBPConflictDetector {
 	    }
 
 	}
-
     }
 
     private boolean evensArePartOfDeletion(Set<CBPChangeEvent<?>> leftEvents, Set<CBPChangeEvent<?>> rightEvents) {
@@ -506,90 +434,84 @@ public class CBPConflictDetector {
      */
     private CBPConflict getExistingConflict(List<CBPConflict> conflicts, Set<CBPChangeEvent<?>> leftEvents, Set<CBPChangeEvent<?>> rightEvents) {
 	CBPConflict conflict = null;
-	 Set<CBPConflict> leftConflicts = leftEvents.stream().filter(event ->
-	 event.getConflict() != null).map(event ->
-	 event.getConflict()).collect(Collectors.toSet());
-	 Set<CBPConflict> rightConflicts = rightEvents.stream().filter(event
-	 -> event.getConflict() != null).map(event ->
-	 event.getConflict()).collect(Collectors.toSet());
-	
-	 if (leftConflicts != null && leftConflicts.size() > 0) {
-	 conflict = leftConflicts.iterator().next();
-	 }
-	
-	 if (conflict == null && rightConflicts != null &&
-	 rightConflicts.size() > 0) {
-	 conflict = rightConflicts.iterator().next();
-	 }
-	
-	 final CBPConflict conf = conflict;
-	
-	 if (conf != null) {
-	 Set<CBPConflict> unionConflicts = leftConflicts;
-	 unionConflicts.addAll(rightConflicts);
-	 unionConflicts.remove(conf);
-	 conflicts.removeAll(unionConflicts);
-	
-	 for (CBPConflict c : unionConflicts) {
-	 conf.getLeftEvents().addAll(c.getLeftEvents());
-	 c.getLeftEvents().clear();
-	 conf.getLeftEvents().stream().forEach(e -> e.setConflict(conf));
-	
-	 conf.getRightEvents().addAll(c.getRightEvents());
-	 c.getRightEvents().clear();
-	 conf.getRightEvents().stream().forEach(e -> e.setConflict(conf));
-	 }
-	 unionConflicts.clear();
-	 }
-	
-	 if (leftConflicts != null)
-	 leftConflicts.clear();
-	
-	 if (rightConflicts != null)
-	 rightConflicts.clear();
-	
-	 //----------------------------------------------
-	// // if (conflict != null) {
-	// // if (leftConflicts != null && leftConflicts.size() > 0) {
-	// // for (CBPConflict c : leftConflicts) {
-	// // if (conflict.equals(c)) {
-	// // continue;
-	// // }
-	// // for (CBPChangeEvent<?> event : c.getLeftEvents()) {
-	// // event.setConflict(conflict);
-	// // }
-	// // conflict.getLeftEvents().addAll(c.getLeftEvents());
-	// // c.getLeftEvents().clear();
-	// // for (CBPChangeEvent<?> event : c.getRightEvents()) {
-	// // event.setConflict(conflict);
-	// // }
-	// // conflict.getRightEvents().addAll(c.getRightEvents());
-	// // c.getRightEvents().clear();
-	// // conflicts.remove(c);
-	// // }
-	// // }
-	// // if (rightConflicts != null && rightConflicts.size() > 0) {
-	// // for (CBPConflict c : rightConflicts) {
-	// // if (conflict.equals(c)) {
-	// // continue;
-	// // }
-	// // for (CBPChangeEvent<?> event : c.getLeftEvents()) {
-	// // event.setConflict(conflict);
-	// // }
-	// // conflict.getLeftEvents().addAll(c.getLeftEvents());
-	// // c.getLeftEvents().clear();
-	// // for (CBPChangeEvent<?> event : c.getRightEvents()) {
-	// // event.setConflict(conflict);
-	// // }
-	// // conflict.getRightEvents().addAll(c.getRightEvents());
-	// // c.getRightEvents().clear();
-	// // conflicts.remove(c);
-	// //
-	// // }
-	// // }
-	// // }
+	Set<CBPConflict> leftConflicts = leftEvents.stream().filter(event -> event.getConflict() != null).map(event -> event.getConflict()).collect(Collectors.toSet());
+	Set<CBPConflict> rightConflicts = rightEvents.stream().filter(event -> event.getConflict() != null).map(event -> event.getConflict()).collect(Collectors.toSet());
 
-	return conflict;
+	if (leftConflicts != null && leftConflicts.size() > 0) {
+	    conflict = leftConflicts.iterator().next();
+	}
+
+	if (conflict == null && rightConflicts != null && rightConflicts.size() > 0) {
+	    conflict = rightConflicts.iterator().next();
+	}
+
+	final CBPConflict conf = conflict;
+
+	if (conf != null) {
+	    Set<CBPConflict> unionConflicts = leftConflicts;
+	    unionConflicts.addAll(rightConflicts);
+	    unionConflicts.remove(conf);
+	    conflicts.removeAll(unionConflicts);
+
+	    for (CBPConflict c : unionConflicts) {
+		conf.getLeftEvents().addAll(c.getLeftEvents());
+		c.getLeftEvents().clear();
+		conf.getLeftEvents().stream().forEach(e -> e.setConflict(conf));
+
+		conf.getRightEvents().addAll(c.getRightEvents());
+		c.getRightEvents().clear();
+		conf.getRightEvents().stream().forEach(e -> e.setConflict(conf));
+	    }
+	    unionConflicts.clear();
+	}
+
+	if (leftConflicts != null)
+	    leftConflicts.clear();
+
+	if (rightConflicts != null)
+	    rightConflicts.clear();
+
+	// if (conflict != null) {
+	// if (leftConflicts != null && leftConflicts.size() > 0) {
+	// for (CBPConflict c : leftConflicts) {
+	// if (conflict.equals(c)) {
+	// continue;
+	// }
+	// for (CBPChangeEvent<?> event : c.getLeftEvents()) {
+	// event.setConflict(conflict);
+	// }
+	// conflict.getLeftEvents().addAll(c.getLeftEvents());
+	// c.getLeftEvents().clear();
+	// for (CBPChangeEvent<?> event : c.getRightEvents()) {
+	// event.setConflict(conflict);
+	// }
+	// conflict.getRightEvents().addAll(c.getRightEvents());
+	// c.getRightEvents().clear();
+	// conflicts.remove(c);
+	// }
+	// }
+	// if (rightConflicts != null && rightConflicts.size() > 0) {
+	// for (CBPConflict c : rightConflicts) {
+	// if (conflict.equals(c)) {
+	// continue;
+	// }
+	// for (CBPChangeEvent<?> event : c.getLeftEvents()) {
+	// event.setConflict(conflict);
+	// }
+	// conflict.getLeftEvents().addAll(c.getLeftEvents());
+	// c.getLeftEvents().clear();
+	// for (CBPChangeEvent<?> event : c.getRightEvents()) {
+	// event.setConflict(conflict);
+	// }
+	// conflict.getRightEvents().addAll(c.getRightEvents());
+	// c.getRightEvents().clear();
+	// conflicts.remove(c);
+	//
+	// }
+	// }
+	// }
+
+	return conf;
     }
 
     /**
@@ -790,7 +712,6 @@ public class CBPConflictDetector {
 		}
 	    }
 	}
-	values.remove(null);
 	return values;
     }
 }

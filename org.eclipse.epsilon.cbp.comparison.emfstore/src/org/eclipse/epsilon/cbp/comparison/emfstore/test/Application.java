@@ -1267,6 +1267,12 @@ public class Application implements IApplication {
 
 		System.out.println("START: " + new Date().toString());
 
+		File moveFile = new File("D:\\TEMP\\CONFLICTS\\performance\\move.csv");
+		if (moveFile.exists()) {
+			moveFile.delete();
+		}
+		moveFile.createNewFile();
+
 		// File outputFile = new File("D:\\TEMP\\FASE\\performance\\output.csv");
 		File outputFile = new File("D:\\TEMP\\CONFLICTS\\performance\\output.csv");
 		if (outputFile.exists()) {
@@ -1346,9 +1352,9 @@ public class Application implements IApplication {
 
 		// Start modifying the models
 		List<ChangeType> seeds = new ArrayList<ChangeType>();
-		setProbability(seeds, 1, ChangeType.CHANGE);
+		setProbability(seeds, 0, ChangeType.CHANGE);
 		setProbability(seeds, 0, ChangeType.ADD);
-		setProbability(seeds, 0, ChangeType.DELETE);
+		setProbability(seeds, 1, ChangeType.DELETE);
 		setProbability(seeds, 0, ChangeType.MOVE);
 
 		System.out.println("Loading " + leftCbpFile.getName() + "...");
@@ -1372,7 +1378,7 @@ public class Application implements IApplication {
 		// -----
 
 		List<BigModelResult> results = new ArrayList<BigModelResult>();
-		int modificationCount = 4400;
+		int modificationCount = 6600;
 		int number = 0;
 		for (int i = 1; i <= modificationCount; i++) {
 			System.out.print("Change " + i + ":");
@@ -1386,7 +1392,7 @@ public class Application implements IApplication {
 			System.out.println();
 
 			// do comparison
-			if (i % 200 == 0) {
+			if (i % 300 == 0) {
 				// if (i % 20 == 0) {
 
 				number++;
@@ -1539,10 +1545,6 @@ public class Application implements IApplication {
 				writer.print(result.getStateComparisonMemory());
 				writer.print(",");
 
-				if (stateComparison.getConflicts().size() != changeComparison.getConflictCount()) {
-					System.console();
-				}
-
 				// ----------------EMF STORE
 				// leftProject.update(new ESSystemOutProgressMonitor());
 
@@ -1617,7 +1619,11 @@ public class Application implements IApplication {
 
 					System.console();
 				}
-				System.console();
+
+				if (stateComparison.getConflicts().size() < changeComparison.getConflictCount()) {
+					System.console();
+				}
+
 			}
 
 		}
@@ -1914,17 +1920,21 @@ public class Application implements IApplication {
 		TreeIterator<EObject> iterator1 = xmiResource.getAllContents();
 		int z = 0;
 		while (iterator1.hasNext()) {
-			EObject obj1 = iterator1.next();
-			String id = adapater.geteObject2IdMap().get(obj1);
-			if (id == null) {
-				id = Application.getOriginalAdapater().geteObject2IdMap().get(obj1);
-			}
-			if (id == null) {
-				id = "Z-" + z;
-			}
+			try {
+				EObject obj1 = iterator1.next();
+				String id = adapater.geteObject2IdMap().get(obj1);
+				if (id == null) {
+					id = Application.getOriginalAdapater().geteObject2IdMap().get(obj1);
+				}
+				if (id == null) {
+					id = "Z-" + z;
+				}
 
-			xmiResource.setID(obj1, id);
-			z++;
+				xmiResource.setID(obj1, id);
+				z++;
+			} catch (Exception e) {
+
+			}
 		}
 		xmiResource.save(null);
 	}
@@ -2847,7 +2857,8 @@ public class Application implements IApplication {
 					continue;
 				}
 
-				if (((EReference) eObject.eContainingFeature()).isContainment()) {
+				if (eObject.eContainingFeature() != null
+					&& ((EReference) eObject.eContainingFeature()).isContainment()) {
 					removeObjectFromEObjectList(eObject, eObjectList);
 					try {
 						cbpResource.startCompositeEvent();

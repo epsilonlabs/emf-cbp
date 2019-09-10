@@ -12,6 +12,7 @@ public class CBPUnsetEReferenceEvent extends CBPSingleValueEReferenceEvent imple
 	event.setPosition(this.getPosition());
 	event.setTarget(this.getTarget());
 	event.setComposite(getComposite());
+	event.setEClass(this.getEClass());
 	return event;
     }
 

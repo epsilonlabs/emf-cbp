@@ -16,6 +16,7 @@ public class CBPSetEReferenceEvent extends CBPEReferenceEvent implements ICBPEOb
 	event.setPosition(this.getPosition());
 	event.setTarget(this.getTarget());
 	event.setComposite(getComposite());
+	event.setEClass(this.getEClass());
 	return event;
     }
 

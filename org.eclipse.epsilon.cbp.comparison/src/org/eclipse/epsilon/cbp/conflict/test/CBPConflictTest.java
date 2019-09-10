@@ -450,27 +450,37 @@ public class CBPConflictTest {
 	    originalScript.add("nodeB.name = \"B\";");
 	    originalScript.add("var nodeC = new Node;");
 	    originalScript.add("nodeC.name = \"C\";");
-	    originalScript.add("var nodeD = new Node;");
-	    originalScript.add("nodeD.name = \"D\";");
 	    originalScript.add("root.valNodes.add(nodeA);");
 	    originalScript.add("root.valNodes.add(nodeB);");
 	    originalScript.add("root.valNodes.add(nodeC);");
-	    originalScript.add("root.valNodes.add(nodeD);");
-	    originalScript.add("nodeB.refNode = nodeA;");
-	    originalScript.add("nodeC.refNode = nodeA;");
-	    originalScript.add("nodeD.refNode = nodeA;");
+	    
 
 	    // left script
 	    // leftScript.add("var root = Node.allInstances.selectOne(node |
 	    // node.name == \"ROOT\");");
+	    leftScript.add("var nodeX  = new Node;");
+	    leftScript.add("nodeX.name = \"X\";");
 	    leftScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
-	    leftScript.add("delete nodeA;");
+	    leftScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
+	    leftScript.add("var nodeC = Node.allInstances.selectOne(node | node.name == \"C\");");
+	    leftScript.add("nodeA.valNode = nodeX;");
+	    leftScript.add("nodeB.valNode = nodeX;");
+	    leftScript.add("nodeC.valNode = nodeX;");
+	    leftScript.add("var nodeZ  = new Node;");
+	    leftScript.add("nodeZ.name = \"Z\";");
+	    leftScript.add("nodeB.valNode = nodeZ;");
 
 	    // right script
 	    // rightScript.add("var root = Node.allInstances.selectOne(node |
 	    // node.name == \"ROOT\");");
-	    rightScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
-	    rightScript.add("delete nodeD;");
+	    rightScript.add("var nodeY  = new Node;");
+	    rightScript.add("nodeY.name = \"Y\";");
+	    rightScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
+	    rightScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
+	    rightScript.add("var nodeC = Node.allInstances.selectOne(node | node.name == \"C\");");
+	    rightScript.add("nodeA.valNode = nodeY;");
+	    rightScript.add("nodeB.valNode = nodeY;");
+	    rightScript.add("nodeC.valNode = nodeY;");
 
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
