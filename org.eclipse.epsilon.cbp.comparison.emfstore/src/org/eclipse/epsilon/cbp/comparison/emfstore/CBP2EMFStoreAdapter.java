@@ -791,10 +791,10 @@ public class CBP2EMFStoreAdapter {
 				if (event.getValue() instanceof EObject) {
 					modelElementId = localProject.getModelElementId((EObject) event.getValue());
 				}
-				if (modelElementId == null) {
+				if (modelElementId == null && event.getValue() instanceof EObject) {
 					modelElementId = originalProject.getModelElementId((EObject) event.getValue());
 				}
-				if (modelElementId == null) {
+				if (modelElementId == null && event.getValue() instanceof EObject) {
 					modelElementId = otherProject.getModelElementId((EObject) event.getValue());
 				}
 				// --

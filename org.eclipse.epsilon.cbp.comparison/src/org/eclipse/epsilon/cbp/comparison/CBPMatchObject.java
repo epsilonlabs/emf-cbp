@@ -40,6 +40,7 @@ public class CBPMatchObject implements Comparable<Object> {
     private boolean rightIsCreated = false;
     private boolean rightIsDeleted = false;
     private boolean rightIsMoved = false;
+    private boolean conflictDetected = false;
 
     private int leftPosition = -1;
     private int oldLeftPosition = -1;
@@ -71,6 +72,15 @@ public class CBPMatchObject implements Comparable<Object> {
 	this.objectTree = tree;
 	this.className = className;
 	this.id = id;
+    }
+    
+
+    public boolean isConflictDetected() {
+        return conflictDetected;
+    }
+
+    public void setConflictDetected(boolean conflictDetected) {
+        this.conflictDetected = conflictDetected;
     }
 
     public Map<String, CBPMatchObject> getObjectTree() {

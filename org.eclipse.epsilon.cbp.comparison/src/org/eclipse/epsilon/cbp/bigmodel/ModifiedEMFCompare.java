@@ -163,6 +163,7 @@ public class ModifiedEMFCompare extends EMFCompare {
 		startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		startInterval = System.nanoTime();
 		diffEngine.diff(comparison, subMonitor);
+		postDiff(comparison, postProcessors, subMonitor);
 		endInterval = System.nanoTime();
 		endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		this.setDiffTime(endInterval - startInterval);
@@ -174,75 +175,76 @@ public class ModifiedEMFCompare extends EMFCompare {
 		// System.out.println("Total Diffs = " +
 		// comparison.getDifferences().size());
 
-		// For now, we only the match and diff steps
-		// monitor.worked(1);
-		// if (LOGGER.isInfoEnabled()) {
-		// LOGGER.info("compare() - starting step: POST-DIFF with "
-		// //$NON-NLS-1$
-		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
-		// }
-		// postDiff(comparison, postProcessors, subMonitor);
-		// monitor.worked(1);
-		//
-		// if (!hasToStop(comparison, monitor)) {
-		// if (LOGGER.isInfoEnabled()) {
-		// LOGGER.info("compare() - starting step: REQUIREMENTS");
-		// //$NON-NLS-1$
-		// }
-		// reqEngine.computeRequirements(comparison, subMonitor);
-		// monitor.worked(1);
-		// if (LOGGER.isInfoEnabled()) {
-		// LOGGER.info("compare() - starting step: POST-REQUIREMENTS
-		// with " //$NON-NLS-1$
-		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
-		// }
-		// postRequirements(comparison, postProcessors, subMonitor);
-		// monitor.worked(1);
-		//
-		// if (!hasToStop(comparison, monitor)) {
-		// if (LOGGER.isInfoEnabled()) {
-		// LOGGER.info("compare() - starting step: EQUIVALENCES");
-		// //$NON-NLS-1$
-		// }
-		// equiEngine.computeEquivalences(comparison, subMonitor);
-		// monitor.worked(1);
-		// if (LOGGER.isInfoEnabled()) {
-		// LOGGER.info("compare() - starting step: POST-EQUIVALENCES
-		// with " //$NON-NLS-1$
-		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
-		// }
-		// postEquivalences(comparison, postProcessors, subMonitor);
-		// monitor.worked(1);
-		//
-		if (LOGGER.isInfoEnabled()) {
-		    LOGGER.info("compare() - starting step: CONFLICT");
-		    // $NON-NLS-1$
-		}
-		System.gc();
-		startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		startInterval = System.nanoTime();
-		detectConflicts(comparison, postProcessors, subMonitor);
-		endInterval = System.nanoTime();
-		endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		this.setConflictTime(endInterval - startInterval);
-		System.gc();
-		this.setConflictMemory(endMemory - startMemory);
-
-		this.comparisonTime = this.matchTime + this.diffTime + this.conflictTime;
-		this.comparisonMemory = this.matchMemory + this.diffMemory + this.conflictMemory;
-		
-		
+//		// For now, we only the match and diff steps
 //		monitor.worked(1);
-		//
-		// if (LOGGER.isInfoEnabled()) {
-		// LOGGER.info("compare() - starting step: POST-COMPARISON with
-		// " //$NON-NLS-1$
-		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
-		// }
-		// // CHECKSTYLE:ON
-		// postComparison(comparison, postProcessors, subMonitor);
-		// }
-		// }
+//		if (LOGGER.isInfoEnabled()) {
+//		    LOGGER.info("compare() - starting step: POST-DIFF with "
+//			    // $NON-NLS-1$
+//			    + postProcessors.size() + " post-processors"); //$NON-NLS-1$
+//		}
+//		postDiff(comparison, postProcessors, subMonitor);
+//		monitor.worked(1);
+//
+//		if (!hasToStop(comparison, monitor)) {
+//		    if (LOGGER.isInfoEnabled()) {
+//			LOGGER.info("compare() - starting step: REQUIREMENTS");
+//			// $NON-NLS-1$
+//		    }
+		    
+//		    monitor.worked(1);
+//		    if (LOGGER.isInfoEnabled()) {
+//			LOGGER.info("compare() - starting step: POST-REQUIREMENTS with " //$NON-NLS-1$
+//				+ postProcessors.size() + " post-processors"); //$NON-NLS-1$
+//		    }
+//		    postRequirements(comparison, postProcessors, subMonitor);
+//		    monitor.worked(1);
+//
+//		    if (!hasToStop(comparison, monitor)) {
+//			if (LOGGER.isInfoEnabled()) {
+//			    LOGGER.info("compare() - starting step: EQUIVALENCES");
+//			    // $NON-NLS-1$
+//			}
+//			equiEngine.computeEquivalences(comparison, subMonitor);
+//			monitor.worked(1);
+//			if (LOGGER.isInfoEnabled()) {
+//			    LOGGER.info("compare() - starting step: POST-EQUIVALENCES with " //$NON-NLS-1$
+//				    + postProcessors.size() + " post-processors"); //$NON-NLS-1$
+//			}
+//			postEquivalences(comparison, postProcessors, subMonitor);
+//			monitor.worked(1);
+//
+//			if (LOGGER.isInfoEnabled()) {
+//			    LOGGER.info("compare() - starting step: CONFLICT");
+//			    // $NON-NLS-1$
+//			}
+			System.gc();
+			startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			startInterval = System.nanoTime();
+			reqEngine.computeRequirements(comparison, subMonitor);
+//			postRequirements(comparison, postProcessors, subMonitor);
+//			equiEngine.computeEquivalences(comparison, subMonitor);
+//			postEquivalences(comparison, postProcessors, subMonitor);
+			detectConflicts(comparison, postProcessors, subMonitor);
+//			postComparison(comparison, postProcessors, subMonitor);
+			endInterval = System.nanoTime();
+			endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			this.setConflictTime(endInterval - startInterval);
+			System.gc();
+			this.setConflictMemory(endMemory - startMemory);
+
+			this.comparisonTime = this.matchTime + this.diffTime + this.conflictTime;
+			this.comparisonMemory = this.matchMemory + this.diffMemory + this.conflictMemory;
+//
+//			monitor.worked(1);
+//
+//			if (LOGGER.isInfoEnabled()) {
+//			    LOGGER.info("compare() - starting step: POST-COMPARISON with " //$NON-NLS-1$
+//				    + postProcessors.size() + " post-processors"); //$NON-NLS-1$
+//			}
+//			// CHECKSTYLE:ON
+//			postComparison(comparison, postProcessors, subMonitor);
+//		    }
+//		}
 	    }
 	} catch (ComparisonCanceledException e) {
 	    if (LOGGER.isInfoEnabled()) {
@@ -609,44 +611,42 @@ public class ModifiedEMFCompare extends EMFCompare {
     public EList<Diff> getDiffs() {
 	return comparison.getDifferences();
     }
-    
+
     public EList<Conflict> getConflicts() {
-//	Iterator<Conflict> iterator = comparison.getConflicts().iterator();
-//	while(iterator.hasNext()) {
-//	    if (iterator.next().getKind() ==  ConflictKind.PSEUDO) {
-//		iterator.remove();
-//	    }
-//	}
+	// Iterator<Conflict> iterator = comparison.getConflicts().iterator();
+	// while(iterator.hasNext()) {
+	// if (iterator.next().getKind() == ConflictKind.PSEUDO) {
+	// iterator.remove();
+	// }
+	// }
 	return comparison.getConflicts();
     }
-    
+
     public List<Conflict> getRealConflicts() {
 	List<Conflict> conflicts = new ArrayList(comparison.getConflicts());
 	Iterator<Conflict> iterator = conflicts.iterator();
-	while(iterator.hasNext()) {
-	    if (iterator.next().getKind() ==  ConflictKind.PSEUDO) {
+	while (iterator.hasNext()) {
+	    if (iterator.next().getKind() == ConflictKind.PSEUDO) {
 		iterator.remove();
 	    }
 	}
 	return conflicts;
     }
 
-
     public long getConflictTime() {
-        return conflictTime;
+	return conflictTime;
     }
 
     public long getConflictMemory() {
-        return conflictMemory;
+	return conflictMemory;
     }
 
     public void setConflictTime(long conflictTime) {
-        this.conflictTime = conflictTime;
+	this.conflictTime = conflictTime;
     }
 
     public void setConflictMemory(long conflictMemory) {
-        this.conflictMemory = conflictMemory;
+	this.conflictMemory = conflictMemory;
     }
 
-    
 }

@@ -44,34 +44,13 @@ public class CBPConflictDetector {
 
 		Set<CBPChangeEvent<?>> leftEvents = new LinkedHashSet<>();
 		getAllEvents(leftEvents, cTarget, CBPSide.LEFT, new HashSet<CBPMatchFeature>(), new HashSet<CBPMatchObject>());
-		// if (!cTarget.getLeftIsDeleted()) {
-		// leftEvents = leftEvents.stream().filter(event -> !(event
-		// instanceof CBPUnsetEReferenceEvent) && !(event instanceof
-		// CBPRemoveFromEReferenceEvent)
-		// && !(event instanceof CBPRemoveFromEReferenceEvent) &&
-		// event.getValue() != null &&
-		// event.getValue().equals(cTarget)).collect(Collectors.toSet());
-		// }
 
 		Set<CBPChangeEvent<?>> rightEvents = new LinkedHashSet<>();
 		getAllEvents(rightEvents, cTarget, CBPSide.RIGHT, new HashSet<CBPMatchFeature>(), new HashSet<CBPMatchObject>());
-		// if (!cTarget.getRightIsDeleted()) {
-		// rightEvents = rightEvents.stream().filter(event -> !(event
-		// instanceof CBPUnsetEReferenceEvent) && !(event instanceof
-		// CBPRemoveFromEReferenceEvent)
-		// && !(event instanceof CBPRemoveFromEReferenceEvent) &&
-		// event.getValue() != null &&
-		// event.getValue().equals(cTarget)).collect(Collectors.toSet());
-		// }
 
 		// also add composite events
 		addRelatedCompositeEvents(leftCompositeEvents, leftEvents);
 		addRelatedCompositeEvents(rightCompositeEvents, rightEvents);
-
-		// addDependentEvents(objects, leftEvents, leftCompositeEvents,
-		// CBPSide.LEFT);
-		// addDependentEvents(objects, rightEvents,
-		// rightCompositeEvents, CBPSide.RIGHT);
 
 		if (leftEvents != null && rightEvents != null && leftEvents.size() > 0 && rightEvents.size() > 0) {
 		    final CBPConflict conflict = getExistingConflict(conflicts, leftEvents, rightEvents);
@@ -82,10 +61,6 @@ public class CBPConflictDetector {
 			conflict.getRightEvents().addAll(rightEvents);
 		    } else {
 			CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-			if (cTarget.getLeftIsDeleted() || cTarget.getRightIsDeleted()) {
-			    if (leftEvents.size() == 1 && rightEvents.size() == 1)
-				conflict2.setPseudo(true);
-			}
 			conflicts.add(conflict2);
 		    }
 		}
@@ -233,13 +208,9 @@ public class CBPConflictDetector {
 
 			    if (cValue != null && cValue.getLeftIsDeleted() && cValue.getRightIsDeleted()) {
 				continue;
-			    } else if (
-				    leftContainer != null && rightContainer != null &&
-				    leftContainingFeature != null && rightContainingFeature != null &&
-				    leftContainer.equals(oldContainer) && leftContainingFeature.equals(oldContainingFeature) && rightContainer.equals(oldContainer)
-				    && rightContainingFeature.equals(oldContainingFeature) && 
-				    cValue.getLeftPosition() == cValue.getOldLeftPosition()
-				    && cValue.getRightPosition() == cValue.getOldRightPosition()) {
+			    } else if (leftContainer != null && rightContainer != null && leftContainingFeature != null && rightContainingFeature != null && leftContainer.equals(oldContainer)
+				    && leftContainingFeature.equals(oldContainingFeature) && rightContainer.equals(oldContainer) && rightContainingFeature.equals(oldContainingFeature)
+				    && cValue.getLeftPosition() == cValue.getOldLeftPosition() && cValue.getRightPosition() == cValue.getOldRightPosition()) {
 				continue;
 			    }
 
@@ -506,6 +477,114 @@ public class CBPConflictDetector {
      */
     private CBPConflict getExistingConflict(List<CBPConflict> conflicts, Set<CBPChangeEvent<?>> leftEvents, Set<CBPChangeEvent<?>> rightEvents) {
 	CBPConflict conflict = null;
+
+//	// conflict = new CBPConflict();
+//	Set<CBPChangeEvent<?>> leftEventSet = new LinkedHashSet<>();
+//	Set<CBPChangeEvent<?>> rightEventSet = new LinkedHashSet<>();
+//
+//	Iterator<CBPChangeEvent<?>> leftIterator = leftEvents.iterator();
+//	while (leftIterator.hasNext()) {
+//	    CBPChangeEvent<?> event = leftIterator.next();
+//	    CBPConflict c = event.getConflict();
+//	    if (c != null) {
+//		conflict = c;
+//		break;
+//	    }
+//	}
+//
+//	if (conflict == null) {
+//	    Iterator<CBPChangeEvent<?>> iterator = rightEvents.iterator();
+//	    while (iterator.hasNext()) {
+//		CBPChangeEvent<?> event = iterator.next();
+//		CBPConflict c = event.getConflict();
+//		if (c != null) {
+//		    conflict = c;
+//		    break;
+//		}
+//	    }
+//	}
+//	
+//	if (conflict == null) {
+//	    return null;
+//	}
+//
+//	leftIterator = leftEvents.iterator();
+//	while (leftIterator.hasNext()) {
+//	    CBPChangeEvent<?> event = leftIterator.next();
+//	    CBPConflict c = event.getConflict();
+//	    if (c != null) {
+//		Iterator<CBPChangeEvent<?>> lei = c.getLeftEvents().iterator();
+//		while (lei.hasNext()) {
+//		    CBPChangeEvent<?> e = lei.next();
+//		    leftEventSet.add(e);
+//		    e.setConflict(conflict);
+//		    lei.remove();
+//		}
+//		c.getLeftEvents().clear();
+//
+//		Iterator<CBPChangeEvent<?>> rei = c.getRightEvents().iterator();
+//		while (rei.hasNext()) {
+//		    CBPChangeEvent<?> e = rei.next();
+//		    rightEventSet.add(e);
+//		    e.setConflict(conflict);
+//		    rei.remove();
+//		}
+//		c.getRightEvents().clear();
+//	    }
+//	    if (c != null) {
+//		conflicts.remove(c);
+//	    }
+//	    if (conflict != null) {
+//		leftEventSet.add(event);
+//		event.setConflict(conflict);
+//	    }
+//	    leftIterator.remove();
+//	}
+//	leftEvents.clear();
+//
+//	Iterator<CBPChangeEvent<?>> rightIterator = rightEvents.iterator();
+//	while (rightIterator.hasNext()) {
+//	    CBPChangeEvent<?> event = rightIterator.next();
+//	    CBPConflict c = event.getConflict();
+//	    if (c != null) {
+//		Iterator<CBPChangeEvent<?>> lei = c.getLeftEvents().iterator();
+//		while (lei.hasNext()) {
+//		    CBPChangeEvent<?> e = lei.next();
+//		    leftEventSet.add(e);
+//		    e.setConflict(conflict);
+//		    lei.remove();
+//		}
+//		c.getLeftEvents().clear();
+//		Iterator<CBPChangeEvent<?>> rei = c.getRightEvents().iterator();
+//		while (rei.hasNext()) {
+//		    CBPChangeEvent<?> e = rei.next();
+//		    rightEventSet.add(e);
+//		    e.setConflict(conflict);
+//		    rei.remove();
+//		}
+//		c.getRightEvents().clear();
+//	    }
+//	    if (c != null) {
+//		conflicts.remove(c);
+//	    }
+//	    if (conflict != null) {
+//		rightEventSet.add(event);
+//		event.setConflict(conflict);
+//	    }
+//	    rightIterator.remove();
+//
+//	}
+//	rightEvents.clear();
+//
+//	if (conflict != null) {
+////	    conflicts.remove(conflict);
+//	    conflicts.add(conflict);
+//	    conflict.setLeftEvents(leftEventSet);
+//	    conflict.setLeftEvents(rightEventSet);
+//	}
+
+	// ------------------------------------------
+
 	 Set<CBPConflict> leftConflicts = leftEvents.stream().filter(event ->
 	 event.getConflict() != null).map(event ->
 	 event.getConflict()).collect(Collectors.toSet());
@@ -547,8 +626,8 @@ public class CBPConflictDetector {
 	
 	 if (rightConflicts != null)
 	 rightConflicts.clear();
-	
-	 //----------------------------------------------
+
+	// ----------------------------------------------
 	// // if (conflict != null) {
 	// // if (leftConflicts != null && leftConflicts.size() > 0) {
 	// // for (CBPConflict c : leftConflicts) {

@@ -190,9 +190,9 @@ public class Application implements IApplication {
 			final ESServer localServer = ESServer.FACTORY.createAndStartLocalServer();
 			// Run a client on the local server that shows the basic features of the EMFstore
 			// manualChanges(localServer);
-			// runClient(localServer);
+			runClient(localServer);
 			// runClient2(localServer);
-			runPerformanceTest(localServer);
+			// runPerformanceTest(localServer);
 		} catch (final ESServerStartFailedException e) {
 			System.out.println("Server start failed!");
 			e.printStackTrace();
@@ -227,7 +227,7 @@ public class Application implements IApplication {
 		System.out.println("Client starting...");
 
 		EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
-		// EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
+		EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
 		EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
 		// EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
 
@@ -737,8 +737,8 @@ public class Application implements IApplication {
 			List<ChangeType> seeds = new ArrayList<ChangeType>();
 			setProbability(seeds, 0, ChangeType.CHANGE);
 			setProbability(seeds, 0, ChangeType.ADD);
-			setProbability(seeds, 1, ChangeType.DELETE);
-			setProbability(seeds, 0, ChangeType.MOVE);
+			setProbability(seeds, 0, ChangeType.DELETE);
+			setProbability(seeds, 1, ChangeType.MOVE);
 
 			List<EObject> leftEObjectList = identifyAllEObjects(leftCbp);
 			List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
@@ -1354,8 +1354,8 @@ public class Application implements IApplication {
 		List<ChangeType> seeds = new ArrayList<ChangeType>();
 		setProbability(seeds, 0, ChangeType.CHANGE);
 		setProbability(seeds, 0, ChangeType.ADD);
-		setProbability(seeds, 1, ChangeType.DELETE);
-		setProbability(seeds, 0, ChangeType.MOVE);
+		setProbability(seeds, 0, ChangeType.DELETE);
+		setProbability(seeds, 1, ChangeType.MOVE);
 
 		System.out.println("Loading " + leftCbpFile.getName() + "...");
 		leftCbp.load(null);
@@ -1378,7 +1378,7 @@ public class Application implements IApplication {
 		// -----
 
 		List<BigModelResult> results = new ArrayList<BigModelResult>();
-		int modificationCount = 6600;
+		int modificationCount = 13200;
 		int number = 0;
 		for (int i = 1; i <= modificationCount; i++) {
 			System.out.print("Change " + i + ":");
@@ -1392,7 +1392,7 @@ public class Application implements IApplication {
 			System.out.println();
 
 			// do comparison
-			if (i % 300 == 0) {
+			if (i % 600 == 0) {
 				// if (i % 20 == 0) {
 
 				number++;

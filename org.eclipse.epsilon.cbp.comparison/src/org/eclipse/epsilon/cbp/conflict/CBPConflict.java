@@ -14,6 +14,10 @@ public class CBPConflict {
     private static int ID = -1;
     private int id = -1;
 
+    public CBPConflict() {
+	ID = ID + 1;
+	id = ID;
+    }
     public CBPConflict(Set<CBPChangeEvent<?>> leftEvents, Set<CBPChangeEvent<?>> rightEvents) {
 	this.leftEvents.addAll(leftEvents);
 	this.rightEvents.addAll(rightEvents);
@@ -37,6 +41,14 @@ public class CBPConflict {
 	return id;
     }
 
+    public void setLeftEvents(Set<CBPChangeEvent<?>>  events) {
+	this.leftEvents = events;
+    }
+    
+    public void setRightEvents(Set<CBPChangeEvent<?>>  events) {
+	this.rightEvents = events;
+    }
+    
     public Set<CBPChangeEvent<?>> getLeftEvents() {
 	return this.leftEvents;
     }
