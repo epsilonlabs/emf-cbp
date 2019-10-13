@@ -154,7 +154,7 @@ public class CBPConflictTest {
 	xmiRightResource = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiRightFile.getAbsolutePath()));
 
     }
-    
+
     @Test
     public void testThesisConflicts() {
 	try {
@@ -374,7 +374,7 @@ public class CBPConflictTest {
 	}
 	assertEquals(true, true);
     }
-    
+
     @Test
     public void testSoSymConflicts() {
 	try {
@@ -383,7 +383,8 @@ public class CBPConflictTest {
 	    // ePackage = (EPackage)
 	    // EPackage.Registry.INSTANCE.get(NodePackage.eINSTANCE.getNsURI());
 	    EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
-//	    EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
+	    // EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(),
+	    // JavaPackage.eINSTANCE);
 	    EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
 	    ePackage = (EPackage) EPackage.Registry.INSTANCE.get(UMLPackage.eINSTANCE.getNsURI());
 	    UMLFactory eFactory = UMLFactory.eINSTANCE;
@@ -450,11 +451,9 @@ public class CBPConflictTest {
 		changeXmiTargetFile.delete();
 	    if (stateXmiTargetFile.exists())
 		stateXmiTargetFile.delete();
-	    
-	    
 
-//	    Class x = eFactory.createClass();
-//	    x.set
+	    // Class x = eFactory.createClass();
+	    // x.set
 
 	    originalScript.add("var character = new Class;");
 	    originalScript.add("character.name = \"Character\";");
@@ -470,7 +469,6 @@ public class CBPConflictTest {
 	    originalScript.add("attack.ownedParameters.add(gem);");
 	    originalScript.add("attack.ownedParameters.add(target);");
 	    originalScript.add("attack.ownedParameters.add(weapon);");
-	    
 
 	    originalScript.add("var troll = new Class;");
 	    originalScript.add("troll.name = \"Troll\";");
@@ -489,8 +487,6 @@ public class CBPConflictTest {
 
 	    originalScript.add("var mage = new Class;");
 	    originalScript.add("mage.name = \"Mage\";");
-
-	    
 
 	    // left script
 	    leftScript.add("var character = Class.allInstances.selectOne(node | node.name == \"Character\");");
@@ -679,38 +675,39 @@ public class CBPConflictTest {
 	    originalScript.add("nodeD.name = \"D\";");
 	    originalScript.add("var nodeE = new Node;");
 	    originalScript.add("nodeE.name = \"E\";");
+	    originalScript.add("var nodeF = new Node;");
+	    originalScript.add("nodeF.name = \"F\";");
 	    originalScript.add("root.valNodes.add(nodeA);");
 	    originalScript.add("root.valNodes.add(nodeB);");
 	    originalScript.add("root.valNodes.add(nodeC);");
 	    originalScript.add("root.valNodes.add(nodeD);");
 	    originalScript.add("root.valNodes.add(nodeE);");
-	    
+	    originalScript.add("nodeA.valNode = nodeF;");
+	    // originalScript.add("root.valNodes.add(nodeE);");
 
 	    // left script
-	    // leftScript.add("var root = Node.allInstances.selectOne(node |
-	    // node.name == \"ROOT\");");
-	    leftScript.add("var nodeX  = new Node;");
-	    leftScript.add("nodeX.name = \"X\";");
-	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    leftScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
 	    leftScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
 	    leftScript.add("var nodeC = Node.allInstances.selectOne(node | node.name == \"C\");");
-//	    leftScript.add("root.valNodes.move(1,0);");
-	    leftScript.add("root.valNodes.add(4, nodeX);");
-	    leftScript.add("root.valNodes.move(4,2);");
-//	    leftScript.add("nodeE.valNode = nodeC;");
-//	    leftScript.add("nodeB.valNode = nodeX;");
-//	    leftScript.add("nodeC.valNode = nodeX;");
-//	    leftScript.add("var nodeZ  = new Node;");
-//	    leftScript.add("nodeZ.name = \"Z\";");
-//	    leftScript.add("nodeB.valNode = nodeZ;");
+	    leftScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
+	    leftScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
+	    leftScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
+	    leftScript.add("nodeB.valNode = nodeF;");
+	    leftScript.add("nodeC.valNode = nodeF;");
+	    leftScript.add("nodeD.valNode = nodeF;");
+	    leftScript.add("nodeE.valNode = nodeF;");
 
 	    // right script
-	    // rightScript.add("var root = Node.allInstances.selectOne(node |
-	    // node.name == \"ROOT\");");
-	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
+	    rightScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
 	    rightScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
 	    rightScript.add("var nodeC = Node.allInstances.selectOne(node | node.name == \"C\");");
-	    rightScript.add("root.valNodes.move(4,2);");
+	    rightScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
+	    rightScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
+	    rightScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
+	    rightScript.add("nodeB.valNode = nodeF;");
+	    rightScript.add("nodeC.valNode = nodeF;");
+	    rightScript.add("nodeD.valNode = nodeF;");
+	    rightScript.add("nodeE.valNode = nodeF;");
 
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
@@ -875,7 +872,7 @@ public class CBPConflictTest {
 	    rootNode2.getValNodes().add(nodeC);
 	    nodeD.setParent(nodeA);
 	    nodeB.setRefNode(nodeA);
-	    
+
 	    String aId = cbpOriginalResource.getEObjectId(nodeA);
 	    String bId = cbpOriginalResource.getEObjectId(nodeB);
 	    String cId = cbpOriginalResource.getEObjectId(nodeC);
@@ -896,7 +893,7 @@ public class CBPConflictTest {
 	    nodeD = (Node) cbpRightResource.getEObject(dId);
 	    cbpRightResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeD);
-//	    nodeD.setParent(null);
+	    // nodeD.setParent(null);
 	    cbpRightResource.endCompositeEvent();
 	    cbpRightResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeA);
@@ -911,7 +908,7 @@ public class CBPConflictTest {
 	    nodeD = (Node) cbpLeftResource.getEObject(dId);
 	    cbpLeftResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeD);
-//	    nodeD.setParent(null);
+	    // nodeD.setParent(null);
 	    cbpLeftResource.endCompositeEvent();
 	    cbpLeftResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeB);
@@ -1395,7 +1392,7 @@ public class CBPConflictTest {
 		eLeftTarget = diff.getMatch().getLeft();
 	    }
 	}
-	
+
 	if (eLeftTarget != null) {
 	    leftTarget = leftModel.getURIFragment(eLeftTarget);
 	}
