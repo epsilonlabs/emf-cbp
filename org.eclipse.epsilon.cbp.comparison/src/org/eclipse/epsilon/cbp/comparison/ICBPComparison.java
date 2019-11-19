@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
@@ -59,4 +60,6 @@ public interface ICBPComparison {
     public long getConflictTime();
 
     public int getConflictCount();
+    
+    public List<String> getConflictStrings();
 }

@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.eclipse.emf.ecore.EObject;
 
-public class CBPSetEReferenceEvent extends CBPEReferenceEvent implements ICBPEObjectValuesEvent {
+public class CBPSetEReferenceEvent extends CBPSingleValueEReferenceEvent implements ICBPEObjectValuesEvent {
 
     @Override
     public CBPChangeEvent<?> reverse() {

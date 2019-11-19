@@ -75,17 +75,17 @@ public abstract class ResolutionStrategy {
 
 	private void resolveRelatedConflicts(ConflictedEventPair conflictedEventPair, SolutionOptions selectedSolution) {
 		// if the right event is selected as a solution then every another
-		// conflict that is caused by the left event should be
+		// conflicts that is caused by the left event should be
 		// marked also as resolved. This is to prevent double solutions for the
-		// same conflict.
+		// same conflicts.
 		if (selectedSolution == SolutionOptions.CHOOSE_RIGHT) {
 			for (ConflictedEventPair conflictPair : conflictedEventPair.getLeftEvent().getConflictedEventPairList()) {
 				conflictPair.setResolved(true);
 			}
 			// if the left event is selected as a solution then every another
-			// conflict that is caused by the right event should be
+			// conflicts that is caused by the right event should be
 			// marked also as resolved. This is to prevent double solutions for
-			// the same conflict.
+			// the same conflicts.
 		} else if (selectedSolution == SolutionOptions.CHOOSE_LEFT) {
 			for (ConflictedEventPair conflictPair : conflictedEventPair.getRightEvent().getConflictedEventPairList()) {
 				conflictPair.setResolved(true);

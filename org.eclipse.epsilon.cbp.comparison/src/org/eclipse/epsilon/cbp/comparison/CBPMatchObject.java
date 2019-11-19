@@ -463,7 +463,7 @@ public class CBPMatchObject implements Comparable<Object> {
 	}
     }
 
-    public Object getContainer(CBPSide side) {
+    public CBPMatchObject getContainer(CBPSide side) {
 	return (side == CBPSide.LEFT) ? leftContainer : rightContainer;
     }
 
@@ -487,7 +487,7 @@ public class CBPMatchObject implements Comparable<Object> {
 	}
     }
 
-    public Object getOldContainer(CBPSide side) {
+    public CBPMatchObject getOldContainer(CBPSide side) {
 	return (side == CBPSide.LEFT) ? oldLeftContainer : oldRightContainer;
     }
 
@@ -499,11 +499,11 @@ public class CBPMatchObject implements Comparable<Object> {
 	}
     }
 
-    public Object getContainingFeature(CBPSide side) {
+    public CBPMatchFeature getContainingFeature(CBPSide side) {
 	return (side == CBPSide.LEFT) ? leftContainingFeature : rightContainingFeature;
     }
 
-    public Object getOldContainingFeature(CBPSide side) {
+    public CBPMatchFeature getOldContainingFeature(CBPSide side) {
 	return (side == CBPSide.LEFT) ? oldLeftContainingFeature : oldRightContainingFeature;
     }
 

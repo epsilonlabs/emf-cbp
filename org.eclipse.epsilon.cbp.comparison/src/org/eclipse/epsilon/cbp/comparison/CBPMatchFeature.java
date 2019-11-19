@@ -30,6 +30,7 @@ public class CBPMatchFeature {
     private boolean isMany = false;
     private boolean isUnique = false;
     private boolean isOrdered = false;
+    private boolean isOldSet = false;
     private CBPFeatureType featureType = CBPFeatureType.REFERENCE;
     private Map<Integer, Boolean> leftIsSet = new TreeMap<Integer, Boolean>();
     private Map<Integer, Boolean> rightIsSet = new TreeMap<Integer, Boolean>();
@@ -344,7 +345,7 @@ public class CBPMatchFeature {
     }
 
     public void moveValue(Object value, int from, int to, CBPSide side, boolean recordCBPPositionEvent) {
-	if (value instanceof CBPMatchObject) {
+	if (value instanceof CBPMatchObject && ((CBPMatchObject) value).getOldPosition(side) == -1) {
 	    updateOldPosition((CBPMatchObject) value, from, side);
 	}
 	if (recordCBPPositionEvent) {
@@ -758,6 +759,14 @@ public class CBPMatchFeature {
     //
     // }
 
+    public void setIsOldSet() {
+	isOldSet = true;
+    }
+
+    public boolean isOldSet() {
+	return isOldSet;
+    }
+
     public void setIsSet(CBPSide side) {
 	if (side == CBPSide.LEFT) {
 	    leftIsSet.put(0, true);
@@ -861,8 +870,10 @@ public class CBPMatchFeature {
 
     public Integer getOriginalPosition(CBPMatchObject cObject) {
 	Integer pos = -1;
-	Stream<Integer> stream = oldLeftValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey);
-	pos = stream.findFirst().get();
+	Integer first = oldLeftValues.entrySet().stream().filter(entry -> cObject.equals(entry.getValue())).map(Map.Entry::getKey).findFirst().orElse(null);
+	if (first != null) {
+	    pos = first;
+	}
 	return pos;
     }
 

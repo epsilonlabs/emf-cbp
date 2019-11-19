@@ -2,9 +2,14 @@ package org.eclipse.epsilon.cbp.bigmodel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.notify.Adapter;
@@ -14,14 +19,19 @@ import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.DiagnosticChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.Monitor;
+import org.eclipse.emf.compare.AttributeChange;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.ComparisonCanceledException;
 import org.eclipse.emf.compare.Conflict;
 import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
+import org.eclipse.emf.compare.DifferenceKind;
+import org.eclipse.emf.compare.DifferenceSource;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.EMFCompareMessages;
 import org.eclipse.emf.compare.Match;
+import org.eclipse.emf.compare.ReferenceChange;
+import org.eclipse.emf.compare.ResourceAttachmentChange;
 import org.eclipse.emf.compare.conflict.IConflictDetector;
 import org.eclipse.emf.compare.conflict.MatchBasedConflictDetector;
 import org.eclipse.emf.compare.diff.DefaultDiffEngine;
@@ -40,9 +50,16 @@ import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
 import org.eclipse.emf.compare.req.DefaultReqEngine;
 import org.eclipse.emf.compare.req.IReqEngine;
 import org.eclipse.emf.compare.scope.IComparisonScope;
+import org.eclipse.emf.compare.uml2.internal.AssociationChange;
+import org.eclipse.emf.compare.uml2.internal.DirectedRelationshipChange;
+import org.eclipse.emf.compare.uml2.internal.MultiplicityElementChange;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.xmi.XMIResource;
 
 import com.google.common.collect.Iterators;
 
@@ -82,6 +99,7 @@ public class ModifiedEMFCompare extends EMFCompare {
     /** The PostProcessorRegistry to use to find an IPostProcessor. */
     private final IPostProcessor.Descriptor.Registry<?> postProcessorDescriptorRegistry;
 
+    private List<String> emfcConflicts = new ArrayList<>();
     private long matchTime = 0;
     private long diffTime = 0;
     private long conflictTime = 0;
@@ -175,76 +193,79 @@ public class ModifiedEMFCompare extends EMFCompare {
 		// System.out.println("Total Diffs = " +
 		// comparison.getDifferences().size());
 
-//		// For now, we only the match and diff steps
-//		monitor.worked(1);
-//		if (LOGGER.isInfoEnabled()) {
-//		    LOGGER.info("compare() - starting step: POST-DIFF with "
-//			    // $NON-NLS-1$
-//			    + postProcessors.size() + " post-processors"); //$NON-NLS-1$
-//		}
-//		postDiff(comparison, postProcessors, subMonitor);
-//		monitor.worked(1);
-//
-//		if (!hasToStop(comparison, monitor)) {
-//		    if (LOGGER.isInfoEnabled()) {
-//			LOGGER.info("compare() - starting step: REQUIREMENTS");
-//			// $NON-NLS-1$
-//		    }
-		    
-//		    monitor.worked(1);
-//		    if (LOGGER.isInfoEnabled()) {
-//			LOGGER.info("compare() - starting step: POST-REQUIREMENTS with " //$NON-NLS-1$
-//				+ postProcessors.size() + " post-processors"); //$NON-NLS-1$
-//		    }
-//		    postRequirements(comparison, postProcessors, subMonitor);
-//		    monitor.worked(1);
-//
-//		    if (!hasToStop(comparison, monitor)) {
-//			if (LOGGER.isInfoEnabled()) {
-//			    LOGGER.info("compare() - starting step: EQUIVALENCES");
-//			    // $NON-NLS-1$
-//			}
-//			equiEngine.computeEquivalences(comparison, subMonitor);
-//			monitor.worked(1);
-//			if (LOGGER.isInfoEnabled()) {
-//			    LOGGER.info("compare() - starting step: POST-EQUIVALENCES with " //$NON-NLS-1$
-//				    + postProcessors.size() + " post-processors"); //$NON-NLS-1$
-//			}
-//			postEquivalences(comparison, postProcessors, subMonitor);
-//			monitor.worked(1);
-//
-//			if (LOGGER.isInfoEnabled()) {
-//			    LOGGER.info("compare() - starting step: CONFLICT");
-//			    // $NON-NLS-1$
-//			}
-			System.gc();
-			startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-			startInterval = System.nanoTime();
-			reqEngine.computeRequirements(comparison, subMonitor);
-//			postRequirements(comparison, postProcessors, subMonitor);
-//			equiEngine.computeEquivalences(comparison, subMonitor);
-//			postEquivalences(comparison, postProcessors, subMonitor);
-			detectConflicts(comparison, postProcessors, subMonitor);
-//			postComparison(comparison, postProcessors, subMonitor);
-			endInterval = System.nanoTime();
-			endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-			this.setConflictTime(endInterval - startInterval);
-			System.gc();
-			this.setConflictMemory(endMemory - startMemory);
+		// // For now, we only the match and diff steps
+		// monitor.worked(1);
+		// if (LOGGER.isInfoEnabled()) {
+		// LOGGER.info("compare() - starting step: POST-DIFF with "
+		// // $NON-NLS-1$
+		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
+		// }
+		// postDiff(comparison, postProcessors, subMonitor);
+		// monitor.worked(1);
+		//
+		// if (!hasToStop(comparison, monitor)) {
+		// if (LOGGER.isInfoEnabled()) {
+		// LOGGER.info("compare() - starting step: REQUIREMENTS");
+		// // $NON-NLS-1$
+		// }
 
-			this.comparisonTime = this.matchTime + this.diffTime + this.conflictTime;
-			this.comparisonMemory = this.matchMemory + this.diffMemory + this.conflictMemory;
-//
-//			monitor.worked(1);
-//
-//			if (LOGGER.isInfoEnabled()) {
-//			    LOGGER.info("compare() - starting step: POST-COMPARISON with " //$NON-NLS-1$
-//				    + postProcessors.size() + " post-processors"); //$NON-NLS-1$
-//			}
-//			// CHECKSTYLE:ON
-//			postComparison(comparison, postProcessors, subMonitor);
-//		    }
-//		}
+		// monitor.worked(1);
+		// if (LOGGER.isInfoEnabled()) {
+		// LOGGER.info("compare() - starting step: POST-REQUIREMENTS
+		// with " //$NON-NLS-1$
+		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
+		// }
+		// postRequirements(comparison, postProcessors, subMonitor);
+		// monitor.worked(1);
+		//
+		// if (!hasToStop(comparison, monitor)) {
+		// if (LOGGER.isInfoEnabled()) {
+		// LOGGER.info("compare() - starting step: EQUIVALENCES");
+		// // $NON-NLS-1$
+		// }
+		// equiEngine.computeEquivalences(comparison, subMonitor);
+		// monitor.worked(1);
+		// if (LOGGER.isInfoEnabled()) {
+		// LOGGER.info("compare() - starting step: POST-EQUIVALENCES
+		// with " //$NON-NLS-1$
+		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
+		// }
+		// postEquivalences(comparison, postProcessors, subMonitor);
+		// monitor.worked(1);
+		//
+		// if (LOGGER.isInfoEnabled()) {
+		// LOGGER.info("compare() - starting step: CONFLICT");
+		// // $NON-NLS-1$
+		// }
+		System.gc();
+		startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		startInterval = System.nanoTime();
+		reqEngine.computeRequirements(comparison, subMonitor);
+		// postRequirements(comparison, postProcessors, subMonitor);
+		// equiEngine.computeEquivalences(comparison, subMonitor);
+		// postEquivalences(comparison, postProcessors, subMonitor);
+		detectConflicts(comparison, postProcessors, subMonitor);
+		// postComparison(comparison, postProcessors, subMonitor);
+		endInterval = System.nanoTime();
+		endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		this.setConflictTime(endInterval - startInterval);
+		System.gc();
+		this.setConflictMemory(endMemory - startMemory);
+
+		this.comparisonTime = this.matchTime + this.diffTime + this.conflictTime;
+		this.comparisonMemory = this.matchMemory + this.diffMemory + this.conflictMemory;
+		//
+		// monitor.worked(1);
+		//
+		// if (LOGGER.isInfoEnabled()) {
+		// LOGGER.info("compare() - starting step: POST-COMPARISON with
+		// " //$NON-NLS-1$
+		// + postProcessors.size() + " post-processors"); //$NON-NLS-1$
+		// }
+		// // CHECKSTYLE:ON
+		// postComparison(comparison, postProcessors, subMonitor);
+		// }
+		// }
 	    }
 	} catch (ComparisonCanceledException e) {
 	    if (LOGGER.isInfoEnabled()) {
@@ -647,6 +668,399 @@ public class ModifiedEMFCompare extends EMFCompare {
 
     public void setConflictMemory(long conflictMemory) {
 	this.conflictMemory = conflictMemory;
+    }
+
+    @SuppressWarnings("unchecked")
+    public String diffToString(XMIResource leftModel, XMIResource rightModel, Diff diff) throws FileNotFoundException, IOException {
+
+	String result = "";
+	String leftTarget = null;
+	String rightTarget = null;
+	EObject eLeftTarget = null;
+	EObject eRightTarget = null;
+
+	if (diff.getSource() == DifferenceSource.LEFT) {
+	    eLeftTarget = diff.getMatch().getLeft();
+	    eRightTarget = diff.getMatch().getOrigin();
+	} else {
+	    eLeftTarget = diff.getMatch().getRight();
+	    eRightTarget = diff.getMatch().getOrigin();
+	}
+
+	if (eLeftTarget != null) {
+	    leftTarget = leftModel.getURIFragment(eLeftTarget);
+	}
+	if (eRightTarget != null) {
+	    rightTarget = rightModel.getURIFragment(eRightTarget);
+	}
+
+	if (eLeftTarget == null) {
+	    eLeftTarget = diff.getMatch().getOrigin();
+	    if (eLeftTarget != null) {
+		leftTarget = eLeftTarget.eResource().getURIFragment(eLeftTarget);
+	    }
+	}
+	if (eRightTarget == null) {
+	    eRightTarget = diff.getMatch().getOrigin();
+	    if (eRightTarget != null) {
+		rightTarget = eRightTarget.eResource().getURIFragment(eRightTarget);
+	    }
+	}
+
+	if (diff.getKind() == DifferenceKind.ADD) {
+	    if (diff instanceof AttributeChange) {
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object value = ((AttributeChange) diff).getValue();
+		// if (value instanceof String) {
+		// value = "\"" + value + "\"";
+		// }
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eLeftTarget.eGet(eFeature);
+		    index = list.indexOf(value);
+		}
+		result = "ADD " + value + " TO " + leftTarget + "." + featureName + " AT " + index;
+	    } else if (diff instanceof ReferenceChange) {
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		String featureName = eFeature.getName();
+		EObject eValue = ((ReferenceChange) diff).getValue();
+		String value = leftModel.getID(eValue);
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eLeftTarget.eGet(eFeature);
+		    index = list.indexOf(eValue);
+		    result = "ADD " + value + " TO " + leftTarget + "." + featureName + " AT " + index;
+		} else {
+		    result = "SET " + leftTarget + "." + featureName + " FROM " + null + " TO " + value;
+		}
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		String featureName = "resource";
+		String value = leftModel.getID(eLeftTarget);
+		int index = leftModel.getContents().indexOf(eLeftTarget);
+		result = "ADD " + value + " TO " + featureName + " AT " + index;
+	    }
+	} else if (diff.getKind() == DifferenceKind.CHANGE) {
+	    if (diff instanceof AttributeChange) {
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object rightValue = eRightTarget.eGet(eFeature);
+		Object leftValue = eLeftTarget.eGet(eFeature);
+		// if (rightValue instanceof String) {
+		// rightValue = "\"" + rightValue + "\"";
+		// }
+		// if (leftValue instanceof String) {
+		// leftValue = "\"" + leftValue + "\"";
+		// }
+		result = "SET " + leftTarget + "." + featureName + " FROM " + rightValue + " TO " + leftValue;
+	    } else if (diff instanceof ReferenceChange) {
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		String featureName = eFeature.getName();
+		EObject eOldValue = null;
+		String oldValue = null;
+		if (eRightTarget != null) {
+		    eOldValue = (EObject) eRightTarget.eGet(eFeature);
+		    oldValue = rightModel.getID(eOldValue);
+		} else {
+		    System.console();
+		}
+		EObject eValue = null;
+		String value = null;
+		if (eLeftTarget != null) {
+		    eValue = (EObject) eLeftTarget.eGet(eFeature);
+		    value = leftModel.getID(eValue);
+		}
+		result = "SET " + leftTarget + "." + featureName + " FROM " + oldValue + " TO " + value;
+	    }
+	} else if (diff.getKind() == DifferenceKind.MOVE) {
+	    if (diff instanceof AttributeChange) {
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object value = ((AttributeChange) diff).getValue();
+		String oldPosition = "";
+		String position = "";
+		EList<EObject> list1 = (EList<EObject>) eRightTarget.eGet(eFeature);
+		oldPosition = "" + list1.indexOf(value);
+		EList<EObject> list2 = (EList<EObject>) eLeftTarget.eGet(eFeature);
+		position = "" + list2.indexOf(value);
+		result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
+	    } else if (diff instanceof ReferenceChange) {
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		if (eFeature.isContainment()) {
+		    String featureName = eFeature.getName();
+		    EObject eValue = ((ReferenceChange) diff).getValue();
+		    String value = leftModel.getID(eValue);
+		    EObject eOldValue = rightModel.getEObject(value);
+		    EReference eOldFeature = (EReference) eOldValue.eContainingFeature();
+		    String eOldFeatureName = null;
+		    if (eOldFeature != null) {
+			eOldFeatureName = eOldFeature.getName();
+		    }
+		    eRightTarget = eOldValue.eContainer();
+		    rightTarget = rightModel.getID(eRightTarget);
+		    String oldPosition = "";
+		    if (eOldFeature != null && eOldFeature.isMany()) {
+			EList<EObject> list = (EList<EObject>) eRightTarget.eGet(eOldFeature);
+			oldPosition = "" + list.indexOf(eOldValue);
+		    }
+		    String position = "";
+		    if (eFeature.isMany()) {
+			EList<EObject> list = (EList<EObject>) eLeftTarget.eGet(eFeature);
+			position = "" + list.indexOf(eValue);
+		    }
+		    // cross container
+		    if (!leftTarget.equals(rightTarget) || !featureName.equals(eOldFeatureName)) {
+			// from other container/feature
+			if (eRightTarget != null) {
+			    if (eOldFeature.isMany()) {
+				oldPosition = "." + oldPosition;
+			    }
+			    if (eFeature.isMany()) {
+				position = "." + position;
+			    }
+			    result = "MOVE " + value + " ACROSS FROM " + rightTarget + "." + eOldFeatureName + oldPosition + " TO " + leftTarget + "." + featureName + position;
+			}
+			// from resource
+			else {
+			    eOldFeatureName = "resource";
+			    oldPosition = "" + rightModel.getContents().indexOf(eValue);
+			    if (eFeature.isMany()) {
+				position = "." + position;
+			    }
+			    result = "MOVE " + value + " ACROSS FROM " + eOldFeatureName + oldPosition + " TO " + leftTarget + "." + featureName + position;
+			}
+		    }
+		    // within container
+		    else {
+			result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
+		    }
+		} else {
+		    String featureName = eFeature.getName();
+		    EObject eValue = ((ReferenceChange) diff).getValue();
+		    String value = leftModel.getID(eValue);
+		    Object eOldValue = rightModel.getEObject(value);
+		    String oldPosition = "";
+		    String position = "";
+		    EList<EObject> list1 = (EList<EObject>) eRightTarget.eGet(eFeature);
+		    oldPosition = "" + list1.indexOf(eOldValue);
+		    EList<EObject> list2 = (EList<EObject>) eLeftTarget.eGet(eFeature);
+		    position = "" + list2.indexOf(eValue);
+		    result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
+		}
+	    }
+
+	    else if (diff instanceof ResourceAttachmentChange) {
+		String featureName = "resource";
+		EObject eValue = eLeftTarget;
+		String value = null;
+		EObject eOldValue = null;
+		if (eValue != null) {
+		    value = leftModel.getID(eValue);
+		    eOldValue = rightModel.getEObject(value);
+		} else {
+		    eOldValue = diff.getMatch().getRight();
+		    value = rightModel.getID(eValue);
+		}
+
+		// from container/feature
+		if (eOldValue.eContainer() != null) {
+		    eRightTarget = eOldValue.eContainer();
+		    rightTarget = rightModel.getID(eRightTarget);
+		    EReference eOldFeature = (EReference) eOldValue.eContainingFeature();
+		    String eOldFeatureName = eOldFeature.getName();
+
+		    String oldPosition = "";
+		    if (eOldFeature.isMany()) {
+			EList<Object> list = (EList<Object>) eRightTarget.eGet(eOldFeature);
+			oldPosition = "." + list.indexOf(eOldValue);
+		    }
+		    String position = "." + leftModel.getContents().indexOf(eValue);
+		    result = "MOVE " + value + " ACROSS FROM " + rightTarget + "." + eOldFeatureName + oldPosition + " TO " + featureName + position;
+		}
+		// within resource / root level
+		else {
+		    String oldPosition = "" + rightModel.getContents().indexOf(eOldValue);
+		    String position = "" + leftModel.getContents().indexOf(eValue);
+		    result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
+		}
+	    }
+	} else if (diff.getKind() == DifferenceKind.DELETE) {
+	    if (diff instanceof AttributeChange) {
+		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
+		String featureName = eFeature.getName();
+		Object value = ((AttributeChange) diff).getValue();
+		// if (value instanceof String) {
+		// value = "\"" + value + "\"";
+		// }
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eRightTarget.eGet(eFeature);
+		    index = list.indexOf(value);
+		}
+		result = "DELETE " + value + " FROM " + rightTarget + "." + featureName + " AT " + index;
+	    } else if (diff instanceof ReferenceChange) {
+		EReference eFeature = ((ReferenceChange) diff).getReference();
+		String featureName = eFeature.getName();
+		EObject eValue = ((ReferenceChange) diff).getValue();
+		String value = rightModel.getID(eValue);
+		int index = 0;
+		if (eFeature.isMany()) {
+		    List<Object> list = (List<Object>) eRightTarget.eGet(eFeature);
+		    index = list.indexOf(eValue);
+		}
+		result = "DELETE " + value + " FROM " + rightTarget + "." + featureName + " AT " + index;
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		String featureName = "resource";
+		String value = rightModel.getID(eRightTarget);
+		int index = rightModel.getContents().indexOf(eRightTarget);
+		result = "DELETE " + value + " FROM " + featureName + " AT " + index;
+	    }
+	}
+
+	return result;
+
+    }
+
+    public List<String> printConflicts(XMIResource left, XMIResource right, XMIResource origin, EList<Conflict> conflicts) throws FileNotFoundException, IOException {
+	System.out.println("\nEMF COMPARE CONFLICTS:");
+	int conflictCount = 0;
+	for (Conflict conflict : conflicts) {
+	    String runningLeftString = "";
+	    String runningRightString = "";
+	    Diff runningLeftDiff = null;
+	    Diff runningRightDiff = null;
+
+	    if (conflict.getKind() == ConflictKind.REAL || conflict.getKind() == ConflictKind.PSEUDO) {
+
+		conflictCount++;
+
+		EList<Diff> leftDiffs = conflict.getLeftDifferences();
+		EList<Diff> rightDiffs = conflict.getRightDifferences();
+		boolean foundConflict = false;
+
+		Iterator<Diff> leftIterator = leftDiffs.iterator();
+		Iterator<Diff> rightIterator = rightDiffs.iterator();
+		while (leftIterator.hasNext() || rightIterator.hasNext()) {
+		    Diff leftDiff = null;
+		    if (leftIterator.hasNext()) {
+			leftDiff = leftIterator.next();
+			runningLeftDiff = leftDiff;
+		    }
+		    Diff rightDiff = null;
+		    if (rightIterator.hasNext()) {
+			rightDiff = rightIterator.next();
+			runningRightDiff = rightDiff;
+		    }
+
+		    String leftString = "";
+		    String rightString = "";
+		    if (leftDiff instanceof AttributeChange || leftDiff instanceof ReferenceChange || leftDiff instanceof ResourceAttachmentChange) {
+			leftString = diffToString(left, origin, leftDiff);
+		    }
+		    if (rightDiff instanceof AttributeChange || rightDiff instanceof ReferenceChange || rightDiff instanceof ResourceAttachmentChange) {
+			rightString = diffToString(right, origin, rightDiff);
+		    }
+		    // if (leftString.equals(rightString)) {
+		    // continue;
+		    // }
+		    foundConflict = true;
+
+		    System.out.println(conflictCount + ": " + leftString + " <-> " + rightString);
+
+		    if (!leftString.equals("")) {
+			runningLeftString = leftString;
+		    }
+		    if (!rightString.equals("")) {
+			runningRightString = rightString;
+		    }
+
+		    System.console();
+		}
+		// if (runningLeftDiff.getKind() == DifferenceKind.DELETE &&
+		// runningRightDiff.getKind() == DifferenceKind.DELETE) {
+		// emfcConflicts.add(runningLeftString + " <-> ");
+		// emfcConflicts.add(" <-> " + runningRightString);
+		// } else {
+		// if (runningLeftDiff.getKind() == DifferenceKind.DELETE) {
+		// runningRightString = "";
+		// emfcConflicts.add(runningLeftString + " <-> " +
+		// runningRightString);
+		// } else if (runningRightDiff.getKind() ==
+		// DifferenceKind.DELETE) {
+		// runningLeftString = "";
+		// emfcConflicts.add(runningLeftString + " <-> " +
+		// runningRightString);
+		// } else {
+		emfcConflicts.add(runningLeftString.trim() + " <-> " + runningRightString.trim());
+		// }
+
+		// }
+
+		System.console();
+	    }
+	}
+	System.out.println("Conflict count:" + conflictCount);
+	if (conflictCount > 0) {
+	    System.console();
+	}
+	return emfcConflicts;
+    }
+
+    public List<String> printEMFCompareDiffs(Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {
+	Set<String> set = new HashSet<>();
+	for (Diff diff : diffs) {
+	    String feature = null;
+	    String id = null;
+	    String value = null;
+
+	    if (diff.getMatch().getLeft() != null) {
+		id = left.getURIFragment(diff.getMatch().getLeft());
+	    } else {
+		id = right.getURIFragment(diff.getMatch().getRight());
+	    }
+
+	    if (diff instanceof AttributeChange) {
+		feature = ((AttributeChange) diff).getAttribute().getName();
+		value = String.valueOf(((AttributeChange) diff).getValue());
+	    } else if (diff instanceof ReferenceChange) {
+		feature = ((ReferenceChange) diff).getReference().getName();
+		EObject eObject = ((ReferenceChange) diff).getValue();
+		value = left.getURIFragment(eObject);
+		if (value == null || "/-1".equals(value)) {
+		    value = right.getURIFragment(eObject);
+		}
+	    } else if (diff instanceof MultiplicityElementChange) {
+		continue;
+	    } else if (diff instanceof ResourceAttachmentChange) {
+		feature = "resource";
+		value = new String(id);
+		id = new String(feature);
+	    } else if (diff instanceof AssociationChange) {
+		continue;
+	    } else if (diff instanceof DirectedRelationshipChange) {
+		continue;
+	    } else {
+		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
+	    }
+
+	    String x = id + "." + feature + "." + value + "." + diff.getKind();
+	    set.add(x.trim());
+	}
+	// System.out.println("Before Merge Diffs: " + diffs.size());
+
+	List<String> list = new ArrayList<>(set);
+	// Collections.sort(list);
+
+	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
+	for (String item : list) {
+	    System.out.println(item);
+	}
+	System.out.println("Diffs Size: " + list.size());
+	return list;
+    }
+
+    public List<String> getEmfcConflicts() {
+	return emfcConflicts;
     }
 
 }

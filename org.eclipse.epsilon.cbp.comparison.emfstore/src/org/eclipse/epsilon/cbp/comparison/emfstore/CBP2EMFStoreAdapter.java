@@ -343,7 +343,7 @@ public class CBP2EMFStoreAdapter {
 
 							// REPLAY
 							try {
-								System.out.println(eventNumber + ": " + event.toString());
+								// System.out.println(eventNumber + ": " + event.toString());
 
 								if (event.getComposite() != null && (event instanceof RemoveFromEReferenceEvent ||
 									event instanceof RemoveFromResourceEvent
@@ -469,7 +469,7 @@ public class CBP2EMFStoreAdapter {
 				try {
 					compositeHandle.end(composite, composite, modelElementId);
 					compositeHandle = null;
-					System.out.println("End Composite " + composite);
+					// System.out.println("End Composite " + composite);
 				} catch (Exception e) {
 					System.console();
 					return;
@@ -773,7 +773,7 @@ public class CBP2EMFStoreAdapter {
 						System.console();
 						return;
 					}
-					System.out.println("End Composite " + composite);
+					// System.out.println("End Composite " + composite);
 					composite = null;
 				}
 			}
@@ -784,7 +784,7 @@ public class CBP2EMFStoreAdapter {
 				return;
 			}
 			composite = event.getComposite();
-			System.out.println("Start Composite " + composite);
+			// System.out.println("Start Composite " + composite);
 		} else if (event.getComposite() == null && composite != null) {
 			if (compositeHandle != null) {
 				ESModelElementId modelElementId = null;
@@ -847,7 +847,7 @@ public class CBP2EMFStoreAdapter {
 					try {
 						compositeHandle.end(event.getComposite(), event.getComposite(), modelElementId);
 						compositeHandle = null;
-						System.out.println("End Composite " + composite);
+						// System.out.println("End Composite " + composite);
 					} catch (Exception e) {
 						System.console();
 						return;

@@ -2,6 +2,8 @@ package org.eclipse.epsilon.cbp.comparison.event;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 import org.eclipse.epsilon.cbp.event.ChangeEvent;
@@ -15,15 +17,14 @@ public abstract class CBPChangeEvent<T> {
     protected int position = -1;
     protected String composite = null;
 
-    protected CBPConflict conflict = null;
+    protected HashSet<CBPConflict> conflicts = new LinkedHashSet<>();
 
-    
-    public CBPConflict getConflict() {
-        return conflict;
+    public HashSet<CBPConflict> getConflicts() {
+	return conflicts;
     }
 
-    public void setConflict(CBPConflict conflict) {
-        this.conflict = conflict;
+    public void addConflict(CBPConflict conflict) {
+	this.conflicts.add(conflict);
     }
 
     public int getLineNumber() {

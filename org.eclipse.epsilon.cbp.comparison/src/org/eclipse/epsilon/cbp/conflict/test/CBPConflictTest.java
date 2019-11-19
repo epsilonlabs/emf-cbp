@@ -8,10 +8,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,12 +71,15 @@ import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.emfstore.common.ESSystemOutProgressMonitor;
 import org.eclipse.emf.emfstore.common.model.ESModelElementId;
+import org.eclipse.epsilon.cbp.bigmodel.ModifiedEMFCompare;
+import org.eclipse.epsilon.cbp.bigmodel.ModifiedEMFCompare.ModifiedBuilder;
 import org.eclipse.epsilon.cbp.comparison.CBPComparisonImpl;
 import org.eclipse.epsilon.cbp.comparison.ICBPComparison;
 import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
@@ -100,6 +107,9 @@ import org.junit.Test;
 import org.junit.internal.runners.statements.ExpectException;
 
 public class CBPConflictTest {
+
+    private List<String> ecbpConflicts = new ArrayList<String>();
+    private List<String> emfcConflicts = new ArrayList<String>();
 
     private CBPResource cbpOriginalResource;
     private CBPResource cbpLeftResource;
@@ -158,12 +168,18 @@ public class CBPConflictTest {
     @Test
     public void testThesisConflicts() {
 	try {
+
+	    EStructuralFeature feature = NodeFactory.eINSTANCE.createNode().eClass().getEStructuralFeature("valNodes");
+	    boolean isOrdered = feature.isOrdered();
+
 	    // EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(),
 	    // NodePackage.eINSTANCE);
 	    // ePackage = (EPackage)
 	    // EPackage.Registry.INSTANCE.get(NodePackage.eINSTANCE.getNsURI());
-	    EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
-	    ePackage = (EPackage) EPackage.Registry.INSTANCE.get(JavaPackage.eINSTANCE.getNsURI());
+	    // EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(),
+	    // NodePackage.eINSTANCE);
+	    // ePackage = (EPackage)
+	    // EPackage.Registry.INSTANCE.get(JavaPackage.eINSTANCE.getNsURI());
 
 	    cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.cbpxml");
 	    cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\debug\\left.cbpxml");
@@ -693,9 +709,7 @@ public class CBPConflictTest {
 	    leftScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
 	    leftScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
 	    leftScript.add("nodeB.valNode = nodeF;");
-	    leftScript.add("nodeC.valNode = nodeF;");
-	    leftScript.add("nodeD.valNode = nodeF;");
-	    leftScript.add("nodeE.valNode = nodeF;");
+	    // leftScript.add("nodeA.valNode = new Node;");
 
 	    // right script
 	    rightScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
@@ -704,10 +718,8 @@ public class CBPConflictTest {
 	    rightScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
 	    rightScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
 	    rightScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
-	    rightScript.add("nodeB.valNode = nodeF;");
 	    rightScript.add("nodeC.valNode = nodeF;");
-	    rightScript.add("nodeD.valNode = nodeF;");
-	    rightScript.add("nodeE.valNode = nodeF;");
+	    rightScript.add("nodeA.valNode = new Node;");
 
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
@@ -855,7 +867,7 @@ public class CBPConflictTest {
 	    Node rootNode1 = factory.createNode();
 	    rootNode1.setName("ROOT1");
 	    Node rootNode2 = factory.createNode();
-	    rootNode1.setName("ROOT2");
+	    rootNode2.setName("ROOT2");
 	    cbpOriginalResource.getContents().add(rootNode1);
 	    cbpOriginalResource.getContents().add(rootNode2);
 
@@ -898,6 +910,11 @@ public class CBPConflictTest {
 	    cbpRightResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeA);
 	    cbpLeftResource.endCompositeEvent();
+
+	    // Node nodeX = factory.createNode();
+	    // nodeX.setName("X");
+	    // nodeA.setValNode(nodeX);
+
 	    cbpRightResource.save(options);
 	    exportToXmi(cbpRightResource, xmiRightResource);
 
@@ -913,6 +930,11 @@ public class CBPConflictTest {
 	    cbpLeftResource.startCompositeEvent();
 	    EcoreUtil.delete(nodeB);
 	    cbpLeftResource.endCompositeEvent();
+
+	    // Node nodeY = factory.createNode();
+	    // nodeY.setName("Y");
+	    // nodeA.setValNode(nodeY);
+
 	    cbpLeftResource.save(options);
 	    exportToXmi(cbpLeftResource, xmiLeftResource);
 
@@ -1010,34 +1032,6 @@ public class CBPConflictTest {
 		changeCbpTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\change-target.cbpxml");
 		changeXmiTargetFile = new File("D:\\TEMP\\CONFLICTS\\debug\\change-target.xmi");
 
-		// cbpOriginalFile = new File("D:\\TEMP\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\origin.cbpxml");
-		// cbpLeftFile = new File("D:\\\\TEMP\\\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\left.cbpxml");
-		// cbpRightFile = new File("D:\\\\TEMP\\\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\right.cbpxml");
-		// xmiOriginalFile = new File("D:\\\\TEMP\\\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\origin.xmi");
-		// xmiLeftFile = new File("D:\\\\TEMP\\\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i + "\\left.xmi");
-		// xmiRightFile = new File("D:\\\\TEMP\\\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\right.xmi");
-		//
-		// stateXmiTargetFile = new File("D:\\TEMP\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\state-target.xmi");
-		// changeCbpTargetFile = new File("D:\\TEMP\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\change-target.cbpxml");
-		// changeXmiTargetFile = new File("D:\\TEMP\\FASE\\" + dir +
-		// File.separator + "data" + File.separator + i +
-		// "\\change-target.xmi");
-
 		Files.copy(cbpLeftFile.toPath(), changeCbpTargetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(xmiLeftFile.toPath(), changeXmiTargetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(xmiRightFile.toPath(), stateXmiTargetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -1045,8 +1039,8 @@ public class CBPConflictTest {
 		// do cbp comparison
 		ICBPComparison comparison = doCbpComparison(cbpLeftFile, cbpRightFile, cbpOriginalFile);
 
-		// do cbp merging
-		doCbpMerging(comparison);
+		// // do cbp merging
+		// doCbpMerging(comparison);
 
 		XMIResource originXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(xmiOriginalFile.getAbsolutePath()));
 		originXmi.load(options);
@@ -1060,37 +1054,212 @@ public class CBPConflictTest {
 		XMIResource targetChangeXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(changeXmiTargetFile.getAbsolutePath()));
 
 		// do emf compare
-		doThreeWayComparison(leftXmi, targetStateXmi, originXmi);
+		ModifiedEMFCompare emfCompare = doThreeWayComparison(leftXmi, targetStateXmi, originXmi);
 		targetStateXmi.save(options);
+
+		// System.out.println();
+		// System.out.println("Sort target model of change-based
+		// comparison");
+		// targetChangeXmi.load(options);
+		// CBPComparisonUtil.sort(targetChangeXmi);
+		// targetChangeXmi.save(options);
+		//
+		// System.out.println("Sort target model of state-based
+		// comparison");
+		// targetStateXmi.load(options);
+		// CBPComparisonUtil.sort(targetStateXmi);
+		// targetStateXmi.save(options);
+
+		// EList<Diff> evalDiffs =
+		// compareCBPvsXMITargets(targetChangeXmi, targetStateXmi);
+
+		ecbpConflicts = new ArrayList<String>(comparison.getConflictStrings());
 
 		System.out.println();
-		System.out.println("Sort target model of change-based comparison");
-		targetChangeXmi.load(options);
-		CBPComparisonUtil.sort(targetChangeXmi);
-		// sortResourceElements(targetChangeXmi);
-		targetChangeXmi.save(options);
-
-		System.out.println("Sort target model of state-based comparison");
-		targetStateXmi.load(options);
-		CBPComparisonUtil.sort(targetStateXmi);
-		// sortResourceElements(targetStateXmi);
-		targetStateXmi.save(options);
-
-		EList<Diff> evalDiffs = compareCBPvsXMITargets(targetChangeXmi, targetStateXmi);
-		if (evalDiffs.size() > 0) {
-		    throw new Exception("MODEL " + i + ": there are difference(s) = " + evalDiffs.size());
+		System.out.println("CBP SINGLE CONFLICTS");
+		List<String> listEcbpConflicts = new LinkedList<String>(ecbpConflicts);
+		Collections.sort(listEcbpConflicts);
+		for (String tempStr : listEcbpConflicts) {
+		    System.out.println(tempStr);
 		}
+		System.out.println("Size = " + listEcbpConflicts.size());
+		System.out.println();
+		// ---------------
 
 		targetStateXmi.unload();
 		leftXmi.unload();
 		rightXmi.unload();
 		targetChangeXmi.unload();
 
+		System.out.println("");
+		System.out.println("UNDETECTED BY EMF COMPARE");
+		emfcConflicts = new ArrayList<String>(emfCompare.getEmfcConflicts());
+		ecbpConflicts.removeAll(emfcConflicts);
+		Collections.sort(ecbpConflicts);
+		int j = 1;
+		for (String conflict : ecbpConflicts) {
+		    System.out.println(j + ": " + conflict);
+		    j++;
+		}
+
+		System.out.println("");
+		System.out.println("UNDETECTED BY CBP");
+		emfcConflicts.removeAll(comparison.getConflictStrings());
+		Collections.sort(emfcConflicts);
+		j = 1;
+		for (String conflict : emfcConflicts) {
+		    System.out.println(j + ": " + conflict);
+		    j++;
+		}
+		System.console();
 	    }
+
+	    System.out.println();
+	    analyseUndetectedByEcbpConflicts(emfcConflicts);
+	    System.out.println();
+	    analyseUndetectedByEmfcConflicts(ecbpConflicts);
+	    System.console();
+
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
 	assertEquals(true, true);
+    }
+
+    private void analyseUndetectedByEcbpConflicts(List<String> undetectedByEcbp) {
+	// conflicts caused by derived moves
+	List<String> derivedMoves = new ArrayList<>();
+
+	// this one should be detected by ECBP, however since conflicts are not
+	// in one group (one conflict), seperated into different conflicts, it
+	// cannot be straightforwardly detected
+	List<String> conflictByDeletion = new ArrayList<>();
+
+	// others unhandled conflicts
+	List<String> otherUnhandledConflicts = new ArrayList<>();
+
+	for (String line : undetectedByEcbp) {
+	    String[] segments = line.split(" <-> ");
+	    String left = segments[0];
+	    String right = segments[1];
+
+	    if ((left.contains("MOVE") && left.contains("IN")) || (right.contains("MOVE") && right.contains("IN"))) {
+		derivedMoves.add(line);
+	    } else
+	    //
+	    if (left.contains("DELETE") || right.contains("DELETE")) {
+		conflictByDeletion.add(line);
+	    } else
+	    //
+	    if (left.contains("SET") && right.contains("SET")) {
+		conflictByDeletion.add(line);
+	    } else
+	    //
+	    {
+		otherUnhandledConflicts.add(line);
+		System.out.println("unhandled by ecbp: " + line);
+		System.console();
+	    }
+	}
+
+	// if (derivedMoves.size() + conflictByDeletion.size() ==
+	// undetectedByEcbp.size()) {
+	System.out.println();
+	System.out.println("DETAILS OF UNDETECTED CONFLICTS BY CBP");
+	System.out.println("Total dirty conflicts = " + undetectedByEcbp.size());
+	System.out.println("Derived Moves = " + derivedMoves.size());
+	System.out.println("Conflicts by deletion = " + conflictByDeletion.size());
+	System.out.println("Other conflicts = " + otherUnhandledConflicts.size());
+	System.out.println("Conflicts by non-deletion = " + (derivedMoves.size() + otherUnhandledConflicts.size()));
+	System.out.println("Real undentected conflicts = " + (undetectedByEcbp.size() - conflictByDeletion.size()));
+	// }
+
+    }
+
+    private void analyseUndetectedByEmfcConflicts(List<String> undetectedByEcbp) {
+	// conflicts caused by real moves
+	List<String> realMoves = new ArrayList<>();
+
+	// conflicts caused by real moves
+	List<String> resetToOriginalConflicts = new ArrayList<>();
+
+	// assigned a value to container left by item moved to another container
+	List<String> moveSetConflicts = new ArrayList<>();
+
+	// this one should be detected by ECBP, however since conflicts are not
+	// in one group (one conflict), seperated into different conflicts, it
+	// cannot be straightforwardly detected
+	List<String> conflictByDeletion = new ArrayList<>();
+
+	// others unhandled conflicts
+	List<String> otherUnhandledConflicts = new ArrayList<>();
+
+	for (String line : undetectedByEcbp) {
+	    String[] segments = line.split(" <-> ");
+	    String left = segments[0];
+	    String right = segments[1];
+
+	    if ((left.contains("MOVE") && left.contains("IN")) || (right.contains("MOVE") && right.contains("IN"))) {
+		realMoves.add(line);
+	    } else
+	    //
+	    if ((left.contains("SET")) && (right.contains("SET"))) {
+		resetToOriginalConflicts.add(line);
+	    } else
+	    //
+	    if ((left.contains("SET")) || (right.contains("SET"))) {
+		String[] leftSegments = left.split(" TO ");
+		String[] rightSegments = right.split(" TO ");
+
+		if (leftSegments[0].contains("true") && leftSegments[1].contains("true")) {
+		    resetToOriginalConflicts.add(line);
+		} else if (leftSegments[0].contains("false") && leftSegments[1].contains("false")) {
+		    resetToOriginalConflicts.add(line);
+		} else if (rightSegments[0].contains("true") && rightSegments[1].contains("true")) {
+		    resetToOriginalConflicts.add(line);
+		} else if (rightSegments[0].contains("false") && rightSegments[1].contains("false")) {
+		    resetToOriginalConflicts.add(line);
+		} else if (left.contains("DELETE") || right.contains("DELETE")) {
+		    conflictByDeletion.add(line);
+		} else if ((left.contains("ACROSS") && right.contains("R-")) || (left.contains("L-") && right.contains("ACROSS"))) {
+		    moveSetConflicts.add(line);
+		} else {
+		    otherUnhandledConflicts.add(line);
+		    System.out.println("unhandled by emfc: " + line);
+		    System.console();
+		}
+	    } else
+	    //
+	    if (left.contains("DELETE") || right.contains("DELETE")) {
+		conflictByDeletion.add(line);
+	    } else
+	    //
+	    if ((left.contains("ACROSS") && right.contains("R-")) || (left.contains("L-") && right.contains("ACROSS"))) {
+		moveSetConflicts.add(line);
+	    } else
+	    //
+	    {
+		otherUnhandledConflicts.add(line);
+		System.out.println("unhandled by emfc: " + line);
+		System.console();
+	    }
+	    System.console();
+	}
+
+	// if (derivedMoves.size() + conflictByDeletion.size() ==
+	// undetectedByEcbp.size()) {
+	System.out.println();
+	System.out.println("DETAILS OF UNDETECTED CONFLICTS BY EMF COMPARE");
+	System.out.println("Total dirty conflicts = " + undetectedByEcbp.size());
+	System.out.println("Derived Moves = " + realMoves.size());
+	System.out.println("Reset-to-original conflicts = " + resetToOriginalConflicts.size());
+	System.out.println("Conflicts by deletion = " + conflictByDeletion.size());
+	System.out.println("Move set conflicts = " + moveSetConflicts.size());
+	System.out.println("Other conflicts = " + otherUnhandledConflicts.size());
+	System.out.println("Conflicts by non-deletion = " + (realMoves.size() + resetToOriginalConflicts.size() + otherUnhandledConflicts.size() + moveSetConflicts.size()));
+	System.out.println("Real undentected conflicts = " + (undetectedByEcbp.size() - conflictByDeletion.size()));
+	// }
+
     }
 
     /**
@@ -1178,7 +1347,7 @@ public class CBPConflictTest {
     }
 
     @SuppressWarnings("restriction")
-    private EList<Conflict> doThreeWayComparison(XMIResource leftXmi, XMIResource rightXmi, XMIResource originXmi) throws FileNotFoundException, IOException, Exception {
+    private ModifiedEMFCompare doThreeWayComparison(XMIResource leftXmi, XMIResource rightXmi, XMIResource originXmi) throws FileNotFoundException, IOException, Exception {
 	System.out.println("Do Three-Way, State-based Comparison ...");
 	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
 	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
@@ -1191,15 +1360,15 @@ public class CBPConflictTest {
 	BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
 	postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
 
-	Builder builder = EMFCompare.builder();
+	ModifiedBuilder builder = ModifiedEMFCompare.modifiedBuilder();
 	builder.setPostProcessorRegistry(postProcessorRegistry);
 	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
-	EMFCompare comparator = builder.build();
+	ModifiedEMFCompare comparator = (ModifiedEMFCompare) builder.build();
 
 	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, rightXmi, originXmi);
 	Comparison emfComparison = comparator.compare(scope);
 	EList<Diff> diffs = emfComparison.getDifferences();
-	printConflicts(leftXmi, rightXmi, originXmi, emfComparison.getConflicts());
+	comparator.printConflicts(leftXmi, rightXmi, originXmi, emfComparison.getConflicts());
 
 	// IMerger.Registry registry = new IMerger.RegistryImpl();
 	IMerger.Registry registry = IMerger.RegistryImpl.createStandaloneInstance();
@@ -1225,19 +1394,19 @@ public class CBPConflictTest {
 	    eObject2IdMap.put(eObject, id);
 	}
 
-	batchMerger.copyAllLeftToRight(leftDiffs, new BasicMonitor());
-	// batchMerger.copyAllLeftToRight(rightDiffs, new BasicMonitor());
+	// batchMerger.copyAllLeftToRight(leftDiffs, new BasicMonitor());
+	// // batchMerger.copyAllLeftToRight(rightDiffs, new BasicMonitor());
+	//
+	// TreeIterator<EObject> targetIterator = rightXmi.getAllContents();
+	// while (targetIterator.hasNext()) {
+	// EObject eObject = targetIterator.next();
+	// String id = eObject2IdMap.get(eObject);
+	// if (id != null) {
+	// rightXmi.setID(eObject, id);
+	// }
+	// }
 
-	TreeIterator<EObject> targetIterator = rightXmi.getAllContents();
-	while (targetIterator.hasNext()) {
-	    EObject eObject = targetIterator.next();
-	    String id = eObject2IdMap.get(eObject);
-	    if (id != null) {
-		rightXmi.setID(eObject, id);
-	    }
-	}
-
-	return emfComparison.getConflicts();
+	return comparator;
     }
 
     @SuppressWarnings("restriction")
@@ -1255,16 +1424,16 @@ public class CBPConflictTest {
 	BasicPostProcessorDescriptorImpl post = new BasicPostProcessorDescriptorImpl(new UMLPostProcessor(), Pattern.compile("http://www.eclipse.org/uml2/5.0.0/UML"), null);
 	postProcessorRegistry.put(UMLPostProcessor.class.getName(), post);
 
-	Builder builder = EMFCompare.builder();
+	ModifiedBuilder builder = ModifiedEMFCompare.modifiedBuilder();
 	builder.setPostProcessorRegistry(postProcessorRegistry);
 	builder.setMatchEngineFactoryRegistry(matchEngineRegistry);
-	EMFCompare comparator = builder.build();
+	ModifiedEMFCompare comparator = (ModifiedEMFCompare) builder.build();
 
 	IComparisonScope2 scope = new DefaultComparisonScope(leftXmi, rightXmi, null);
 	Comparison emfComparison = comparator.compare(scope);
 	EList<Diff> evalDiffs = emfComparison.getDifferences();
 
-	printEMFCompareDiffs(leftXmi, rightXmi, evalDiffs);
+	comparator.printEMFCompareDiffs(leftXmi, rightXmi, evalDiffs);
 
 	return evalDiffs;
     }
@@ -1322,340 +1491,6 @@ public class CBPConflictTest {
 	    cbpResource.save(options);
 	    xmiResource.save(options);
 	}
-    }
-
-    private void printConflicts(XMIResource left, XMIResource right, XMIResource origin, EList<Conflict> conflicts) throws FileNotFoundException, IOException {
-	System.out.println("\nEMF COMPARE CONFLICTS:");
-	int conflictCount = 0;
-	for (Conflict conflict : conflicts) {
-	    if (conflict.getKind() == ConflictKind.REAL || conflict.getKind() == ConflictKind.PSEUDO) {
-
-		conflictCount++;
-
-		EList<Diff> leftDiffs = conflict.getLeftDifferences();
-		EList<Diff> rightDiffs = conflict.getRightDifferences();
-		boolean foundConflict = false;
-
-		Iterator<Diff> leftIterator = leftDiffs.iterator();
-		Iterator<Diff> rightIterator = rightDiffs.iterator();
-		while (leftIterator.hasNext() || rightIterator.hasNext()) {
-		    Diff leftDiff = null;
-		    if (leftIterator.hasNext())
-			leftDiff = leftIterator.next();
-		    Diff rightDiff = null;
-		    if (rightIterator.hasNext())
-			rightDiff = rightIterator.next();
-
-		    String leftString = "";
-		    String rightString = "";
-		    if (leftDiff instanceof AttributeChange || leftDiff instanceof ReferenceChange || leftDiff instanceof ResourceAttachmentChange) {
-			leftString = diffToString(left, origin, leftDiff);
-		    }
-		    if (rightDiff instanceof AttributeChange || rightDiff instanceof ReferenceChange || rightDiff instanceof ResourceAttachmentChange) {
-			rightString = diffToString(right, origin, rightDiff);
-		    }
-		    // if (leftString.equals(rightString)) {
-		    // continue;
-		    // }
-		    foundConflict = true;
-
-		    System.out.println(conflictCount + ": " + leftString + " <-> " + rightString);
-		    System.console();
-		}
-	    }
-	}
-	System.out.println("Conflict count:" + conflictCount);
-	if (conflictCount > 0) {
-	    System.console();
-	}
-    }
-
-    @SuppressWarnings("unchecked")
-    private String diffToString(XMIResource leftModel, XMIResource rightModel, Diff diff) throws FileNotFoundException, IOException {
-
-	String result = "";
-	String leftTarget = null;
-	String rightTarget = null;
-	EObject eLeftTarget = null;
-	EObject eRightTarget = null;
-
-	if (diff.getSource() == DifferenceSource.LEFT) {
-	    eLeftTarget = diff.getMatch().getLeft();
-	    eRightTarget = diff.getMatch().getOrigin();
-	    if (eLeftTarget == null) {
-		eLeftTarget = diff.getMatch().getRight();
-	    }
-	} else {
-	    eLeftTarget = diff.getMatch().getRight();
-	    eRightTarget = diff.getMatch().getOrigin();
-	    if (eLeftTarget == null) {
-		eLeftTarget = diff.getMatch().getLeft();
-	    }
-	}
-
-	if (eLeftTarget != null) {
-	    leftTarget = leftModel.getURIFragment(eLeftTarget);
-	}
-	if (eRightTarget != null) {
-	    rightTarget = rightModel.getURIFragment(eRightTarget);
-	}
-
-	if (diff.getKind() == DifferenceKind.ADD) {
-	    if (diff instanceof AttributeChange) {
-		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
-		String featureName = eFeature.getName();
-		Object value = ((AttributeChange) diff).getValue();
-		if (value instanceof String) {
-		    value = "\"" + value + "\"";
-		}
-		int index = 0;
-		if (eFeature.isMany()) {
-		    List<Object> list = (List<Object>) eLeftTarget.eGet(eFeature);
-		    index = list.indexOf(value);
-		}
-		result = "ADD " + value + " TO " + leftTarget + "." + featureName + " AT " + index;
-	    } else if (diff instanceof ReferenceChange) {
-		EReference eFeature = ((ReferenceChange) diff).getReference();
-		String featureName = eFeature.getName();
-		EObject eValue = ((ReferenceChange) diff).getValue();
-		String value = leftModel.getID(eValue);
-		int index = 0;
-		if (eFeature.isMany()) {
-		    List<Object> list = (List<Object>) eLeftTarget.eGet(eFeature);
-		    index = list.indexOf(eValue);
-		    result = "ADD " + value + " TO " + leftTarget + "." + featureName + " AT " + index;
-		} else {
-		    result = "SET " + leftTarget + "." + featureName + " FROM " + null + " TO " + value;
-		}
-	    } else if (diff instanceof ResourceAttachmentChange) {
-		String featureName = "resource";
-		String value = leftModel.getID(eLeftTarget);
-		int index = leftModel.getContents().indexOf(eLeftTarget);
-		result = "ADD " + value + " TO " + featureName + " AT " + index;
-	    }
-	} else if (diff.getKind() == DifferenceKind.CHANGE) {
-	    if (diff instanceof AttributeChange) {
-		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
-		String featureName = eFeature.getName();
-		Object rightValue = eRightTarget.eGet(eFeature);
-		Object leftValue = eLeftTarget.eGet(eFeature);
-		if (rightValue instanceof String) {
-		    rightValue = "\"" + rightValue + "\"";
-		}
-		if (leftValue instanceof String) {
-		    leftValue = "\"" + leftValue + "\"";
-		}
-		result = "SET " + leftTarget + "." + featureName + " FROM " + rightValue + " TO " + leftValue;
-	    } else if (diff instanceof ReferenceChange) {
-		EReference eFeature = ((ReferenceChange) diff).getReference();
-		String featureName = eFeature.getName();
-		EObject eOldValue = (EObject) eRightTarget.eGet(eFeature);
-		String oldValue = rightModel.getID(eOldValue);
-		EObject eValue = null;
-		String value = null;
-		if (eLeftTarget != null) {
-		    eValue = (EObject) eLeftTarget.eGet(eFeature);
-		    value = leftModel.getID(eValue);
-		}
-		result = "SET " + leftTarget + "." + featureName + " FROM " + oldValue + " TO " + value;
-	    }
-	} else if (diff.getKind() == DifferenceKind.MOVE) {
-	    if (diff instanceof AttributeChange) {
-		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
-		String featureName = eFeature.getName();
-		Object value = ((AttributeChange) diff).getValue();
-		String oldPosition = "";
-		String position = "";
-		EList<EObject> list1 = (EList<EObject>) eRightTarget.eGet(eFeature);
-		oldPosition = "" + list1.indexOf(value);
-		EList<EObject> list2 = (EList<EObject>) eLeftTarget.eGet(eFeature);
-		position = "" + list2.indexOf(value);
-		result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
-	    } else if (diff instanceof ReferenceChange) {
-		EReference eFeature = ((ReferenceChange) diff).getReference();
-		if (eFeature.isContainment()) {
-		    String featureName = eFeature.getName();
-		    EObject eValue = ((ReferenceChange) diff).getValue();
-		    String value = leftModel.getID(eValue);
-		    EObject eOldValue = rightModel.getEObject(value);
-		    EReference eOldFeature = (EReference) eOldValue.eContainingFeature();
-		    String eOldFeatureName = null;
-		    if (eOldFeature != null) {
-			eOldFeatureName = eOldFeature.getName();
-		    }
-		    eRightTarget = eOldValue.eContainer();
-		    rightTarget = rightModel.getID(eRightTarget);
-		    String oldPosition = "";
-		    if (eOldFeature != null && eOldFeature.isMany()) {
-			EList<EObject> list = (EList<EObject>) eRightTarget.eGet(eOldFeature);
-			oldPosition = "" + list.indexOf(eOldValue);
-		    }
-		    String position = "";
-		    if (eFeature.isMany()) {
-			EList<EObject> list = (EList<EObject>) eLeftTarget.eGet(eFeature);
-			position = "" + list.indexOf(eValue);
-		    }
-		    // cross container
-		    if ((!leftTarget.equals(rightTarget) || !featureName.equals(eOldFeatureName))) {
-			// from other container/feature
-			if (eRightTarget != null) {
-			    if (eOldFeature.isMany())
-				oldPosition = "." + oldPosition;
-			    if (eFeature.isMany())
-				position = "." + position;
-			    result = "MOVE " + value + " FROM " + rightTarget + "." + eOldFeatureName + oldPosition + " TO " + leftTarget + "." + featureName + position;
-			}
-			// from resource
-			else {
-			    eOldFeatureName = "resource";
-			    oldPosition = "" + rightModel.getContents().indexOf(eValue);
-			    if (eFeature.isMany())
-				position = "." + position;
-			    result = "MOVE " + value + " FROM " + eOldFeatureName + oldPosition + " TO " + leftTarget + "." + featureName + position;
-			}
-		    }
-		    // within container
-		    else {
-			result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
-		    }
-		} else {
-		    String featureName = eFeature.getName();
-		    EObject eValue = ((ReferenceChange) diff).getValue();
-		    String value = leftModel.getID(eValue);
-		    Object eOldValue = rightModel.getEObject(value);
-		    String oldPosition = "";
-		    String position = "";
-		    EList<EObject> list1 = (EList<EObject>) eRightTarget.eGet(eFeature);
-		    oldPosition = "" + list1.indexOf(eOldValue);
-		    EList<EObject> list2 = (EList<EObject>) eLeftTarget.eGet(eFeature);
-		    position = "" + list2.indexOf(eValue);
-		    result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
-		}
-	    }
-
-	    else if (diff instanceof ResourceAttachmentChange) {
-		String featureName = "resource";
-		EObject eValue = eLeftTarget;
-		String value = null;
-		EObject eOldValue = null;
-		if (eValue != null) {
-		    value = leftModel.getID(eValue);
-		    eOldValue = rightModel.getEObject(value);
-		} else {
-		    eOldValue = diff.getMatch().getRight();
-		    value = rightModel.getID(eValue);
-		}
-
-		// from container/feature
-		if (eOldValue.eContainer() != null) {
-		    eRightTarget = eOldValue.eContainer();
-		    rightTarget = rightModel.getID(eRightTarget);
-		    EReference eOldFeature = (EReference) eOldValue.eContainingFeature();
-		    String eOldFeatureName = eOldFeature.getName();
-
-		    String oldPosition = "";
-		    if (eOldFeature.isMany()) {
-			EList<Object> list = (EList<Object>) eRightTarget.eGet(eOldFeature);
-			oldPosition = "." + list.indexOf(eOldValue);
-		    }
-		    String position = "." + leftModel.getContents().indexOf(eValue);
-		    result = "MOVE " + value + " FROM " + rightTarget + "." + eOldFeatureName + oldPosition + " TO " + featureName + position;
-		}
-		// within resource / root level
-		else {
-		    String oldPosition = "" + rightModel.getContents().indexOf(eOldValue);
-		    String position = "" + leftModel.getContents().indexOf(eValue);
-		    result = "MOVE " + value + " IN " + leftTarget + "." + featureName + " FROM " + oldPosition + " TO " + position;
-		}
-	    }
-	} else if (diff.getKind() == DifferenceKind.DELETE) {
-	    if (diff instanceof AttributeChange) {
-		EAttribute eFeature = ((AttributeChange) diff).getAttribute();
-		String featureName = eFeature.getName();
-		Object value = ((AttributeChange) diff).getValue();
-		if (value instanceof String) {
-		    value = "\"" + value + "\"";
-		}
-		int index = 0;
-		if (eFeature.isMany()) {
-		    List<Object> list = (List<Object>) eRightTarget.eGet(eFeature);
-		    index = list.indexOf(value);
-		}
-		result = "DELETE " + value + " FROM " + rightTarget + "." + featureName + " AT " + index;
-	    } else if (diff instanceof ReferenceChange) {
-		EReference eFeature = ((ReferenceChange) diff).getReference();
-		String featureName = eFeature.getName();
-		EObject eValue = ((ReferenceChange) diff).getValue();
-		String value = rightModel.getID(eValue);
-		int index = 0;
-		if (eFeature.isMany()) {
-		    List<Object> list = (List<Object>) eRightTarget.eGet(eFeature);
-		    index = list.indexOf(eValue);
-		}
-		result = "DELETE " + value + " FROM " + rightTarget + "." + featureName + " AT " + index;
-	    } else if (diff instanceof ResourceAttachmentChange) {
-		String featureName = "resource";
-		String value = rightModel.getID(eRightTarget);
-		int index = rightModel.getContents().indexOf(eRightTarget);
-		result = "DELETE " + value + " FROM " + featureName + " AT " + index;
-	    }
-	}
-
-	return result;
-
-    }
-
-    private List<String> printEMFCompareDiffs(Resource left, Resource right, EList<Diff> diffs) throws FileNotFoundException, IOException {
-	Set<String> set = new HashSet<>();
-	for (Diff diff : diffs) {
-	    String feature = null;
-	    String id = null;
-	    String value = null;
-
-	    if (diff.getMatch().getLeft() != null) {
-		id = left.getURIFragment(diff.getMatch().getLeft());
-	    } else {
-		id = right.getURIFragment(diff.getMatch().getRight());
-	    }
-
-	    if (diff instanceof AttributeChange) {
-		feature = ((AttributeChange) diff).getAttribute().getName();
-		value = String.valueOf(((AttributeChange) diff).getValue());
-	    } else if (diff instanceof ReferenceChange) {
-		feature = ((ReferenceChange) diff).getReference().getName();
-		EObject eObject = ((ReferenceChange) diff).getValue();
-		value = left.getURIFragment(eObject);
-		if (value == null || "/-1".equals(value)) {
-		    value = right.getURIFragment(eObject);
-		}
-	    } else if (diff instanceof MultiplicityElementChange) {
-		continue;
-	    } else if (diff instanceof ResourceAttachmentChange) {
-		feature = "resource";
-		value = new String(id);
-		id = new String(feature);
-	    } else if (diff instanceof AssociationChange) {
-		continue;
-	    } else if (diff instanceof DirectedRelationshipChange) {
-		continue;
-	    } else {
-		System.out.println("UNHANDLED DIFF: " + diff.getClass().getName());
-	    }
-
-	    String x = id + "." + feature + "." + value + "." + diff.getKind();
-	    set.add(x.trim());
-	}
-	// System.out.println("Before Merge Diffs: " + diffs.size());
-
-	List<String> list = new ArrayList<>(set);
-	// Collections.sort(list);
-
-	// System.out.println("\nEXPORT FOR COMPARISON WITH CBP:");
-	for (String item : list) {
-	    System.out.println(item);
-	}
-	System.out.println("Diffs Size: " + list.size());
-	return list;
     }
 
     public void exportToXmi(CBPResource cbpResource, XMIResource xmiResource) {

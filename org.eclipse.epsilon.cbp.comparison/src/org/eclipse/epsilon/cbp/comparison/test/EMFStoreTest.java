@@ -156,7 +156,7 @@ public class EMFStoreTest {
 		leftProject.getModelElements().add(leftPackage04);
 		leftPackage04.setName("D");
 		
-		//commit the left version to raise a conflict
+		//commit the left version to raise a conflicts
 		try {
 			leftProject.commit(new ESSystemOutProgressMonitor());
 		} catch (final ESUpdateRequiredException e) {
@@ -186,7 +186,7 @@ public class EMFStoreTest {
 					Iterator<ESConflict> iterator  = changeConflictSet.getConflicts().iterator();
 					while(iterator.hasNext()) {
 						ESConflict conflict = iterator.next();
-//						System.out.println(conflict.toString());
+//						System.out.println(conflicts.toString());
 						
 						
 						 
@@ -204,7 +204,7 @@ public class EMFStoreTest {
 							}
 						}
 						
-//						conflict.resolveConflict(conflict.getLocalOperations(), conflict.getRemoteOperations());
+//						conflicts.resolveConflict(conflicts.getLocalOperations(), conflicts.getRemoteOperations());
 						conflict.resolveConflict(conflict.getLocalOperations(), conflict.getRemoteOperations());
 						
 						System.out.println("After Resolve Conflict!");
