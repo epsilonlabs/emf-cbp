@@ -192,9 +192,9 @@ public class Application implements IApplication {
 			final ESServer localServer = ESServer.FACTORY.createAndStartLocalServer();
 			// Run a client on the local server that shows the basic features of the EMFstore
 			// manualChanges(localServer);
-			runClient(localServer);
+			// runClient(localServer);
 			// runClient2(localServer);
-			// runPerformanceTest(localServer);
+			runPerformanceTest(localServer);
 		} catch (final ESServerStartFailedException e) {
 			System.out.println("Server start failed!");
 			e.printStackTrace();
@@ -1369,19 +1369,20 @@ public class Application implements IApplication {
 		List<EObject> leftEObjectList = identifyAllEObjects(leftCbp);
 		List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
 
-		// ----------------EMF STORE
-		originalAdapater.load(originCbpFile, true);
-		originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
-		leftProject.update(new ESSystemOutProgressMonitor());
-		rightProject.update(new ESSystemOutProgressMonitor());
+		// // ----------------EMF STORE
+		// originalAdapater.load(originCbpFile, true);
+		// originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
+		// leftProject.update(new ESSystemOutProgressMonitor());
+		// rightProject.update(new ESSystemOutProgressMonitor());
 
 		long prevLeftCbpSize = leftCbpFile.length();
 		long prevRightCbpSize = rightCbpFile.length();
 		// -----
 
 		List<BigModelResult> results = new ArrayList<BigModelResult>();
-		int modificationCount = 6600;
-		// int modificationCount = 13200;
+		// int modificationCount = 6600;
+		int modificationCount = 26400;
+		// int modificationCount = 66000;
 		int number = 0;
 		for (int i = 1; i <= modificationCount; i++) {
 			System.out.print("Change " + i + ":");
@@ -1395,8 +1396,9 @@ public class Application implements IApplication {
 			System.out.println();
 
 			// do comparison
-			if (i % 300 == 0) {
-				// if (i % 600 == 0) {
+			// if (i % 300 == 0) {
+			// if (i % 3000 == 0) {
+			if (i % 1200 == 0) {
 				// if (i % 20 == 0) {
 
 				number++;
@@ -1583,9 +1585,9 @@ public class Application implements IApplication {
 
 				EMFStoreResult emfResult = new EMFStoreResult();
 
-				emfResult = doEMFStoreConflictDetection(rightProject, leftProject, leftCbpFile,
-					rightCbpFile, prevLeftCbpSize,
-					prevRightCbpSize);
+				// emfResult = doEMFStoreConflictDetection(rightProject, leftProject, leftCbpFile,
+				// rightCbpFile, prevLeftCbpSize,
+				// prevRightCbpSize);
 
 				// ------------
 				result.setEmfsConflictCount(emfResult.getEmfsConflictCount());

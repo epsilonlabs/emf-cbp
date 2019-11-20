@@ -2224,7 +2224,8 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // FIRST EVENT
 	    if (firstEvent instanceof CBPSingleValueEReferenceEvent) {
 		target = ((CBPSingleValueEReferenceEvent) firstEvent).getTarget();
-		value = firstEvent.getOldValue().toString();
+		if (firstEvent.getOldValue() != null)
+		    value = firstEvent.getOldValue().toString();
 		feature = ((CBPSingleValueEReferenceEvent) firstEvent).getEStructuralFeature();
 		firstString = target + "." + feature;
 	    } else if (firstEvent instanceof CBPMultiValueEReferenceEvent) {
@@ -2276,6 +2277,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    // LAST EVENT
 	    if (lastEvent instanceof CBPSingleValueEReferenceEvent) {
 		target = ((CBPSingleValueEReferenceEvent) lastEvent).getTarget();
+		if (lastEvent.getOldValue() != null)
 		value = lastEvent.getValue().toString();
 		feature = ((CBPSingleValueEReferenceEvent) lastEvent).getEStructuralFeature();
 		lastString = target + "." + feature;

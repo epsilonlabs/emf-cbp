@@ -240,7 +240,7 @@ public class ModifiedEMFCompare extends EMFCompare {
 		System.gc();
 		startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		startInterval = System.nanoTime();
-		reqEngine.computeRequirements(comparison, subMonitor);
+		// reqEngine.computeRequirements(comparison, subMonitor);
 		// postRequirements(comparison, postProcessors, subMonitor);
 		// equiEngine.computeEquivalences(comparison, subMonitor);
 		// postEquivalences(comparison, postProcessors, subMonitor);
@@ -960,41 +960,24 @@ public class ModifiedEMFCompare extends EMFCompare {
 		    if (rightDiff instanceof AttributeChange || rightDiff instanceof ReferenceChange || rightDiff instanceof ResourceAttachmentChange) {
 			rightString = diffToString(right, origin, rightDiff);
 		    }
-		    // if (leftString.equals(rightString)) {
-		    // continue;
-		    // }
-		    foundConflict = true;
 
 		    System.out.println(conflictCount + ": " + leftString + " <-> " + rightString);
 
 		    if (!leftString.equals("")) {
-			runningLeftString = leftString;
+			if (!runningLeftString.contains("DELETE")) {
+			    runningLeftString = leftString;
+			}
 		    }
 		    if (!rightString.equals("")) {
-			runningRightString = rightString;
+			if (!runningRightString.contains("DELETE")) {
+			    runningRightString = rightString;
+			}
 		    }
 
 		    System.console();
 		}
-		// if (runningLeftDiff.getKind() == DifferenceKind.DELETE &&
-		// runningRightDiff.getKind() == DifferenceKind.DELETE) {
-		// emfcConflicts.add(runningLeftString + " <-> ");
-		// emfcConflicts.add(" <-> " + runningRightString);
-		// } else {
-		// if (runningLeftDiff.getKind() == DifferenceKind.DELETE) {
-		// runningRightString = "";
-		// emfcConflicts.add(runningLeftString + " <-> " +
-		// runningRightString);
-		// } else if (runningRightDiff.getKind() ==
-		// DifferenceKind.DELETE) {
-		// runningLeftString = "";
-		// emfcConflicts.add(runningLeftString + " <-> " +
-		// runningRightString);
-		// } else {
-		emfcConflicts.add(runningLeftString.trim() + " <-> " + runningRightString.trim());
-		// }
 
-		// }
+		emfcConflicts.add(runningLeftString.trim() + " <-> " + runningRightString.trim());
 
 		System.console();
 	    }
