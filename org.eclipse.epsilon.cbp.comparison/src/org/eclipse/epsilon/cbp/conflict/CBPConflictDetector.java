@@ -31,7 +31,7 @@ public class CBPConflictDetector {
 	    Entry<String, CBPMatchObject> objectEntry = iterator.next();
 	    CBPMatchObject cTarget = objectEntry.getValue();
 
-	    if (cTarget.getId().equals("O-25173") || cTarget.getId().equals("O-25173")) {
+	    if (cTarget.getId().equals("O-25479") || cTarget.getId().equals("O-25479")) {
 		// CBPMatchFeature x = cTarget.getFeatures().get("specific");
 		System.console();
 	    }
@@ -77,7 +77,7 @@ public class CBPConflictDetector {
 		    CBPMatchObject oldContainer = cTarget.getOldLeftContainer();
 		    CBPMatchFeature oldContainingFeature = cTarget.getOldLeftContainingFeature();
 
-		    if (leftContainer.getLeftIsDeleted() || leftContainer.getRightIsDeleted() || rightContainer.getLeftIsDeleted() || rightContainer.getRightIsDeleted()) {
+		    if (leftContainer.getLeftIsDeleted() || rightContainer.getRightIsDeleted()) {
 			// will be handled at the deletion conflict
 			// do nothing
 			System.console();
@@ -299,10 +299,26 @@ public class CBPConflictDetector {
 			if (rightValue != null && rightValue.equals(originalValue) && rightValue.equals(leftValue)) {
 			    // continue
 			} else //
-			if ((leftValue != null && leftValue.getOldLeftContainer() != null) || (rightValue != null && rightValue.getOldLeftContainer() != null)) {
+//			if ((leftValue != null && leftValue.getOldLeftContainer() != null) || (rightValue != null && rightValue.getOldLeftContainer() != null)) {
+//			    // this will be handled by move detection
+//			    // or deletion
+//			    // continue
+//			} else//
+			    if (leftValue != null && ((leftValue.getLeftContainer() != null && leftValue.getOldLeftContainer() != null
+				&& !leftValue.getLeftContainer().equals(leftValue.getOldLeftContainer()))
+				&& (leftValue.getRightContainer() != null && leftValue.getOldRightContainer() != null && !leftValue.getRightContainer().equals(leftValue.getOldRightContainer())))) {
 			    // this will be handled by move detection
 			    // or deletion
 			    // continue
+				System.console();
+			} else//
+			if (rightValue != null && ((rightValue.getLeftContainer() != null && rightValue.getOldLeftContainer() != null
+				&& !rightValue.getLeftContainer().equals(rightValue.getOldLeftContainer()))
+				&& (rightValue.getRightContainer() != null && rightValue.getOldRightContainer() != null && !rightValue.getRightContainer().equals(rightValue.getOldRightContainer())))) {
+			    // this will be handled by move detection
+			    // or deletion
+			    // continue
+			    System.console();
 			} else//
 			if ((leftValue != null && !leftValue.equals(originalValue) || (originalValue != null && !originalValue.equals(leftValue)))
 				|| (rightValue != null && !rightValue.equals(originalValue) || (originalValue != null && !originalValue.equals(rightValue)))) {

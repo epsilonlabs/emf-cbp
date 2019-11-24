@@ -125,11 +125,14 @@ import org.eclipse.emf.emfstore.server.model.versionspec.ESVersionSpec;
 import org.eclipse.epsilon.cbp.bigmodel.ModifiedEMFCompare;
 import org.eclipse.epsilon.cbp.bigmodel.ModifiedEMFCompare.ModifiedBuilder;
 import org.eclipse.epsilon.cbp.comparison.CBPComparisonImpl;
+import org.eclipse.epsilon.cbp.comparison.ICBPComparison;
 import org.eclipse.epsilon.cbp.comparison.UMLObjectTreePostProcessor;
 import org.eclipse.epsilon.cbp.comparison.emfstore.CBP2EMFStoreAdapter;
+import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 import org.eclipse.epsilon.cbp.comparison.model.node.Node;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodeFactory;
 import org.eclipse.epsilon.cbp.comparison.model.node.NodePackage;
+import org.eclipse.epsilon.cbp.conflict.CBPConflict;
 import org.eclipse.epsilon.cbp.conflict.test.EObjectComparator;
 import org.eclipse.epsilon.cbp.resource.CBPResource.IdType;
 import org.eclipse.epsilon.cbp.resource.CBPXMLResourceFactory;
@@ -148,8 +151,10 @@ import com.google.common.io.Files;
  */
 public class Application implements IApplication {
 
-	static Set<String> ecbpConflicts = new LinkedHashSet<String>();
-	static Set<String> emfcConflicts = new LinkedHashSet<String>();
+	public static List<String> ecbpConflicts = new ArrayList<String>();
+	public static List<String> emfcConflicts = new ArrayList<String>();
+
+	public static ICBPComparison cbpComparison = null;
 
 	static boolean isConflict = false;
 	static DecimalFormat df = new DecimalFormat("###.###");
@@ -192,9 +197,10 @@ public class Application implements IApplication {
 			final ESServer localServer = ESServer.FACTORY.createAndStartLocalServer();
 			// Run a client on the local server that shows the basic features of the EMFstore
 			// manualChanges(localServer);
+			compareConflictsBetweenCBPandEMFStore(localServer);
 			// runClient(localServer);
 			// runClient2(localServer);
-			runPerformanceTest(localServer);
+			// runPerformanceTest(localServer);
 		} catch (final ESServerStartFailedException e) {
 			System.out.println("Server start failed!");
 			e.printStackTrace();
@@ -413,6 +419,335 @@ public class Application implements IApplication {
 	 * @param server the server
 	 * @throws ESException if the server connection fails
 	 */
+	public static void compareConflictsBetweenCBPandEMFStore(ESServer server) throws ESException {
+		System.out.println("Client starting...");
+
+		EPackage.Registry.INSTANCE.put(NodePackage.eINSTANCE.getNsURI(), NodePackage.eINSTANCE);
+		EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(), UMLPackage.eINSTANCE);
+		EPackage.Registry.INSTANCE.put(MoDiscoXMLPackage.eINSTANCE.getNsURI(), MoDiscoXMLPackage.eINSTANCE);
+		EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
+
+		// The workspace is the core controller to access local and remote projects.
+		// A project is a container for models and their elements (EObjects).
+		// To get started, we obtain the current workspace of the client.
+		final ESWorkspace workspace = ESWorkspaceProvider.INSTANCE.getWorkspace();
+
+		// The workspace stores all available servers that have been configured. We add the local server that has
+		// already
+		// been started on the workspace.
+		workspace.addServer(server);
+		// Next, we remove all other existing servers
+		for (final ESServer existingServer : workspace.getServers()) {
+			if (existingServer != server) {
+				try {
+					workspace.removeServer(existingServer);
+				} catch (final ESServerNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// The workspace also contains a list of local projects that have either been created locally or checked out
+		// from a server.
+		// We create a new local project. The project new created is not yet shared with the server.
+
+		// We delete all projects from the local workspace other than the one just created.
+		for (final ESLocalProject existingLocalProject : workspace.getLocalProjects()) {
+			try {
+				existingLocalProject.delete(new ESSystemOutProgressMonitor());
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		ESLocalProject originalProject = workspace.createLocalProject("OriginalProject");
+
+		// Next, we create a user session by logging in to the local EMFStore server with default super user
+		// credentials.
+		final ESUsersession usersession = server.login("super", "super");
+
+		// We also retrieve a list of existing (and accessible) remote projects on the server.
+		// Remote projects represent a project that is currently available on the server.
+		// We delete all remote projects to clean up remaining projects from previous launches.
+		for (final ESRemoteProject existingRemoteProject : server.getRemoteProjects(usersession)) {
+			existingRemoteProject.delete(usersession, new NullProgressMonitor());
+		}
+
+		// Now we can share the created local project to our server.
+		final ESRemoteProject remoteDemoProject = originalProject.shareProject(usersession,
+			new ESSystemOutProgressMonitor());
+
+		// Now we are all set: we have a client workspace with one server configured and exactly one project shared to a
+		// server with only this one project.
+
+		// We check out a second, independent copy of the project (simulating a second client).
+		ESLocalProject leftProject = originalProject.getRemoteProject().checkout("LeftProject",
+			usersession, new ESSystemOutProgressMonitor());
+		ESLocalProject rightProject = originalProject.getRemoteProject().checkout("RightProject",
+			usersession, new ESSystemOutProgressMonitor());
+
+		originalAdapater = new CBP2EMFStoreAdapter(originalProject, originalProject, originalProject);
+		leftAdapater = new CBP2EMFStoreAdapter(leftProject, originalProject, rightProject);
+		rightAdapater = new CBP2EMFStoreAdapter(rightProject, originalProject, leftProject);
+
+		// final File cbpOriginalFile = new File("D:\\TEMP\\FASE\\Debug\\origin.cbpxml");
+		// final File cbpLeftFile = new File("D:\\TEMP\\FASE\\Debug\\left.cbpxml");
+		// final File cbpRightFile = new File("D:\\TEMP\\FASE\\Debug\\right.cbpxml");
+
+		final File cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\debug\\origin.cbpxml");
+		final File cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\debug\\left.cbpxml");
+		final File cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\debug\\right.cbpxml");
+		final File emfsTargetXmiFile = new File("D:\\TEMP\\CONFLICTS\\debug\\emfstore-target.xmi");
+		final File emfsLeftXmiFile = new File("D:\\TEMP\\CONFLICTS\\debug\\emfstore-left.xmi");
+		final File emfsRightXmiFile = new File("D:\\TEMP\\CONFLICTS\\debug\\emfstore-right.xmi");
+		final File emfsOriginalXmiFile = new File("D:\\TEMP\\CONFLICTS\\debug\\emfstore-origin.xmi");
+
+		XMIResource emfsTargetResource = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(emfsTargetXmiFile.getAbsolutePath()));
+		XMIResource emfsLeftResource = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(emfsLeftXmiFile.getAbsolutePath()));
+		XMIResource emfsRightResource = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(emfsRightXmiFile.getAbsolutePath()));
+		XMIResource emfsOriginalResource = (XMIResource) new XMIResourceFactoryImpl()
+			.createResource(URI.createFileURI(emfsOriginalXmiFile.getAbsolutePath()));
+
+		long skip = cbpOriginalFile.length();
+
+		try {
+			System.out.println();
+			System.out.println();
+			System.out.println("CBP CONFLICTS:");
+			cbpComparison = doCbpComparison(cbpLeftFile, cbpRightFile, cbpOriginalFile);
+
+			System.out.println();
+			System.out.println("EMFSTORE STARTS:");
+			System.out.println("LOADING ORIGINAL MODEL");
+			originalAdapater.load(cbpOriginalFile, true);
+			originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
+			rightProject.update(new ESSystemOutProgressMonitor());
+			leftProject.update(new ESSystemOutProgressMonitor());
+			exportToXMI(originalAdapater, emfsOriginalResource);
+
+			// process right file first
+			System.out.println("LOADING RIGHT MODEL");
+			String rightText = readFiles(cbpRightFile, skip);
+			InputStream rightStream = new ByteArrayInputStream(rightText.getBytes());
+			rightAdapater.load(rightStream, true);
+			rightStream.close();
+			rightProject.commit("RIGHT", null, new ESSystemOutProgressMonitor());
+			exportToXMI(rightAdapater, emfsRightResource);
+
+			// process left
+			System.out.println("LOADING LEFT MODEL");
+			String leftText = readFiles(cbpLeftFile, skip);
+			InputStream leftStream = new ByteArrayInputStream(leftText.getBytes());
+			leftAdapater.load(leftStream, true);
+			leftStream.close();
+			exportToXMI(leftAdapater, emfsLeftResource);
+
+			try {
+				// leftProject.update(new ESSystemOutProgressMonitor());
+				leftProject.commit("LEFT", null, new ESSystemOutProgressMonitor());
+			} catch (final ESUpdateRequiredException e) {
+
+				leftProject.update(ESVersionSpec.FACTORY.createHEAD(), new ESUpdateCallback() {
+					public void noChangesOnServer() {
+						// do nothing if there are no changes on the server (in this example we know
+						// there are changes anyway)
+					}
+
+					public boolean inspectChanges(ESLocalProject project, List<ESChangePackage> changes,
+						ESModelElementIdToEObjectMapping idToEObjectMapping) {
+						// allow update to proceed, here we could also add some UI
+						return true;
+					}
+
+					@SuppressWarnings("restriction")
+					public boolean conflictOccurred(ESConflictSet changeConflictSet, IProgressMonitor monitor) {
+
+						System.out.println();
+						System.out.println();
+						System.out.println("EMFSTORE CONFLICTS:");
+						EMFStoreResult emfsResult = new EMFStoreResult();
+						printEMFStoreConflicts(changeConflictSet, emfsResult);
+						System.out.println("EMFStore Conflict size = " + changeConflictSet.getConflicts().size());
+
+						// do the comparison here and so on
+						// cbp
+						Set<String> leftCbpEvents = new HashSet<String>();
+						Set<String> rightCbpEvents = new HashSet<String>();
+
+						List<CBPConflict> conflicts = cbpComparison.getConflicts();
+						for (CBPConflict conflict : conflicts) {
+							for (CBPChangeEvent<?> leftEvent : conflict.getLeftEvents()) {
+								leftCbpEvents.add(leftEvent.toString());
+							}
+							for (CBPChangeEvent<?> rightEvent : conflict.getRightEvents()) {
+								rightCbpEvents.add(rightEvent.toString());
+							}
+						}
+
+						// emfs
+						Set<String> leftEmfsEvents = new HashSet<String>();
+						Set<String> rightEmfsEvents = new HashSet<String>();
+						for (int i = 1; i <= emfsResult.getEmfsConflictCount(); i++) {
+							for (String leftEvent : emfsResult.getLeftEventStrings().get(i)) {
+								leftEmfsEvents.add(leftEvent);
+							}
+							for (String rightEvent : emfsResult.getRightEventStrings().get(i)) {
+								rightEmfsEvents.add(rightEvent);
+							}
+						}
+
+						// cbp
+						System.out.println();
+						System.out.println("UNDETECTED CONFLICTS BY EMFSTORE:");
+						List<String> undetectedCbpConflicts = new ArrayList<String>();
+						List<String> modifiedPositionConflicts = new ArrayList<String>();
+						List<String> otherCbpConflicts = new ArrayList<String>();
+						int cbpCount = 0;
+						for (CBPConflict conflict : cbpComparison.getConflicts()) {
+							boolean leftIsFound = false;
+							boolean rightIsFound = false;
+							String left = "";
+							String right = "";
+							for (CBPChangeEvent<?> leftEvent : conflict.getLeftEvents()) {
+								left = leftEvent.toString();
+								if (leftEmfsEvents.contains(leftEvent.toString())) {
+									leftIsFound = true;
+									break;
+								}
+							}
+							for (CBPChangeEvent<?> rightEvent : conflict.getRightEvents()) {
+								right = rightEvent.toString();
+								if (rightEmfsEvents.contains(rightEvent.toString())) {
+									rightIsFound = true;
+									break;
+								}
+							}
+							if (!leftIsFound || !rightIsFound) {
+								cbpCount++;
+								String conflictString = cbpCount + ": " + left + " <-> " + right;
+								System.out.println(conflictString);
+								undetectedCbpConflicts.add(conflictString);
+
+								if (left.contains("MOVE") || right.contains("MOVE")) {
+									modifiedPositionConflicts.add(conflictString);
+								} else {
+									System.out.println("Uhandled by CBP: " + conflictString);
+									otherCbpConflicts.add(conflictString);
+								}
+
+							}
+						}
+						System.out.println("Undetected CBP conflicts: " + undetectedCbpConflicts.size());
+						System.out.println("Modified position conflicts: " + modifiedPositionConflicts.size());
+						System.out.println("Other conflicts: " + otherCbpConflicts.size());
+						System.out.println("All CBP conflicts: " + cbpComparison.getConflicts().size());
+
+						// emfs
+						System.out.println();
+						System.out.println("UNDETECTED CONFLICTS BY CBP:");
+						List<String> undetectedEmfsConflicts = new ArrayList<String>();
+						List<String> moveToOriginalPositionConflicts = new ArrayList<String>();
+						List<String> setToOriginalValueConflicts = new ArrayList<String>();
+						List<String> otherEmfsConflicts = new ArrayList<String>();
+						int emfsCount = 0;
+						for (int i = 1; i <= emfsResult.getEmfsConflictCount(); i++) {
+							boolean leftIsFound = false;
+							boolean rightIsFound = false;
+							String left = "";
+							String right = "";
+							for (String leftEvent : emfsResult.getLeftEventStrings().get(i)) {
+								if (leftEvent.equals("")) {
+									continue;
+								}
+								left = leftEvent;
+								if (leftCbpEvents.contains(left)) {
+									leftIsFound = true;
+									break;
+								}
+							}
+							for (String rightEvent : emfsResult.getRightEventStrings().get(i)) {
+								if (rightEvent.equals("")) {
+									continue;
+								}
+								right = rightEvent;
+								if (rightCbpEvents.contains(right)) {
+									rightIsFound = true;
+									break;
+								}
+							}
+							if (!leftIsFound || !rightIsFound) {
+								emfsCount++;
+								String conflictString = emfsCount + ": " + left + " <-> " + right;
+								System.out.println(conflictString);
+								undetectedEmfsConflicts.add(conflictString);
+
+								String[] leftSegments = left.split(" ");
+								String[] rightSegments = right.split(" ");
+
+								if (left.contains("MOVE") && right.contains("MOVE") &&
+									leftSegments[1].equals(rightSegments[1]) &&
+									leftSegments[3].equals(rightSegments[3])) {
+									moveToOriginalPositionConflicts.add(conflictString);
+								} else if (left.contains("SET") && right.contains("SET") &&
+									leftSegments[1].equals(rightSegments[1])) {
+									setToOriginalValueConflicts.add(conflictString);
+								} else {
+									System.out.println("Uhandled by EMFStore: " + conflictString);
+									otherEmfsConflicts.add(conflictString);
+								}
+							}
+						}
+						System.out.println("Undetected EMFStore conflicts: " + undetectedEmfsConflicts.size());
+						System.out
+							.println("Move to original position conflicts: " + moveToOriginalPositionConflicts.size());
+						System.out.println("Set to original value conflicts: " + setToOriginalValueConflicts.size());
+						System.out.println("Other conflicts: " + otherEmfsConflicts.size());
+						System.out.println("All EMFStore conflicts: " + emfsResult.getEmfsConflictCount());
+						System.out.println();
+						return false;
+					}
+
+				}, new ESSystemOutProgressMonitor());
+			}
+
+			leftProject.commit("LEFT", null, new ESSystemOutProgressMonitor());
+			// rightProject.update(new ESSystemOutProgressMonitor());
+
+			exportToXMI(leftAdapater, emfsTargetResource);
+
+			System.out.println();
+			System.out.println();
+			System.out.println("SUCCESS!!");
+		} catch (final FactoryConfigurationError ex) {
+			ex.printStackTrace();
+		} catch (final IOException ex) {
+			ex.printStackTrace();
+		} catch (XMLStreamException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	static private ICBPComparison doCbpComparison(File cbpLeftFile, File cbpRightFile, File cbpOriginalFile)
+		throws IOException, FactoryConfigurationError, XMLStreamException {
+		ICBPComparison comparison = new CBPComparisonImpl();
+		comparison
+			.setDiffEMFCompareFile(new File(cbpOriginalFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
+		comparison
+			.setObjectTreeFile(new File(cbpOriginalFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
+		comparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
+		comparison.compare(cbpLeftFile, cbpRightFile, cbpOriginalFile);
+		return comparison;
+	}
+
+	/**
+	 * Run an EMFStore Client connecting to the given server.
+	 *
+	 * @param server the server
+	 * @throws ESException if the server connection fails
+	 */
 	public static void manualChanges(ESServer server) throws ESException {
 		System.out.println("Client starting...");
 
@@ -614,325 +949,6 @@ public class Application implements IApplication {
 		// }
 	}
 
-	@SuppressWarnings("restriction")
-	public static void runClient2(ESServer server) throws ESException, FactoryConfigurationError, XMLStreamException {
-		System.out.println("Client starting...");
-
-		EPackage.Registry.INSTANCE.put(JavaPackage.eINSTANCE.getNsURI(), JavaPackage.eINSTANCE);
-		final ESWorkspace workspace = ESWorkspaceProvider.INSTANCE.getWorkspace();
-		workspace.addServer(server);
-		for (final ESServer existingServer : workspace.getServers()) {
-			if (existingServer != server) {
-				try {
-					workspace.removeServer(existingServer);
-				} catch (final ESServerNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		for (final ESLocalProject existingLocalProject : workspace.getLocalProjects()) {
-			try {
-				existingLocalProject.delete(new ESSystemOutProgressMonitor());
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
-		}
-		ESLocalProject originalProject = workspace.createLocalProject("OriginalProject");
-		final ESUsersession usersession = server.login("super", "super");
-		for (final ESRemoteProject existingRemoteProject : server.getRemoteProjects(usersession)) {
-			existingRemoteProject.delete(usersession, new NullProgressMonitor());
-		}
-		originalProject.shareProject(usersession,
-			new ESSystemOutProgressMonitor());
-		ESLocalProject leftProject = originalProject.getRemoteProject().checkout("LeftProject",
-			usersession, new ESSystemOutProgressMonitor());
-		ESLocalProject rightProject = originalProject.getRemoteProject().checkout("RightProject",
-			usersession, new ESSystemOutProgressMonitor());
-
-		originalAdapater = new CBP2EMFStoreAdapter(originalProject, originalProject, originalProject);
-		leftAdapater = new CBP2EMFStoreAdapter(leftProject, originalProject, rightProject);
-		rightAdapater = new CBP2EMFStoreAdapter(rightProject, originalProject, leftProject);
-
-		final File xmiOriginalFile = new File("D:\\TEMP\\CONFLICTS\\performance\\origin.xmi");
-		final File xmiLeftFile = new File("D:\\TEMP\\CONFLICTS\\performance\\left.xmi");
-		final File xmiRightFile = new File("D:\\TEMP\\CONFLICTS\\performance\\right.xmi");
-		final File cbpOriginalFile = new File("D:\\TEMP\\CONFLICTS\\performance\\origin.cbpxml");
-		final File cbpLeftFile = new File("D:\\TEMP\\CONFLICTS\\performance\\left.cbpxml");
-		final File cbpRightFile = new File("D:\\TEMP\\CONFLICTS\\performance\\right.cbpxml");
-		final File emfsLeftFile = new File("D:\\TEMP\\CONFLICTS\\performance\\emfstore-left.xmi");
-		final File emfsRightFile = new File("D:\\TEMP\\CONFLICTS\\performance\\emfstore-right.xmi");
-		final File emfsOriginalFile = new File("D:\\TEMP\\CONFLICTS\\performance\\emfstore-origin.xmi");
-
-		XMIResource emfsLeftResource = (XMIResource) new XMIResourceFactoryImpl()
-			.createResource(URI.createFileURI(emfsLeftFile.getAbsolutePath()));
-		XMIResource emfsRightResource = (XMIResource) new XMIResourceFactoryImpl()
-			.createResource(URI.createFileURI(emfsRightFile.getAbsolutePath()));
-		XMIResource emfsOriginalResource = (XMIResource) new XMIResourceFactoryImpl()
-			.createResource(URI.createFileURI(emfsOriginalFile.getAbsolutePath()));
-
-		try {
-			// Load Original XMI
-			XMIResource xmiOrigin = (XMIResource) new XMIResourceFactoryImpl()
-				.createResource(URI.createFileURI(xmiOriginalFile.getAbsolutePath()));
-			xmiOrigin.load(options);
-
-			// Create Original CBP
-
-			if (cbpOriginalFile.exists()) {
-				cbpOriginalFile.delete();
-			}
-			if (cbpLeftFile.exists()) {
-				cbpLeftFile.delete();
-			}
-			if (cbpRightFile.exists()) {
-				cbpRightFile.delete();
-			}
-
-			CBPXMLResourceFactory cbpFactory = new CBPXMLResourceFactory();
-			CBPXMLResourceImpl originCbp = (CBPXMLResourceImpl) cbpFactory
-				.createResource(URI.createFileURI(cbpOriginalFile.getAbsolutePath()));
-			originCbp.setIdType(IdType.NUMERIC, "O-");
-			System.out.println("Creating origin cbp");
-			originCbp.startNewSession("ORIGIN");
-			originCbp.getContents().addAll(xmiOrigin.getContents());
-			originCbp.save(null);
-			saveXmiWithID(originCbp, xmiOriginalFile);
-			originCbp.unload();
-			xmiOrigin.unload();
-
-			System.out.println("Copying origin cbp to left and right cbps");
-			Files.copy(cbpOriginalFile, cbpLeftFile);
-			Files.copy(cbpOriginalFile, cbpRightFile);
-
-			// long previRightFileSize = cbpOriginalFile.length();
-			// long prevLeftFileSize = cbpOriginalFile.length();
-			long previRightFileSize = cbpRightFile.length();
-			long prevLeftFileSize = cbpLeftFile.length();
-
-			ePackage = getEPackageFromFiles(cbpLeftFile, cbpRightFile);
-
-			CBPXMLResourceImpl leftCbp = (CBPXMLResourceImpl) cbpFactory
-				.createResource(URI.createFileURI(cbpLeftFile.getAbsolutePath()));
-			CBPXMLResourceImpl rightCbp = (CBPXMLResourceImpl) cbpFactory
-				.createResource(URI.createFileURI(cbpRightFile.getAbsolutePath()));
-			leftCbp.setIdType(IdType.NUMERIC, "L-");
-			rightCbp.setIdType(IdType.NUMERIC, "R-");
-
-			int number = 1;
-
-			System.out.println("Loading " + cbpLeftFile.getName() + "...");
-			leftCbp.load(null);
-			leftCbp.startNewSession("LEFT-" + number);
-			System.out.println("Loading " + cbpRightFile.getName() + "...");
-			rightCbp.load(null);
-			rightCbp.startNewSession("RIGHT-" + number);
-
-			// Create Original EMF STORE
-			System.out.println("LOADING ORIGINAL MODEL");
-			originalAdapater.load(cbpOriginalFile);
-			originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
-			rightProject.update(new ESSystemOutProgressMonitor());
-			leftProject.update(new ESSystemOutProgressMonitor());
-			exportToXMI(originalAdapater, emfsOriginalResource);
-
-			// Set Configuration for Modification
-			List<ChangeType> seeds = new ArrayList<ChangeType>();
-			setProbability(seeds, 0, ChangeType.CHANGE);
-			setProbability(seeds, 0, ChangeType.ADD);
-			setProbability(seeds, 0, ChangeType.DELETE);
-			setProbability(seeds, 1, ChangeType.MOVE);
-
-			List<EObject> leftEObjectList = identifyAllEObjects(leftCbp);
-			List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
-
-			int modificationCount = 4400;
-			for (int i = 1; i <= modificationCount; i++) {
-				System.out.print("Change " + i + ":");
-				// leftCbp.startNewSession("LEFT-" + i);
-				startModification(leftCbp, leftEObjectList, seeds);
-				leftCbp.save(null);
-				// rightCbp.startNewSession("RIGHT-" + i);
-				startModification(rightCbp, rightEObjectList, seeds);
-				rightCbp.save(null);
-				System.out.println();
-
-				// if (i % 10 == 0) {
-				if (i % 1650 == 0) {
-
-					number++;
-
-					// BigModelResult result = new BigModelResult();
-
-					// ------------CBP
-					System.out.println("Reload from the Cbps ...");
-					CBPXMLResourceImpl leftCbp2 = (CBPXMLResourceImpl) cbpFactory
-						.createResource(URI.createFileURI(cbpLeftFile.getAbsolutePath()));
-					CBPXMLResourceImpl rightCbp2 = (CBPXMLResourceImpl) cbpFactory
-						.createResource(URI.createFileURI(cbpRightFile.getAbsolutePath()));
-					leftCbp2.load(null);
-					rightCbp2.load(null);
-					System.out.println("Saving changes to Xmis ...");
-					saveXmiWithID(leftCbp2, xmiLeftFile);
-					saveXmiWithID(rightCbp2, xmiRightFile);
-					leftCbp2.unload();
-					rightCbp2.unload();
-
-					System.out.println("\nCBP:");
-					CBPComparisonImpl changeComparison = new CBPComparisonImpl();
-					changeComparison.setDiffEMFCompareFile(
-						new File(cbpOriginalFile.getAbsolutePath().replaceAll("origin.cbpxml", "left.txt")));
-					changeComparison.setObjectTreeFile(
-						new File(cbpOriginalFile.getAbsolutePath().replaceAll("origin.cbpxml", "tree.txt")));
-					// changeComparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
-					changeComparison.compare(cbpLeftFile, cbpRightFile, cbpOriginalFile);
-
-					// ------------EMF STORE
-					System.out.println("\nEMF STORE:");
-
-					// originalProject.shareProject(usersession,
-					// new ESSystemOutProgressMonitor());
-					//
-					// rightProject.delete(new ESSystemOutProgressMonitor());
-					// rightProject = originalProject.getRemoteProject().checkout("RightProject",
-					// usersession, new ESSystemOutProgressMonitor());
-					// rightProject.update(new ESSystemOutProgressMonitor());
-					// rightAdapater = new CBP2EMFStoreAdapter(rightProject);
-					//
-					// leftProject.delete(new ESSystemOutProgressMonitor());
-					// leftProject = originalProject.getRemoteProject().checkout("LeftProject",
-					// usersession, new ESSystemOutProgressMonitor());
-					// leftProject.update(new ESSystemOutProgressMonitor());
-					// leftAdapater = new CBP2EMFStoreAdapter(leftProject);
-
-					// process right file first
-					System.out.println("LOADING RIGHT MODEL");
-					String rightText = readFiles(cbpRightFile, previRightFileSize);
-					InputStream rightStream = new ByteArrayInputStream(rightText.getBytes());
-					rightAdapater.load(rightStream);
-					rightStream.close();
-					rightProject.commit("RIGHT-" + number, null, new ESSystemOutProgressMonitor());
-
-					// process left
-					System.out.println("LOADING LEFT MODEL");
-					String leftText = readFiles(cbpLeftFile, prevLeftFileSize);
-					InputStream leftStream = new ByteArrayInputStream(leftText.getBytes());
-					leftAdapater.load(leftStream);
-					leftStream.close();
-
-					final EMFStoreResult emfsResult = new EMFStoreResult();
-
-					try {
-						try {
-							// leftProject.update(new ESSystemOutProgressMonitor());
-							leftProject.commit("LEFT-" + number, null, new ESSystemOutProgressMonitor());
-						} catch (final ESUpdateRequiredException e) {
-
-							leftProject.update(ESVersionSpec.FACTORY.createHEAD(), new ESUpdateCallback() {
-								public void noChangesOnServer() {
-								}
-
-								public boolean inspectChanges(ESLocalProject project, List<ESChangePackage> changes,
-									ESModelElementIdToEObjectMapping idToEObjectMapping) {
-									// ESCloseableIterable<AbstractOperation> localChanges = ((ESLocalProjectImpl)
-									// project)
-									// .toInternalAPI().getLocalChangePackage().operations();
-									// List<AbstractOperation> localOperations = new ArrayList<AbstractOperation>();
-									// Iterator<AbstractOperation> localIterator = localChanges.iterable().iterator();
-									// while (localIterator.hasNext()) {
-									// AbstractOperation op = localIterator.next();
-									// localOperations.add(op);
-									// }
-									// emfsResult.setLeftOperations(localOperations);
-									//
-									// List<AbstractOperation> remoteOperations = new ArrayList<AbstractOperation>();
-									// for (ESChangePackage change : changes) {
-									// ESCloseableIterable<ESOperation> remoteChanges = change.operations();
-									// Iterator<ESOperation> remoteIterator = remoteChanges.iterable().iterator();
-									// while (remoteIterator.hasNext()) {
-									// AbstractOperation op = ((ESOperationImpl) remoteIterator.next())
-									// .toInternalAPI();
-									// remoteOperations.add(op);
-									// }
-									// }
-									// emfsResult.setRightOperations(remoteOperations);
-
-									System.console();
-									return true;
-								}
-
-								public boolean conflictOccurred(ESConflictSet changeConflictSet,
-									IProgressMonitor monitor) {
-									System.out
-										.println(
-											"\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
-									System.out.println();
-									emfsResult.setChangeConflictSet(changeConflictSet);
-									emfsResult.setEmfsConflictCount(changeConflictSet.getConflicts().size());
-									try {
-										printEMFStoreConflicts(changeConflictSet, emfsResult);
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-									System.out
-										.println(
-											"EMFStore Conflict size = " + changeConflictSet.getConflicts().size());
-									return false;
-								}
-
-							}, new ESSystemOutProgressMonitor());
-						}
-					} catch (Exception e) {
-						System.console();
-					}
-
-					exportToXMI(leftAdapater, emfsLeftResource);
-					exportToXMI(rightAdapater, emfsRightResource);
-
-					previRightFileSize = cbpRightFile.length();
-					prevLeftFileSize = cbpLeftFile.length();
-
-					System.out
-						.println();
-					System.out
-						.println(changeComparison.getConflicts().size() + " VS " + emfsResult.getEmfsConflictCount());
-					// if (changeComparison.getConflicts().size() != emfsResult.getEmfsConflictCount() &&
-					// changeComparison.getConflicts().size() >= 1 && emfsResult.getEmfsConflictCount() >= 1) {
-					getSplittedDetectedCBPConflicts(changeComparison, emfsResult);
-					getSplittedDetectedEMFSConflicts(changeComparison, emfsResult);
-					getUndetectedCBPConflicts(changeComparison, emfsResult);
-					getUndetectedEMFStoreConflicts(changeComparison, emfsResult);
-
-					// Set<String> leftCbpEvents = new HashSet<String>(changeComparison.getLeftEventStrings());
-					// leftCbpEvents.removeAll(emfsResult.getLeftEventStrings());
-					// Set<String> rightCbpEvents = new HashSet<String>(changeComparison.getRightEventStrings());
-					// rightCbpEvents.removeAll(emfsResult.getRightEventStrings());
-
-					// List<AbstractOperation> lefts = emfsResult.getLeftOperations();
-					// List<AbstractOperation> rights = emfsResult.getRightOperations();
-					// Set<String> leftEmfsEvents = new HashSet<String>(emfsResult.getLeftEventStrings());
-					// leftEmfsEvents.removeAll(changeComparison.getLeftEventStrings());
-					// Set<String> rightEmfsEvents = new HashSet<String>(emfsResult.getRightEventStrings());
-					// rightEmfsEvents.removeAll(changeComparison.getRightEventStrings());
-
-					System.console();
-					// }
-
-					leftCbp.startNewSession("LEFT-" + number);
-					rightCbp.startNewSession("RIGHT-" + number);
-				}
-			}
-
-			System.out.println();
-			System.out.println("SUCCESS!!");
-		} catch (final IOException ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	/**
-	 * @param changeComparison
-	 * @param emfsResult
-	 */
 	private static void getSplittedDetectedEMFSConflicts(CBPComparisonImpl changeComparison,
 		final EMFStoreResult emfsResult) {
 
@@ -1381,7 +1397,7 @@ public class Application implements IApplication {
 
 		List<BigModelResult> results = new ArrayList<BigModelResult>();
 		// int modificationCount = 6600;
-		int modificationCount = 26400;
+		int modificationCount = 88000;
 		// int modificationCount = 66000;
 		int number = 0;
 		for (int i = 1; i <= modificationCount; i++) {
@@ -1397,8 +1413,8 @@ public class Application implements IApplication {
 
 			// do comparison
 			// if (i % 300 == 0) {
-			// if (i % 3000 == 0) {
-			if (i % 1200 == 0) {
+			if (i % 4000 == 0) {
+				// if (i % 1200 == 0) {
 				// if (i % 20 == 0) {
 
 				number++;
@@ -1431,7 +1447,7 @@ public class Application implements IApplication {
 				changeComparison.addObjectTreePostProcessor(new UMLObjectTreePostProcessor());
 				changeComparison.compare(leftCbpFile, rightCbpFile, originCbpFile);
 
-				ecbpConflicts = new LinkedHashSet(changeComparison.getConflictStrings());
+				ecbpConflicts = new ArrayList(changeComparison.getConflictStrings());
 
 				System.out.println();
 				System.out.println("CBP SINGLE CONFLICTS");
@@ -1521,7 +1537,7 @@ public class Application implements IApplication {
 
 				System.out.println();
 				System.out.println("EMF COMPARE:");
-				emfcConflicts = new LinkedHashSet<String>(stateComparison.getEmfcConflicts());
+				emfcConflicts = new ArrayList<String>(stateComparison.getEmfcConflicts());
 				List<String> listEmfcConflicts = new LinkedList<String>(emfcConflicts);
 				Collections.sort(listEmfcConflicts);
 				for (String tempStr : listEmfcConflicts) {
@@ -1800,7 +1816,6 @@ public class Application implements IApplication {
 						result.setChangeConflictSet(changeConflictSet);
 						System.out
 							.println("\nEMFStore Conflict size = " + changeConflictSet.getConflicts().size());
-						result.setEmfsConflictCount(changeConflictSet.getConflicts().size());
 
 						// for (ESConflict conflicts : changeConflictSet.getConflicts()) {
 						// conflicts.resolveConflict(conflicts.getLocalOperations(),
@@ -1839,6 +1854,7 @@ public class Application implements IApplication {
 		if (result == null) {
 			return;
 		}
+		result.setChangeConflictSet(changeConflictSet);
 		int count = 1;
 		for (ESConflict conflict : changeConflictSet.getConflicts()) {
 			// count++;

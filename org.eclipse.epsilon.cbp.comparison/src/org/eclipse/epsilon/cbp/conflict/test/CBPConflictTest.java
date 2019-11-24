@@ -697,8 +697,7 @@ public class CBPConflictTest {
 	    originalScript.add("root.valNodes.add(nodeB);");
 	    originalScript.add("root.valNodes.add(nodeC);");
 	    originalScript.add("root.valNodes.add(nodeD);");
-	    originalScript.add("root.valNodes.add(nodeE);");
-	    originalScript.add("nodeA.valNode = nodeF;");
+	    originalScript.add("nodeB.valNode = nodeE;");
 	    // originalScript.add("root.valNodes.add(nodeE);");
 
 	    // left script
@@ -708,7 +707,7 @@ public class CBPConflictTest {
 	    leftScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
 	    leftScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
 	    leftScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
-	    leftScript.add("nodeB.valNode = nodeF;");
+	    leftScript.add("delete nodeE;");
 	    // leftScript.add("nodeA.valNode = new Node;");
 
 	    // right script
@@ -718,8 +717,9 @@ public class CBPConflictTest {
 	    rightScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
 	    rightScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
 	    rightScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
-	    rightScript.add("nodeC.valNode = nodeF;");
-	    rightScript.add("nodeA.valNode = new Node;");
+	    rightScript.add("nodeD.valNode = nodeE;");
+	    rightScript.add("nodeC.valNode = nodeA;");
+	    rightScript.add("nodeB.valNode = nodeA;");
 
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
@@ -1184,7 +1184,7 @@ public class CBPConflictTest {
 	List<String> resetToOriginalConflicts = new ArrayList<>();
 
 	// assigned a value to container left by item moved to another container
-	List<String> moveSetConflicts = new ArrayList<>();
+	List<String> modifySingleValueContainmentConflicts = new ArrayList<>();
 
 	// this one should be detected by ECBP, however since conflicts are not
 	// in one group (one conflict), seperated into different conflicts, it
@@ -1221,8 +1221,8 @@ public class CBPConflictTest {
 		    resetToOriginalConflicts.add(line);
 		} else if (left.contains("DELETE") || right.contains("DELETE")) {
 		    conflictByDeletion.add(line);
-		} else if ((left.contains("ACROSS") && right.contains("R-")) || (left.contains("L-") && right.contains("ACROSS"))) {
-		    moveSetConflicts.add(line);
+		} else if ((left.contains("ACROSS") || left.contains("SET")) && (right.contains("ACROSS") || right.contains("SET"))) {
+		    modifySingleValueContainmentConflicts.add(line);
 		} else {
 		    otherUnhandledConflicts.add(line);
 		    System.out.println("unhandled by emfc: " + line);
@@ -1234,8 +1234,8 @@ public class CBPConflictTest {
 		conflictByDeletion.add(line);
 	    } else
 	    //
-	    if ((left.contains("ACROSS") && right.contains("R-")) || (left.contains("L-") && right.contains("ACROSS"))) {
-		moveSetConflicts.add(line);
+	    if ((left.contains("ACROSS") || left.contains("SET")) && (right.contains("ACROSS") || right.contains("SET"))) {
+		modifySingleValueContainmentConflicts.add(line);
 	    } else
 	    //
 	    {
@@ -1254,9 +1254,9 @@ public class CBPConflictTest {
 	System.out.println("Derived Moves = " + realMoves.size());
 	System.out.println("Reset-to-original conflicts = " + resetToOriginalConflicts.size());
 	System.out.println("Conflicts by deletion = " + conflictByDeletion.size());
-	System.out.println("Move set conflicts = " + moveSetConflicts.size());
+	System.out.println("Modify single-valued containment conflicts = " + modifySingleValueContainmentConflicts.size());
 	System.out.println("Other conflicts = " + otherUnhandledConflicts.size());
-	System.out.println("Conflicts by non-deletion = " + (realMoves.size() + resetToOriginalConflicts.size() + otherUnhandledConflicts.size() + moveSetConflicts.size()));
+	System.out.println("Conflicts by non-deletion = " + (realMoves.size() + resetToOriginalConflicts.size() + otherUnhandledConflicts.size() + modifySingleValueContainmentConflicts.size()));
 	System.out.println("Real undentected conflicts = " + (undetectedByEcbp.size() - conflictByDeletion.size()));
 	// }
 

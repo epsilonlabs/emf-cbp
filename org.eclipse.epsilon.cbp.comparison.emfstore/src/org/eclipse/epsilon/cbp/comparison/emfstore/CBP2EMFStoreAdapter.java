@@ -61,6 +61,8 @@ import org.eclipse.epsilon.cbp.event.UnsetEReferenceEvent;
 
 public class CBP2EMFStoreAdapter {
 
+	private static final int AUTOCOMMIT_NUMBER = 200000;
+	// private static final int AUTOCOMMIT_NUMBER = 4000;
 	protected int persistedEvents = 0;
 	protected ESLocalProject localProject;
 	protected ESLocalProject originalProject;
@@ -123,6 +125,10 @@ public class CBP2EMFStoreAdapter {
 		if (isAutocommit) {
 			localProject.commit("AUTOCOMMIT", null, new ESSystemOutProgressMonitor());
 		}
+	}
+
+	public void load(InputStream inputStream, boolean isAutocommit) throws FactoryConfigurationError, IOException {
+		replayEvents(inputStream, true);
 	}
 
 	public void load(InputStream inputStream) throws FactoryConfigurationError, IOException {
@@ -353,7 +359,7 @@ public class CBP2EMFStoreAdapter {
 									event.replay();
 									count++;
 
-									if (isAutocommit && count % 200000 == 0) {
+									if (isAutocommit && count % AUTOCOMMIT_NUMBER == 0) {
 										localProject.commit("AUTOCOMMIT", null, new ESSystemOutProgressMonitor());
 									}
 								}

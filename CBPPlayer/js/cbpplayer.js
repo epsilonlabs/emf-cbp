@@ -690,4 +690,5 @@ class CbpPlayer {
 var cbpPlayer = new CbpPlayer()
 // var file = "cbp/origin.cbpxml"
 var file = "cbp/process_1.cbpxml"
+// var file = "cbp/process_1_new.cbpxml"
 cbpPlayer.loadCbp(file)

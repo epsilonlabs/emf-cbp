@@ -28,7 +28,6 @@ public class EMFStoreResult {
 	private long emfsConflictMemory = 0;
 	private long emfsComparisonTime = 0;
 	private long emfsComparisonMemory = 0;
-	private int emfsConflictCount = 0;
 	private Map<Integer, Set<String>> leftEventStrings = new LinkedHashMap<Integer, Set<String>>();
 	private Map<Integer, Set<String>> rightEventStrings = new LinkedHashMap<Integer, Set<String>>();
 	private ESConflictSet changeConflictSet;
@@ -84,7 +83,11 @@ public class EMFStoreResult {
 	}
 
 	public int getEmfsConflictCount() {
-		return emfsConflictCount;
+		if (changeConflictSet != null) {
+			return changeConflictSet.getConflicts().size();
+		} else {
+			return 0;
+		}
 	}
 
 	public void setEmfsPreparationTime(long emfsPreparationTime) {
@@ -101,10 +104,6 @@ public class EMFStoreResult {
 
 	public void setEmfsConflictMemory(long emfsConflictMemory) {
 		this.emfsConflictMemory = emfsConflictMemory;
-	}
-
-	public void setEmfsConflictCount(int emfsConflictCount) {
-		this.emfsConflictCount = emfsConflictCount;
 	}
 
 	public long getEmfsComparisonTime() {
