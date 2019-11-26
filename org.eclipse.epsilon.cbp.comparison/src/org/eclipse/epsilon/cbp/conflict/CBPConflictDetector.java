@@ -13,11 +13,17 @@ import org.eclipse.epsilon.cbp.comparison.CBPFeatureType;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchFeature;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject;
 import org.eclipse.epsilon.cbp.comparison.CBPMatchObject.CBPSide;
+import org.eclipse.epsilon.cbp.comparison.event.CBPAddToResourceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPChangeEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPDeleteEObjectEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEObject;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEReferenceEvent;
 import org.eclipse.epsilon.cbp.comparison.event.CBPEStructuralFeatureEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEAttributeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromEReferenceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPRemoveFromResourceEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEAttributeEvent;
+import org.eclipse.epsilon.cbp.comparison.event.CBPUnsetEReferenceEvent;
 
 public class CBPConflictDetector {
 
@@ -31,7 +37,7 @@ public class CBPConflictDetector {
 	    Entry<String, CBPMatchObject> objectEntry = iterator.next();
 	    CBPMatchObject cTarget = objectEntry.getValue();
 
-	    if (cTarget.getId().equals("O-25479") || cTarget.getId().equals("O-25479")) {
+	    if (cTarget.getId().equals("O-1567") || cTarget.getId().equals("O-1567")) {
 		// CBPMatchFeature x = cTarget.getFeatures().get("specific");
 		System.console();
 	    }
@@ -60,6 +66,12 @@ public class CBPConflictDetector {
 			conflict.getRightEvents().addAll(rightEvents);
 		    } else {
 			CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
+			boolean leftIsAllRemovals = isAllRemovals(leftEvents);
+			boolean rightIsAllRemovals = isAllRemovals(rightEvents);
+			if ((cTarget.getLeftIsDeleted() && cTarget.getRightIsDeleted())
+				||(leftIsAllRemovals && rightIsAllRemovals)) {
+			    conflict2.setPseudo(true);
+			}
 			conflicts.add(conflict2);
 			continue;
 		    }
@@ -150,9 +162,10 @@ public class CBPConflictDetector {
 
 			    } else {
 				CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-				if ((leftContainer.equals(rightContainer) && !leftContainingFeature.equals(rightContainingFeature))) {
-				    if (leftEvents.size() == 1 && rightEvents.size() == 1)
-					conflict2.setPseudo(true);
+				if ((leftContainer.equals(rightContainer) && leftContainingFeature.equals(rightContainingFeature))
+					|| (leftContainer.equals(oldContainer) && leftContainingFeature.equals(oldContainingFeature))
+					|| (rightContainer.equals(oldContainer) && rightContainingFeature.equals(oldContainingFeature))) {
+				    conflict2.setPseudo(true);
 				}
 				conflicts.add(conflict2);
 			    }
@@ -267,9 +280,7 @@ public class CBPConflictDetector {
 				    conflict.getRightEvents().addAll(rightEvents);
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-				    if (leftPos == rightPos) {
-					// if (leftEvents.size() == 1 &&
-					// rightEvents.size() == 1)
+				    if (leftPos == rightPos || leftPos == oldPos || rightPos == oldPos) {
 					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
@@ -299,22 +310,26 @@ public class CBPConflictDetector {
 			if (rightValue != null && rightValue.equals(originalValue) && rightValue.equals(leftValue)) {
 			    // continue
 			} else //
-//			if ((leftValue != null && leftValue.getOldLeftContainer() != null) || (rightValue != null && rightValue.getOldLeftContainer() != null)) {
-//			    // this will be handled by move detection
-//			    // or deletion
-//			    // continue
-//			} else//
-			    if (leftValue != null && ((leftValue.getLeftContainer() != null && leftValue.getOldLeftContainer() != null
+			// if ((leftValue != null &&
+			// leftValue.getOldLeftContainer() != null) ||
+			// (rightValue != null &&
+			// rightValue.getOldLeftContainer() != null)) {
+			// // this will be handled by move detection
+			// // or deletion
+			// // continue
+			// } else//
+			if (leftValue != null && ((leftValue.getLeftContainer() != null && leftValue.getOldLeftContainer() != null
 				&& !leftValue.getLeftContainer().equals(leftValue.getOldLeftContainer()))
 				&& (leftValue.getRightContainer() != null && leftValue.getOldRightContainer() != null && !leftValue.getRightContainer().equals(leftValue.getOldRightContainer())))) {
 			    // this will be handled by move detection
 			    // or deletion
 			    // continue
-				System.console();
+			    System.console();
 			} else//
-			if (rightValue != null && ((rightValue.getLeftContainer() != null && rightValue.getOldLeftContainer() != null
-				&& !rightValue.getLeftContainer().equals(rightValue.getOldLeftContainer()))
-				&& (rightValue.getRightContainer() != null && rightValue.getOldRightContainer() != null && !rightValue.getRightContainer().equals(rightValue.getOldRightContainer())))) {
+			if (rightValue != null
+				&& ((rightValue.getLeftContainer() != null && rightValue.getOldLeftContainer() != null && !rightValue.getLeftContainer().equals(rightValue.getOldLeftContainer()))
+					&& (rightValue.getRightContainer() != null && rightValue.getOldRightContainer() != null
+						&& !rightValue.getRightContainer().equals(rightValue.getOldRightContainer())))) {
 			    // this will be handled by move detection
 			    // or deletion
 			    // continue
@@ -346,9 +361,11 @@ public class CBPConflictDetector {
 					conflict.getRightEvents().addAll(rightEvents);
 				    } else {
 					CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-					if ((leftValue != null && leftValue.equals(rightValue)) || (rightValue != null && rightValue.equals(leftValue)) || leftValue == rightValue) {
-					    if (leftEvents.size() == 1 && rightEvents.size() == 1)
-						conflict2.setPseudo(true);
+					if ((leftValue != null && (leftValue.equals(rightValue) || leftValue.equals(originalValue)))
+						|| (rightValue != null && (rightValue.equals(leftValue) || rightValue.equals(originalValue)))
+						|| (originalValue != null && (originalValue.equals(leftValue) || originalValue.equals(rightValue))) || leftValue == rightValue
+						|| leftValue == originalValue || rightValue == originalValue) {
+					    conflict2.setPseudo(true);
 					}
 					conflicts.add(conflict2);
 				    }
@@ -383,9 +400,9 @@ public class CBPConflictDetector {
 				    conflict.getRightEvents().addAll(rightEvents);
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-				    if (cFeature.getLeftPosition(cValue) == cFeature.getRightPosition(cValue)) {
-					if (leftEvents.size() == 1 && rightEvents.size() == 1)
-					    conflict2.setPseudo(true);
+				    if (cFeature.getLeftPosition(cValue) == cFeature.getRightPosition(cValue) || cFeature.getLeftPosition(cValue) == cFeature.getOriginalPosition(cValue)
+					    || cFeature.getRightPosition(cValue) == cFeature.getOriginalPosition(cValue)) {
+					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
 				}
@@ -427,9 +444,11 @@ public class CBPConflictDetector {
 				    conflict.getRightEvents().addAll(rightEvents);
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-				    if ((leftValue != null && leftValue.equals(rightValue)) || (rightValue != null && rightValue.equals(leftValue)) || leftValue == rightValue) {
-					if (leftEvents.size() == 1 && rightEvents.size() == 1)
-					    conflict2.setPseudo(true);
+				    if ((leftValue != null && (leftValue.equals(rightValue) || leftValue.equals(originalValue)))
+					    || (rightValue != null && (rightValue.equals(leftValue) || rightValue.equals(originalValue)))
+					    || (originalValue != null && (originalValue.equals(leftValue) || originalValue.equals(rightValue))) || leftValue == rightValue || leftValue == originalValue
+					    || rightValue == originalValue) {
+					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
 				}
@@ -460,9 +479,9 @@ public class CBPConflictDetector {
 				    conflict.getRightEvents().addAll(rightEvents);
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-				    if (cFeature.getLeftPosition(value) == cFeature.getRightPosition(value)) {
-					if (leftEvents.size() == 1 && rightEvents.size() == 1)
-					    conflict2.setPseudo(true);
+				    if (cFeature.getLeftPosition(value) == cFeature.getRightPosition(value) || cFeature.getLeftPosition(value) == cFeature.getOriginalPosition(value)
+					    || cFeature.getRightPosition(value) == cFeature.getOriginalPosition(value)) {
+					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
 				}
@@ -500,9 +519,13 @@ public class CBPConflictDetector {
 				    conflict.getRightEvents().addAll(rightEvents);
 				} else {
 				    CBPConflict conflict2 = new CBPConflict(leftEvents, rightEvents);
-				    if ((leftValue != null && leftValue.equals(rightValue)) || (rightValue != null && rightValue.equals(leftValue)) || leftValue == rightValue) {
-					if (leftEvents.size() == 1 && rightEvents.size() == 1)
-					    conflict2.setPseudo(true);
+				    if ((leftValue != null && (leftValue.equals(rightValue) || leftValue.equals(originalValue)))
+					    || (rightValue != null && (rightValue.equals(leftValue) || rightValue.equals(originalValue)))
+					    || (originalValue != null && (originalValue.equals(leftValue) || originalValue.equals(rightValue))) || leftValue == rightValue || leftValue == originalValue
+					    || rightValue == originalValue) {
+					// if (leftEvents.size() > 0 &&
+					// rightEvents.size() > 0)
+					conflict2.setPseudo(true);
 				    }
 				    conflicts.add(conflict2);
 				}
@@ -515,6 +538,18 @@ public class CBPConflictDetector {
 
 	}
 
+    }
+
+    private boolean isAllRemovals(Set<CBPChangeEvent<?>> events) {
+	for (CBPChangeEvent<?> event : events) {
+	    if (!(event instanceof CBPDeleteEObjectEvent || event instanceof CBPRemoveFromEReferenceEvent
+		    || event instanceof CBPRemoveFromEAttributeEvent || event instanceof CBPRemoveFromResourceEvent
+		    || event instanceof CBPUnsetEAttributeEvent || event instanceof CBPUnsetEReferenceEvent)) {
+		return false;
+	    }
+	}
+	
+	return true;
     }
 
     private boolean evensArePartOfDeletion(Set<CBPChangeEvent<?>> leftEvents, Set<CBPChangeEvent<?>> rightEvents) {

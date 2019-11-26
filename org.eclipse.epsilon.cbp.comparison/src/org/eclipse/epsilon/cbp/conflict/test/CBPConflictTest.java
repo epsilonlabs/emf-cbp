@@ -701,25 +701,26 @@ public class CBPConflictTest {
 	    // originalScript.add("root.valNodes.add(nodeE);");
 
 	    // left script
+	    leftScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
 	    leftScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
 	    leftScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
 	    leftScript.add("var nodeC = Node.allInstances.selectOne(node | node.name == \"C\");");
 	    leftScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
 	    leftScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
 	    leftScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
-	    leftScript.add("delete nodeE;");
+//	    leftScript.add("root.valNodes.add(4, nodeF);");
+	    leftScript.add("root.valNodes.move(0,2);");
 	    // leftScript.add("nodeA.valNode = new Node;");
 
 	    // right script
+	    rightScript.add("var root = Node.allInstances.selectOne(node | node.name == \"ROOT\");");
 	    rightScript.add("var nodeA = Node.allInstances.selectOne(node | node.name == \"A\");");
 	    rightScript.add("var nodeB = Node.allInstances.selectOne(node | node.name == \"B\");");
 	    rightScript.add("var nodeC = Node.allInstances.selectOne(node | node.name == \"C\");");
 	    rightScript.add("var nodeD = Node.allInstances.selectOne(node | node.name == \"D\");");
 	    rightScript.add("var nodeE = Node.allInstances.selectOne(node | node.name == \"E\");");
 	    rightScript.add("var nodeF = Node.allInstances.selectOne(node | node.name == \"F\");");
-	    rightScript.add("nodeD.valNode = nodeE;");
-	    rightScript.add("nodeC.valNode = nodeA;");
-	    rightScript.add("nodeB.valNode = nodeA;");
+	    rightScript.add("root.valNodes.move(3,2);");
 
 	    originalScript.run("ORIGIN");
 	    originalScript.save(null);
@@ -997,6 +998,8 @@ public class CBPConflictTest {
     @Test
     public void testBatchConflicts() {
 
+	ICBPComparison comparison = null;
+	ModifiedEMFCompare emfCompare = null;
 	// EPackage.Registry.INSTANCE.put(UMLPackage.eINSTANCE.getNsURI(),
 	// UMLPackage.eINSTANCE);
 	// ePackage = (EPackage)
@@ -1037,7 +1040,7 @@ public class CBPConflictTest {
 		Files.copy(xmiRightFile.toPath(), stateXmiTargetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 		// do cbp comparison
-		ICBPComparison comparison = doCbpComparison(cbpLeftFile, cbpRightFile, cbpOriginalFile);
+		comparison = doCbpComparison(cbpLeftFile, cbpRightFile, cbpOriginalFile);
 
 		// // do cbp merging
 		// doCbpMerging(comparison);
@@ -1054,7 +1057,7 @@ public class CBPConflictTest {
 		XMIResource targetChangeXmi = (XMIResource) (new XMIResourceFactoryImpl()).createResource(URI.createFileURI(changeXmiTargetFile.getAbsolutePath()));
 
 		// do emf compare
-		ModifiedEMFCompare emfCompare = doThreeWayComparison(leftXmi, targetStateXmi, originXmi);
+		emfCompare = doThreeWayComparison(leftXmi, targetStateXmi, originXmi);
 		targetStateXmi.save(options);
 
 		// System.out.println();
@@ -1116,8 +1119,10 @@ public class CBPConflictTest {
 
 	    System.out.println();
 	    analyseUndetectedByEcbpConflicts(emfcConflicts);
+	    System.out.println("EMF Compare conflicts: " + emfCompare.getConflicts().size());
 	    System.out.println();
 	    analyseUndetectedByEmfcConflicts(ecbpConflicts);
+	    System.out.println("EMF CBP conflicts: " + comparison.getConflicts().size());
 	    System.console();
 
 	} catch (Exception e) {
@@ -1202,9 +1207,13 @@ public class CBPConflictTest {
 	    if ((left.contains("MOVE") && left.contains("IN")) || (right.contains("MOVE") && right.contains("IN"))) {
 		realMoves.add(line);
 	    } else
+//	    //
+//	    if ((left.contains("SET")) && (right.contains("SET"))) {
+//		resetToOriginalConflicts.add(line);
+//	    } else
 	    //
-	    if ((left.contains("SET")) && (right.contains("SET"))) {
-		resetToOriginalConflicts.add(line);
+	    if (left.contains("DELETE") || right.contains("DELETE")) {
+		conflictByDeletion.add(line);
 	    } else
 	    //
 	    if ((left.contains("SET")) || (right.contains("SET"))) {
@@ -1229,10 +1238,7 @@ public class CBPConflictTest {
 		    System.console();
 		}
 	    } else
-	    //
-	    if (left.contains("DELETE") || right.contains("DELETE")) {
-		conflictByDeletion.add(line);
-	    } else
+
 	    //
 	    if ((left.contains("ACROSS") || left.contains("SET")) && (right.contains("ACROSS") || right.contains("SET"))) {
 		modifySingleValueContainmentConflicts.add(line);

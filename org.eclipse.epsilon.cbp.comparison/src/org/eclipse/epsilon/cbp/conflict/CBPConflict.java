@@ -40,7 +40,7 @@ public class CBPConflict {
 
     @Override
     public String toString() {
-	return id + ":" + this.leftEvents.size() + ":" + this.rightEvents.size();
+	return "id: " + id + ", left: " + this.leftEvents.size() + ", right: " + this.rightEvents.size();
     }
 
     public int getId() {

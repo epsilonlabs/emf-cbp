@@ -41,6 +41,7 @@ public class BigModelResult {
 	private long changeComparisonTime = 0;
 	private long changeComparisonMemory = 0;
 	private long changeConflictCount = 0;
+	private long changeRealConflictCount = 0;
 	private int leftEventCount = 0;
 	private int rightEventCount = 0;
 	private int changeDiffCount = 0;
@@ -356,6 +357,14 @@ public class BigModelResult {
 
 	public void setStateRealConflictCount(int stateRealConflictCount) {
 		this.stateRealConflictCount = stateRealConflictCount;
+	}
+
+	public long getChangeRealConflictCount() {
+		return changeRealConflictCount;
+	}
+
+	public void setChangeRealConflictCount(long changeRealConflictCount) {
+		this.changeRealConflictCount = changeRealConflictCount;
 	}
 
 }

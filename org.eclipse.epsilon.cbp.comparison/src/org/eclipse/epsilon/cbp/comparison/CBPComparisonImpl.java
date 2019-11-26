@@ -206,6 +206,10 @@ public class CBPComparisonImpl implements ICBPComparison {
     public List<CBPConflict> getConflicts() {
 	return conflicts;
     }
+    
+    public List<CBPConflict> getRealConflicts() {
+	return conflicts.stream().filter(c -> c.isPseudo() == false).collect(Collectors.toList());
+    }
 
     public List<CBPDiff> compare(File leftFile, File rightFile) throws IOException, FactoryConfigurationError, XMLStreamException {
 	return this.compare(leftFile, rightFile, null);
@@ -298,6 +302,14 @@ public class CBPComparisonImpl implements ICBPComparison {
 
 	System.out.println("Comparison Time = " + df.format(((comparisonTime) / 1000000.0)) + " ms");
 
+//	// remove pseudo conflicts
+//	Iterator<CBPConflict> iterator = conflicts.iterator();
+//	while (iterator.hasNext()) {
+//	    CBPConflict conflict = iterator.next();
+//	    if (conflict.isPseudo())
+//		iterator.remove();
+//	}
+	
 	// System.out.println("\nDIFFERENCES:");
 	// printDifferences();
 
@@ -2037,6 +2049,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	int num = 0;
 	CBPChangeEventSortComparator comparator = new CBPChangeEventSortComparator();
 	// System.out.println("CHANGE-BASED CONFLICTS:");
+
 	for (CBPConflict conflict : conflicts) {
 
 	    CBPChangeEvent<?> leftFirstEvent = null;
@@ -2278,7 +2291,7 @@ public class CBPComparisonImpl implements ICBPComparison {
 	    if (lastEvent instanceof CBPSingleValueEReferenceEvent) {
 		target = ((CBPSingleValueEReferenceEvent) lastEvent).getTarget();
 		if (lastEvent.getOldValue() != null)
-		value = lastEvent.getValue().toString();
+		    value = lastEvent.getValue().toString();
 		feature = ((CBPSingleValueEReferenceEvent) lastEvent).getEStructuralFeature();
 		lastString = target + "." + feature;
 	    } else if (lastEvent instanceof CBPMultiValueEReferenceEvent) {

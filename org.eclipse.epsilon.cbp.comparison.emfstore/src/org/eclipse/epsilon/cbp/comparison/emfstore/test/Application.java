@@ -197,10 +197,10 @@ public class Application implements IApplication {
 			final ESServer localServer = ESServer.FACTORY.createAndStartLocalServer();
 			// Run a client on the local server that shows the basic features of the EMFstore
 			// manualChanges(localServer);
-			compareConflictsBetweenCBPandEMFStore(localServer);
+			// compareConflictsBetweenCBPandEMFStore(localServer);
 			// runClient(localServer);
 			// runClient2(localServer);
-			// runPerformanceTest(localServer);
+			runPerformanceTest(localServer);
 		} catch (final ESServerStartFailedException e) {
 			System.out.println("Server start failed!");
 			e.printStackTrace();
@@ -1285,11 +1285,11 @@ public class Application implements IApplication {
 
 		System.out.println("START: " + new Date().toString());
 
-		File moveFile = new File("D:\\TEMP\\CONFLICTS\\performance\\move.csv");
-		if (moveFile.exists()) {
-			moveFile.delete();
-		}
-		moveFile.createNewFile();
+		// File moveFile = new File("D:\\TEMP\\CONFLICTS\\performance\\move.csv");
+		// if (moveFile.exists()) {
+		// moveFile.delete();
+		// }
+		// moveFile.createNewFile();
 
 		// File outputFile = new File("D:\\TEMP\\FASE\\performance\\output.csv");
 		File outputFile = new File("D:\\TEMP\\CONFLICTS\\performance\\output.csv");
@@ -1300,7 +1300,7 @@ public class Application implements IApplication {
 
 		// print header
 		writer.println(
-			"num,levc,revc,aoc,clt,clm,cdc,ctt,ctm,cdt,cdm,cxc,cxt,cxm,cct,ccm,lelc,relc,slt,slm,sdc,smt,smm,sdt,sdm,sxc,sxt,sxm,sct,scm,exc,ept,epm,ext,exm,ect,ecm,srx");
+			"num,levc,revc,aoc,clt,clm,cdc,ctt,ctm,cdt,cdm,cxc,cxt,cxm,cct,ccm,lelc,relc,slt,slm,sdc,smt,smm,sdt,sdm,sxc,sxt,sxm,sct,scm,exc,ept,epm,ext,exm,ect,ecm,srx,crx");
 		writer.flush();
 
 		String originXmiPath = "D:\\TEMP\\CONFLICTS\\performance\\origin.xmi";
@@ -1385,19 +1385,20 @@ public class Application implements IApplication {
 		List<EObject> leftEObjectList = identifyAllEObjects(leftCbp);
 		List<EObject> rightEObjectList = identifyAllEObjects(rightCbp);
 
-		// // ----------------EMF STORE
-		// originalAdapater.load(originCbpFile, true);
-		// originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
-		// leftProject.update(new ESSystemOutProgressMonitor());
-		// rightProject.update(new ESSystemOutProgressMonitor());
+		// ----------------EMF STORE
+		originalAdapater.load(originCbpFile, true);
+		originalProject.commit("ORIGIN", null, new ESSystemOutProgressMonitor());
+		leftProject.update(new ESSystemOutProgressMonitor());
+		rightProject.update(new ESSystemOutProgressMonitor());
 
 		long prevLeftCbpSize = leftCbpFile.length();
 		long prevRightCbpSize = rightCbpFile.length();
 		// -----
 
 		List<BigModelResult> results = new ArrayList<BigModelResult>();
-		// int modificationCount = 6600;
-		int modificationCount = 88000;
+		// int modificationCount = 4400; // delete
+		int modificationCount = 6600;
+		// int modificationCount = 88000;
 		// int modificationCount = 66000;
 		int number = 0;
 		for (int i = 1; i <= modificationCount; i++) {
@@ -1412,8 +1413,9 @@ public class Application implements IApplication {
 			System.out.println();
 
 			// do comparison
-			// if (i % 300 == 0) {
-			if (i % 4000 == 0) {
+			if (i % 300 == 0) {
+				// if (i % 200 == 0) { // delete
+				// if (i % 4000 == 0) {
 				// if (i % 1200 == 0) {
 				// if (i % 20 == 0) {
 
@@ -1601,9 +1603,9 @@ public class Application implements IApplication {
 
 				EMFStoreResult emfResult = new EMFStoreResult();
 
-				// emfResult = doEMFStoreConflictDetection(rightProject, leftProject, leftCbpFile,
-				// rightCbpFile, prevLeftCbpSize,
-				// prevRightCbpSize);
+				emfResult = doEMFStoreConflictDetection(rightProject, leftProject, leftCbpFile,
+					rightCbpFile, prevLeftCbpSize,
+					prevRightCbpSize);
 
 				// ------------
 				result.setEmfsConflictCount(emfResult.getEmfsConflictCount());
@@ -1631,6 +1633,9 @@ public class Application implements IApplication {
 
 				result.setStateRealConflictCount(stateComparison.getRealConflicts().size());
 				writer.print(result.getStateRealConflictCount());
+				writer.print(",");
+				result.setChangeRealConflictCount(changeComparison.getRealConflicts().size());
+				writer.print(result.getChangeRealConflictCount());
 				writer.println();
 
 				writer.flush();

@@ -240,7 +240,7 @@ public class ModifiedEMFCompare extends EMFCompare {
 		System.gc();
 		startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		startInterval = System.nanoTime();
-		// reqEngine.computeRequirements(comparison, subMonitor);
+		 reqEngine.computeRequirements(comparison, subMonitor);
 		// postRequirements(comparison, postProcessors, subMonitor);
 		// equiEngine.computeEquivalences(comparison, subMonitor);
 		// postEquivalences(comparison, postProcessors, subMonitor);
@@ -254,7 +254,15 @@ public class ModifiedEMFCompare extends EMFCompare {
 
 		this.comparisonTime = this.matchTime + this.diffTime + this.conflictTime;
 		this.comparisonMemory = this.matchMemory + this.diffMemory + this.conflictMemory;
-		//
+		
+//		//remove pseudoconflicts
+//		Iterator<Conflict> iterator = comparison.getConflicts().iterator();
+//		while (iterator.hasNext()) {
+//		    if (iterator.next().getKind() == ConflictKind.PSEUDO) {
+//			iterator.remove();
+//		    }
+//		}
+		
 		// monitor.worked(1);
 		//
 		// if (LOGGER.isInfoEnabled()) {
@@ -634,12 +642,6 @@ public class ModifiedEMFCompare extends EMFCompare {
     }
 
     public EList<Conflict> getConflicts() {
-	// Iterator<Conflict> iterator = comparison.getConflicts().iterator();
-	// while(iterator.hasNext()) {
-	// if (iterator.next().getKind() == ConflictKind.PSEUDO) {
-	// iterator.remove();
-	// }
-	// }
 	return comparison.getConflicts();
     }
 
